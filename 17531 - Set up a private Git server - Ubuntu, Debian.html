@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __17531________  -->
+
+
+<title>Set up a private Git server - Debian, Ubuntu</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Set up git server.  </p>
+    <h1>Set up a private Git server - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Even in the open-source world, sometimes you need a little privacy.  Or maybe you don't want to expose your code to the world until you have cleaned it up a bit. In these cases, it may be prefereable to set up a private Git server.</p>
+
+    <h2>Preparation </h2>
+     <ol>
+               <li>Create a public/private RSA key pair.
+                   <div class="hacker">ssh-keygen -C "<em><u>your email address</u></em>"</div>
+                   Follow the directions to create a key.  We will name the key "<em><u>mygitkey</u></em>".
+               </li>
+               <li>Add a git user.
+                   <div class="hacker">sudo useradd git </div>
+               </li>
+               <li>Add a password for the git user.
+                   <div class="hacker">sudo passwd git </div>
+               </li>
+     </ol>
+
+        <h2>Install git </h2>
+     <ol>
+               <li>Install git.
+                   <div class="hacker">sudo apt-get install git</div>
+               </li>
+               <li>Create a <code>.ssh</code> directory for key storage.
+                   <div class="hacker">sudo mkdir -p /home/git/.ssh</div>
+               </li>
+               <li>Copy your rsa public key to an authorized key file.
+                   <div class="hacker"> sudo cp <em><u>mygitkey</u></em>.pub /home/git/.ssh/authorized_keys</div>
+               </li>
+               <li>Create a directory for your git project(s).
+                   <div class="hacker">sudo mkdir -p /usr/gitprojects</div>
+               </li>
+               <li>Navigate to your git project directory.
+                   <div class="hacker">cd /usr/gitprojects</div>
+               </li>
+               <li>Create a new project.
+                   <div class="hacker">sudo git init --bare my-cool-project.git</div>
+               </li>
+     </ol>
+
+             
+    <h2>Next steps</h2>
+    <p>Your git server is set-up with a new project.  Fill it up with code!  Visit the <a href="http://www.git-scm.com/downloads/guis">git download website</a> to download a git client and connect it to your new repository.  
+        You may also want to review <a href="http://17365%20-%20Using%20Git%20to%20automate%20deployment%20to%20your%20server.html">Using Git to automate deployment to your server</a>. </p>
+ <!-- Validated -->
+</body>
+</html>

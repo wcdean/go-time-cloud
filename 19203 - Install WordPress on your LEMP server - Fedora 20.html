@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install WordPress on your LEMP server - Fedora 20</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+        <p>Installing Wordpress on a LEMP server for Fedora 20</p>
+    <h1>Install WordPress on Your LEMP Server - Fedora 20</h1>
+    
+            <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+            <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+        
+        <p>WordPress has become much more than its humble beginnings in 2003 as a self-hosted blogging tool. It is the Internet's leading content management system (CMS). This open-source CMS powers all types of sites, including many major brands. With a MySQL and PHP architecture, WordPress is easy to install and has endless options for website configuration thanks to tens of thousands of plugins and themes from its rich and active community.</p>
+
+    <p>This article walks you through setting up WordPress on  Fedora 20. The steps are for a non-root user with <code>sudo</code> (administrator) privileges.</p>
+
+
+<h2>Prerequisites</h2>
+
+<p>Before starting, make sure that you have the following:</p>
+        <ul>
+          <li>A non-root user with <code>sudo</code> privileges set up on your server </li>
+          <li>A Linux, Nginx, MySQL, and PHP (LEMP) stack configured.  For instructions, see <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/19187%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Fedora%2020%20.html">Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 20</a>. </li>
+          <li>Nginx, MySQL, and PHP  up and running</li>
+          <li>Your MySQL root account (admin) password</li>
+          <li><code>tar</code> and <code>vim</code> installed</li>
+          <li>A designated user for WordPress</li>
+        </ul>
+  <h3>
+To install <code>tar</code> and <code>vim</code> using <code>yum</code></h3>
+        <div class="hacker">sudo yum install tar</div>
+            <div class="hacker">sudo yum install vim</div>
+
+<p>Select <strong>y</strong> at the prompt after each to continue with the installation.</p>
+
+<h3>To create a designated user for WordPress</h3>
+        <p> The user can be any user you create. We'll call ours &quot;wordpress_user.&quot;</p>
+       <div class="hacker">sudo adduser wordpress_user</div>
+
+                     
+<h2>Create a MySQL database and administrator for WordPress</h2>
+    
+        <p>Set up your MySQL database with an administrator so that WordPress has a place to store all your site and user information. </p>
+
+
+    <ol>
+            <li>Log into your MySQL admin account.
+                <div class="hacker">sudo mysql -u root -p</div>
+            <p class="warning">Remember: All <b>MySQL</b> code statements must end with a semi-colon (;).</p> </li>
+
+            <li>At the prompt, enter your MySQL root password.  </li>
+
+            <li>At the MySQL prompt, create your WordPress database. We’ll use the database name "wordpress."
+              <div class="hacker">CREATE DATABASE wordpress;</div></li>
+
+            <li>Create the database administrator account, and set the user’s credentials.  We’ll use "wordpressadmin" as the example user name and "password" as the password.
+                <div class="hacker">CREATE USER wordpressadmin@localhost IDENTIFIED BY 'wordpresspassword';</div>
+             <p class="note">   Make sure to create a strong password for best security practices. Keep your user name and password handy as you’ll need them later.
+             </p></li>
+
+            <li>Give, or grant, your admin permissions to the database.
+              <div class="hacker">GRANT ALL PRIVILEGES ON wordpress.* TO wordpressadmin@localhost;</div>
+            <code>GRANT</code> is one of the account management statements that the MySQL server loads into memory right away. So a manual reload/restart should not be necessary. But if you like, you can check the permissions using <code>SHOW GRANTS.</code>
+              <div class="hacker">SHOW GRANTS FOR 'wordpressadmin'@'localhost';</div></li>
+
+            <li> If  the privileges don’t take effect, flush the privileges to activate the user. <span class="hacker"><code>FLUSH</code></span> forces a reload of the cache.
+              <div class="hacker">FLUSH PRIVILEGES;</div>  </li>
+
+            <li> Exit MySQL to return to your normal command prompt.
+                <div class="hacker">exit</div> </li>
+    </ol>
+    <p>You finished! </p>
+<h2>Download and install WordPress</h2>           
+
+<p>Your system is now ready to install WordPress into your directory. WordPress is available in a <code>tar.gz</code> or <code>zip</code> format. We'll get the <code>tar.gz</code> file. </p>
+
+     <ol>
+            <li>Download the WordPress files from the official site using <code>wget</code>.
+                <div class="hacker">cd ~</div>
+                <div class="hacker">wget http://wordpress.org/latest.tar.gz    </div>
+            This URL  always links to a compressed file of the latest stable version of WordPress. </li>
+         
+            <li>Extract, or untar, the application directory.  <br />
+           
+<div class="hacker">sudo tar xzvf latest.tar.gz </div>
+ This command creates a directory called <code>wordpress</code> in your home directory.</li>
+    </ol>
+                                                                       
+<h2>Configure WordPress</h2>
+   
+    <ol>
+            <li>Go into the WordPress directory you just unpacked.
+                <div class="hacker">cd ~/wordpress</div>    </li>
+
+            <li>Edit the following lines with the values in <code>wp-config.php</code>.
+<div class="hacker">sudo cp wp-config-sample.php wp-config.php</div></li>
+
+            <li>Open the configuration file for editing.
+                <div class="hacker">sudo vim wp-config.php</div></li>
+   
+            <li>Look for the following section of the code (starting with <code>MySQL settings</code>), and replace the corresponding values of the three <code>DB_</code> variables (<code>DB_NAME</code>, <code>DB_USER</code>, and <code>DP_PASSWORD</code>) with your information.
+                <div class="hacker">// ** MySQL settings - You can get this info from your web host ** // <br />
+                    /** The name of the database for WordPress */ <br />
+                    define('DB_NAME', 'wordpress'); <br />
+                    /** MySQL database username */  <br />
+                    define('DB_USER', 'wordpressadmin');     <br />
+                   /** MySQL database password */ <br />
+                   define('DB_PASSWORD', 'wordpresspassword');   </div>
+</li>
+  
+            <li>Save and close the file.</li>
+    </ol>
+                            
+<h2>Copy files to document root</h2>
+
+            <p>After you’ve configured WordPress, create the directory and transfer your WordPress files. </p>
+
+<ol>
+            <li>Create the directory for the WordPress files.
+                 <div class="hacker">cd ~</div>
+                <div class="hacker">sudo mkdir -p /var/www/wordpress</div></li>
+   
+            <li>Copy the WordPress files into the directory.
+                <div class="hacker">   sudo cp -r ~/wordpress/* /var/www/wordpress</div></li>
+   
+            <li>Move into the directory.
+                <div class="hacker">   cd /var/www/</div></li>
+        
+            <li>Change ownership of the directory with the user you created earlier. For this article, we're using <code>wordpress_user</code>.
+                <div class="hacker">sudo chown nginx:nginx * -R </div>
+                <div class="hacker">sudo usermod -a -G nginx wordpress_user </div></li>
+</ol>
+
+         
+<h2>Modify the  configuration files</h2>
+<p>We now need to update the default  configuration files with our WordPress settings. Let’s work from our <code>nginx.conf</code> and <code>php.conf</code> files to configure them for WordPress. </p>
+<h3>Make backup copies of the configuration files</h3>
+  
+
+    <ol>
+            <li>Make sure that you have the Nginx configuration file.
+              <div class="hacker">sudo vim /etc/nginx/nginx.conf</div>  </li>
+
+            <li>Create a backup copy just in case.
+              <div class="hacker">sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.bak</div></li>
+
+            <li>Make sure  that you have the PHP configuration file.
+              <div class="hacker">sudo vim /etc/nginx/default.d/php.conf</div>  </li>
+
+            <li>Create a backup copy just in case.
+              <div class="hacker">sudo cp /etc/nginx/default.d/php.conf /etc/nginx/default.d/php.bak</div></li>
+    </ol>
+    <p>Now that we have backup copies, let’s start modifying the configuration files.</p>
+
+<h3>Modify the Nginx configuration file</h3>
+
+            <ol>
+              <li>Open the <code>nginx.conf</code> file.
+                <div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
+            
+
+           <li>In the file, make these changes:
+             <ul>
+            <li>Make sure that <code>index.php</code> is added to the index line in the <code>http {</code> section towards the middle of the file.</li>
+
+            <li>In the <code>server {</code> section (probably towards the middle of the file), find the <code>root</code> line and change the root to point to <code>/var/www/wordpress;</code></li>
+
+    </ul>
+
+
+ Some of these changes may have already occurred when you installed your LEMP stack. 
+           
+            <br />
+            After your changes, your file may resemble this example (Some parts are truncated):
+<div class="hacker">
+      <pre>
+ # For more information on configuration, see:
+ #   * Official English Documentation: http://nginx.org/en/docs/
+ #   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+ user  nginx;
+ worker_processes  1;
+
+ error_log  /var/log/nginx/error.log;
+ #error_log  /var/log/nginx/error.log  notice;
+ #error_log  /var/log/nginx/error.log  info;
+
+ pid        /run/nginx.pid;
+
+ events {
+     worker_connections  1024;
+ }
+
+ ...
+
+     #gzip  on;
+ index <em><u>index.php</u></em> index.html index.htm;
+
+     # Load modular configuration files from the /etc/nginx/conf.d directory.
+     # See http://nginx.org/en/docs/ngx_core_module.html#include
+     # for more information.
+     include /etc/nginx/conf.d/*.conf;
+               
+    server {
+        listen       80 default_server;
+        server_name  localhost;
+        root         /var/www/wordpress;</pre></div></li></ol>
+                                            
+
+
+<h3>Modify the PHP configuration file</h3>
+
+                <ol>
+                  <li>Open your <code>php.conf</code> file.
+<div class="hacker">cd ~</div>                
+<div class="hacker">sudo vim /etc/nginx/default.d/php.conf</div></li>
+                <li>In the<code> location ~ \.php$ {</code> section, if there is a <code>root</code> line, make sure it's uncommented, and make it point to <code>/var/www/wordpress;</code>. If it's missing altogether, add it.<br />
+
+                The change  looks like this:
+                    <div class="hacker">root     /var/www/wordpress;</div>
+
+                The file  resembles this: 
+
+                    <div class="hacker">
+                    <pre>
+          # pass the PHP scripts to FastCGI server listening on the php-fpm s$
+                   location ~ \.php$ {
+                   <em><u>root /var/www/wordpress;</u></em>
+                   try_files $uri =404;
+                   fastcgi_pass unix:/run/php-fpm/php-fpm.sock;
+                   fastcgi_index index.php;
+                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                   include fastcgi_params;
+                           }
+</pre></div>
+
+
+               Assuming that your <code>fastcgi_pass</code> and <code>fastcgi_param</code> arguments were configured correctly from your LEMP installation, this should be the only change you need to make.</li>
+
+
+                <li>Save and close the file.</li>
+                <li>Restart Nginx for the changes to take effect.
+                    <div class="hacker">sudo service nginx restart</div>
+                    </li></ol>
+
+                
+<h2>Install WordPress</h2>
+      
+                <p>Good news! The rest of your installation uses the WordPress web interface.</p>
+     
+    <ol>
+     <li>  Enter your server’s domain name or public IP address in your web browser. <br />
+   <strong>http://<u><em>your_domain_name_or_IP</em></u><em></em></strong><br/>
+   You are redirected to the WordPress admin page:<code> http://<u><em>server_domain_name_or_IP</em></u>/wp-admin/install.php</code>.<br/>
+   </li>
+
+  <li>If you get the preliminary page to choose your language, do so and select <strong>Continue</strong>.
+</li>
+
+<li>On the WordPress 5-minute installation page, fill out your information to create your administrator account. Then, click <strong>Install WordPress</strong>.
+  <p><img src="images/19203/090115/install-wordpress-on-your-server-welcome-filledout-1.png" alt="install wordpress welcome screen" /> </p></li>
+<li>On the next screen, WordPress confirms your installation with your user name and (hidden) password. Click <strong>Log In</strong>.</li>
+
+ <li>WordPress then prompts you to log in again with your new credentials. Do so now, and click <strong>Log In</strong>.
+<img src="images/19203/090115/install-wordpress-on-your-server-login-3.png" alt="wordpress login screen" /></li>
+     </ol>
+     
+ <p>All done! You’ll be taken to the dashboard of your new site.</p>    
+     
+<img src="images/19203/090115/install-wordpress-on-your-server-admin-dashboard-4.png" alt="Install WordPress Admin Dashboard screen" />
+     
+<h2>Next steps</h2>
+    
+                <p>Congratulations! You have installed WordPress and created the beginning of your own website.</p>
+    
+<p>From here you have many options for customizing your WordPress setup. A popular one is making pretty permalinks. See <a href="00060 - Set up WordPress Pretty Permalinks in Nginx - CentOS 7 Fedora.html"> Set up WordPress Pretty Permalinks on Nginx - ALL DISTROS</a> for a step-by-step guide.</p>
+
+p>To install  WordPress on a LAMP stack, see <a href="19192 - Install WordPress on your LAMP server - Fedora.html">Install WordPress on your LAMP server - Fedora</a>.</p>
+   
+</body>
+</html>

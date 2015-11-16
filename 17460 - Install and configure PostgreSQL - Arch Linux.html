@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17460-->
+
+
+<title>Install and configure PostgreSQL - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Installation and configuration of PostgreSQL on Arch Linux, Databases, and PostgreSQL</p>
+    <h1>Install and configure PostgreSQL – Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>15 minutes</em></p>
+
+    <p>This article provides information about the installation and configuration of PostgreSQL on Arch Linux.</p>
+<p>PostgreSQL is an open-source, relational database management system. PostgreSQL uses the Structured Query Language (SQL) to manipulate data. To perform this task, we are assuming that the user has <code>sudo</code> privileges.
+</p>
+
+    <h2>Install PostgreSQL</h2>
+<ol> 
+<li>Update all packages of the operating system.
+   <div class="hacker">sudo pacman -Sy</div>
+   </li>
+   <li>Install the PostgreSQL package.
+   <div class="hacker">sudo pacman -S postgresql</div>
+   </li>
+   <li>Install <code>pgadmin3</code> for the administrator. This is an easy-to-access GUI for PostgreSQL, and is an optional installation.
+   <div class="hacker">sudo pacman -S pgadmin3</div>
+   <p class ="note">Select the default option.</p>
+   </li>
+   <li>Check if <code>postgresql</code> is installed.
+   <div class="hacker">sudo pacman -Si postgresql</div>
+   </li>
+   <li>Login as <code>postgres</code> system user and initialize a database cluster, use the command <code>initdb</code>, which is installed with PostgreSQL
+   <div class="hacker">sudo -i -u postgres</div>
+  
+   
+    <div class="hacker">initdb -D '/var/lib/postgres/data'</div>
+   </li>
+   <li>You can log out from the <code>postgres</code> system user, and fire up PostgreSQL.
+   <div class="hacker">logout</div>
+   <div class="hacker">sudo systemctl start postgresql</div>
+   </li>
+   <li>If you want PostgreSQL to start automatically every time your VPS boots up, use this command.
+   <div class="hacker">sudo systemctl enable postgresql</div>
+   </li>
+  </ol>
+  
+  <h2>Connect to PostgreSQL</h2>
+<ol> 
+<li>Once PostgreSQL is installed completely, then the <code>Postgres</code> system user and database will be automatically created.
+   </li>
+   <li>Log in as the <code>Postgres</code> user.
+   <div class="hacker">sudo  -i -u postgres</div>
+   <div class="hacker">psql</cdiv
+   </li>
+   <li>You will see <code>Postgres=#</code> prompt. To exit from the prompt, type:
+   <div class="hacker">\q</div>
+   </li>
+   <li>Logout the <code>postgres</code> system user.
+   <div class="hacker">exit</div>
+   </li>
+  
+   </ol>
+       
+             
+    <h2>Next steps</h2>
+    <p>This article covers the steps to install and configure PostgreSQL. Now, you are ready to create your own database for your applications. For more details, see <a href="17527">Use PostgreSQL with your Ruby on Rails Application – Arch Linux</a>.</p>
+   
+</body>
+</html>

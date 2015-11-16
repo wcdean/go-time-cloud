@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and configure revive-adserver - ALL DISTROS</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure Revive Adserver</p>
+<h1>Install and Configure Revive Adserver - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>Revive Adserver (formerly OpenX Source) is a PHP-based advertisement server that allows you to track and manage ad campaigns. This article assumes you have <code>tar</code> and a LEMP stack installed appropriate to your Linux distribution:</p>
+       <ul>
+<li><a href="17350 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Arch Linux.html">Arch Linux</a></li> 
+<li><a href="19186 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 6.html">Centos 6</a></li>
+<li><a href="17349 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 7.html">Centos 7</a></li>
+<li><a href="17351 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Debian.html">Debian</a></li>
+<li><a href="19187 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 20.html">Fedora 20</a></li>
+<li><a href="17348 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 21.html">Fedora 21</a></li>
+<li><a href="17347 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu.html">Ubuntu</a></li>
+</ul>
+      
+         <h2>Install Revive Adserver</h2>
+      <ol>
+                <li>Create a directory for your Revive Adserver installation under your Nginx root (usually <code>/usr/share/nginx/html</code> or <code>/usr/share/nginx/www</code>).
+                   <div class="hacker">sudo mkdir /usr/share/nginx/html/revive-adserver</div>
+               </li>
+               <li>Go to the <a href="http://www.revive-adserver.com/download/">Revive-Adserver</a> site and find the latest version.  We will use 3.2.1 as our example.  Download Revive Adserver.
+                   <div class="hacker">sudo wget http://download.revive-adserver.com/revive-adserver-3.2.1.tar.gz </div>
+               </li>
+                <li>Unzip it.
+                   <div class="hacker">sudo tar xf revive-adserver-3.2.1.tar.gz&nbsp; </div>
+               </li>
+                <li>Move it to <code>revive-adserver</code>.
+                   <div class="hacker">sudo mv revive-adserver-3.2.1/* /usr/share/nginx/html/revive-adserver/</div>
+               </li>
+              </ol>
+    
+<h2>Create the Revive Adserver database</h2>
+    <ol>
+                <li>Open a MySQL session.
+                   <div class="hacker">mysql -u root -p</div>
+                    Enter the MySQL root pasword when prompted.  A MySQL prompt (&gt;) will display.
+               </li>
+                <li>Create the Revive Adserver database.
+                   <div class="hacker">mysql> create database revive;</div>
+               </li>
+                <li>Navigate to your newly created database.
+                   <div class="hacker">mysql> use revive;</div>
+               </li>
+                <li>Create a user.
+                   <div class="hacker">mysql> create user 'revive'@'localhost' identified by 'Password';</div>
+               </li>
+                <li>Grant privileges.
+                   <div class="hacker">mysql> grant all on revive.* to 'revive'@'localhost';</div>
+               </li>
+                <li>Write changes to disk.
+                   <div class="hacker">mysql> flush privileges;</div>
+               </li>
+                <li>Exit MySQL.
+                   <div class="hacker">mysql> exit</div>
+               </li>
+              
+      </ol>
+<h2>Verify installation</h2>
+     <p>Using your browser, navigate to <strong>http://<em><u>your server name or IP</u></em>/revive-adserver</strong>.   
+         You'll see the Revive Adserver UI.  Follow the instructions to register and complete your setup.  
+         The setup program should give you all the information you need but you may want to check out <a href="http://www.revive-adserver.com/support/installation/">Revive's installation page</a> for some advice.  
+         Here's the condesed version, suming you accepted the defaults in the installation process.
+         </p>
+    <ul>
+<li>During the installation process you will be asked to open up the permissions of certain files and folders.  An example follows:
+    <div class="hacker">sudo chmod 777  adserever/var/www.<em><u>yourdomain.com</u></em>.conf.php</div> 
+    </li>
+        <li>When you are done with the install be sure to lock your config file down.
+    <div class="hacker">sudo chmod 664  adserever/var/www.<em><u>yourdomain.com</u></em>.conf.php</div> 
+    </li>
+        </ul>   
+    <h2>Next steps</h2>
+    <p>Use the Revive Adserver UI to set up your adserver as you see fit. Keep in mind that the database it refers to is the database you created in MySQL above.</p>
+   
+</body>
+</html>

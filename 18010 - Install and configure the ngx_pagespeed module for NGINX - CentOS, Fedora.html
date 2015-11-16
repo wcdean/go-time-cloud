@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18010-->
+
+
+<title>Install and configure the ngx_pagespeed module for Nginx - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Installation and configuration of Nginx with ngx_pagespeed</p>
+    <h1>Install and configure the ngx_pagespeed module for Nginx - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+
+    <p>Nginx is fast. PageSpeed makes it faster by optimizing your website. This article describes how to install ngx_pagespeed, combine it with the Nginx source, and then compile and configure the resulting customized Nginx web server.</p>
+
+<h2>Prerequisites</h2>
+<ol>
+<li>Update your server.
+     <div class="hacker">sudo yum update</div>
+
+</li>
+     <li>Install a C compiler and some other tools.
+                    <div class="hacker"> sudo yum install gcc-c++ pcre-devel zlib-devel make unzip</div>
+               </li>
+    
+</ol>
+    <h2>Install ngx_pagespeed </h2>
+    <ol>
+<li>Find the latest NPS version, and then use it to get the zip file from the archive.  This article uses version <em><u>1.9.32.6</u></em>.
+     <div class="hacker">sudo wget https://github.com/pagespeed/ngx_pagespeed/archive/release-<em><u>1.9.32.6</u></em>-beta.zip </div>
+
+</li>
+<li>Unzip the file. 
+     <div class="hacker">unzip release-<em><u>1.9.32.6</u></em>-beta.zip</div>
+
+</li>
+<li>Navigate to the <code>ngx_pagespeed</code> folder.
+     <div class="hacker">cd ngx_pagespeed-release-<em><u>1.9.32.6</u></em>-beta/</div>
+
+</li>
+<li>Download from Google.
+     <div class="hacker">sudo wget https://dl.google.com/dl/page-speed/psol/<em><u>1.9.32.6</u></em>.tar.gz
+</div>
+
+</li>
+<li>Extract to psol.
+     <div class="hacker">tar -xzvf <em><u>1.9.32.6</u></em>.tar.gz  </div>
+</li>
+    </ol>
+<h2>Download Nginx source </h2>
+<ol>
+<li>Check <strong>http://nginx.org/en/download.html</strong> for the latest version. This article uses version <em><u>1.8.0</u></em>.
+ </li>
+<li>Navigate to your home directory
+     <div class="hacker">cd ~</div>
+
+</li>
+<li>Download Nginx source. 
+     <div class="hacker">sudo wget http://nginx.org/download/nginx-<em><u>1.8.0</u></em>.tar.gz </div>
+
+</li>
+<li>Unzip it.
+     <div class="hacker">sudo tar -xvzf nginx-<em><u>1.8.0</u></em>.tar.gz </div>
+
+</li>
+        </ol>
+<h2>Build Nginx from source </h2>
+<ol>
+<li>Navigate to Nginx source directory.
+     <div class="hacker">cd nginx-<em><u>1.8.0</u></em>/
+</div>
+
+</li>
+<li>Add the <code>pagespeed</code> module to the Nginx configuration.
+     <div class="hacker">sudo ./configure --add-module=$HOME/ngx_pagespeed-release-<em><u>1.9.32.6</u></em>-beta  </div>
+</li>
+<li>Create a make file.
+     <div class="hacker">sudo make </div>
+
+</li>
+<li>Install from your make file<div class="hacker">sudo make install</div>.
+
+</li>
+    </ol>
+
+<h2>Configure Nginx</h2>
+<ol>
+<li>Open the configuration file for editing.
+     <div class="hacker">sudo vim /usr/local/nginx/conf/nginx.conf</div>
+
+</li>
+<li>Add the following lines to your <code>http</code> context:
+     <div class="hacker"><pre># http context 
+http {
+...    
+    # pagespeed
+    pagespeed on;
+    pagespeed DisableRewriteOnNoTransform off;
+    pagespeed XHeaderValue "Powered By ngx_pagespeed";
+    pagespeed FileCachePath "/var/cache/ngx_pagespeed/";
+    pagespeed EnableFilters combine_css,combine_javascript;
+... </pre></div>
+
+</li>
+
+<li>Modify the <code>server</code> and <code>location</code> contexts by commenting out the <code>root</code> and <code>index</code> directives in the <code>location</code> contexts, and implementing them in the <code>server</code> context instead. Changed sections are <em><u>underlined</u></em>.
+     <div class="hacker"><pre># http context 
+   server {
+        listen       80;
+        server_name  localhost;
+        <em><u>root   /usr/local/nginx/html;</u></em>
+        <em><u>index  index.html index.htm;</u></em>
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        location / {
+        <em><u># root   html;</u></em>    
+        <em><u># index  index.html index.htm;</u></em>    
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+        <em><u># root   html;</u></em>     
+        }
+ ...</pre></div>
+
+</li>
+<li>Verify the install by checking the Nginx version information. 
+<div class="hacker">sudo /usr/local/nginx/sbin/nginx -V</div> 
+The response will look something like this: 
+<div class="hacker"><pre>nginx version: nginx/<em><u>1.8.0</u></em>
+built by gcc 4.8.3 20140911 (Red Hat 4.8.3-7) (GCC)
+configure arguments: --add-module=/home/randomcode/ngx_pagespeed-release-<em><u>1.9.32.6</u></em>-beta
+</pre></div> 
+</li>
+<li>Start the Nginx service.
+<div class="hacker">sudo /usr/local/nginx/sbin/nginx</div>
+
+  </li>  
+                     </ol>
+
+
+    <h2>Conclusion</h2>
+ <p>Nginx is now running as a web server enhanced with PageSpeed. You can verify by using your browser to navigate to the IP address of your cloud server, <strong>http://<em><u>IP Address of your cloud server</u></em></strong>.</p>
+   
+</body>
+</html>

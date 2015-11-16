@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Set up Local Hosts to Test Virtual Host Setup - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up local hosts to test virtual host setup on CentOS or Fedora</p>
+
+    <h1>Set Up Local Hosts to Test Virtual Host Setup - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>10 minutes</em></p>
+
+    <p>This article will guide you through testing your virtual host setup using the local host file. </p>
+    <p>Before starting, you need to install a web server (Apache) on your server. For details, see <a href="17337">Configure Apache Virtual Hosts Setup - CentOS</a> or <a href="17338">Configure Apache Virtual Hosts Setup - Fedora</a>.</p>
+		
+<h2>Virtual hosts</h2>
+	<ol>
+	<li>Open the configuration file <code>/etc/httpd/conf/httpd.conf</code>
+	<div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+	</li>
+	<li>Locate the following code:
+	<div class="hacker">
+	<pre>&lt;IfModule mime_magic_module&gt;
+...
+&lt;/IfModule&gt;</pre></div></li>
+	<li>Add the following code, just after the above code:
+	<div class="hacker">
+	&lt;VirtualHost *:80&gt;<br/>
+    ServerAdmin <em><u>admin@coolexample.com</u></em><br/>
+    ServerName <em><u>coolexample.com</u></em><br/>
+    ServerAlias <em><u>www.coolexample.com</u></em><br/>
+    DocumentRoot /var/www/<em><u>coolexample.com</u></em>/public_html<br/>
+    ErrorLog ${APACHE_LOG_DIR}/error.log<br/>
+    CustomLog ${APACHE_LOG_DIR}/access.log combined<br/>
+&lt;/VirtualHost&gt;<br/>
+</div>	</li>
+<li>Save and close by pressing the  <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+</ol>	 	 
+<h2>Set up local hosts</h2>
+	<p>If you want to test your domain before completing the DNS propagation, then with the help of your computer’s <code>hosts</code> file, you can access your configured domain. 
+        The location of the file will vary depending on the client machine but the principle of bypassing DNS by listing the IP address and domain name as a value pair in a file remains the same.  
+        On Windows clients the hosts file is found under Windows\System32\drivers\etc. </p>
+	<ol>
+	<li>If you are using a Linux computer, edit the <code>hosts</code> file.
+	<div class="hacker">sudo vim /etc/hosts</div></li>
+ 
+	<li>Add appropriate entries for your server’s IP address followed by the domain name at the end of the file, as shown in the following:
+   <div class="hacker"><pre>127.0.0.1                         localhost
+<em><u>Public_IP_Address_of_your_Server</u></em>  <em><u>coolexample.com</u></em></pre></div>
+   <p>The above code tells the local resolver to directly search for the domain in the server with Your Server's IP address. Hence, you will get the contents without complete DNS propagation.</p>
+   </li>
+    <li>Save and close by pressing the  <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+	
+   <li>Access the domain <em><u>http://coolexample.com</u></em> in your browser to display the page.
+   </li>
+  
+    </ol>
+	         
+    <h2>Conclusion</h2>
+    <p>In this article, you learned to edit your machine’s local host file to resolve your domain.</p>
+   
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Use wget to diagnose broken links - Debian</title>
+<style type="text/css">
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+</head>
+
+    <h1>Use wget to diagnose broken links - Debian</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>As your web sites grows and maintenance gets more detailed, links will break due to web pages being moved or changed. In a big website, manually checking each link is a time consuming task and difficult to track. </p>
+  
+  <p>There are tools available to automate this task, but they all have their pros and cons. Some web tools lack features, while others are resource intensive and run on the same server as the website.</p>
+    
+    <p>Wget is a Linux-based tool that you can use to check for broken links on a separate machine. This tool includes highly customizable web crawlers (<code>wget</code>) and custom-built link checkers (<code>linkchecker</code> and <code> klinkstatus</code>) that minimize the negative impact on your website.</p>
+
+    <p>In this article you will learn how to find broken links on a website using <code>wget</code>, so that you can fix them.</p>
+    
+    <h2>Prerequisites</h2>
+    
+    <p>For this article, you will need:</p>
+    
+    <ul>
+    <li>Two COMPANY_NAME cloud servers, one to use as a regular machine where you will be running <code>wget</code>, and one web server for hosting your website.</li>
+    <li>A <a href="17346 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Debian.html">LAMP stack installed</a> on your web server.</li>
+    <li>Optionally, you can have your domain pointing to your web server, this way you can use your domain name instead of your server IP. </li>
+  </ul>
+  
+    <p class="note">
+  If your domain name is registered through COMPANY_NAME and you're using COMPANY_NAME Cloud Servers, <a href="/article/19116?prog_id=PROG_ID"> point your domain name to your server.</a></p>
+  
+    <p class="note">If you're using COMPANY_NAME Cloud Servers, but a domain name registered somewhere else, <a href="/article/19041?prog_id=PROG_ID">find your server's IP address</a>.</p>
+    
+    <h2>Create a test webpage</h2>
+    
+    <p>Let's create a webpage with a few broken links to test using wget.</p>
+    <ol>
+  <li>Connect to your web server and create a new test web page:
+    
+    <div class="hacker">
+    sudo vim /var/www/testwebpage.html
+    </div>
+    
+    <div class="hacker">
+    &lt;html&gt;
+    <br/>
+    &lt;head&gt; &lt;title&gt;Test Web Page&lt;/title&gt; &lt;/head&gt;
+    <br/>
+    &lt;body&gt;
+    <br/>
+    <p>
+    &lt;a href="http://<em><u>your domain or IP</u></em>/errorlink1"&gt;Internal missing link&lt;/a&gt;<br/>
+    &lt;p>&lt;a href="https://cloud.godaddy.com/servers/brokenlink"&gt;External missing link&lt;/a&gt;.&lt;/p&gt;<br/>
+    </p>
+
+    &lt;/body&gt;<br/>
+    &lt;/html&gt;<br/>
+    </div></li>
+    
+    <li>Save and close.</li>
+    
+    <li>Open a web browser and check that your test web page works: 
+    <strong>http://<em><u>your server IP</u></em>/testwebpage.html
+    </strong></li></ol>
+    
+    <h2>Run wget</h2>
+    
+    <p>Wget is a free software package for retrieving files using HTTP, HTTPS, and FTP that can also be used as a web crawler.</p>
+    
+    <p>Here you will use wget to report if your links are pointing to an existing web page or if they are broken or if the page is not downloading.</p>
+    <ol>
+    <li>Open a connection to your regular COMPANY_NAME cloud server (the one that is not hosting your test web page) and run the following command:
+    
+    <div class="hacker">
+    wget --spider -r -nd -nv -H -l 1 -w 2 -o test1.log http://<em><u>your server IP</u></em>/testwebpage.html
+    </div>
+    
+ <p>Here's a description of the basic flags in command:</p>
+ <table>
+    <tr>
+    <th>Flags</th>
+     <th>Description</th>
+    </tr>
+    <tr>
+    <td>--spider</td>
+       <td>Tells wget to not download the page</td>
+               </tr>
+               <tr>
+    <td>-r</td>
+       <td>Tells wget follow each link recursively</td>
+             
+               </tr>
+               <tr>
+    <td>-nd</td>
+       <td>Short for <code>--no-directories</code>. Tells wget to not create a hierarchy of directories on your server.</td>
+               </tr>
+               <tr>
+    <td>-nv</td>
+       <td> short for <code>--no-verbose</code>, tells wget to not output extra information for broken links.</td>
+               </tr>
+               </table> 
+
+    There are also the following optional flags available:
+<table>
+    <tr>
+    <th>Flags</th>
+     <th>Description</th>
+    </tr>
+    <tr>
+    <td>-H</td>
+       <td>Lets wget go to subdomains and domains other than the primary one</td>
+               </tr>
+               <tr>
+    <td>-l 1</td>
+       <td>The number of levels to which wget will crawl</td>
+            
+               </tr>
+               <tr>
+    <td>-w 2</td>
+       <td>The number of seconds that wget will wait between requests</td>
+               </tr>
+               <tr>
+    <td>-o test1.log</td>
+       <td><code></code>The name of the file where wget will be saving the output of the run</td>
+               </tr>
+               </table>
+If needed, you can look up <a href="http://www.w3schools.com/tags/tag_table.asp">more information</a> on these flags.               
+</li>
+    
+    <li>After executing wget on your test web page, you can see the list of sites with the following command:
+    
+    <div class="hacker">
+    grep -B1 'broken link!' test1.log
+    </div>
+    
+    An example of the output could look like this:
+    <div class="hacker"><pre>
+  http://<em><u>your server IP</u></em>/errorlink1:
+    Remote file does not exist -- broken link!!!
+    --
+    https://cloud.godaddy.com/servers/brokenlink:
+    Remote file does not exist -- broken link!!!
+    </pre></div> </li>
+  </ol>
+    
+    <h2>Find referrer pages</h2>
+    
+    <p>Wget shows you the broken links in your pages, but it doesn't let you know what pages referred them.</p>
+    
+    <p>To do this, you can check the web server's access log.</p>
+    <ul>
+    <li>On your web server, run the following command:
+    
+    <div class="hacker">
+    grep wget /var/log/apache2/access.log | grep "HEAD /errorlink1"   
+    </div>
+     </li></ul>
+<p>In this command, the first <code>grep</code> gets the requests performed by wget. The access request contains a <em><u>User Agent</u></em> string which is used by grep to identify the software agent performing the requests.</p>
+    
+    The second <code>grep</code> searches for the partial url of the broken link.   
+The output of the execution of this command may look like this: <p />
+    
+    <div class="hacker">
+    HTTP/1.1" 404 195 "http://<em><u>your server IP</u></em>/testwebpage.html" "Wget/1.15 (linux-gnu)"
+    </div>
+    
+    <h2>Next steps</h2>
+    <p>In this article, you learned how to identify broken links on your website and the referrer pages of those broken links.</p> 
+    <p>With this information, you will be able to correct those references in your website.</p>
+   
+</body>
+</html>

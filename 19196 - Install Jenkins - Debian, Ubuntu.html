@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Use this template for articles that include steps for accomplishing a task or tasks (for example, installing). For articles that explain or describe something (such as an operating system), use the Informational template instead.  -->
+
+<title>Install Jenkins - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install Jenkins</p>
+    <h1>Install Jenkins - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Jenkins is a an extensible open source continuous integration server used for building software projects and monitoring job execution.</p>
+
+    <h2>Install and start Jenkins</h2>
+    
+    <ol>
+     <li>Get the Jenkins installation key.
+        <div class="hacker">sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+</div>
+    </li>
+    <li>Get the Jenkins installation package.
+        <div class="hacker">wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
+</div>
+    </li>
+   
+    <li>Update your apt repository.
+        <div class="hacker">sudo apt-get update
+</div>
+    </li>
+    <li>Install Jenkins.
+        <div class="hacker">sudo apt-get install jenkins</div>
+    </li>
+    <li>Start Jenkins.
+        <div class="hacker">sudo /etc/init.d/jenkins start</div>
+    </li>
+    <li>Open a browser and navigate to your Jenkins server.
+        <div class="hacker">http://Your IP Address:8080/</div>
+    </li></ol>
+    <p>Welcome to Jenkins!</p>
+  
+    
+  
+<h2>Next steps</h2>
+    <p>Use the Jenkins UI to create a new job.</p>
+   
+</body>
+</html>

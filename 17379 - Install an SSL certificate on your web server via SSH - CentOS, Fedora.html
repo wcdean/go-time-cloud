@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head>
+    <title>Install an SSL Certificate on Your Web Server via SSH - CentOS, Fedora</title>
+
+
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Install an SSL Certificate on Your Web Server via SSH - CentOS, Fedora, SSL, Apache, NGINX, Security</p>
+    <h1>Install an SSL Certificate on Your Web Server via SSH - CentOS, Fedora</h1>
+   
+    <p>
+        <strong>Difficulty</strong>: 2
+        <br />
+        <strong>Time</strong>: 30 minutes
+    </p>
+   
+    <p>After downloading your SSL certificate, you need to install it on your web server. This article guides you through installing an SSL certificate from a commercial Certificate Authority (CA) on CentOS or Fedora. </p>
+
+ Before you begin, you'll need to create an SSL certificate using the <a href="17449 - Install an SSL Certificate on NGINX - ALL DISTROS.html">Install SSL Certificates on NGINX - ALL DISTROS</a> link.
+   <h2>Install SSL certificate in Nginx </h2>
+    <ol>
+        <li>
+            Create a single chained certificate file that contains your certificate and the CA's intermediate certificates. <br />
+            Assuming that your certificate file is named <code>examplessl.com.crt</code> and the intermediate certificate is named <code>intermediatessl.crt</code>, the following command creates a combined file called <code>examplessl.com.chained.crt</code>:
+<div class="hacker">cat <em><u>examplessl.com.crt</u></em> <em><u>intermediatessl.crt</u></em> > <em><u>examplessl.com.chained.crt</u></em> </div>
+        </li>
+        <li>
+            Open the Nginx site configuration file for editing. <br />The following command assumes that the Nginx server block configuration file is at <code>/etc/nginx/sites-enabled</code> and that you want to add SSL to your default server block file:
+<div class="hacker">sudo vim /etc/nginx/sites-enabled/default.conf</div>
+        </li>
+        <li>
+            Configure your Nginx vitual host, and ensure that it has the following settings. (For detailed information about configuring HTTPS servers, see <a href="http://nginx.org/en/docs/http/configuring_https_servers.html">Configuring HTTPS servers</a> on the Nginx web site.)
+            <ul>
+                <li>Set <code>'ssl'</code> to <code>on</code>.</li>
+                <li>Set <code>'listen'</code> to your SSL port; typically <code>443</code>.</li>
+                <li>Set <code>'ssl_certificate'</code> to the location of your newly created <code>examplessl.com.chained.crt</code> file.</li>
+                <li>Set <code>'ssl_certificate_key'</code> to the location of your private key.</li>
+            </ul>
+        </li>
+        <li>
+           Restart Nginx. 
+             <div class="hacker">sudo service nginx restart </div>
+Restarting loads the new configuration and enables TLS/SSL over HTTPS.
+        </li>
+    </ol>
+    
+    <h2>Install SSL certificate in Apache </h2>
+    <ol>
+        <li>
+            Copy your SSL certificate file and the certificate bundle file to your Apache server.<br />
+             You should already have a key file on the server from generating your certificate request.
+        </li>
+        <li>
+        In either your <code>httpd.conf</code> or <code>ssl.conf</code> file, locate the directives listed in the tables below. (Which files you use depends on how you configured Apache.) <br />
+            </li>
+              
+        <li> If one or more of the directives are commented out, uncomment them by removing the pound character (#) from the beginning of the line. 
+           <p class="note">A directive is commented out if it begins with a pound character.</p></li>
+                
+                <li>Set the values of these directives to the absolute path and filename of the appropriate file, based on your version of Apache. (See tables below.)</li>
+                 <li>
+            Save your configuration file, and restart Apache. <br />
+            You'll need to install the httpd package. The httpd RPM (originally Red Hat Package Manager) installs the <code>/etc/init.d/httpd</code> script, which you can access using the <code>/sbin/service</code> command. If using managed servers with root access, here are the commands to restart, start, and stop from the command line. For detailed information about starting and stopping the Apache server, see the <a href="https://linux.web.cern.ch/linux/scientific4/docs/rhel-rg-en-4/s1-apache-startstop.html">Red Hat Enterprise Linux 4: Reference Guide</a>.
+            <ul>
+                <li>To restart:  <div class="hacker">/sbin/service httpd restart </div></li>
+                <li>To start: <div class="hacker"> /sbin/service httpd start</div></li>
+                <li>To stop: <div class="hacker"> /sbin/service httpd stop</div></li>
+            </ul>
+       
+             <table style="margin: 15px 0px; color: rgb(51, 51, 51); border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <th style="padding: 5px; text-align: left; border-right-color: rgb(221, 221, 221); border-right-width: 1px; border-right-style: solid; background-color: rgb(221, 221, 221);" colspan="2">Apache Version &lt; 2.4.8</th>
+                    </tr>
+                    <tr style="background-color: rgb(247, 247, 247);">
+                        <th style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Directive</th>
+                        <th style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Path to Enter</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">SSLCertificateFile</td>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Certificate file path</td>
+                    </tr>
+                    <tr style="background-color: rgb(247, 247, 247);">
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">SSLCertificateKeyFile</td>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Key file path</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">SSLCertificateChainFile</td>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Intermediate bundle path</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table style="color: rgb(51, 51, 51); border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <th style="padding: 5px; text-align: left; border-right-color: rgb(221, 221, 221); border-right-width: 1px; border-right-style: solid; background-color: rgb(221, 221, 221);" colspan="2">Apache Version 2.4.8+</th>
+                    </tr>
+                    <tr style="background-color: rgb(247, 247, 247);">
+                        <th style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Directive</th>
+                        <th style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Path to Enter</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">SSLCertificateFile</td>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Certificate file path</td>
+                    </tr>
+                    <tr style="background-color: rgb(247, 247, 247);">
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">SSLCertificateKeyFile</td>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Key file path</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">SSLCACertificatePath</td>
+                        <td style="padding: 5px; border: 1px solid rgb(178, 178, 178); border-image: none;">Intermediate bundle path</td>
+                    </tr>
+                </tbody>
+            </table>
+        </li>
+     
+    </ol>
+    <h2>Conclusion</h2>
+    <p>In this article, you learned to install an SSL certificate. </p>
+    
+</body>
+</html>

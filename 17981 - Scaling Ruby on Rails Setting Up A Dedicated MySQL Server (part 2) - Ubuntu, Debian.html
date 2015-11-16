@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17981-->
+
+<title>Scaling Ruby on Rails: Setting Up A Dedicated MySQL Server (part 2) - Debian , Ubuntu</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+
+<p>Setting up a dedicated MySQL server to host Ruby on Rails application servers, Ruby, Rails, MariaDB,MySQL,NoSQL,Scaling.</p>
+
+<h1>Scaling Ruby on Rails: Setting up a dedicated MySQL server (part 2) - Debian, Ubuntu</h1>
+<p><strong>Difficulty</strong>: <em>4</em><br />
+        <strong>Time</strong>: <em>30 minutes</em></p>
+<p>This article provides information about creating a database layer using MySQL to host application servers running Ruby on Rails. </p>
+<h2>Architecture of database server layer - an overview</h2>
+<p>To make the database server centrally accessible, a load-balancer, two application servers, and a database server to set-up the database server layer are required. The architecture will look like the following diagram:</p>
+
+<img src="images/17981.png" alt="17981" />
+<p> This article will assist you in setting up a dedicated MySQL server and scaling Ruby on Rails applications between the servers in Debian or Ubuntu Linux distributions.</p>
+
+<h2>Prerequisites</h2>
+This article assumes that the host machine has Ruby on Rails using RVM installed and running. For more details, see:
+<ul>
+<li>
+<a href="17538 - Install Ruby on Rails using RVM - Debian.html">Install Ruby on Rails using RVM on Debian</a>
+</li>
+<li>
+<a href="17534 - Install Ruby on Rails using RVM - Ubuntu.html">Install Ruby on Rails using RVM on Ubuntu</a>
+</li>
+</ul>
+This article is part 2 of the scaling Ruby on Rails series. To refer to the first or third part:
+<ul>
+<li>
+<a href="17952 - Scale Ruby on Rails Applications across Multiple Servers - Ubuntu, Debian.html">Scale Ruby on Rails Applications across multiple Servers - Debian, Ubuntu</a>
+</li>
+<li>
+<a href="17894 - Scaling Ruby on Rails Setting Up A Dedicated PostgreSQL Server (Part 3) - Debian, Ubuntu.html">Scaling Ruby on Rails: Setting up a dedicated PostgreSQL server (Part 3) - Debian, Ubuntu</a>
+</li>
+</ul>
+
+<p>This article  assumes that you are logged in as a <code>sudo</code> user.</p>  
+
+<p>Based on your needs and application type, choose the database server to build a database layer for your application development. Here are some popular databases:</p>
+
+<h3>Relational database servers</h3>
+<ul>
+<li>MySQL and derivatives</li>
+<li>PostgreSQL</li>
+</ul>
+
+<h3>Non-relational database servers</h3>
+<ul>
+<li>Column-based Cassandra and HBase</li> 
+<li>Document-based MongoDB and Couchbase and Graph-based OrientDB</li>
+<li>Neo4J and related databases</li>
+</ul> 
+
+
+
+<h2>Install MySQL and other dependencies</h2>
+
+<ol>
+<li>Update operating system packages and install MySQL. 
+<div class="hacker"> sudo apt-get install mysql-server mysql-client libmysqlclient-dev </div>
+When prompted, create your MySQL password.</li>
+
+
+<div class= "hacker">sudo apt-get install build-essential </div>
+<div class ="hacker">sudo  apt-get -y update</div>
+ </li>
+<li>Initiate the MySQL server daemon by typing:
+<div class="hacker"> sudo /etc/init.d/mysql start </div>
+</li>
+<li>Tell MySQL to create a database directory structure for storing MySQL database directory information by typing:
+  <div class="hacker"> sudo mysql_install_db </div>
+</li>
+<li>Run the MySQL installation process by typing:
+      <div class="hacker"> sudo mysql_secure_installation </div>
+</li>
+
+<li>At the prompt, enter your current password for root. If you have not created a root password, create it now using the following command:
+<div class="hacker">
+   /usr/bin/mysqladmin -u root password '<em><u>new-password</u></em>'    
+</div></li>
+<li>
+Press <strong>Enter.</strong></li>
+<li>Answer the following questions by pressing <strong>Y</strong>.
+<div class="hacker">
+<pre>
+    Set root password?                     --> Y
+    Remove anonymous users?                --> Y
+    Disallow root login remotely?          --> Y
+    Remove test database and access to it? --> Y
+    Reload privilege tables now?           --> Y
+</pre>
+</div>
+</li>
+</ol>
+<h2>Create a database, database user, and database connection</h2>
+<ol>
+<li>Establish a database connection using MySQL client, and then enter the password for root that was previously set up.
+
+  <div class="hacker"> sudo mysql -u root -p </div>
+</li>
+
+
+<li>Create a sample database.
+<div class="hacker"> create database <em><u>rails_Database_name</u></em>; </div>
+</li>
+<li>Create a new user for your database, and then grant remote and local access to this user.
+  <div class="hacker"> CREATE USER '<em><u>rails_UserName</u></em>'@'localhost' IDENTIFIED BY 'pwd'; </div>
+
+  <div class="hacker"> CREATE USER '<em><u>rails_UserName</u></em>'@'%' IDENTIFIED BY 'pwd'; </div>
+
+
+</li>
+<li>Grant access rights to any specific user by typing:
+  <div class="hacker">
+  GRANT ALL ON rails_myapp.* TO '<em><u>rails_UserName</u></em>'@'localhost';</div>
+  <div class="hacker">
+  GRANT ALL ON rails_myapp.* TO '<em><u>rails_UserName</u></em>'@'%';
+</div></li>
+
+<li>Flush privileges to make sure your changes take.
+
+    <div class="hacker"> FLUSH PRIVILEGES; </div>
+  </li>
+
+  <li>Exit MySQL.
+    <div class="hacker"> exit </div>
+</li>
+<li>Open the MySQL database configuration <code>my.cnf</code> to enable remote connections.
+<div class="hacker"> sudo vim  /etc/my.cnf </div>
+                Type the below mentioned line in this file:
+
+                <div class="hacker"><pre>[mysqld]
+  ..
+  .
+bind-address   =  0.0.0.0</pre>
+</div>
+</li>
+<li>Save and exit the file.</li>
+<li>Start MySQL Daemon.
+<div class="hacker"> sudo /etc/init.d/mysql start </div>
+</li>
+</ol>
+<h2>Create the Rails application</h2>
+<ol>
+<li>Install the gems for MySQL and updates.
+  <div class="hacker">
+	gem install mysql2</div>
+	<div class="hacker"> gem update --system
+</div>
+</li>
+<li>Install Rails package with the following command:
+  <div class="hacker"> gem install rails </div>
+</li>
+<li>Create a Rails application and use the <code>-d mysql</code> option to set MySQL as the database.
+  <div class="hacker"> rails new <em><u>Your_application</u></em> -d mysql </div>
+ </li>
+<li>Go to the application directory.
+  <div class="hacker">cd <em><u>Your_application</u></em></div>
+</li>
+<li>
+ Go to your <code>config</code> directory and open the <code>database.yml</code> file.
+  <div class="hacker"> sudo vim config/database.yml </div>
+</li>
+<li>In the Production section at the end of the file, verify/add these lines. The database, username, and password lines should already be present, and you won't need to update them. Add the rest of the lines.
+<div class="hacker">
+<pre>
+production:
+  adapter: mysql
+  encoding: utf8
+  database: <em><u>rails_Database_name</u></em>
+  username: <em><u>Your_application</u></em> 
+  password:<em><u>Your_password</u></em>
+  host:<em><u>Your_Server_IP</u></em>
+  port: 3306
+  pool: 10
+</pre>
+</div>
+
+</li>
+<li>Save and exit the file.</li>
+</ol>
+
+<h2> Install dependencies</h2>
+<ol>
+<li>Open the <code>Gemfile</code>. 
+<div class="hacker"> sudo vim Gemfile </div>
+      Add the following line:
+       <div class="hacker"> gem 'mysql' </div>
+</li>
+<li>Save and exit the file.</li>
+<li>Install all the dependencies of <code>Gemfile</code>.
+    <div class="hacker"> bundle install </div>
+</li>
+</ol>
+<h2>Next Steps</h2>
+<p>Congratulations! You've scaled a Ruby on Rails application and set up a dedicated MySQL Server on your Debian or Ubuntu system.</p>
+</body>
+</html>

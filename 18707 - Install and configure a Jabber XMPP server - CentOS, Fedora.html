@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>18707</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+	
+	.command{
+		font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace;
+	}
+    </style>
+    
+</head>
+<body>
+	<p>Setting up Jabber XMPP Server on CentOS and Fedora, XMPP</p>
+	<h1>Install and configure Jabber XMPP server - CentOS, Fedora</h1>
+	<p><strong>Difficulty: </strong><em>2</em><br />
+	<strong>Time: </strong><em>30 Minutes</em></p>
+	<p>
+		This article explains the installation and configuration of Ejabber on CentOS and Fedora.
+		
+	</p>
+	<p>Jabber is a simple, mature, and powerful messaging protocol that was developed to collaborate in real-time between two or more people, based on the text typed. Jabber is used by enterprises for internal communication, developers for programming skills improvement, hosting providers for high availability and stable communication services, and by individuals for chatting.</p>
+	<p class="note">
+		You will need access to sudo privileges to complete all steps.
+	</p>
+	<h2>Download the Ejabberd installer</h2>
+	<ol>
+		<li>Run the following command to download Ejabber:
+			<div class="hacker">sudo wget http://www.process-one.net/downloads/downloads-action.php?file=/ejabberd/14.12/ejabberd-14.12-linux-x86_64-installer.run -O ejabberd-14.12-linux-x86_64-installer.run</div>
+
+		</li>
+		<li>Change permissions.
+			<div class="hacker">sudo chmod +x ejabberd-14.12-linux-x86_64-installer.run</div>
+		</li>
+		<li>Execute the installer.
+			<div class="hacker">sudo ./ejabberd-14.12-linux-x86_64-installer.run</div>
+		</li>
+	</ol>
+	<h2>Set up EJabberd</h2>
+	<ol>
+		<li>After starting the installer, it will ask for language. Select <strong>English language</strong> on <strong>Number [2]</strong>.
+		</li>
+
+	<li>Read and accept the end user license agreement for the Ejabberd installer by pressing <strong>y</strong>.</li>
+		<li>Press <strong>Enter</strong> to select the following installation directory:
+			<div class="hacker">
+					Installation Directory [/opt/ejabberd-14.12]: 
+			</div>
+			<p class="note">If you want to keep the default directory, then press <strong>Enter</strong>. Otherwise, you can choose a different path.</p>
+		</li>
+	
+		<li>To select the domain, type the fully qualified domain name (FQDN), public IP, localhost, or any internal IP from which we can access the domain.
+			<div class="hacker">
+					ejabberd server domain [domain_name-centos]
+			</div>
+			</li>
+	</ol>
+	
+	<h2>Set up administrator credentials</h2>
+	<ol>
+		<li>When prompted for the username, enter the username of your administrator. 
+			<div class="hacker">
+					Administrator username [admin]: 
+			</div>
+			
+		</li>
+		<li>
+			<p>At the prompt for a password, enter a carefully chosen password.</p>
+		</li>
+		<li>After submitting the password, installer will prompt for cluster. It is not required, press <strong>n</strong> to continue.
+			<div class="hacker">
+				promoted massage example Cluster [y/N]:N
+			</div>
+		</li>
+	
+
+		<li>To finalize the installation, press <strong>y</strong>. The installer will start the installation process. It will take some time to complete.
+			<div class="hacker">
+				 Do you want to continue?  
+			</div>
+		</li>
+		<li>It will prompt you to view the Readme file. Press <strong>y</strong> to view it, or <strong>n</strong> to continue.
+			<div class="hacker">
+				 View Readme file? [Y/n]: n 
+			</div>
+			</li>
+	</ol>
+	<h2>Start the Ejabberd services</h2>
+	<ol>
+		<li>
+		Ejabber protocol is ready to be used. Use the following command to start the Jabber protocol:
+			<div class="hacker">cd /opt/ejabberd-14.12/bin/</div>
+			</li><li>
+			Create admin user using the following command.
+			<div class="hacker">sudo ./ejabberdctl register <em><u>admin</u></em> <em><u>your-server_ip</u></em> <em><u>userpassword</u></em></div>
+				
+		</li>
+		<li>Start the ejabberd service using the following command.<div class="hacker">sudo ./ejabberdctl start</div></li>
+		<li>Verify if the Ejabber serviced has been started by using the following command:
+			<div class="hacker">
+			sudo netstat -plunt | grep 5280
+			</div>
+		</li>
+		<li>If you get the output as shown below, then you have successfully installed the Jabber instant messaging service.
+			<div class="hacker">
+		tcp        0      0 0.0.0.0:5280            0.0.0.0:*               LISTEN      27744/beam.smp
+			</div>
+		</li>
+
+		<li>Open your browser and type <em>http://your_ip:5280/admin</em> and press <strong>Enter</strong>. It will prompt for authentication credentials. Enter the credentials that you entered during installation.<br /><br /> 
+After successfully logging in, you will see this the screen.<br />
+<img src="images/18707/092115/18707_jabber_brwser_look.png" alt="18707_jabber_brwser_look.png" />
+		</li>
+				
+	</ol>
+<h2>Conclusion</h2>
+You have successuflly installed and setup Ejabberd.
+	
+
+	</body>
+</html>

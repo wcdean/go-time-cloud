@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17638-->
+
+
+
+
+<title>Install and secure phpMyAdmin with Apache - Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}  
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+
+td:nth-child(1) {font-weight:bold;}
+</style>
+
+
+</head>
+
+<body>
+<p>This article walks through installing and securing phpMyAdmin on your server.</p>   <!-- skj: validated -->
+    <h1>Install and secure phpMyAdmin with Apache - Ubuntu</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em>
+    </p>
+
+    <p>phpMyAdmin is an open source tool that enables users to perform MySQL&trade; database operations like create, delete, or modify MySQL databases or execute SQL statements, by providing a user interface.</p>
+
+    <h2>Prerequisites</h2>
+  
+    Make sure that you have LAMP (Linux&trade;, Apache&trade;, MySQL, and PHP&trade;) installed. In case you haven't, refer to the article: <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17341 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu.html">Install LAMP</a>.
+
+<h2>Install phpMyAdmin</h2>
+    <ol>
+        <li>
+           Make sure that the list of available packages are up-to-date.
+            <div class="hacker">sudo apt-get update</div>
+        </li>
+        <li> Install phpMyAdmin.
+            <div class="hacker">sudo apt-get install phpmyadmin</div>
+        </li>
+        <li>
+            Even though <strong>apache2</strong> is highlighted, it is not actually selected. To select <strong>apache2</strong>:
+            <ul><li>Press <strong>SPACE</strong>. You will see an asterix (*) in front of <code>apache2</code>.</li> 
+            <li>Press <strong>TAB</strong> again to move the cursor to <strong>OK</strong>, and then press <strong>Enter</strong>.</li>
+            </ul></li>
+
+           <li> You will be asked to confirm a few things as part of configuring phpMyAdmin. 
+            <ul>
+                <li> When asked to configure database for phpMyAdmin with <code>dbconfig-common</code>, select <strong>Yes</strong>.</li>
+                <li> When asked for the password for the database's administrative user, use the MySQL root password. </li>
+                <li> When asked to set and confirm a password for MySQL application for phpMyAdmin, create a strong one and confirm it. If left blank, a random one will be generated. This is the password to log into the phpMyAdmin application itself. </li>
+               
+        </ul>
+        </li>
+        <li> Enable the <code>php5-mcrypt extension</code>.
+            <div class="hacker">sudo php5enmod mcrypt</div>
+        </li>
+        <li>Restart Apache.
+            <div class="hacker">sudo service apache2 restart</div>
+        </li>
+
+        <li>
+            In your browser, navigate to <strong>http://<em><u>server address domain name</u></em>/phpmyadmin</strong> to see the web interface. You will see a <strong>Welcome to phpMyAdmin</strong> page.
+            <img src='/images/17641/090915/Welcome-to-phpMyAdmin.png' alt='Welcome to phpMyAdmin' /></li>
+          <li>Log into the user interface using the username "root" and the MySQL root password that you set earlier. You will see the phpMyAdmin user interface.
+              <img src='/images/17641/090915/phpMyAdmin-user-interface.png' alt='phpMyAdmin user interface' />
+        </li>
+    </ol>
+    <h2>Configure phpMyAdmin to be secure</h2>
+    Although your phpMyAdmin interface is up and running, you need to secure it further by adding another layer of authorization to prevent unauthorized users. You will do this in two steps.
+    <ul>
+        <li>
+            Changing the default directory.
+        </li>
+        <li>
+            Apache authorization.
+        </li>
+    </ul>
+    <h3>Changing the default phpMyAdmin directory.</h3>
+    The default installation of phpMyAdmin creates an alias to /usr/share/phpmyadmin. You can change the alias on the configuration file from /phpmyadmin to something else, in this case /mysqllogin . This way you fend off any automated attacks that are likely to go after the default directory on the web server. 
+    <ol>
+        <li>
+            Open the configuration file.
+            <div class="hacker">sudo vim /etc/apache2/conf-available/phpmyadmin.conf</div>
+        </li>
+        <li>
+            Comment out the line(s) that start with <code>Alias</code> and replace with the new alias.
+            <div class="hacker">
+                <pre>
+
+# Alias /phpmyadmin /usr/share/phpmyadmin
+Alias /<em><u>mysqllogin</u></em> /usr/share/phpmyadmin
+</pre>
+            </div>
+            Save and exit the file.
+        </li>
+        <li>
+            Restart Apache for the change to take effect.
+            <div class="hacker">sudo service apache2 restart</div>
+        </li>
+        <li>You will now find the application at <strong>http://<em><u>your server address or domain name</u></em>/<em><u>mysqllogin</u></em></strong> instead of <strong>http://<em><u>your server address or domain name</u></em>/phpmyadmin</strong> </li>
+    </ol>
+    <h3>Apache authorization</h3>
+    We will also add Apache authorization to the <code>phpMyAdmin</code> directory with an .htaccess and .htpasswd file.
+
+    <ol>
+        <li>
+            To allow the <code>.htaccess</code> file access to the <code>phpMyAdmin</code> directory, you need to make some changes in the phpmyadmin configuration file.
+
+            <div class="hacker">sudo vim /etc/apache2/conf-available/phpmyadmin.conf</div>
+        </li>
+        <li>
+            Include the <code>AllowOverride All</code> directive inside the <code>Directory /usr/share/phpmyadmin></code> module of the configuration file.
+            <div class="hacker">
+                <pre>
+&lt;Directory /usr/share/phpmyadmin>
+Options FollowSymLinks
+DirectoryIndex index.php
+AllowOverride All
+</pre>
+            </div>
+             </li>
+            <li>Save and close the file.</li>
+     
+        <li>
+            Restart Apache for the changes to  take effect.
+
+            <div class="hacker">sudo service apache2 restart</div>
+        </li>
+    </ol>
+    <h3>Create .htaccess file</h3>
+    <ol>
+        <li>
+            After you enable the <code>.hataccess</code>, it is time to create the actual <code>.htaccess</code> file. This file will be inside the <code>application</code> directory.
+            <div class="hacker">sudo vim /usr/share/phpmyadmin/.htaccess</div>
+        </li>
+        <li>
+            Enter the below block of text into the file.
+            <div class="hacker">
+                <pre>
+AuthType Basic
+AuthName "Restricted. Only authorized users permitted."
+AuthUserFile /etc/phpmyadmin/.htpasswd
+Require valid-user
+</pre>
+            </div>
+        
+            Below is an explanation of what each of these mean :
+
+            <table>
+                <tr>
+                    <th>Directive</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td> AuthType Basic</td>
+                    <td>Specifies the kind of authentication that is being implemented. "Basic" implies that it uses a password file to implement the password authentication.</td>
+
+                </tr>
+                <tr>
+                    <td> AuthName</td>
+                    <td>The message that is displayed at the password prompt.  You can set it to anything you want.</td>
+                </tr>
+                <tr><td> AuthUserFile</td><td>The location where you would store the password file.</td> </tr>
+                <tr><td> Require valid-user</td><td>Indicates that only users who are stored in the password file will be granted access to the phpMyAdmin login screen.</td> </tr>
+            </table>
+        </li>
+        <li>Save and close the file.</li>
+    </ol>
+        <h3>Create user</h3>
+        <ol>
+            <li>
+                You will now create the password file <code>.htpasswd</code> in the location mentioned previously. You can use the <code>htpasswd</code> command to do so. 
+            </li>
+            <li>
+                Create a first user to be stored in the password file.
+                <div class="hacker">sudo htpasswd -c /etc/phpmyadmin/.htpasswd <em><u>newuser1</u></em></div>
+                Set and confirm password.
+            </li>
+            <li>
+                If you want to enter an additional user, you need to do so without the <code>-c</code> flag.
+                <div class="hacker">sudo htpasswd /etc/phpmyadmin/.htpasswd <em><u>newuser2 </u></em></div>
+            </li>
+            <li>Now when you navigate to the browser and type <strong>http://<em><u>your server addresso or domain name</u></em>/<em><u>mysqllogin</u></em></strong>,  you will be presented with the username/password prompt. Enter the <em><u>newuser1</u></em> credentials that you included in the <code>htpasswd</code> file.</li>
+        </ol>
+    <h2>Next steps</h2>
+    You have succesfully installed phpMyAdmin and provided additional security to access it. Now, you can <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17648 - Set up SSL Certificate with phpMyAdmin and Apache - Debian, Ubuntu.html">Set up SSL Certificate with phpMyAdmin</a>.
+    
+
+</body>
+
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18647-->
+
+<title>Install and configure JRuby with a Rails App on Apache Tomcat - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure JRuby with a Rails App on Apache Tomcat - Ubuntu, Debian, Applications</p>
+
+<h1>Install and configure JRuby with Rails App on Apache Tomcat - Debian, Ubuntu</h1>
+
+<p><strong>Difficulty:</strong> <em>3</em></p>
+<p><strong>Time:</strong> <em>1 hour</em></p>
+
+<p>Ruby on Rails is an open-source framework for rapid web development. Ruby focuses on simplicity and productivity. JRuby is the Java implementation of Ruby programming language. It can run on top of Java Virtual Machines (JVMs), enabling use of powerful capabilities of JVM like concurrency and tighter integration with Java. This article will discuss JRuby for rapid development, rather than implementing Ruby on Java.</p>
+
+<h2>Prerequisites</h2>
+<ol>
+<li>This article assumes that the host machine has Ruby and RVM installed and running. For detailed steps, see:
+<ul>
+<li><a href="17538">Install Ruby on Rails using RVM - Debian </a></li>
+<li><a href="17534">Install Ruby on Rails using RVM - Ubuntu</a></li>
+
+</ul>
+</li>
+<li>It is assumed that user has sudo user privileges.</li>
+</ol>
+
+<h2>Install Java 8 </h2>
+<ol>
+<li>Update the machine.
+<div class="hacker">sudo apt-get update</div>
+</li>
+<li>Install Java, which is required for JRuby. <br/> For <strong>Debian</strong>:
+
+<div class="hacker">sudo su</div>
+<div class="hacker">echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list </div>
+<div class="hacker">echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list </div>
+<div class="hacker">apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886 </div>
+<div class="hacker">exit </div>
+</li>
+<li>Install Java, which is required for JRuby.  <br/> For <strong>Ubuntu</strong>:
+<div class="hacker">sudo add-apt-repository ppa:webupd8team/java</div>
+</li>
+<li>Update the source list repository.
+<div class="hacker">sudo apt-get update</div>
+</li>
+<li>Install Java.
+<div class="hacker">sudo apt-get install oracle-java8-installer</div>
+A successful installation would show the following output on the screen. Select <strong>OK</strong> and press <strong>Enter</strong> to see the license terms and conditions.
+</li>  
+
+<li>Read the licenses terms and conditions, and then Select <strong>Yes</strong> and press <strong>Enter</strong> to agree.
+</li>
+
+ 
+
+<li>Check the version of java.
+<div class="hacker">java -version</div>
+
+<p>The output shows the versions of java installations.</p></li>
+<div class="hacker"><pre>java version "<em><u>1.8.0_60</u></em>"
+Java(TM) SE Runtime Environment (build <em><u>1.8.0_60-b27</u></em>)
+Java HotSpot(TM) 64-Bit Server VM (build <em><u>25.60-b23</u></em>, mixed mode)</pre></div>
+
+</ol>
+
+<h2>Install JRuby and JRuby on Rails</h2>
+<ol>
+<li>Install JRuby using RVM.
+<div class="hacker">rvm install jruby</div>
+Below command will enable <code>jruby</code> to use.
+<div class="hacker">rvm use jruby </div>
+</li>
+<li>Check the version of JRuby. 
+<div class="hacker">jruby -v</div>
+
+<p>Output will show the JRuby version along with other details:</p>
+<div class="hacker">jruby <em><u>1.7.19 (1.9.3p551) 2015-01-29 20786bd</u></em> on Java HotSpot(TM) 64-Bit Server VM <em><u>1.8.0_60-b27</u></em> +jit [linux-amd64]</div>
+</li>
+<li>Install JRuby on Rails.
+<div class="hacker">gem install rails -N</div>
+<p class="note">Rails installation might take around 3-4 minutes, depending upon network bandwidth.</p>
+</li>
+</ol>
+
+<h2>Create sample application with JRuby</h2>
+<ol>
+<li>Initialize RVM.
+<div class="hacker">. ~/.rvm/scripts/rvm</div>
+</li>
+<li>Create sample application for JRuby.
+<div class="hacker">rails new <em><u>~/jsample</u></em></div>
+</li>
+<li>Install gems in the sample Rails application.
+<div class="hacker">cd <em><u>~/jsample</u></em> && bundle install</div>
+</li>
+<li>Add some pages in Rails application using the Rail's Scaffolding feature.
+<div class="hacker">rails g scaffold Employee name:string age:integer address:text</div>
+</li>
+<li>Apply the migrations generated by the <code>rails g scaffold</code> command.
+<div class="hacker">rake db:migrate</div>
+</li>
+<li>Open the <code>routes.rb</code> file to update the route of application to redirect the index page.
+<div class="hacker">vim config/routes.rb</div>
+</li>
+<li>Add following line below the <code>resources :employees</code> label:
+<div class="hacker">root 'employees#index'</div>
+</li>
+<li>The file should look like the following:
+<div class="hacker"><pre>Rails.application.routes.draw do
+    resources :employees
+    root 'employees#index'
+end</pre></div>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. </li>  
+</li>
+<li>Test the application by starting Rails web server.
+<div class="hacker">rails s --binding=<em><u>your_server_ip</u></em></div>
+<p>Go to browser, and type your public IP in address bar. <strong>http://your_server_ip:3000</strong></p>
+</li>
+</ol>
+
+<h2>Change Java policy</h2>
+<ol>
+<li>Download the Java Policy on your local machine from the ink below:
+<strong><a href="http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html">http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html</a></strong>
+</li>
+<li>Copy downloaded ZIP file to the instance machine or remote server using <code>winscp</code> or <code>scp</code> command.
+<ul>
+<li><p>For Windows machine, use <code>winscp</code> to transfer the file to remote instance. Download from this link <strong><a href="http://winscp.en.lo4d.com/">http://winscp.en.lo4d.com/</a></strong> and run the file. Then log in with the server username and password in the WinSCP window. Drag and drop the <strong>jce_policy-8</strong> file from the local machine to Linux home folder in the WinSCP window.</p>
+</li>
+<li><p>For Linux machine, use <code>scp</code> command to transfer the file. Here is an example for using <code>scp</code> command in Linux (all platforms)</p>
+</li>
+</ul>
+<div class="hacker">scp <em><u>~/</u></em>jce_policy-8.zip <em><u>remote_user</u></em>@<em><u>target_server_ip</u></em></div>
+</li>
+<li><p>Log in to the machine server where the file is transferred.</p>
+</li>
+<li>Install the unzipped package on your machine.
+<div class="hacker">sudo apt-get install unzip</div>
+</li>
+<li>Unzip the compressed file.
+<div class="hacker">cd  ~</div>
+<div class="hacker">unzip ~/jce_policy-8.zip</div>
+
+</li>
+<li>Copy the policies jar files to Java security folder group.
+<div class="hacker">cd UnlimitedJCEPolicyJDK8</div>
+<div class="hacker">sudo cp *.jar /usr/lib/jvm/java-8-oracle/jre/lib/security/</div>
+</li>
+<li>Update the directory to point to the Rails application.
+<div class="hacker">cd <em><u>~/jsample</u></em></div>
+</li>
+<li>Speed up the JVM startup by executing the following command:
+<div class="hacker">export JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"</div>
+</li>
+<li>Test that the application is running.
+<div class="hacker">rails s --binding=<em><u>your_server_ip</u></em></div>
+<p>Go to browser, and type your public IP in address bar. <strong>http://your_server_ip:3000</strong></p>
+</li>
+</ol>
+
+<h2>Create WAR deployer</h2>
+<ol>
+<li>Install warbler, which will be used to convert JRuby Applications to Web Application Archiver (WAR) files.
+<div class="hacker">gem install warbler</div>
+</li>
+<li>Update the path of SQLite database to avoid overwriting the database at the default location.
+<div class="hacker">mkdir -p <em><u>~/jrubydatabase/jsample</u></em></div>
+</li>
+<li>Move the <code>development</code> database to the <code>jsample</code> directory.
+<div class="hacker">mv <em><u>~/jsample/db/development.sqlite3</u></em> <em><u>~/jrubydatabase/jsample</u></em></div>
+</li>
+<li>Open the configuration file to update directory to point to <code>jsample</code>.
+<div class="hacker">vim config/database.yml</div>
+</li>
+<li>Locate the <code>development</code> section in <code>database.yml</code> configuration file, and replace the line beginning with <code>database</code> with the following line, just beneath the <code><<: *default</code>:
+ <div class="hacker">database: <em><u>~/jsample/development.sqlite3</u></em></div>
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. </li>  
+</li>
+<li>Open the <code>warble.rb</code> configuration file to update the environment settings.
+<div class="hacker">vim <em><u>~/jsample</u></em>/config/warble.rb </div>
+</li>
+<li>Add following content to the file:
+<div class="hacker">Warbler::Config.new do |config| config.webxml.rails.env = 'development'</div>
+<div class="hacker">end</div>
+</li>
+<li>To save and exit press <strong>Esc</strong> and type the following characters <strong>:wq!</strong></li>
+<li>Package Rails application into WAR.
+<div class="hacker">warble executable war</div>
+<p>Creating WAR package usually takes around 3-4 minutes.</p>
+</li>
+</ol>
+
+<h2>Install and configure Tomcat</h2>
+<ol>
+<li>Download the latest version of Tomcat.
+<div class="hacker">cd ~</div>
+<div class="hacker">wget http://mirror.cogentco.com/pub/apache/tomcat/tomcat-8/v8.0.28/bin/apache-tomcat-8.0.28.tar.gz</u></em> </div></li>
+<li>Extract the Tomcat archive. 
+<div class="hacker">tar -xvzf apache-tomcat-8.0.28.tar.gz</div>
+</li>
+<li>Set the maximum heap size available to Tomcat to <code>512m</code> to avoid 'Out of Memory' errors in Java. This update is required every time that the Tomcat server is started.
+<div class="hacker">export CATALINA_OPTS="-Xmx512m"</div>
+</li>
+<li>Set the randomness generation parameters.
+<div class="hacker">export JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"</div>
+</li>
+<li>To start the Tomcat.
+<div class="hacker">cd ~/apache-tomcat-8.0.28</div>
+<div class="hacker">bin/catalina.sh start</div>
+</li>
+<li>Check that Tomcat is running, by opening the following URL in  browser: 
+<strong>http://<em><u>your_server_ip</u></em>:8080/</strong>
+</li>
+</ol>
+
+<h2>Deploy Rails application on Tomcat</h2>
+<ol>
+<li>Copy <code>.war</code> file to webapp of Tomcat.
+<div class="hacker">cp <em><u>~/jsample/</u></em>jsample.war ~/apache-tomcat-8.0.28/webapps/</div>
+
+</li>
+<li>Restart all the sessions.
+<div class="hacker">. ~/.rvm/scripts/rvm</div>
+<div class="hacker">rvm use jruby</div>
+</li>
+<li>Export all Java path.
+<div class="hacker">export CATALINA_OPTS="-Xmx512m"</div>
+<div class="hacker">export JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"</div>
+</li>
+<li>Start the Tomcat.
+<div class="hacker">cd ~/apache-tomcat-8.0.28</div>
+<div class="hacker">bin/catalina.sh start</div>
+</li>
+<li>Go to browser, and type your public IP in address bar.
+<strong>http://<em><u>your_server_ip</u></em>:8080/jsample</strong>
+</li>
+</ol>
+<p>A successful execution would result into the following output on the browser:</p>
+ <p><img src="images/18647 - 3.png" alt="Success page" /></p>
+<h2>Conclusion</h2>
+<p>This way Ruby on Rails application can be converted to JRuby on Rails with just few configurations. JRuby application runs on all servlet containers such as Tomcat.</p>
+
+</body>
+</html>

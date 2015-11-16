@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Install and Secure phpMyAdmin with NGINX - Ubuntu</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+
+<p>This article describes how to install phpMyAdmin and provide it with a baseline level of security in an Nginx environment.</p>
+    <h1>Install and Secure phpMyAdmin with Nginx - Ubuntu</h1>
+        <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+        
+  <p>This article describes how to install phpMyAdmin and provide a baseline level of security for it in an Nginx environment.&nbsp; It assumes you have already <a href="http://17321%20-%20Initial%20Server%20Setup%20-%20Ubuntu.html">set up an Ubuntu server</a> and installed a <a href="http://17347%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Ubuntu.html">LEMP stack</a>.</p>
+ 
+    
+    <h2>Install phpMyAdmin</h2>
+
+                 <ol>
+               <li>Ensure that your server has the latest apt packages:
+                 <div class="hacker">sudo apt-get update</div></li>
+     <li>Install phpMyAdmin:
+       <div class="hacker">sudo apt-get install phpmyadmin</div>
+         </li>
+     <li>When a terminal appears prompting you to select <strong>Apache</strong> or <strong>lighttpd</strong> as your web server for automated configuration, press <strong>Tab</strong> on your keyboard to clear the selections (because you have Nginx installed) and advance to <strong>&lt;OK&gt;</strong>. Press <strong>Enter</strong> to continue. </li>
+     <li>When prompted at the next screen to set up <code>dbconfig-common</code>, select <strong>&lt;Yes&gt;</strong>.</li>
+     <li>Set and confirm a password.</li>
+       
+<li>You'll then be returned back to your command line. Link the phpMyAdmin installed files to the Nginx document root:       
+              
+    <div class="hacker">sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html</div>
+                     </li>  
+  <li>Enable the <code>mcrypt</code> PHP module:
+              
+    <div class="hacker">sudo php5enmod mcrypt</div> </li>
+<li>Restart PHP:
+              
+    <div class="hacker">sudo service php5-fpm restart</div> </li>
+                     </ol>
+                     
+<h2>Verify installation</h2>
+
+    <ol>
+ <li>In your web browser, navigate to <code>http://<em><u>your server IP address</u></em>/phpmyadmin</code>.  If the phpMyAdmin UI page displays, phpMyAdmin installed successfully.</li>
+<li>Optionally, log in using <code>root</code> for the user name and your MySQL root password.</li>  </ol>
+<p>You can now familiarize yourself with the phpMyAdmin UI, but be aware that your database is now exposed to the web. Next, you'll secure it.</p>
+  
+   <h2>Secure your server</h2>
+<p>There is no such thing as being too careful in securing your database server. Anyone with your web address can add &quot;phpmyadmin" and get to the phpMyAdmin login screen.  If they guess that your administrative user name is "root", they are one correct guess away from administrative access to your database server.
+</p>
+
+    <h3>Rename the phpMyAdmin page</h3>
+    <p>Right now, every hacker knows that the name of your phpMyAdmin page is <code>http://<em><u>your server or domain name</u></em>/phpmyadmin</code>.  Let's  make that name a bit more arcane.    </p>
+    <ol><li>Back at your command line, navigate to your document root directory:
+<div class="hacker">cd /usr/share/nginx/html</div></li>
+        <li>Change the name (actually, rename the symbolic link):
+            <div class="hacker">sudo mv phpmyadmin nodbhere</div></li>
+<li>Test the new name by navigating in your browser to <code>http://<em><u>your server or domain name</u></em>/nodbhere</code>.<br />
+Your browser  displays the phpMyAdmin screen.  (You can also go to the old <code>http://your server or domain name/phpmyadmin</code> address but, unless the page has been cached, you should get a "404 Not Found" error.)</li></ol>
+
+ <h3>Use OpenSSL to add Nginx web authentication</h3>
+<p>Your Nginx installation comes with OpenSSL, a tool that lets you encrypt passwords.</p>
+    <ol>
+      <li>Create a password file, <code>/etc/nginx/mypasswordfile</code>, and open it for editing.  </li>
+        <li>Add your web user name (make one up) followed by a colon (:):
+          <div class="hacker"><em><u>MyWebUserName</u></em>:</div>
+        </li>
+        <li>Save and close the file.</li>
+
+        <li>Encrypt a password:
+          <div class="hacker">openssl passwd</div>
+  <p>Once you enter and confirm your password, OpenSSL  returns the encrypted version of it.</p></li>
+        <li>Copy the encrypted version, and paste it into your password file, which now looks something like this:
+          <div class="hacker"><em><u>MyWebUserName</u></em>:<em><u>V.Cj1d1d1kew2</u></em></div>
+</li>
+ <li>Open your Nginx configuration file or a file that it references with an "include".  It looks similar to this:
+   <div class="hacker"><pre># server context
+     server {
+     ...
+     # location context
+     location / { 
+     try_files $uri $uri/ =404;     
+                }    
+     # end of server context
+    }</pre></div> </li>  
+
+  
+     <li>Create a new location context so that your file will look something like this:
+<div class="hacker"><pre>
+     # server context
+     server {
+    ...
+     
+     # location context (existing)
+     location / { 
+     try_files $uri $uri/ =404;     
+                }
+                 
+     # location context (new)
+     <em><u>location /nodbhere {</u></em>
+     <em><u>auth_basic "MyWebLoginChallenge";</u></em> 
+     <em><u>auth_basic_user_file /etc/nginx/mypasswordfile;</u></em>     
+                        <em><u>}</u></em>        
+     # end of server context
+     }</pre></div>  
+</li>
+        <li>Save and close the file.
+              
+     </li>
+        <li>Restart Nginx:        
+              
+          <div class="hacker">sudo service nginx restart</div> </li>
+    </ol> 
+
+ <h2>Next steps</h2>
+    <p>You have just installed and secured phpMyAdmin.  Now you can take your time exploring the web UI. You also may want to <a href="http://17651%20-%20Set%20up%20SSL%20Certificate%20with%20phpMyAdmin%20and%20NGINX%20-%20Debian,%20Ubuntu.html">lock down phpMyAdmin</a> a bit more with SSL.</p>
+   
+</body>
+</html>

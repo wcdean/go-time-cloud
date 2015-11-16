@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Configure your Rails application for MySQL - Arch Linux</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+
+    
+</head>
+
+<body>
+    <p>Setting up Rails application for MySQL server on Arch Linux, MySQL, Ruby, Rails</p>
+    <h1>Configure your Rails application for MySQL - Arch Linux</h1>
+    <p><strong>Difficulty</strong>: <em>1</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+    <p>This article will explain how to install MySQL&trade; and MySQL adaptor, create a Rails&reg; application, configure a database connection, and finally, how to create an application database on Arch Linux&trade;. Arch Linux uses MariaDB as its database system instead of MySQL. MariaDB is based on MYSQL, and in this article the term <em>MariaDB</em> will be used in place of MySQL in some instances.</p>
+    <p>We assume that you are logged in as a sudo user. </p>
+	 <h2>Prerequisite</h2>
+	 <ul><li><a href="17537">Install Ruby on Rails using RVM - Arch Linux</a></li></ul>
+   <h2>Install MySQL</h2>
+     <ol>
+        <li>Download and install the MariaDB database server.
+			<div class='hacker'>sudo pacman -Sy	</div>
+			<div class='hacker'>sudo pacman -S mariadb</div>
+		</li>
+		<li>Initialize MySQL database directories.
+			<div class='hacker'>sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div>
+		</li>
+		<li>Start MySQL.
+			<div class='hacker'>sudo systemctl start mysqld</div>
+		</li>
+		
+		<li>Enable MySQL to start-up at boot.
+			<div class='hacker'>sudo systemctl enable mysqld</div>
+		</li>
+		<li>You need to tell MySQL to create a database directory structure where it will store its information. You can do this by typing:
+			<div class='hacker'>sudo mysql_install_db</div>
+		</li>
+		<li>Run the MySQL installation process by typing:
+			<div class='hacker'>sudo mysql_secure_installation</div>
+After you have finished the previous command, a Welcome screen displays the following:
+		<div class='hacker'>
+		<pre>NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MySQL
+      SERVERS IN PRODUCTION USE!  PLEASE READ EACH STEP CAREFULLY!
+      In order to log into MySQL to secure it, we'll need the current
+      password for the root user.  If you've just installed MySQL, and
+      you haven't set the root password yet, the password will be blank,
+      so you should just press enter here.
+
+     Enter current password for root (enter for none): 
+	</pre>
+	</div></li>
+ 
+ 	                              
+	<li>Answer the following questions prompted by MySQL installer by typing <strong>Y</strong>.
+	<div class='hacker'>
+	<pre>
+	  Set root password?                     --> y
+	  Remove anonymous users?                --> y
+	  Disallow root login remotely?          --> y
+	  Remove test database and access to it? --> y
+	  Reload privilege tables now?           --> y
+</pre>
+	</div>
+		</li> 
+		<li>If you could not set password, use the following command to set the password: 
+	<div class='hacker'> 
+	/usr/bin/mysqladmin -u root password '<em><u>new-password</u></em>'
+	</div></li> 
+ </ol>	
+<h2>Configure MySQL</h2>
+ <ol> 
+	<li>Create a database for MySQL to store basic settings and user data.
+	<div class='hacker'> mysql -uroot -ppassword</div>	
+</li>	
+ <li>Type the following command to create a new database:
+            <div class='hacker'>create database rails_myapp;</div>
+        </li>
+<li>Add a new user for MYSQL database.
+<div class='hacker'>CREATE USER <em><u>rails_user@localhost</u></em> IDENTIFIED BY '<em><u>rails_password</u></em>';</div>
+</li>
+<li>Grant all privileges to the MYSQL user.
+<div class='hacker'>GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON *.* TO <em><u>rails_user@localhost</u></em>;</div>
+</li>
+<li>Reload the MySQL database privileges to activate the new MySQL user.
+<div class='hacker'>FLUSH PRIVILEGES;</div>
+<div class='hacker'>exit</div>
+</li>
+		<!--<li>To enable remote connections, open the MySQL database configuration file <code>my.cnf</code>, and then edit it using the vim text editor.
+			<div class='hacker'>sudo vim  /etc/mysql/my.cnf</div>
+<li>Add the following line at the end of the file:
+		<div class='hacker'>		
+		[mysqld]
+<br />		..
+<br />		.
+<br />		bind-address   =  0.0.0.0
+		</div>
+		</li>
+		<li>Save and exit.<div class="hacker">:wq!</div></li>
+-->
+		<li>Restart MySQL Server to reflect the change.
+			<div class='hacker'>sudo systemctl start mysqld</div>
+		</li>
+	</ol>
+   <h2>Set up a Rails application</h2>
+    <ol>
+	<li> Before, you run the Rails commands you need to have at least two Gems installed manually:
+       <div class="hacker"> sudo gem install railties</div>
+       <div class="hacker"> sudo gem install bundler</div>
+	   </li>
+		<li>Make sure that Rails is installed on the machine, otherwise install it. To verify, use the following command: 
+            <div class="hacker">rails -v<br />#Rails 4.2.4</div>
+		</li>
+        <li>Create a Rails application, and use the <code>-d mysql</code> option to set MySQL as the database.
+            <div class="hacker">sudo rails new your-application -d mysql </div>
+      </li>
+        <li>Change the directory to the application directory.
+          <div class='hacker'>cd your-application
+		 </div>
+      </li>
+     	
+</ol>
+		
+		<h2>Set up the database connection</h2>
+       <ol> 
+	<li>Open Gemfile. 
+	<div class='hacker'>vim Gemfile</div>
+	</li>
+	<li>In the file, comment <code> gem 'mysql2' </code> and just below this line add <code>gem 'mysql2', '~> 0.3.18'</code>.</li>
+	<li>Save and close the file.</li>
+	<li>Open your application database configuration file. 
+            <div class='hacker'>sudo vim config/database.yml</div>
+        </li>
+        <li>Set the database credentials to connect with MySQL. The following is an example of database connection.
+<div class="hacker">
+<pre>
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  username: <em><u>rail_user</u></em>
+  password: <em><u>rails_password</u></em>
+  socket: /var/lib/mysql/mysql.sock
+</pre>
+</div></li>
+<li>Save and exit.<div class="hacker">:wq!</div></li>
+<li>Type the following command and then go to the browser to execute the <strong>https://<em><u>your_server_ip:3000</u></em></strong> to run to see Ruby on rails.  
+ <div class="hacker">rails s --binding=0.0.0.0</div>
+ </li>
+  
+	</ol>
+		
+		
+		<h2>Conclusion</h2>
+		By using all of the above steps, you will be able to configure MySQL server on Arch Linux for your Rails application.
+</body>
+
+</html>

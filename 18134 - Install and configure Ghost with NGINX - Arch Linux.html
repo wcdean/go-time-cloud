@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Install and configure Ghost with NGINX - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+
+<p>Install and configure Ghost with Nginx - Arch Linux, CMS, Ghost, Nginx</p>
+<h1>Install and Configure Ghost with Nginx - Arch Linux</h1>
+    
+  <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>1.0 hrs</em></p>
+
+    <p>Ghost is a simple blogging platform that is fast and easy to set up and provides good customization options. This article  will help you to set up a Ghost blogging platform with Nginx on Arch Linux.</p>
+	<p class="note">These procedures assume that you have <code>sudo</code> privileges.</p>
+
+<h2>Prepare the machine</h2>
+    <ol>
+	<li>Update your Arch Linux server. (When prompted for confirmation during installation, enter <strong>Y</strong>.)
+	  <div class='hacker'>sudo pacman -Syu </div>
+	 </li>
+	
+	<li>Install base development tools and other dependencies.
+	<div class='hacker'>sudo pacman -S base-devel </div>
+	<p>When asked about the selection of member of base-devel, select all members by  pressing <strong>Enter</strong>.</p>
+	<div class='hacker'>sudo pacman -S zip unzip unrar</div>
+	<div class='hacker'>sudo pacman -Sy git</div>
+	<div class='hacker'>sudo pacman -Sy nodejs</div>
+	<div class='hacker'>sudo pacman -Syu npm</div>
+      </li>
+	</ol>
+	
+<h2>Install and configure Ghost</h2>
+    <ol>
+	<li>Download the latest version of Ghost from <code>Ghost.org</code>.
+	<div class='hacker'>curl -L https://ghost.org/zip/ghost-latest.zip -o ghost.zip</div>
+	</li>
+	<li>Unzip the file to a suitable folder location such as <code>/var/www/ghost</code>.
+	<div class='hacker'>sudo mkdir -p /var/www</div>
+	<div class='hacker'>sudo unzip -uo ghost.zip -d /var/www/ghost</div>
+    </li>
+	
+	<li>Install Ghost in the new <code>ghost</code> directory.
+	<div class='hacker'>cd /var/www/ghost &amp;&amp; sudo npm install --production</div>
+    </li>
+	<li>Start Ghost (production environment).
+	<div class='hacker'>sudo npm start --production</div>
+	The default port used by Ghost is 127.0.0.1:2368.
+	<p>When  starting, Ghost displays the message "Your blog is now available on <code> http://<em><u>provided URL</u></em>".</code><br/></p>
+	<p>To shut down the blog and return to the command prompt, press <strong>Ctrl+C</strong>.</p>
+    </li>
+	</ol>
+	
+<h2>Install and configure Nginx</h2>
+Nginx is used to enable connections from outside on port 80 to connect to the port that Ghost is running on, so that people can see your blog.
+    <ol>
+	<li>Install Nginx.
+	<div class='hacker'>sudo pacman -Syu nginx</div>
+	</li>
+	<li>Open the Ghost config file <code>/var/www/ghost/config.js</code> for editing.
+	<div class='hacker'>sudo vim /var/www/ghost/config.js</div>
+    </li>
+	
+	<li>Put the following code into the Ghost configuration file. The URL can be your domain name (<em><u>http://your-domainname.com</u></em>) or the public IP address of your server.
+	<div class='hacker'>
+	  <pre>
+  production: {
+        url: '<em><u>http://Your IP Address or domain name</u></em>',
+        mail: {},
+        database: {
+            client: 'sqlite3',
+            connection: {
+                filename: path.join(__dirname, '/content/data/ghost.db')
+            },
+            debug: false
+        },
+
+        server: {
+            // Host to be passed to node's `net.Server#listen()`
+            host: '<em><u>Your IP Address</u></em>',
+            // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
+            port: '2368'
+        }
+    }
+	</pre>
+	</div>
+	</li>
+	<li>Save and exit the editor by pressing <strong>ESC</strong> key and then <strong>:wq</strong>.</li>		
+	</ol>
+	
+<h2>Start Ghost server</h2>
+	<ol>
+	<li>Move to the Ghost directory.
+    <div class='hacker'>cd /var/www/ghost </div>
+	</li>
+	<li>Start  Ghost (production environment).
+	<div class='hacker'>sudo npm start --production</div>
+	</li>
+	<li>In your browser, open the page <code><em><u>http://Your domain name or IP Address:2368/</u></em></code>. The Ghost blog should be available via specified URL. <br/>
+	</li>
+	</ol>
+	      
+<h2>Next steps</h2>
+<p>In this article, you  installed and configured Ghost with Nginx on Arch Linux. The Ghost blogging platform, with its ease of deployment and use, can help you set up and extend your content management infrastructure. For an optimized performance, you can  <a href="18321">host mulitple Ghost blogs on a single server</a>.
+</p>
+</body>
+</html>

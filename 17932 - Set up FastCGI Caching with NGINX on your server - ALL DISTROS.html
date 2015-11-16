@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Set Up FastCGI Caching with NGINX on Your Server - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    	
+	table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+</style>
+
+
+</head>
+
+<body>
+<p>Set up FastCGI caching with Nginx</p>
+<h1>Set Up FastCGI Caching with Nginx - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>Time value</u></em></p>
+
+    <p>Common Gateway Interface (CGI) is an environment that allows dynamic generation of web pages.  FastCGI is currently the most popular extension of CGI.  
+        This article shows how to cache requests to your FastCGI server to increase response time to the end user.  
+        </p>
+    <p>Before working through these steps, you may want to review  <a href="http://17371%20-%20Understanding%20Nginx%20HTTP%20Proxying,%20Load%20Balancing,%20Buffering,%20and%20Caching%20-%20ALL%20DISTROS.html">Understanding Nginx HTTP Proxying, Load Balancing, Buffering, and Caching</a> or <a href="http://17500%20-%20Configure%20NGINX%20as%20a%20reverse%20proxy%20-%20ALL%20DISTROS.html">Configure Nginx as a Reverse Proxy</a>.</p>
+
+         
+<h2>Set up simple fast CGI caching</h2>
+    <p>This task assumes that you have already set up a FastCGI server named  "yourFastCGIappserver."</p>
+               <ol>
+    <li>   Create a directory on your server to store the cached data.
+      <div class="hacker">sudo mkdir -p /data/cache</div>  </li> 
+    <li>   Navigate to the Nginx configuration file, <code>nginx.conf</code>. The location depends on your <span class="hacker"> version of Linux.</span>
+      <div class="hacker">cd /etc/nginx</div>or
+       <div class="hacker">cd /etc/nginx/sites-available</div> 
+    </li>
+ <li>   If the above locations don&#39;t work, you can find it by using the find command:
+      <div class="hacker">find / -name nginx.conf</div> 
+    </li>
+     
+<li>Add the following directives to the <code>http context</code> section of the <code>nginx.conf</code> file:
+<div class="hacker"> 
+     
+ # http context 
+     <br />
+    fastcgi_cache_path /data/cache 
+    <br />
+&nbsp; keys_zone=yourcache:30m&nbsp;
+    <br />
+&nbsp; levels = 1:2
+    <br />
+&nbsp; inactive=60m<br />
+&nbsp; max_size=;<br />
+    fastcgi_cache_key $scheme$request_method$host$request_uri;
+
+    <br />
+    &nbsp;}
+</div>
+   The  directives and variables do the following:
+     <table>
+    <tr>
+    <th>Directive / Variable</th>
+     <th>Value</th>
+     <th>Remarks</th>
+    </tr>
+    <tr>
+    <td><code>fastcgi_cache_path</code></td>
+       <td><code>/data/cache</code></td>
+       <td>Defines the location of the cache.</td>
+               </tr>
+               <tr>
+    <td><code>keys_zone</code></td>
+       <td><code>yourcache:30m</code></td>
+             
+       <td>User-defined name for the memory zone and its size (30 mb).</td>
+             
+               </tr>
+               <tr>
+    <td><code>levels</code></td>
+       <td><code>1:2</code></td>
+       <td>Defines how the cache is organized. <code>1:2</code> means that <code>/data/cache</code> will have a subordinate directory structure named by a single character and that its subdirectories will have names that are two characters long (for example, <code>/data/cache/a/aa</code>, <code>/data/cache/a/ab</code>, <code>/data/cache/a/ac</code>, and so on).</td>
+               </tr>
+         <tr>
+    <td><code>inactive</code></td>
+       <td><code>10m</code></td>
+       <td>Defines how long the cache can be inactive before Nginx flushes it. The default value is <code>10</code>.</td>
+       </tr>
+               <tr>
+    <td><code>fastcgi_cache_key</code></td>
+       <td><code>$scheme$request_method$host$request_uri</code></td>
+       <td>Defines the hash key to use to create the subdirectory in the levels flag of the <code>proxy_cache_path</code> directive. You can use any reasonable combination.<br />
+         The system variables do the following:
+           <ul>
+         <li><code>$scheme</code>: Request scheme (http or https).</li>
+         <li><code>$request_method</code>: Request method (get or post).</li>
+         <li><code>$host</code>: Nginx resolves this variable in the following order: host name (from the request line), host name (from the Host request header), server name (from the Nginx server context).</li>
+         <li><code>$request_uri</code>: Complete original request URI.</li></ul></td>
+               </tr>
+              </table>
+  
+     
+            </li>
+
+        
+   <li>Add the following directives to the location context of the <code>nginx.conf</code> file or the include file it references:
+<div class="hacker">  <pre>
+  # location context 
+    location / 
+{ fastcgi_pass http://yourFastCGIappserver; 
+  fastcgi_cache yourcache; 
+  } 
+  </pre></div>
+The  directives and variables do the following:
+     <table>
+    <tr>
+    <th >Directive / Variable</th>
+     <th>Value</th>
+     <th>Remarks</th>
+    </tr>
+    <tr>
+    <td><code>fastcgi_pass</code></td>
+       <td><code>http://yourFastCGIappserver</code></td>
+          <td>Determines where the request is routed.   In this example, it is your FastCGI server.</td>
+               </tr>
+               <tr>
+    <td><code>fastcgi_cache</code></td>
+       <td><code>yourcache</code></td>
+          <td>Identifies the location of your cache as defined under the <code>http context </code>above.</td>
+             
+               </tr>
+               </table></li>
+       <li>Save and close the file.</li>
+      <li>Restart Nginx.</li>
+               </ol>
+
+ <h2>Additional considerations</h2> 
+    <p>You can configure Nginx to support more complex caching functionality.  The following includes some additional directives you may wish to add to the <code>nginx.conf</code> file. Many FastCGI directives are valid in more than one context; the examples below are valid for http, server, and location contexts.</p>
+        
+       <ul>
+               <li>Turn off caching:
+                 <div class="hacker">    fastcgi_no_cache  <em><u>string</u></em>;
+         <br />
+ fastcgi_cache_bypass  <em><u>string</u></em>;</div>The above directives do the following:
+       <table>
+    <tr>
+    <th>Directive</th>
+     <th>Remarks</th>
+    </tr>
+    <tr>
+    <td><code>fastcgi_no_cache</code></td>
+       <td>If <em><u>string</u></em> is non-null and not equal to 0, the response is not saved to cache if there is a match for <em><u>string</u></em>. May be a list.</td>
+               </tr>
+               <tr>
+    <td><code>fastcgi_cache_bypass</code></td>
+       <td>If <em><u>string</u></em> is non-null and not equal to 0, the response is not taken from cache if there is a match for <em><u>string</u></em>. May be a list.</td>
+             
+               </tr>
+               </table></li>
+               <li>Lock the cache:
+                 <div class="hacker">    fastcgi_cache_lock  <em><u>string</u></em>;
+         <br />
+  
+      fastcgi_cache_lock_age  <em><u>time</u></em>;<br />
+
+      fastcgi_cache_lock_timeout  <em><u>time</u></em>;</div>The above directives do the following:
+     <table>
+    <tr>
+    <th>Directive</th>
+     <th>Remarks</th>
+    </tr>
+    <tr>
+    <td><code>fastcgi_cache_lock</code></td>
+       <td>Can be set to <code>on</code> or <code>off</code>. Default is <code>off</code>. If <code>on</code>, disables the ability to load a new element to cache that matches the <code>fastcgi_cache_key</code> directive. If the <code>factcgi_cache_key</code> resolves to <code>/data/cache/a/ab</code> and this directory contains a file, no write to cache  occurs. </td>
+               </tr>
+               <tr>
+    <td><code>fastcgi_cache_lock_age</code></td>
+       <td>Releases the <code>fastcgi_cache_lock</code> defined above after <em><u>time</u></em>. Default is 5 seconds.</td>
+             
+               </tr>
+               <tr>
+    <td><code>fastcgi_cache_lock_timeout</code></td>
+       <td>After  <em><u>time</u></em> elapses, passes the request  to the FastCGI server without caching the request.</td>
+               </tr>
+               </table></li>
+                    <li>Specify demand-based caching:
+                      <div class="hacker">fastcgi_cache_min_uses <em><u>positive integer</u></em>;</div>The above directive does the following:
+     <table>
+    <tr>
+    <th>Directive</th>
+     <th>Remarks</th>
+    </tr>
+    <tr>
+    <td><code>fastcgi_cache_min_uses</code></td>
+       <td>After <em><u>positive integer </u></em> of requests, caches the request.</td>
+               </tr>
+    
+               </table></li>
+  
+               </ul>
+             
+    <h2>Next steps</h2>
+    <p>You have just learned how to set up a simple caching scheme. You may also wish to use <code>include</code> to reference subordinate configuration files to avoid clutter in the main <code>nginx.conf</code> file. That is, you can use included files to add all of the configuration changes listed above. </p>
+   
+</body>
+</html>

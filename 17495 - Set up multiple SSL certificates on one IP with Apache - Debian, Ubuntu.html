@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17495 -->
+
+
+<title>Set up multiple SSL certificates on one IP with Apache - Debian, Ubuntu</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p></p>
+<h1>Set up multiple SSL certificates on one IP with Apache - Debian, Ubuntu</h1>
+ <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+    <p> This article walks you through the installation of multiple SSL certificates on a single IP address on a Debian or Ubuntu server running Apache. This can be accomplished through Server Name Indication (SNI). This protocol extension allows a web server to provide separate SSL certificates for corresponding sites using virtual hosts.</p> 
+  
+  
+<h2>Prerequisite</h2>   
+  <p>If you don't have Apache installed on your server, install Apache as part of a LAMP stack on your <a href="/article/17341?prog_id =PROG_ID">Ubuntu server</a> or on your 
+   <a href="/article/17346?prog_id =PROG_ID">Debian server</a>. You can ignore the instructions for MySQL and PHP, as you do not need it for this article.</p>   
+
+<h2>Activate the SSL module</h2>
+    <p>If you already have Apache running on a Debian or Ubuntu server, SSL support is already a part of it. You only need to activate it to get started.</p>  
+<ol>
+    <li>Create a directory for each of the domain name. You will later store the certificate and the key in this directory.
+    <div class="hacker"> sudo mkdir -p /etc/apache2/ssl/<em><u>yourdomainname1.com</u></em></div>
+        <div class="hacker"> sudo mkdir -p /etc/apache2/ssl/<em><u>yourdomainname2.com</u></em></div>
+    </li>
+    <li>Activate SSL support. 
+    <div class="hacker">sudo a2enmod ssl</div>
+    </li>
+    <li>Restart Apache.
+    <div class="hacker">sudo service apache2 restart</div>
+    </li>
+</ol>
+    
+<h2>Obtain the certificates</h2>    
+    <ol>
+        <li> <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17451 - Install an SSL Certificate on Apache - Debian, Ubuntu">Install an SSL certificate.</a></li> 
+        <li>After you download your certificates, copy the certificate and the key to its corresponding directory. For example, if <em><u>gdcert1</u></em> is the certificate and the <em><u>certkey1</u></em> is the key for <em><u>yourdomainname1.com</u></em>, then move them to the directory <code>/etc/apache2/ssl/yourdomainname1.com</code>.</li>
+</ol>     
+
+<h2>Create virtual host files</h2>                                                               
+Now that you have obtained the certificates, you are ready to create and edit two virtual host files to store configuration information.
+    <ol>
+        <li>
+            <div class="hacker">sudo vim /etc/apache2/sites-available/<em><u>yourdomainname1</u></em>.com.conf</div>
+        </li>
+        <li>
+            Add the following code with the right domain name in the appropriate places.
+            <div class="hacker">
+                <pre>
+&lt;VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    ServerName <em><u>yourdomainname1.com</u></em>
+    DocumentRoot /var/www/html
+&lt;/VirtualHost>
+
+&lt;IfModule mod_ssl.c>
+&lt;VirtualHost *:443>
+    ServerAdmin webmaster@localhost
+    ServerName <em><u>yourdomainname1.com</u></em>
+    DocumentRoot /var/www/html
+
+    #   SSL Engine Switch:
+    #   Enable/Disable SSL for this virtual host.
+    SSLEngine on
+
+    #   A self-signed (snakeoil) certificate can be created by installing
+    #   the ssl-cert package. See
+    #   /usr/share/doc/apache2.2-common/README.Debian.gz for more info.
+    #   If both key and certificate are stored in the same file, only the
+    #   SSLCertificateFile directive is needed.
+    SSLCertificateFile /etc/apache2/ssl/<em><u>yourdomainname1.com/gdcert1.crt</u></em>
+    SSLCertificateKeyFile /etc/apache2/ssl/<em><u>yourdomainname1.com/certkey1.key </u></em>
+&lt;/VirtualHost>
+&lt;/IfModule>
+</pre>
+            </div>
+        </li>
+        <li>Do the same with the other configuration file. </li>
+
+    </ol>
+  
+<h2>Edit the Apache ports config file</h2>
+    To make the multiple certificates work on a single IP address, you have to make sure that the server listens on port 443. 
+    <ol>
+        <li>Open the ports.config file.
+            <div class="hacker">sudo vim /etc/apache2/ports.conf </div></li>
+        
+
+        <li>
+            Add the line <code>NameVirtualHost *:80</code> (if it does not exist already), and the line <code>NameVirtualHost *:443</code> in the configuration file that looks like:
+            <div class="hacker">
+                <pre>
+NameVirtualHost *:80
+NameVirtualHost *:443
+Listen 80
+
+&lt;IfModule mod_ssl.c>
+# If you add NameVirtualHost *:443 here, you will also have to change
+# the VirtualHost statement in /etc/apache2/sites-available/default-ssl
+# to 
+# Server Name Indication for SSL named virtual hosts is currently not
+# supported by MSIE on Windows XP.
+Listen 443
+&lt;/IfModule>
+
+&lt;IfModule mod_gnutls.c>
+Listen 443
+&lt;/IfModule>
+</pre>
+            </div>
+        </li> 
+
+    </ol>
+    
+<h2>Enable the virtual hosts</h2>
+    <ol>
+        <li>
+            Activate both the hosts.
+            <div class="hacker">sudo a2ensite <em><u>yourdomainname1.com</u></em></div>
+            <div class="hacker">sudo a2ensite <em><u>yourdomainname2.com</u></em></div>
+        </li>
+        <li>
+            Restart Apache.
+            <div class="hacker">sudo service apache2 restart</div>
+        </li>
+    </ol>
+  
+<h2>Conclusion</h2> 
+ You have now successfully installed the two SSL certificates on your web server.
+</body>
+</html>

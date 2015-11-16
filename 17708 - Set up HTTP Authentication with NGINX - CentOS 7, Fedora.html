@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Set up HTTP Authentication with Nginx - CentOS 7, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+ <p>This article describes how to set up http authentication on an Nginx web server.</p>
+    <h1>Set up HTTP Authentication with Nginx - CentOS 7, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>       
+ 
+    <h2>Overview</h2>
+    <p>Nginx uses configuration files to implement its functions. To change those functions, you can edit the files. These files have sections referred to as "contexts."  Authentication defined in a given context is inherited by contexts below it. For example:</p> 
+    <ul>
+    <li>An authentication scheme defined in the http context will apply to all server blocks.</li>
+    <li>A scheme defined at the server level will apply to all locations defined in that server block.</li>  
+    </ul>
+    
+    <p>We'll set up password authentication in a specific defined location on CentOS 7 or Fedora 20, 21.</p>
+
+   <h2>Prerequisites</h2>
+
+   <p>Make sure you have <a href="17411 - Install NGINX on your server - CentOS 7, Fedora.html">Nginx installed</a>, if you haven't already, and that Nginx is up and running.
+
+   <h2>Prepare your environment</h2>
+          <ol>
+        <li>Install the httpd-tools utilities.             
+     <div class="hacker">sudo yum -y install httpd-tools</div> 
+</li>  
+  
+  <li>Create a <code>.htpasswd</code> file in <code>/etc/nginx</code>. Choose your own username for <em><u>testuser</u></em>. 
+              <div class="hacker">sudo htpasswd -c /etc/nginx/.htpasswd <em><u>testuser</u></em></div></li>
+
+        <li>Create your password. Alternatively, you can create your own password file that fits an <a href="http://nginx.org/en/docs/http/ngx_http_auth_basic_module.html">Nginx-supported format</a>.</p></li>
+               </ol>        
+               
+   <h2>Define the realm</h2>
+   
+    There are two directives associated with http authentication: <code>auth_basic</code> and <code>auth_basic_user_file</code>.
+
+    The following example defines a realm within a location context.
+   
+   <ol>
+   <li>Open your <code>nginx.conf</code> file for editing.
+      <div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
+
+   <li><p>Define a new location block for your realm. We'll call it <em><u>testpage</u></em>. </p> 
+
+Here's the block we'll be inserting:
+<div class="hacker">location /testpage {<br/>
+  auth_basic "<em><u>your real name</u></em>";<br/>
+ auth_basic_user_file <em><u>yourpasswordfilename</u></em>;<br/>
+        }</div>
+
+ <p class="note">
+         In the example above, if you used the httpd-tools utilities, <code>yourpasswordfilename</code> would be <code>/etc/nginx/.htpasswd</code>. </p>
+
+<p>When pasting in your new location, make sure it's within the main server section but outside any other blocks.</p>
+
+An example of how your file may look like after your changes:
+  <div class="hacker"><pre>server {
+        listen       80 default_server;
+        server_name  localhost;
+        root         /usr/share/nginx/html;
+        include /etc/nginx/default.d/*.conf;
+
+<em><u>location /testpage {</u></em>
+       <em><u>auth_basic "your real name";</u></em>
+       <em><u>auth_basic_user_file yourpasswordfilename;</u></em>
+       <em><u>}</u></em> 
+
+location / {
+   try_files $uri $uri/ =404;
+ }
+
+...</pre></div></li>
+       
+ 
+<li>Save and close.</li>
+
+<li>Restart Nginx for your changes to take effect.
+  <div class="hacker">sudo service nginx restart</div></li>
+
+</ol>
+
+<h2>Check your password authentication</h2>
+ 
+ <p>You're done! Test your results by browsing to the location you defined in a web browser (your IP appended with /<em><u>testpage</u></em>):</p>
+
+  <p><code>http://<em><u>your IP or domain/testpage</u></em></code></p>
+
+   <p>You should be prompted for a username and password.</p>
+
+
+<h2>Next steps</h2>
+    <p>You have just created a scheme for http authentication on your web server. Try moving the <code>auth_basic / authbasic_user_file</code> directives to other contexts (such as inside the default server block to authenticate your whole site) to see how this affects your site. This test is especially important if your IP address contains <a href="http://articles/17360%20-%20Configure%20Nginx%20Server%20Blocks%20-%20ALL%20DISTROS.html">multiple server blocks</a> and you choose to apply authentication to one server block and leave another one "open." </p>
+
+   
+</body>
+</html>

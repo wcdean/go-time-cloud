@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Deploy a local Django app to your server - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<!--I started editing this, but the filename and subject matter do not match. Is this doc about instsalling a LAMP stack or about setting up a Django app? Sending back to coding for now. cj -->
+        <p>Set up a local Django app on Arch Linux</p>
+    <h1>Deploy a Local Django App to Your Server - Arch Linux</h1>
+
+                <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+                <strong>Time</strong>: <em><u>1.50</u></em></p>
+
+        <p>Django is a Python web framework that allows  rapid development of primarily database-driven web applications. Virtual Environments, or <code>virtualenv</code>, is a Python package that allows development within isolated Python environments. Installing or updating Python packages within one environment has no impact on other environments. </p>
+
+<h2>Install <code>virtualenv</code> and <code>virtualenvwrapper</code></h2>
+
+                <p><code>virtualenv</code> is a Python tool used to create isolated environments for Python in which you can install packages without interfering with the other virtual environments or with the system Python packages.</p>
+
+        <ol>
+                  <li>Install<code> virtualenv</code> and <code>virtualenvwrapper</code> after updating local package repository.
+                  <div class = "hacker">sudo pacman -Syu </div>                    
+                    <div class="hacker">sudo  pacman -S python2 python2-pip python2-virtualenv python-virtualenvwrapper</div>
+
+      </li>
+          <li><code>virtualenvwrapper</code> requires some initial setup.
+                    <div class="hacker">export WORKON_HOME=$HOME/.virtualenvs  </div>
+                    <div class="hacker">source /usr/bin/virtualenvwrapper.sh  </div></li>
+</ol>
+
+
+<h2>Configure the virtual environment</h2>
+
+    <ol>    <li> Create the virtual environment.
+        <div class="hacker">mkvirtualenv -p /usr/bin/python2.7 myenv</div>   </li>
+
+            <li>Activate the virtual environment.
+              <div class="hacker">workon myenv</div>  </li>
+
+    </ol>
+
+
+<h2> Install PostgreSQL, GDAL, GEOS, and PostGIS<!--The following steps don't mention installing all these things. Also, step 3 mentions installing Djanjo, which is not covered in this header. cj --></h2>
+
+    <ol>
+            <li>Install PostgreSQL and PostGIS.
+                <div class="hacker">sudo pacman -Sy postgresql postgresql-libs postgis</div>
+                Select  any default values as prompted.</li>
+
+            <li>Activate the new virtual environment if not already activated.
+                <div class="hacker">workon myenv</div></li>
+
+            <li>Install Django.
+                <div class="hacker">pip install django</div></li>
+
+    </ol>
+
+         <p>You are ready to create a Django project.</p>
+
+ <h2>Create a Django project</h2>
+
+       <ol>
+                <li> Create a Django project.
+                         <div class="hacker">django-admin.py startproject myproject</div>
+                         This command creates a <code>./myproject </code>directory containing several projects directories and files.</li>
+
+
+
+                <li> Navigate to the project directory.
+                  <div class="hacker">cd myproject</div>
+
+
+                    <p class="note">The <code>./myproject/settings.py</code> file can be modified and a preferred database backend configured. Other settings can be modified as necessary.
+         If no database backend is specified, then Django will use the default sqlite3 backend. </p> 
+
+
+                <p>You can populate the database with some default Django tables.</p>
+                        <div class="hacker">python manage.py migrate</div>
+
+                <p>The project can now be verified by launching the Django web service.</p>
+                        <div class="hacker">python manage.py runserver</div>
+
+                <p>The service should now be accessible at <strong>http://localhost:8000/</strong>. Open another terminal while the "runserver" command is running, and type this <code>curl</code> command:</p>
+                        <div class="hacker">curl http://localhost:8000/</div>
+
+
+                         <p class="note">The built-in Django web server is NOT meant to be used in a production environment.
+                         It's a tool for development only. Once the application is ready to be deployed into production, consider using a web server such as Apache or Nginx with uWSGI.</p></li>
+       </ol>
+
+
+<h2>Configure the Django app</h2>
+
+               <p> Once the project is created and operational, it's time to create an application. An application can be created in the same directory as <code>manage.py</code>. </p>
+                    <div class="hacker">python manage.py startapp myapp</div>
+
+
+                <p>This will create a <code>./myapp</code> directory with base files ready for your code.</p>
+
+<h2>Next steps</h2>
+
+               <p>Congratulations! You've now got your application deployed and are ready to build dynamic web pages.</p>
+
+
+
+
+       <p>Please make sure that Apache is installed. In a  browser, go to your server's IP address (that is, http://12.34.56.789). </p>
+</body>
+</html>

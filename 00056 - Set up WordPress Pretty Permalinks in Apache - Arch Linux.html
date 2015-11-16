@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Set up WordPress Pretty Permalinks in Apache - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Set up WordPress Pretty Permalinks in Apache for Arch Linux.</p>
+    <h1>Set up WordPress Pretty Permalinks in Apache - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Permalinks are URLs of the content published on your WordPress site. Best practices state that these URLs should be permanent and never change, but you can, of course, change your permalink structure at any time. Doing so, however,  changes the URL of all your pages, which  causes your search and referral traffic to drop since the links would be broken.</p>
+     
+<p>By default, WordPress produces dynamic links that are appended with the post ID number. Though these links work on all server environments, they're not descriptive, easily identifiable, or SEO-friendly.</p>
+
+<p>"Pretty" permalinks, on the other hand, are human-readable, descriptive, search-friendly and, depending on which format you choose, structured. </p>
+  
+<p>This article will walk you through setting up WordPress pretty permalinks on an Arch Linux system. </p>
+
+    <h2>Prerequisite</h2>
+    <p>Before you begin, Wordpress has to be fully installed. If you haven't already installed it, choose your article for either a single- or multi-site installation:</p>
+         
+<ul>
+    <li><a href="17384 - Install WordPress on your LAMP server - Arch Linux.html">Install WordPress on your LAMP server - Arch Linux</a></li>
+    <li><a href="17682 - Set up WordPress Multisite in Apache - Arch Linux.html">Set up WordPress Multisite in Apache - Arch Linux</a></li>
+</ul>
+
+
+<p>This article is for a non-root user with <code>sudo</code> privileges. </p>
+
+    
+<h2>Choose your pretty permalink type in WordPress </h2>
+
+    <ol>
+        <li>In your WordPress admin dashboard (http://<em><u>coolexample.com</u></em>/wp-admin), go to the <strong>Settings</strong> panel on the left, then to <strong>Permalinks</strong>.<br/> </li>
+      
+
+        <li>Choose your permalink type. A common option is  <strong>Post Name</strong>.<br/>
+        <img src="images/00056/091615/wordpress-pretty-permalinks-page.png" alt="wordpress pretty permalinks page" /></li>
+
+        <li>
+          Select <strong>Save changes</strong>.
+            
+            Notice this message at the bottom of the page, right below <strong>Save Changes</strong>:   
+            <br />
+            <br />
+          If your <code>.htaccess</code> file were writable, we could do this automatically, but it isn't so these are the mod_rewrite rules you should have in your .htaccess file. Click in the field and press CTRL + A to select all.</p>
+          <br />
+          <br />
+      <code>.htaccess</code> files are Apache configuration files that WordPress uses along with the module mod_rewrite to create permalinks. Our <code>.htaccess</code> file is not writable by WordPress, but we will enable them.</li>
+    </ol>
+
+<h2>Enable URL rewrites</h2>
+  
+ <p> We have to change the configuration of Apache to read <code>.htaccess</code> files. We'll do this by enabling <code>AllowOverride</code>. When this directive is set to None, your server ignores all <code>.htaccess</code> files,  attempting to read none of them. When <code>AllowOverride</code> is set to All, any command with <code>.htaccess</code> is allowed in.</p>
+  
+<p>You'll likely have to enable <code>AllowOverride</code> in your document root directory.</p> 
+ 
+<h3>Modify your <code>httpd</code> file to enable <code>mod rewrite</code></h3>     
+
+<p>If you have a multisite WordPress installation, you likely have completed most of these steps already.</p>
+
+<ol>
+<li>Open your <code>httpd.conf</code> file.
+  <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
+
+<li>Enable <code>mod rewrite</code>. Find this line and uncomment it:
+<div class="hacker">LoadModule rewrite_module modules/mod_rewrite.so</div> 
+(Search "LoadModule rewrite_module" to get to the line.)</li>
+
+<li><code>AllowOverride All</code> allows all options in your <code>.htaccess</code> file. 
+Find all instances of <code>AllowOverride,</code> and change None to All.
+ <div class="hacker">AllowOverride <em><u>All</u></em></div></li>  
+
+<li>Find <code>DirectoryIndex</code>, and add &quot;index.php&quot; to the line so that it reads:
+  <div class="hacker">DirectoryIndex <em><u>index.php</u></em> index.html</div>                 
+</li>
+     </ol>
+  
+   <h2>Create the .htaccess files</h2>
+   
+  <ol>
+  <li>Because you have SSH access to the server, you can create the <code>.htaccess</code> files within your document root using the <code>touch</code> command.
+    <div class="hacker">sudo touch /srv/http/.htaccess </div></li> 
+
+<li>Change ownership using <code>chown</code> to make the web server the owner:
+  <div class="hacker">sudo chown http:http /srv/http/.htaccess * -R</div>
+</li>
+   </ol>
+
+ <h2>Modify <code>.htaccess</code> privileges</h2>
+
+ <ol>
+     <li>Grant read-write permissions.
+<div class="hacker">sudo chmod u+x /srv/http/.htaccess * -R</div>
+  Now WordPress can rewrite the rules for you.</li>
+<li>Go back to your WordPress admin dashboard, reload, and you'll see that the "If your <code>.htaccess</code> file were writable..." message from earlier has disappeared.  </li>
+<li>Select <strong>Save changes</strong> in the dashboard, and go back to your command line.</li>
+
+ <li>        Restart Apache.
+     <div class="hacker">sudo systemctl restart httpd</div></li>
+
+
+ </ol>
+
+       
+<h2>Conclusion</h2>
+    
+    <p>Congratulations! You have set up WordPress pretty permalinks on your Apache server.</p>
+   
+</body>
+</html>

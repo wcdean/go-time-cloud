@@ -1,0 +1,266 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Scaling Ruby on Rails Setting Up A Dedicated PostgreSQL Server (Part 3) - Arch Linux</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+    
+</head>
+
+<body>
+
+<p>Setting up a dedicated PostgreSQL server to host Ruby on Rails application servers, scaling, PostgreSQL, Ruby on Rails</p>
+<h1>Scaling Ruby on Rails: Setting Up a Dedicated PostgreSQL Server (Part 3) - Arch Linux </h1>
+
+<p><strong>Difficulty: </strong> 4</p>
+<p><strong>Time: </strong> 30 minutes</p>
+
+<p>In this article, you'll create a PostgreSQL server to use as a database layer for scaling a Ruby on Rails (RoR) application. You'll learn to combine a PostgreSQL database server with a RoR web server to build a robust and scalable application.</p>
+<h2>Prerequisites</h2>
+<ul>
+    <li>Install Ruby on Rails. See <a href="17537"> Install Ruby on Rails using RVM - Arch Linux</a>
+	</li>
+	
+</ul>
+
+<p>This article is third in a three-part series. To visit the first two parts, see:</p>
+<ul>
+<li><a href ="17954">Scaling Ruby on Rails Applications across Multiple Servers (Part 1) - Arch Linux</a></li>
+<li><a href="17983">Scaling Ruby on Rails: Setting Up A Dedicated MySQL Server (Part 2) - Arch Linux</a></li>
+</ul>
+
+<h2>Choose a database server</h2>
+
+<p>Rails supports various relational and non-relational databases, such as PostgreSQL in a relational database and NoSQL in a non-relational database. When beginning app development with Rails, you can use SQLite as the database because it does not require constraints and can handle a small volume of data. However, if the application includes large volumes of data and requires foreign and primary keys as constraints, then consider RDBMS.</p>
+
+<p>Choose a database backend carefully, as you cannot change it often. Some popular databases that can handle large volumes of data are Oracle, MSSQL, MySQL, and PostgreSQL. In this article, we'll use PostgreSQL, the most popular and lightweight database.</p>
+<h2>Install PostgreSQL</h2>
+<ol>
+
+<li>
+Install the PostgreSQL package. 
+  <div class="hacker">sudo pacman -S postgresql  </div>
+</li>
+<li>
+Run following command. 
+  <div class="hacker">sudo pacman -Syu </div>
+</li>
+<li>
+Install <code>pgadmin3</code> for the administrator. This is an easy-to-access GUI for PostgresSQL and is an optional installation but useful when used on a desktop.
+<div class="hacker"> sudo pacman -S pgadmin3 </div>
+<P>Enter 1 for default provider on prompt</p>
+</li>
+<li>Check if PostgreSQL has been installed.
+  <div class="hacker"> sudo pacman -Si postgresql </div>
+</li>
+<li>It is recommended to initialize the database cluster on a disk before performing any further tasks to store all the data. You can use the <code>/usr/local/pgsql/data</code> or <code>/var/lib/postgres/data</code> location to store data.
+  <div class="hacker"> sudo mkdir -p /var/lib/postgres/data </div>
+</li>
+<li>Change the owner of the <code>/var/lib/postgres</code> directory and its contents to the <code>postgres</code> user (the default user when you install PostgresSQL).
+ <div class="hacker"> sudo chown -c -R postgres:postgres /var/lib/postgres </div>
+</li>
+<li>To initialize a database cluster, use the command <code>initdb</code>, which is installed with PostgreSQL. This  must be done as the <code>postgres</code> user.
+ <div class="hacker"> sudo -i -u postgres</div>
+
+ <div class="hacker">initdb -D '/var/lib/postgres/data'</div>
+</li>
+<li>
+Log out  the <code>postgres</code> user, and restart the PostgreSQL service.
+<div class="hacker"> logout</div>
+<div class="hacker">sudo systemctl start postgresql</div>
+</li>
+
+<li>If you want PostgreSQL to start automatically every time your VPS boots up, use this command:
+  <div class="hacker"> sudo systemctl enable postgresql</div>
+</li>
+</ol>
+<h2>Set up the PostgreSQL server</h2>
+<ol>
+<li>
+Change the <code>postgres</code> user password, and run the <code>psql</code> command.
+<div class="hacker"> sudo -u postgres psql postgres </div>
+</li>
+<li>
+Set the desired password for the "<code>postgres</code>" database role.
+<div class="hacker"> \password postgres </div>
+<p>If prompted, type your password again. </p>
+</li>
+<li>Exit from the PostgreSQL prompt.
+<div class ="hacker">\q</div></li>
+</ol>
+<h2>Create the user and database </h2>
+<ol>
+<li>Login with the <code>postgres</code> system user.
+
+  <div class="hacker">sudo -u postgres psql </div>
+</li>
+<li>Create a  database user for Rail application and set a password for database user.
+<div class ="hacker">CREATE USER <em><u>rails_myapp_user</u></em> WITH PASSWORD '<em><u>pwd</u></em>';</div>
+<div class="hacker">/password <em><u>rails_myapp_user</u></em> </div>
+</li>
+<li>Create a database for Rail application.
+<div class="hacker">CREATE DATABASE <em><u>rails_myapp</u></em> OWNER <em><u>rails_myapp_user</u></em>; </div>
+<p>The database server will be used to load balance multiple applications.</p>
+</li>
+<li>Create  a user for database handling.
+  <div class="hacker">createuser -s -U postgres –interactive </div>
+</li>
+<li>Before you create any table and input data into this database,  pull out the database users and their privileges.
+<div class="hacker">\du </div>
+
+ 
+ </li>
+ <li>Close the PostgreSQL database shell.
+   <div class ="hacker">\q</div>
+ </li>
+</ol>
+<h2>Construct the database server layer</h2>
+
+<p>To reduce server load and CPU usage and to make the database server centrally accessible, you need a load-balancer, two application servers, and one database server to set up the database server layer. This is how the architecture will look:</p>
+  <img src="images/17896.png" alt="Database server layer" />
+<h2>Establish remote connection</h2>
+Because you need the PostgreSQL server to be accessible from remote computers running the Rails application, the configuration file must be modified.
+<ol>
+<li>
+Open the configuration file.
+	<div class="hacker"> sudo vim /var/lib/postgres/data/postgresql.conf </div>
+
+</li>
+<li>Configure PostgreSQL to listen to connections from the IP address assigned to the server. To do this, find the following line and uncomment it: 
+<div class="hacker"> listen_addresses = 'localhost'  </div>
+<p>Replace with <code>listen_addresses = '*'</code> or <code>listen_addresses = '<em><u>Your_public_ip</u></em>'</code></p>
+
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+	
+	</li>
+<li>
+Tell PostgreSQL the specific connections you'd like it to accept, similar to how firewalls work:
+  <br />
+  Edit the PostgreSQL file <code>pg_hba.conf</code> using the <code>vim</code> text editor.
+	<div class="hacker"> sudo vim /var/lib/postgres/data/pg_hba.conf </div>
+	Scroll down in the file, and find this section:
+	<div class="hacker">
+	<pre> # Put your actual configuration here
+ # ..
+</pre></div>
+After the comment block, append the following line:
+<div class="hacker">
+<pre> # TYPE   DATABASE      USER        ADDRESS        METHOD
+	host        all        all        0.0.0.0/0        md5
+</pre></div>
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+	
+	</li>
+<li>Restart  the PostgreSQL service.
+  <div class="hacker"> sudo systemctl restart postgresql </div> </li>
+</ol>
+<h2>Create a Rails application.</h2>
+<ol>
+
+<li>Go to home directory and create a Rails application.
+<div class ="hacker">cd /home/<em><u>Logged_in_user</u></em></div>
+
+
+<div class="hacker">rails new <em><u>Your_application</u></em></div>
+<div class="hacker">cd <em><u>Your_application</u></em></div>
+<div class="hacker">bundle install</div>
+<div class="hacker">rails server</div>
+<p>Now, your Rails server should be running. Press <strong>CTRL+C</strong> to terminate the process.</p>
+</li>
+</ol>
+
+<h2>Deployment of Rail application.</h2>
+<ol>
+<li>
+Go to Rail application directory.
+<div class="hacker"> cd /home/<em><u>Logged_in_user</u></em><em><u>/Your_application</u></em></div>
+</li>
+<li>Go to the <code>config</code> application directory, and open <span class="hacker"><code>database.yml</code></span>:
+<div class="hacker">cd config</div>
+<div class="hacker">sudo vim database.yml</div>
+You'll see the database settings separated by environment names. Because an application needs to run using the production environment, edit the configuration file for that.
+</li>
+<li>
+Copy the environment variable at the end of the file, and edit as required. 
+  <div class="hacker"> <pre>production:
+  adapter: postgresql # set you database adpteer
+  encoding: utf8 #encoding
+  database: <em><u>rails_myapp</u></em> #your database name
+  username: <em><u>rails_myapp_user </u></em> # database username
+  password: pwd # replace it with your password
+  host: 192.168.13.130# host where postgresql is setup
+  port: 5432
+  pool: 10 
+</pre></div>
+
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+	
+	</li>
+<li>Change directory to application root directory.
+
+  <div class="hacker">cd .. </div>
+</li> 
+<li>Open the <code>Gemfile</code> to add the <code>pg</code> gem.
+
+  <div class="hacker">sudo vim Gemfile </div>
+</li> 
+<li>Add the following line:
+<div class="hacker">gem 'pg' </div>
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+	
+	</li>
+<li>Install all the  <code>GemFile</code> dependencies.
+  <div class="hacker">bundle install </div>
+</li>
+</ol>
+
+<p>If the PostgreSQL server fails to connect, check the firewall settings, and allow the port for the PostgreSQL server to accept requests from both incoming and outgoing ports. Make sure that the ports are allowed for required IPs only, for secure Internet access.</p>
+
+<h2>Conclusion</h2>
+
+<p>In this article, you learned to set up a scalable PostgreSQL database server and deploy it with a Rails application.</p>
+
+</body>
+</html>

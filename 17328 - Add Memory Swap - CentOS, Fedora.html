@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head>
+<!--Article Number is 17328-->
+<title>Add Memory Swap - CentOS, Fedora</title>
+<style type="text/css">
+
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+ 
+  
+
+  
+</head>
+
+<body>
+<p>Getting started on adding swap space on CentOS or Fedora to simulate additional memory and ultimately increase server optimization. </p>
+<h1>Add Memory Swap - CentOS, Fedora</h1>
+  <p><strong>Difficulty</strong>:<em> 2</em><br />
+<strong>Time</strong>: <em>15 minutes</em></p>
+  
+A swap file, or partition, is an area on the hard drive that temporarily holds inactive memory pages. When a system reaches low-memory mode, it swaps a section of the RAM used by an idle program onto the hard disk to free up space for other essential programs. <p />
+
+This intelligent mix of swap files and RAM is called virtual memory and allows a system to increase the memory capacity of the original built-in RAM. An easy way to increase cloud server performance is to add swap space.<p />
+
+This guide will walk you through how to create and enable a swap file on a CentOS or Fedora&trade; server.<p />
+
+To start, make sure you have the latest CentOS or Fedora server installed with a non-root user that has sudo or administrative privileges. You will be proceeding as a non-root user with sudo privileges.<p />  
+ 
+
+<h2>Check current swap space usage</h2>
+
+Check to see what swap space you have available by reviewing your summary of swap usage. You can do this with the <code>swapon</code> command or <code>free</code> utility.
+
+<h3>Check the swap space usage with the swapon command</h3>
+<p>Use <code>swapon -s</code> if your computer is not yet set up or if you're unsure where the swap would be located:</p>
+<ul>
+<li>
+<div class="hacker">sudo swapon -s</div></li>
+</ul>
+You may get an output like this:
+<div class="hacker"><pre>
+Filename                Type        Size    Used    Priority 
+</pre></div>                          
+Or, you may get no output at all. Both mean you do not currently have any swap space enabled. <br /> 
+
+Here's an example of the results if your system does have configured swap:
+<div class="hacker"><pre>
+Filename           Type         Size      Used  Priority 
+/dev/sda7          partition    123450    100   -1
+</pre></div>
+
+<h3>Check the swap space usage with the free command</h3>
+Another way to check swap space is to use the <code>free</code> command.<p />
+<ul>
+<li>Run the following command.
+ 
+<div class="hacker">free -m</div></li>
+        </ul>
+The results are displayed.  In this example, the total swap space in the system is "0", matching the output from the swapon command. 
+
+<div class="hacker"><pre>
+              total       used       free     shared    buffers     cached 
+Mem:          4902        102       4800          0          8         82    
+-/+ buffers/cache:         62       3890                                        
+Swap:            0          0          0                                            
+</pre> </div>
+<p /> 
+<h3>Check the file system</h3>
+
+Check the amount of free  space available on the hard disk of your server to make sure there is enough free space for your swap file.<p />
+<ul>
+<li>The flag <code>-h</code> tells the command <code>df</code> to return drive information in a readable format. 
+<div class="hacker">df -h</div>
+</li>
+</ul>
+The results tell us the space usage and availability in M (for MB) or G (for GB). In this example, you have 40 GB available.<p />
+<div class="hacker"><pre>
+Filesystem      Size  Used Avail Use% Mounted on 
+/dev/vda         50G  10G   40G   20% /                                    
+none            4.0K     0  4.0K   0% /sys/fs/cgroup  
+udev            2.0G   12K  2.0G   1% /dev            
+tmpfs           396M  312K  396M   1% /run           
+none            5.0M     0  5.0M   0% /run/lock      
+none            2.0G     0  2.0G   0% /run/shm       
+none            100M     0  100M   0% /run/user      
+</pre></div>
+
+
+<p class="note">The space you need depends on your requirements, but in general start with an amount equal to or double the amount of RAM on your system.</p>       
+
+<h2>Create a swap file</h2>
+
+Now that you've established you have available storage space, you can add a swap file to your system. You'll do this by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. You will allocate the amount of space you want for your swap file. <p /> 
+
+There are two ways to add swap files: use the <code>fallocate</code> command or use the <code>dd</code> command.
+
+
+<h3>Create a swap file using the fallocate command</h3>
+You can gain more file space with the <code>fallocate</code> command - used to manipulate file space. The <code>fallocate</code> creates a file of a preallocated size instantly, without having to write dummy contents. <p />
+<ol>
+<li>Create the file to be used for swap. For this example, we will add a 4 GB file.
+
+<div class="hacker">sudo fallocate -l 4G /swapfile   </div> <p /> </li>
+
+
+<li>Verify the correct amount of space was reserved. 
+
+<div class="hacker">ls -lh /swapfile   </div></li></ol>
+<p>
+Your output will look something like this:</p>
+<div class="hacker">-rw-r--r-- 1 root root 4.0G Jul 08 10:52 /swapfile </div>
+
+The file was added with the correct amount of space set aside.<p />
+
+<p>Rarely, you get a failure message: <code>fallocate failed: Operation not supported</code>. This means your file system doesn't currently support <code>fallocate</code> (for example, ext3). Use the more traditional method with the <code>dd</code> command instead. </p>
+
+<h3>Create a swap file using dd command</h3>
+
+The traditional method of creating a swap file with preallocated space is to use the <code>dd</code> command. Even though it may not be as quick as <code>fallocate</code>, it's a versatile disk utility that writes from one location to another.
+<ol>
+<li>
+To add a swap file the size of 4 GB, specify a block size <code>bs</code> of "1 GB" and a <code>count</code> of "4." 
+<p class="warning">
+Double-check this particular command because it has the potential to destroy data if the <code>of</code> command (output file) is pointed to the wrong location.</p>
+
+<div class="hacker">sudo dd if=/dev/zero of=/swapfile bs=1G count=4       </div>
+
+You'll likely have to wait a few seconds, but once it generates, the output will look like:
+<div class="hacker"><pre>
+4+0 records in    
+4+0 records out  
+4094967296 bytes (4.1 GB) copied, 18.0017 s, 215 MB/s    
+</pre></div> </li>
+
+<li>Verify the file has been created on the server.
+
+<div class="hacker">ls -lh /swapfile   </div>
+
+Your output may look like:
+<div class="hacker">-rw-r--r-- 1 root root 4.0G Jul 08 10:53 /swapfile   </div>
+ </li>
+</ol>
+The system created the file by writing 4 GB of zeroes to the disk.<p />
+
+
+<h3>Enable the swap file</h3>
+
+Your file has now been created. Tell the system to format your file as swap, and then enable it.
+
+<ol>
+<li>Change the permission of the swap file so that only the root user can access it. By default, swap files are readable by the world when first created, so locking the permissions will prevent users from reading potentially sensitive information.
+
+<div class="hacker">sudo chmod 600 /swapfile </div>
+</li>
+<li>
+Verify that the file has the correct permissions.
+
+<div class="hacker">ls -lh /swapfile  </div><p />
+
+Look for your output, which will resemble:
+<div class="hacker">
+-rw------- 1 root root 4.0G Jul 08 10:40 /swapfile </div>     <p />
+This example confirms that only the root has read and write flags enabled.
+</li>
+
+<li>Format that file to create a swap space.
+
+<div class="hacker">sudo mkswap /swapfile </div><p />
+
+Your output:   
+<div class="hacker">Setting up swapspace version 1, size = 4194300 KiB   <br />
+no label, UUID=e2f1e9cf-c0a9-4ed4-b8ab-714b8a7d6944                          </div>
+</li>
+
+<li>Mount/enable the swap space in the system.
+
+<div class="hacker">sudo swapon /swapfile    </div>   </li>
+                                                           </ol>
+ 
+<h3>Make the change (swap file) permanent</h3>
+
+
+<ol><li>The Linux file system table <code>fstab</code> has the information of all your system's storage partitions and devices (such as hard drives). Let's get this file so we can modify it.  
+
+  <div class="hacker">sudo vim /etc/fstab   </div>   </li>
+
+<li>At the end of the file, tell the operating system to automatically use the newly-created swap space.
+
+<div class="hacker">/swapfile   none    swap    sw    0   0   </div> </li>
+
+<li>Save and close. </li>
+</ol>
+<p>After the next reboot, the swap will be used automatically.</p>
+
+<h2>Optimize virtual memory </h2>
+
+You can tune the following settings of your swap file to optimize virtual memory. <br />
+<ul>
+<li><code>Swappiness</code></li>
+<li><code>Cache Pressure</code></li>
+</ul>  
+
+"Swappiness" is a setting that controls how often the swap file is used (or the tendency of the system to move processes out of physical memory and onto the swap disk). <p />
+
+As a percentage between 0 and 100, a swappiness value of:   <p />
+<ul>
+<li>"0" means swapping processes out of physical memory will be avoided until absolutely necessary (memory is depleted)</li> 
+<li>"100" means aggressively (almost instantly) moving swap processes out of physical memory and into the swap cache </li>
+</ul>
+          
+<p class="note">Interactions with the swap file are resource-intensive because they take much longer than interactions with RAM and can cause a significant reduction in system performance. Instructing your system not to overly rely on the swap can help boost overall system performance.      </p>
+
+<h3>Find your current swappiness</h3>
+
+<ul><li>See your swappiness value by reading the swappiness config file. 
+<div class="hacker">cat /proc/sys/vm/swappiness  </div></li></ul>
+
+The output is a simple value.
+<div class="hacker">30 </div>
+The default swappiness value on CentOS 7 is "30," while on CentOS 6 and Fedora it is "60." Reducing the value may improve overall performance for a desktop, and very likely improve the performance for a database server or virtual private server (VPS). Try setting the <code>swappiness=10</code> to start, and then increase if needed. <p />
+
+            
+<h3>Set the swappiness to a different value</h3>
+<ol>
+<li>For this example, set the swappiness to "10."
+
+<div class="hacker">sudo sysctl vm.swappiness=10 </div>
+
+The output will indicate the value is now "10."
+<div class="hacker">vm.swappiness = 10     </div>
+
+This setting will be active until the next reboot. </li>
+<li>To set this value automatically at restart, let's modify the config file. First, open your <code>/etc/sysctl.conf</code> file.                                          
+
+<div class="hacker">sudo vim /etc/sysctl.conf</div> </li>
+
+<li>Add at the end of the file, add this text. 
+
+<div class="hacker">vm.swappiness=10  </div>  </li>
+
+<li>Save and close.</li>
+</ol>
+
+<h3>Tune the cache pressure</h3>
+
+The variable  <code><em><u>vfs_cache_pressure</u></em></code> controls the tendency of the kernel to reclaim the memory, which is used for caching of VFS caches (dentry and inode_cache objects) over other data such as pagecache and swap. <p />
+
+Because VFS cache is access data about the file system, it's frequently requested and very resource-intensive. Thus, it's a prime setting for your system to cache.                           <p /> 
+<ol>                                                           
+<li>Find the current cache value by querying the proc file system again.
+
+<div class="hacker">cat /proc/sys/vm/vfs_cache_pressure</div>
+
+You'll find the output is 100.
+<div class="hacker">100</div>
+</li>
+<li>In this example, setting "100," your system removes inode information from the cache too quickly. Change this to a more conservative setting such as "50."
+
+<div class="hacker">sudo sysctl vm.vfs_cache_pressure=50    </div>
+
+The output will look like this:
+<div class="hacker">vm.vfs_cache_pressure = 50</div>
+</li>
+<li>Again, this will only persist for your current session. To set the value automatically upon restart, add the same line from the swappiness step.   
+
+<div class="hacker">sudo vim /etc/sysctl.conf</div>      </li>
+
+<li>At the end of the file, add the line:
+
+<div class="hacker">vm.vfs_cache_pressure = 50 </div>    </li>
+  </ol>
+  
+<h2>Verify swap space was enabled</h2>
+<ol>
+<li>Check your work with any of these three commands:
+<ul>
+<li>For a general report:
+<div class="hacker">sudo swapon -s        </div>
+
+Output may look like this:
+<div class="hacker"><pre>
+Filename                Type        Size    Used    Priority 
+/swapfile               file        4194300 0       -1
+</pre></div>
+You'll see that a swap file of 4 G.0 was added.
+</li>
+
+<li>For a more detailed report:
+<div class="hacker">free -m</div>
+</li>
+
+<li>For a report on just swap details:
+<div class="hacker">cat /proc/meminfo | grep -i swap</div>
+</li>
+</ul></li>
+
+<li>Save and close.</li>
+</ol> 
+
+<h2> Conclusion</h2>
+    
+Swapping enables you to increase the amount of information that your server can keep in its working memory. Even though reading from and writing to swap is slower than using actual memory, swap can be a good safety net for the times your server is low on memory.
+
+Remember that hard disks have a slower memory than RAM and so you should tune your swap settings judiciously to prevent swap thrashing (when the hard drive is overworked by information moving excessively between system memory and virtual memory).
+  <p />
+    
+                                   
+    
+
+  </body>
+</html>

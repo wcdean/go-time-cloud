@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18264-->
+
+<title>Install and configure Drupal on your LEMP server - Ubuntu, Debian, CentOS 6</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Install Drupal on a LEMP stack for Debian, Ubuntu, CentOS 6.</p>
+    <h1>Install and configure Drupal on your LEMP server - Ubuntu, Debian, CentOS 6</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>3</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+
+   <p>Drupal is a content management framework. In this article, you will learn how to install Drupal on a LEMP stack.  </p>
+
+    <p>  If you haven't already, install a LEMP stack. Choose your article for more  instructions based on your distribution.</p>
+       
+       <ul>
+
+<li><a href="19186 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 6.html">Centos 6</a></li>
+<li><a href="17351 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Debian.html">Debian</a></li>
+<li><a href="17347 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu.html">Ubuntu</a></li>
+</ul>
+   
+ <h2>Platform Preparation</h2>
+   <ol>
+<li>Install unzip and the gd php extension.  For Centos:
+    <div class="hacker">sudo yum install unzip php5-gd</div>
+    For Debian, Ubuntu:
+     <div class="hacker">sudo apt-get install unzip php5-gd</div>
+</li>
+       <li>Navigate to your home directory.
+    <div class="hacker">cd ~</div>
+</li>
+ <li>Go to drupal.org to find the most recent release.&nbsp; This document will use 7.x as an example.
+    <div class="hacker">wget https://github.com/drupal/drupal/archive/7.x.zip </div>
+</li>
+<li>The Drupal download is a zip file, so you will have to unzip it.
+
+    <div class="hacker">sudo unzip 7.x.zip</div>
+</li>
+<li>Create a directory under the web root to store the Drupal files 
+    <div class="hacker">sudo mkdir /usr/share/nginx/html/drupal</div>
+</li>
+<li>Move the Drupal files from their unzipped location in your home directory to your new <code>drupal</code> directory.
+    <div class="hacker">sudo mv drupal-7.x/* /usr/share/nginx/html/drupal/</div>
+</li>
+       </ol>
+
+ <h2>Prepare the database</h2>    
+    <ol>
+<li>Open a MySQL session.
+    <div class="hacker">mysql -u root -p</div>
+</li>
+<li>Create a Drupal database.
+    <div class="hacker">CREATE DATABASE <em><u>drupal</u></em>;</div>
+</li>
+<li>Create a new user.
+    <div class="hacker">CREATE USER <em><u>drupaluser</u></em>@localhost IDENTIFIED BY '<em><u>password</u></em>';</div>
+</li>
+<li>Grant your new user, <code>ALL PRIVILEGES</code>.
+    <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>drupal</u></em>.* TO <em><u>drupaluser</u></em>@localhost IDENTIFIED BY '<em><u>password</u></em>';</div>
+</li>
+<li>Write your changes to disk.
+    <div class="hacker">FLUSH PRIVILEGES;</div>
+</li>
+<li>Exit MySQL session.
+    <div class="hacker">exit</div>
+</li>
+       </ol>
+    <h2>Finishing Touches</h2>
+  <ol>     
+   <li>Change ownership of the drupal document root so the install process can write to it.
+      
+    <div class="hacker">  
+      sudo chown -R www-data:www-data /usr/share/nginx/html/drupal  </div>
+  </li>                  
+ <li>In your browser, navigate to <strong>http://<em><u>your_IP Address</u></em>/drupal</strong> and use the Drupal UI to configure Drupal to meet your needs.
+ </li>
+  </ol>
+            
+    <h2>Next Steps</h2>
+    <p>Congratulations! You have successfully installed Drupal.</p>
+   
+</body>
+</html>

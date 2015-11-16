@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<!--Article Number 17473-->
+<head>
+
+<title>Install Apache Tomcat 7 - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px;
+}
+
+.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+<body>
+<p>Install Apache Tomcat 7 in Ubuntu and Debian.</p>
+    <h1>Install Apache Tomcat 7 - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <h2>About Tomcat</h2>
+	<p>Apache Software Foundation developed Tomcat as an open source web server to serve Java applications. This article walks through the installation and basic configuration of Tomcat7 on a Debian or Ubuntu server. It assumes you have completed the initial server setup on your <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17325%20-%20Initial%20Server%20Setup%20-%20Debian.html">Debian</a> or <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17321%20-%20Initial%20Server%20Setup%20-%20Ubuntu.html">Ubuntu server</a>, and have also <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17428%20-%20Add%20and%20Delete%20users%20on%20your%20server%20-%20Ubuntu,%20Debian.html">created a non-root user account</a>.</p>                                        
+
+ 
+
+    <h2>Install Tomcat</h2>
+    <p>There are a number of ways to install Tomcat, but we will use the apt-get method, which is the simplest.</p> 
+    <p class="note">This method will install the latest version of Tomcat in the Debian or Ubuntu repository. It is not necessarily the latest Tomcat release.</p>
+    <ol>
+    <li>Update the packages repository.
+	<div class="hacker">sudo apt-get update</div></li>
+    <li>Install Tomcat. When prompted to confirm the installation, type <strong>y</strong>.
+	<div class="hacker">sudo apt-get install tomcat7</div></li>
+    <li>To change the default Java options, which Tomcat will reference when starting, open the Tomcat parameters file.
+	<div class="hacker">sudo vim /etc/default/tomcat7</div></li>
+	<li>In the file, replace the line that starts with <code>JAVA_OPTS</code> with the line below. You can also change the <em><u>Xmx</u></em> and <em><u>MaxPermSize</u></em> values to change Tomcat's memory usage.
+	<div class="hacker">JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx512m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC"</div>	
+	</li>
+    <li>Exit vim. If prompted, confirm the save.</li>
+    <li>Restart Tomcat.<br />
+	<div class="hacker">sudo service tomcat7 restart</div></li>
+    </ol>
+	
+	<p>Tomcat still needs some configuration work, but you can confirm the installation by going to <strong>http://<em><u>server_ip_address</u></em>:8080</strong>. If everything was done correctly, you will see "It works!" at the top of the Splash page.</p>
+
+    <h2>Install additional packages</h2>
+	<p>Install Tomcat's online documentation, the web application manager, and some example web apps. </p>
+  <ul><li>Run the following command, and then type <strong>y</strong> when prompted to confirm the installations. 
+	<div class="hacker">sudo apt-get install tomcat7-docs tomcat7-admin tomcat7-examples</div></li>
+  </ul>
+
+	<h2>Install optional packages</h2>
+    <p>If you intend to develop Java applications on this server, you will want to install the Java Development Kit (JDK).</p> 
+    <ul>
+    <li>To install the JDK, run the following command and type <strong>y</strong> when prompted to confirm the installation. 
+	<div class="hacker">sudo apt-get install default-jdk</div></li>
+  </ul>
+	
+  <p>Tomcat documentation suggests installing a source control system, like Git, as well as Apache Ant (used to develop Java applications).</p> 
+  <ol>
+  <li>To install Git and Ant, run the following command. 
+	<div class="hacker">sudo apt-get install git ant</div></li>
+  <li>Type <strong>y</strong> when prompted to confirm the installations.</li>
+  </ol>
+	
+	<h2>Configure the Tomcat web management interface</h2>
+	<p>In order to use the web application manager that you installed as part of the additional pages, create a user.</p>
+	
+	<ol>
+	<li>Open the Tomcat users file. 
+	<div class="hacker">sudo vim /etc/tomcat7/tomcat-users.xml</div></li>
+	<li>Add the following line of code immediately after <code>&#60;tomcat-users&#62;</code>:
+	<div class="hacker">&#60;user username="admin" password="password" roles="manager-gui,admin-gui"/&#62;</div>
+	<div class="note">You will obviously want to change the <code>username</code> and <code>password</code> values to something more secure.</div></li>	
+    <li>Exit vim. If prompted, confirm the save.</li>
+    <li>Restart Tomcat.<br/>
+	<div class="hacker">sudo service tomcat7 restart</div></li>
+    </ol>
+	
+	<h2>Access the Tomcat web management interface</h2>
+	<p>Now that Tomcat knows who the admin user is, you can access the Web Application Manager, which helps you manage your Java applications. This is where you can Start, Stop, Reload, Deploy, and Undeploy applications or run diagnostics on your apps. You can find information about your server at the very bottom of the page.</p>
+	
+	<ul>
+	<li>To see the Web Application Manager, enter <strong>http://<em><u>server_ip_address</u></em>:8080/manager/html</strong> into your web browser.</li>
+	</ul>
+	
+	<p>The Tomcat Virtual Host Manager is where you add virtual hosts, which is where applications are served.</p>
+	
+	<ul>
+	<li>To see the Virtual Host Manager, enter <strong>http://<em><u>server_ip_address</u></em>:8080/host-manager/html</strong> into your web browser.</li>
+	</ul>
+	
+	<div class="note">For both URLs, you will be prompted for the new user's credentials that you entered previously.</div>
+	
+    <h2>Conclusion</h2>
+<p>You're done! You have successfully installed and configured Apache Tomcat 7. Now, go deploy your own web apps.</p>
+   
+</body>
+</html>

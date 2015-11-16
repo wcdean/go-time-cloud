@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<!--article 00041-->
+<head>
+
+
+<title>Set Up WordPress Domain Mapping in Apache on a LAMP server - Arch Linux</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+ <p>Set up WordPress domain Mapping in Apache on a LAMP server - Arch Linux</p>
+<h1>Set up WordPress domain mapping in Apache - Arch Linux</h1>
+
+                <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+                <strong>Time</strong>: <em><u>5 minutes</u></em></p>
+
+           <p>The WordPress MU Domain Mapping plug-in allows you to point multiple domains to one WordPress account.
+           This means that you can make a network site into its own unique, stand-alone domain. In our tutorial, we'll map a subdomain to an independent domain. For instance, <strong>coolexample.net</strong><!--CT (to Crystal): Using this example domain as a placeholder until we get new domain from GD 9/08--> would redirect to <strong>product.coolexample.com</strong>, a subdomain of your primary site, <strong>coolexample.com</strong>.</p>
+
+<h2>Prerequisites </h2>
+
+        <p>You should have WordPress multisite installed. See the article <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17682%20-%20Set%20up%20WordPress%20Multisite%20in%20ApacheX%20-%Arch%20Linux.html">Set up WordPress Multisite in Apache - Arch Linux</a> for instructions on how to do so.</p>
+         <ol>
+         <li>Install unzip, if you haven't already. 
+                     <div class="hacker">sudo pacman -Sy unzip</div></li>
+                     <li>If prompted, enter <strong>y</strong> to continue installation.   </li></ol>
+       
+
+<h2>Download the plug-in</h2>
+
+    <ol>
+            <li>Download the <strong>WordPress Domain mapping</strong> plug-in. <br />
+
+<div class="hacker">wget http://downloads.wordpress.org/plugin/wordpress-mu-domain-mapping.latest-stable.zip</div>   </li> 
+
+
+            <li>Unzip the plug-in.
+                    <div class="hacker">unzip wordpress-mu-domain-mapping.latest-stable.zip </div> 
+                    
+                    If prompted, enter <strong>y</strong> to continue installation. </li>
+
+            <li>Move the files to the WordPress <code>/wp-content/plugins/directory</code> directory.        <div class="hacker">sudo mv wordpress-mu-domain-mapping /srv/http/wp-content/plugins/</div>   </li>
+
+            <li>Copy the <code>sunrise.php</code> into your WordPress document root.
+                    <div class="hacker">sudo cp /srv/http/wp-content/plugins/wordpress-mu-domain-mapping/sunrise.php /srv/http/wp-content/</div>   </li>
+
+    </ol>
+
+
+<h2>Edit your wp-config file</h2>
+
+    <ol>
+
+            <li>Open your <code>wp-config</code> file.
+            <div class="hacker">sudo vim /srv/http/wp-config.php</div></li>
+
+             <li>Add this line before <code>/* That's all, stop editing! Happy blogging. */</code>. 
+            <div class="hacker">define('SUNRISE', 'on'); </div> </li>
+            
+            <li>Save and close.</li>
+              
+               <li>Restart Apache.
+
+                      <div class="hacker">sudo systemctl restart httpd</div></li>
+    </ol>
+
+
+<h2>Activate Domain Mapping</h2>
+         
+
+    <ol>    <li>Return to your <strong>wp-admin</strong> window.  </li>
+
+            <li>In the top navigation bar, point to <strong>My Sites</strong>, and from the drop-down menu, select <strong>Network Admin</strong>, then <strong>Plugins</strong>. <br />
+                     <img src="images/00034/083015/wordpress-mu-domain-mapping-plugin-network-admin-nav-screen1.png" alt="wordpress mu domain mapping plugin network admin nav" /><br />
+                
+
+                 You will see three plug-ins. The <strong>WordPress MU Domain Mapping</strong> plug-in should be the third item.   </li>
+
+            <li>Under this plug-in, click <strong>Network Activate</strong>. The <strong>Plugins</strong> dialog will highlight, indicating it's activated.<br />
+             <img src="images/00034/083015/wordpress-mu-domain-mapping-plugin-network-activate-screen2.png" alt="WordPress mu domain mapping plugin network activate" />    <br />
+            
+             </li>
+            
+           <li> In the menu bar on the left-hand side, point to <strong>Settings</strong>, and then select <strong>Domain Mapping</strong> from the menu that appears. <br />
+           <img src="images/00034/083015/wordpress-mu-domain-mapping-plugin-domain-options-screen3.png" alt="wordpress mu domain mapping plugin domain options" /></li>       
+            <li>Under <strong>Domain Options</strong>, clear the <strong>Remote Login</strong> check box. </li>
+
+            <li>Select the <strong>Permanent Redirect</strong> check box.</li>
+
+            <li>Clear the <strong>Redirect administration pages to site's original domain</strong> check box. </li>
+
+            <li>Click <strong>Save</strong>. </li>
+
+    </ol>
+
+              <p> Your external domain will now redirect to the subdomain you have defined. For example, <!--CT (to Crystal): Using this example domain as a placeholder until we get new domain from GD 9/08 (2 of 2)--><em>coolexample.net</em> redirects to <em>product.coolexample.com</em>.  This includes the administration pages <strong>/wp-admin</strong>.</p>
+           
+            <p>    In the next step, we map a domain name to each site based on its site ID. There's more than one way to find the ID of a site, but for easier administration, we will create a simple WordPress Multi-use plug-in that displays an additional ID column on the <strong>Sites</strong> page. </p>
+
+
+<h2>Map a domain name to each site based on site ID</h2>
+
+    <ol>
+            <li>Make sure you are in your home directory
+                <div class="hacker">cd ~  </div>  </li>
+ <li>In your terminal, create a directory to house the plug-in.
+                <div class="hacker">
+                sudo mkdir /srv/http/wp-content/mu-plugins  </div>  </li>
+
+            <li>Create a new file.
+                <div class="hacker">sudo vim /srv/http/wp-content/mu-plugins/wpms_blogid.php</div>
+
+               It is a new file, so it will be blank.</li>
+
+            <li>Copy this whole code block and paste it into your file.
+
+  <!--CT (to Susan): Please don't modify this code block. thanks-->
+<div class="hacker"><pre>&lt;?php
+add_filter( 'wpmu_blogs_columns', 'do_get_id' );
+add_action( 'manage_sites_custom_column', 'do_add_columns', 10, 2 );
+add_action( 'manage_blogs_custom_column', 'do_add_columns', 10, 2 );
+
+function do_add_columns( $column_name, $blog_id ) {
+    if ( 'blog_id' === $column_name )
+        echo $blog_id;
+    return $column_name;
+}
+
+function do_get_id( $columns ) {
+    $columns['blog_id'] = 'ID';
+    return $columns;
+}     
+?&gt;  </pre></div>
+
+               
+ </li>
+            <li>Save and close.</li>
+
+            <li>Back in the WP-Admin browser window, the <strong>Sites &gt; All Sites</strong> section should now show an additional <strong>ID</strong> column. Make note of the ID for your subdomain that you'll be mapping.</li> 
+ </ol> 
+
+
+  <h2>Map your domains</h2>
+    <ol>
+            <li>Make a note of the ID value for each site.</li>
+            <li>Under <strong>Settings</strong>, click <strong>Domains</strong>. 
+          </li>
+            <li>On the <strong>Domain Mapping</strong> page, under <strong>New Domain</strong>, enter the <strong>Site ID</strong>, followed by the external domain for the site.<br />  
+            <img src="images/00041/090815/wordpress-mu-domain-mapping-plugin-new-domain-screen5.png" alt="WordPress MU Domain Mapping Plugin New Domain screen" /> <br /> </li>
+            <li>Click <strong>Save</strong>.</li>
+
+       
+
+ </ol>
+
+<h2>Next steps</h2>
+
+<p>Congratulations! Each site that you've defined with its own domain name can now be accessed that way. You can test it by visiting one of those domains. You will see the URL redirect to the subdomain of your primary site.</p><p>
+
+Now each site can be maintained separately through its own WordPress admin panel. Just append <code>/wp-admin/</code> to the URL, such as <strong><em><u>coolexampleproduct</u></em>.com/wp-admin/.</strong> </p>
+
+
+</body>
+</html>

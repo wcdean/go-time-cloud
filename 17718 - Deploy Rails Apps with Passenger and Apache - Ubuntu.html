@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Deploy Rails Apps with Passenger and Apache - Ubuntu</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+    <p>Setting up Rails Apps with Passenger and Apache in Ubuntu, Ruby, Rails, Apache</p>
+    <h1>Deploy Rails Apps with Passenger and Apache - Ubuntu</h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+    <p>This article explains how to deploy a Rails application with Passenger and Apache in Ubuntu. </p>
+    <p> The Passenger commands  consume a lot of memory. You  need at least 1 GB of RAM in a virtual server to run them. Also, it's assumed that you have <code>sudo</code> privileges to access the virtual server.</p>
+ <h2>Prerequisites</h2>
+ <ul>
+ <li>To set up your Ubuntu server, refer to  <a href ="17321"> Initial Server Setup - Ubuntu</a>. </li>
+ <li>Ensure that the fully qualified domain name (FQDN) points to the server.</li>
+ <li>After you  set up the  server, install Ruby, by visiting <a href ="17534"> Install Ruby on Rails using RVM</a>. </li>
+ <li>You can optionly refer to <a href ="17713"> Deploy Rails Apps with Passenger and Nginx on Ubuntu</a></li>
+ </ul>
+    <p class='note'>Because the tasks in this article include development library installation and ad hoc compilation on the machine, they are  not recommended  for a production environment.    </p>
+<h2>Install Apache</h2>
+		<ol>
+		<li>
+	   Update the system, and install Apache.
+            <div class='hacker'>sudo apt-get -y update</div>
+            <div class='hacker'>sudo apt-get install apache2</div>
+            <div class='hacker'>sudo apt-get -y install curl apache2-dev libcurl4-gnutls-dev apache2-mpm-worker</div>
+        
+   
+            
+			</ol>
+      <h2>Install Rails and Passenger</h2>
+	  <ol>
+        <li>Install Passenger.
+          <div class='hacker'>sudo apt-get install gem</div>
+            <div class='hacker'>gem install rails passenger</div>
+        </li>
+        <li>Install the Passenger package for Apache.
+            <div class='hacker'>rvmsudo passenger-install-apache2-module</div> </li>
+			<li>Select <code>Ruby</code> when you see the prompt to select the language. This installation takes  a while. After the installation is complete, it will generate it will generate the following block of code:
+		  	   
+		<div class = "hacker"><pre>
+LoadModule passenger_module /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/gems/passenger-5.0.20/buildout/apache2/mod_passenger.so
+   &lt;IfModule mod_passenger.c&gt;
+     PassengerRoot /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/gems/passenger-5.0.20
+     PassengerDefaultRuby /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/wrappers/ruby
+   &lt;IfModule&gt;
+
+</pre>
+</div>
+<p>Copy the above code.</p>
+</li>
+ <li>Create the following file and paste the above code that you've copied in the <code>apache2.conf</code> file just below the <code>LogFormat</code> section.
+            <div class='hacker'>sudo vim /etc/apache2/apache2.conf</div>
+         </li>
+       
+				
+		<li>Save and exit by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>,followed by  the <strong>Enter</strong> key.
+		</li>
+        <li>Restart the Apache service.
+            <div class='hacker'>sudo /etc/init.d/apache2 restart</div>
+			<p>Or</p>
+			<div class='hacker'>sudo service apache2 restart</div>
+        </li></ol>
+		
+		  <h2>Configure a test Rails application </h2>
+	  <ol>
+        <li>Install the SQLite development package to store data in the database.
+            
+		<li>Go to the <code>home</code> directory or your Rails project directory.
+            <div class='hacker'>cd </div>
+        </li>
+		<li>Create a Rails application, and go to the application directory.
+            <div class='hacker'>rails new <em><u>Your_application</u></em> </div>
+			<div class='hacker'>cd <em><u>Your_application</u></em> </div>
+		</li>
+		<li>By default, Ubuntu doesn't have JavaScript execution environment installed. So to manually install it, open <code>Gemfile</code> in your favourite editor. 
+          <div class='hacker'>sudo vim Gemfile </div>
+        </li>
+		
+		<li>Add the following line at the end of the file:
+            <div class='hacker'>gem 'therubyracer'</div>
+			
+        </li>
+		<li>Save and exit by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>,followed by  the <strong>Enter</strong> key.
+		</li>
+		<li>Install  the dependencies of <code>Gemfile</code>.
+          <div class='hacker'>bundle install</div>
+		</li>
+		<li>Initiate the development database using the migration tool.
+            <div class='hacker'>rake db:migrate</div>
+        </li>
+		</ol>
+		<h2>Connect the Apache server to the Rails application</h2>
+		<ol>
+        <li>Open the Apache configuration file.
+            <div class='hacker'>sudo vim /etc/apache2/sites-enabled/000-default.conf</div>
+         </li>
+		 
+		  <li>Add the following block of code in the configuration file and make the necessary changes according to your environment as shown below:
+            <div class='hacker'>
+               <pre>&lt;VirtualHost *:80&gt;
+	RailsEnv development
+	DocumentRoot <em><u>/home/username/Your_application</u></em>/public
+	&lt;Directory <em><u>/home/username/Your_application</u></em>/public&gt;
+		AllowOverride all
+		Options -MultiViews
+		Options FollowSymLinks
+		Require all granted
+	&lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+</pre>
+            </div>
+			</li>
+       <li>Save and exit by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>,followed by  the <strong>Enter</strong> key.
+		</li>
+		
+        <li>Restart the Apache server.
+            <div class='hacker'>sudo /etc/init.d/apache2 restart</div>
+            <p>Or</p>
+            <div class='hacker'>sudo service apache2 restart</div>
+			<p class="note">To test Rails application open the browser and type <strong>http://your_server_ip</strong></p>
+        </li>
+    </ol>
+	<h2>Conclusion</h2>
+		In this article, you have configured a Rails application with Passenger and Apache to make the application more secure and reliable. 
+</body>
+</html>

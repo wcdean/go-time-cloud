@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+
+<head>
+
+<!--Article Number is 17418 -->
+
+<title>Deploy Django with PostgreSQL, Nginx, and Gunicorn - CentOS 6</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+</head>
+
+<body>
+        <p>Describes how to transfer files securely using SFTP.</p>
+<h1>Deploy Django/PostgreSQL/Gunicorn/Nginx Stack on CentOS 6</h1>
+
+        <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+            <strong>Time</strong>: <em><u>1.50 hours</u></em></p>  <!-- skj This time is not long enough -->
+  <h2>Pre-requisites</h2>
+  <ul>
+<li>It is required that you have <code>Python 2.7</code> installed on your system before following this guide. By default, <code>CentOS 6</code> runs<code> Python 2.6.6</code> as the system Python, which will not work. You can <a href="//18229 - Build a LAMP stack for Python - CentOS 6">install and configure different versions of Python.</a></li>
+<li> <a href="//https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18214%20-%20Install%20the%20Django%20Web%20Framework%20-%20CentOS,%20Fedora">Install virtualenv. </a></li>
+  </ul>
+
+<h2>Solution stacks</h2>
+
+         <p>This guide will cover how to deploy a software solution stack for deploying <code>Django</code> applications on your self-managed CentOS 6 server. This guide focuses around one of the more stable and most-popular solution stacks for Django. The components are:</p>
+
+    <ul>
+            <li>Database - <code>PostgreSQL</code></li>
+            <li>WSGI Application server - <code>Gunicorn</code></li>
+            <li>Web server - <code>Nginx</code></li>        
+            <li>Python - Virtual Environment (virtualenv)</li>
+    </ul>
+        <p>This guide focuses on deploying <code>Django</code> using <code>Python 2.7</code>. This is simply for the sake of ease, as new <code><code>Linux</code></code> servers come deployed with <code>Python 2.7</code> out of the box, and <code>Django</code> is compatible with 2.7. If needed, you can set up a separate installation of Python 3. You can use the same steps, though the names to the interpreters and paths may change.</p>
+
+<h2>Installation and setup</h2>
+
+
+        <p>Update all of the RPM and YUM packages.</p>
+
+    <ol>
+            <li>Log into your server through SSH.
+                <div class="hacker">ssh username@ip_address_DNS</div> </li>
+
+            <li> Access the root user.
+                <div class="hacker">sudo su -</div>   </li>
+
+            <li>Run the following command to update your yum cache.
+               <div class="hacker">sudo yum -y update</div> </li>
+
+    </ol>
+
+
+<h2>Install Postgresql</h2>
+    <ol>
+
+            <li>As root, run the following command to install PostgreSQL and the appropriate packages:
+            <!--tester. Should this as sudo?-->
+                <div class="hacker">sudo yum -y install postgresql postgresql-contrib postgresql-plpython postgresql-devel </div> </li>
+
+            <li>Initialize the database.
+                <div class="hacker"> sudo service postgresql initdb </div> </li>
+
+            <li>Start the postgresql service.
+                <div class="hacker">sudo service postgresql start</div> </li>
+
+            <li>Before you proceed further, you need to make some changes to the PostgreSQL configuration. This allows password authentication for your database users and will save you a step later.  <br /> <br />
+                Open the PostgreSQL configuration file in the text editor of your choice. For our example, we will use vim:
+                <div class="hacker">sudo vim /var/lib/pgsql/data/pg_hba.conf </div> </li>
+
+                <li>Scroll down, and you will see lines for defining the <code>local</code>, <code>IPv4</code>, and <code>IPv6</code> connection sockets. By default, you should see this:
+
+            <div class="hacker">
+<pre># TYPE  DATABASE        USER            ADDRESS                 METHOD
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+# IPv6 local connections:
+host    all             all             ::1/128                 ident  </pre>  </div> </li>
+
+            <li>Using your text editor, change the <code>peer</code> and <code>ident</code> entries to trust, then save and close the file. Your file should look like the example below:
+
+            <div class="hacker">
+<pre># TYPE  DATABASE        USER            ADDRESS                 METHOD
+# "local" is for Unix domain socket connections only
+local   all             all                                     trust
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            trust
+# IPv6 local connections:
+host    all             all             ::1/128                 trust  </pre></div> </li>
+
+             <li>Restart PostgreSQL, so that these changes take:
+             <div class="hacker">sudo service postgresql restart </div></li>
+       </ol>
+
+
+<h2>Install Nginx</h2>
+
+        <ol>
+            <li>Run the following command to install EPEL package for CentOS 6. Do this by running the following command:
+                <div class="hacker">sudo rpm -Uvh http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm </div> </li>
+
+            <li>Use yum to install Nginx.
+                <div class="hacker">sudo yum -y install nginx </div> </li>
+
+
+        </ol>
+
+<h2>Install Setuptools</h2>
+
+                    <p class="warning">Do not proceed with the rest of the guide until you have installed at LEAST Python 2.7. You cannot use the system Python (2.6.6) for anything further in the guide. </p>
+
+
+
+        <ol>
+                <li>Confirm that you are running Python 2.7 or later. 
+                            <div class="hacker">[root@server Python-2.7.6]# python -V <br />
+                                    Python 2.7.6  </div> </li>
+
+                <li>After confirming the correct version, it is safe to install the <code>python-devel</code>, <code>virtualenv</code>, and <code>setuptools</code> modules. You will have to install them manually. You cannot use yum, because we compiled Python 2.7.6 from the source. <br />
+                <br />Download the source for the version of setuptools you want for Python 2.7, and install it.
+                            <div class="hacker">curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py | python2.7 -</div> </li>
+        </ol>
+
+<h3>Install Pip</h3>
+
+               <p>Pip is a package manager for Python application packages. It will help us to install Gunicorn, as well as Django.</p>
+
+        <ul>
+               <li>To install pip, run the following command:
+                            <div class="hacker">curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python2.7 -  </div></li>
+
+        </ul>
+
+<h3>Install VirtualEnv</h3>
+
+
+         <ul>
+                <li>Install the <code>virtualenv</code> module into Python with pip.
+                            <div class="hacker">pip install virtualenv </div></li>
+
+        </ul>
+
+<h3>VirtualEnv - Create Environment</h3>
+
+               <p>Now that virtualenv is installed, we are ready to create our new virtual environment. You will set this up inside the default <code>/var/www</code> directory in order to maintain an easy naming convention, but in reality, you can use whichever path you prefer. Simply make sure that you are replacing our example paths with any paths you will be using.</p>
+
+        <ol>
+
+                <li>Create your directory for the application.
+                            <div class="hacker">sudo mkdir /var/www/<em><u>django_dev</u></em></div></li>
+
+
+                <li>Make your new user the owner of this directory.
+                            <div class="hacker">sudo chown django_dev:<em><u>django_dev</u></em> /var/www/django_dev</div></li>
+
+                <li>Move to the directory for your app.
+                            <div class="hacker">cd /var/www/<em><u>django_dev</u></em></div></li>
+
+                <li>Create our virtual environment.
+                            <div class="hacker">virtualenv <em><u>django_dev_venv</u></em> </div>
+                            You should see a success message that the virtual environment has been created, and installed pip and setuptools.</li>
+
+                <li>Make a directory for static files. This will save you a step later:
+                            <div class="hacker">sudo mkdir /var/www/<em><u>django_dev/django_dev_venv</u></em>/static/</div></li>
+
+
+                <li>Activate the interpreter inside the virtual environment, so that it may be used.
+                            <div class="hacker"> source <em><u>django_dev_venv</u></em>/bin/activate</div> </li>
+
+                <li>You should now be running commands inside your virtual environment. You will know this when the name of your virtualenv is listed in parenthesis before your normal command prompt, such as:
+                            <div class="hacker">(<em><u>django_dev_venv</u></em>)[django_dev@server django_dev]$</div>
+                            Now that you have the virtual environment initialized, and a place to put your application, you can move on to your app server.</li>
+
+        </ol>
+
+<h2>Install Gunicorn</h2>
+        <ol>
+                <li>Install the Gunicorn WSGI app server. Gunicorn is a stand-alone WSGI web application server.
+                      <p class="note">Make sure that the name of your virtual environment is in parenthesis in front of your prompt before proceeding. Otherwise, you will end up installing Gunicorn system-wide, which defeats the purpose of containing everything in the virtual environment. </p>
+                      <p>If you are not your virtual environment, run this command:</p>
+
+                      <div class="hacker">source django_dev_venv/bin/activate</div></li>
+
+                 <li> While inside your virtual environment, use pip to install Gunicorn:
+                            <div class="hacker"> pip install gunicorn</div></li>
+       </ol>
+
+<h2>Install Django</h2>
+<p>This section will cover how to deploy a new Django install. If you already have an existing Django project that you wish to deploy, go ahead and skip this part. Instead upload your app to the<code> /var/www/django_dev/app</code> directory. </p>
+        <ol>
+
+                <li>Make sure you are still in your app directory:
+                            <div class="hacker">(django_dev_venv)[django_dev@server django_dev]$ pwd <br />
+                                                /var/www/django_dev  </div>
+                            Your should look similar, using your own application and venv name.</li>
+
+                <li>Use pip to install Django to the <code>/var/www/django_dev/django_dev_venv/bin directory</code>.
+                            <div class="hacker">pip install django</div><br />
+                            For the purpose of this article, you will not configure Django.</li>
+
+
+        </ol>
+
+
+<h2>Configure the environment</h2>
+ <p class="note">Make sure you are substituting any paths in our examples with your own. </p>
+
+<h3>Configure PostgreSQL</h3>
+                    <p>Start by configuring our PostgreSQL database server, creating a database and getting it ready to tie into Django. Make sure you are keeping track of any database usernames, database names, and passwords during this process, so that you can use these for connection strings later.</p>
+
+     <ol>
+                <li>Change to our PostgreSQL user:
+                            <div class="hacker">sudo su - postgres </div>
+                            </li>
+
+                <li>Run this command to create your database. You can give your database any name you want. For our example, we will be naming our <em><u>django_user</u></em>.
+                            <div class="hacker">createdb <em><u>django_user</u></em></div></li>
+
+                <li>Create your database user. You can use whichever user you want here, just make sure to keep track of what you use for later:
+                            <div class="hacker">createuser <em><u>dbuser</u></em> -P  </div>
+                            You will be met with prompts for the username and the password. It will also prompt a few other more advanced options - say <strong>no</strong> to all of them for right now. You are setting up this user with the most basic of permissions.</li>
+
+                <li>Initiate the PostgreSQL command-line interface.
+                            <div class="hacker">psql</div>
+                            You should see a prompt that looks like this:
+                            <div class="hacker">postgres=#</div> </li>
+
+                <li>Grant full privileges for your user to your database. Using our example:
+                            <div class="hacker">GRANT ALL PRIVILEGES ON DATABASE <em><u>django_user</u></em> TO <em><u>dbuser</u></em>; </div>
+                            You now have a PostgreSQL database and a user who can access that database. Now you can configure Django to use this database.</li>
+
+
+                <li>Exit out of the PostgreSQL command.
+                            <div class="hacker">\q</div> </li>
+
+
+                <li>Exit back to your virtual environment.
+                            <div class="hacker">exit</div> </li>
+
+        </ol>
+
+<h3>Configure Gunicorn</h3>
+                <p>Review <a href="http://docs.gunicorn.org/en/19.2/">Gunicorn's documentation page</a> for configuring Gunicorn to meet your application's needs.</p>
+
+         <ol>
+                     <li>Start the Gunicorn application server over port 8000.
+                        <div class="hacker">gunicorn myproject.wsgi:application --bind domainoripaddress.tld:8000</div> </li>
+
+                    <li>You can replace <em><u>domainoripaddress</u></em> with either a domain name with public DNS pointed at the server, or simply the IP address of your server - whichever works for you right now. Also replace <em><u>myproject</u></em> with the name of the Django project you created earlier. <br /> <br />
+                    To demonstrate the example, we are using:
+                        <div class="hacker">gunicorn django_dev.wsgi:application --bind django_dev.com:8000</div> </li>
+
+                    <li> Create a configuration file directly in your virtual environment directory.
+                        <div class="hacker">vim /var/www/django_dev/<em><u>django_dev_venv</u></em>/gunicorn_config.py</div></li>
+
+                   <li> To create a configuration file that exactly matches our example, put this into the file:
+                        <div class="hacker">command = '/var/www/django_dev/<em><u>django_dev_venv</u></em>/bin/gunicorn'      <br/>
+                                            pythonpath = '/var/www/django_dev/<em><u>django_dev_venv</u></em>/django_dev'    <br/>
+                                            bind = '<em><u>django_dev.com</u></em>:8000'   <br />
+                                            workers = 3     <br />
+                                            user = '<em><u>django_dev</u></em>'</div> </li>
+
+                   <li>Replace the domain and path with the domain and path you want to use. Make sure that <code>pythonpath</code> is equal to the Django project directory, and that <code>command</code> is equal to the Gunicorn executable in your virtual environment. Save and close the file.</li>
+
+                   <li>Start your server with this new command:
+                        <div class="hacker">sudo /var/www/django_dev/<em><u>django_dev_venv</u></em>/bin/gunicorn -c /var/www/django_dev/<em><u>django_dev_venv</u></em>/gunicorn_config.py django_dev.wsgi</div>
+                        <p class="note">This specifies the path to gunicorn, the path to the config file, and the name of the Django project WSGI. The <code>-c</code> flag indicates that we are using a configuration file. </p></li>
+
+                   <li>Re-open the <code>gunicorn_config.py</code> file in your text editor and change your bind to:
+                        <div class="hacker">bind = '127.0.0.1:8000'</div> </li>
+
+                   <li>Save and close the file.</li>
+
+         </ol>
+
+
+<h3>Configure Nginx</h3>
+
+                    <p>The last thing we need to do here is set up Nginx to act as a reverse-proxy server. Gunicorn will serve the Django application to Nginx, which will be then sent to the rest of the internet. There are a few initial administrative tasks.</p>
+          <ol>
+
+                    <li>Return to root by typing:
+                            <div class="hacker">exit</div> </li>
+
+                    <li>Shut Apache off to make room for your Nginx server:
+                            <div class="hacker">service httpd stop</div> </li>
+
+                    <li>You will be using Nginx for the rest of this article. You tell the server not to start Apache upon server reboot.
+                        <div class="hacker">chkconfig httpd off</div> </li>
+
+                    <li>Start up Nginx, if you haven't already.
+                            <div class="hacker">service nginx start</div> </li>
+
+                    <li>Configure Nginx to start upon boot.
+                            <div class="hacker">systemctl enable nginx</div> </li>
+
+                    <li>Confirm that Nginx is running.
+                        <div class="hacker">service nginx status</div>
+                        You should see an output related to the Nginx server being active and running. You are now ready to start configuring Nginx.</li>
+
+                    <li>You need to configure Nginx to serve those static files. Create and open up a new Nginx config file with the following commands. Our new config file will simply use the name of the project. We are using vim, but you can use whichever text editor you prefer:
+                            <div class="hacker">mkdir -p /etc/nginx/sites-available
+                                                vim /etc/nginx/sites-available/django_dev.con</div> </li>
+
+                    <li>Create a new Nginx server block. Our example will use the domain and folder paths we laid out in our working example:
+                            <div class="hacker">
+                            <pre>server {
+        server_name django_dev.com www.django_dev.com;
+
+        access_log off;
+
+        location /static/ {
+            alias /var/www/django_dev/django_dev_venv/static/;
+        }
+
+        location / {
+                proxy_pass http://127.0.0.1:8000;
+                proxy_set_header X-Forwarded-Host $server_name;
+                proxy_set_header X-Real-IP $remote_addr;
+                add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
+        }
+    }</pre></div> </li>
+
+                    <li>Set up your symbolic link, so that Nginx knows that this site is enabled.
+                        <div class="hacker">mkdir -p /etc/nginx/sites-enabled <br/>
+                                            ln -s /etc/nginx/sites-available/django_dev.conf /etc/nginx/sites-enabled/django_dev.con </div> </li>
+
+                    <li> Open the Nginx configuration file in a text editor.
+                            <div class="hacker">vim /etc/nginx/nginx.conf</div> </li>
+                    <li>Add these lines to the end of the <code> http {} block</code>, then save the file:
+                            <div class="hacker">include /etc/nginx/sites-enabled/*.conf; <br />
+                                                server_names_hash_bucket_size 64;    </div> </li>
+
+
+
+                    <li>Restart Nginx, so that it takes the new changes.
+                        <div class="hacker">service nginx restart</div>
+                        You now have Nginx setup as your reverse-proxy.</li>
+
+        </ol>
+
+
+ <h2>Putting this all together</h2>
+ <p>To start your Gunicorn server running in the background, move back to the <em>django_dev</em> user, activate your virtual environment, and start a screen. </p>
+            <ol>
+                    <li>Run the example commands in the following order:
+                        <div class="hacker">su django_dev - <br/>
+                                            source /var/www/django_dev/django_dev_venv/bin/activate  <br/>
+                                            sudo screen  </div>
+                        You should now have a new screen open.</li>
+
+                    <li>Navigate to the application directory.
+                        <div class="hacker">cd /var/www/django_dev/django_dev</div></li>
+
+
+                    <li>Start your Gunicorn server.
+                        <div class="hacker">sudo /var/www/django_dev/django_dev_venv/bin/gunicorn -c /var/www/django_dev/django_dev_venv/gunicorn_config.py django_dev.wsgi </div>
+                       Your Gunicorn server should now be running with three worker processes under <code>127.0.0.1:8000</code>. </li>
+
+                    <li>Close the screen, and go back your main prompt by pressing <strong>CTRL-A</strong>, and then <strong>D</strong>.</li>
+
+                     <li>Restart Nginx.
+                        <div class="hacker">sudo service nginx restart</div></li>
+            </ol>
+
+
+
+
+<h2>Conclusion</h2>
+
+                <p> There may be additional steps you need to take to configure your specific application to work with Nginx and PostgreSQL. The ultimate authority for all configuration information regarding these elements will be the official documentation pages for PostgreSQL, Gunicorn, Nginx, and Django.</p>
+
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17971-->
+
+
+
+<title>Compare Rack web servers for Ruby applications - ALL DISTROS</title>
+<style type="css/text">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Compare Rack web servers for Ruby applications - ALL DISTROS, Ruby, Rails, Ubuntu, Debian, CentOS, Fedora, Arch Linux</p>
+
+<h1>Compare Rack Web Servers for Ruby applications - ALL DISTROS</h1>
+
+<p><strong>Difficulty:</strong><em>1</em></p>
+
+<p>Ruby framework can interact with other external web servers through a web interface known as Rack. Exposure to these web servers enables interaction of Ruby applications with other web-based applications and services. Rack is available as a Ruby Gem, and can be used by most Ruby web frameworks and libraries. </p>
+<p>This article provides a quick overview and comparison of the commonly available web servers that can interact with Ruby via Racks.</p>
+
+<h2>An overview of Rack</h2>
+<p>Rack provides a modular web server interface for web-based interactions. Currently, it is adapted and supported by a number of web servers and web applications, including Sinatra, Mongrel, Ruby on Rails, and so on. It has also been a motivation for many other frameworks, including jackjs (JavaScript), Plack (Perl), Clack (Lisp), and many more. </p>
+
+<p>Rack is particularly helpful when working across enterprise applications having multiple environments for development, test, production, and so on.</p>
+
+<p>Rack also provides an intermediate, lightweight layer called <strong>middleware</strong> between the web server and the framework. These layers enable users to perform additional activities, such as proxies, logging, testing, and authentication for the applications developed. </p>
+
+<p>These are the most popular web servers that can interact with Rack:</p>
+<ul>
+<li>Phusion Passenger</li>
+<li>Puma</li>
+<li>Thin</li>
+<li>Unicorn</li>
+</ul>
+
+<h2>Phusion Passenger</h2>
+<p>Phusion Passenger is a multi-language (Ruby, Python, Node.js) web and app server that provides a reliable and stable environment for faster application development. It provides a direct integration with Apache HTTP server and NGINX web servers. It is said to be up to four times faster than several other Ruby app servers. Its free version offers a rich feature set covering most of the common needs of application deployment. Its commercial variant, Phusion Passenger Enterprise, offers a wide variety of premium features for enterprise-grade application development making it a popular choice for enterprise-level deployments. </p>
+
+<p><strong>Enterprise capabilities:</strong></p>
+<ul>
+<li>Offers performance improvements and advanced features, including concurrency and multi-threading. It can be configured to work in either single-threaded mode or multi-threaded mode.</li>
+<li>Supports enterprise application deployment with rolling restarts, deployment error resistance, mass deployment, and several other deployment management features</li>
+<li>Offers optimal resource control with resource usage estimation, tracking, and many more resource control and limiting features</li>
+<li>Provides a dedicated team for commercial support and maintains good presence in online support communities </li>
+</ul>
+<p>More detail on Phusion Passenger is available on the Phusion Passenger website: <a href="https://www.phusionpassenger.com">https://www.phusionpassenger.com</a></p>
+
+<h2>Puma</h2>
+<p>Puma is a small library that provides high-speed HTTP server for Ruby/Rack applications. It offers a simple, fast, and reliable work environment, and is useful for both development and production environment. Puma provides users with the flexibility to set the minimum and maximum number threads that can be used to perform its activity. For better performance, Ruby implementation with real threads like Rubinius and JRuby, is recommended. It is based largely on the Mongrel codebase and parsing algorithms. In Puma, the Mongrel operational structure is transformed to solely operate on Rack, which eliminates complexities and supports true parallelism.</p>
+
+<p><strong>Enterprise capabilities:</strong></p>
+<ul>
+<li>Parses HTTP 1.1 protocols fast and reliably due to a C-optimized Ragel extension</li>
+<li>Enables development of lightweight applications due to a small foot print and minimal consumption of resources</li>
+<li>Supports clustered mode, enabling use of forked processes to handle multiple requests simultaneously</li>
+<li>Manages multiple scripts simultaneously and provides Jungle tool, popularly described as Puma, as a service offering </li>
+</ul>
+
+<p>More detail on Puma for Ruby is available on the Puma website: <a href="http://puma.io/">http://puma.io/</a></p>
+
+<h2>Thin</h2>
+<p>Thin is claimed to be the most secure, stable, fast, and extensible Ruby web server. It is developed using the key aspects of Ruby's three best libraries: Mongrel parser, Event machine and Rack middleware. Components from Event machines makes Thin very fast at processing network I/O. Mongrel parser helps it parse HTTP faster, and Rack enables integration with other Ruby Web app frameworks.</p>
+
+<p><strong>Enterprise capabilities:</strong></p>
+<ul>
+<li>Works with any Rack-based framework. This HTTP server is tiny and fast.  </li>
+<li>Handles long running requests, which makes it high scalable and stable, very much like its parent library Event machine</li>
+</ul>
+
+<p>More detail on Thin is available the Thin website: <a href="https://github.com/macournoyer/thin/">https://github.com/macournoyer/thin/</a> </p>
+
+
+<h2>Unicorn</h2>
+<p>Unicorn is another HTTP server for Rack applications, capable of handling multiple client requests simultaneously. It uses Mongrels Ragel HTTP Parser, but implementing a different architecture and execution mechanism. It is not focused on performing all activities by itself. Instead, it focuses on performing only the actions that are necessary for an HTTP server and delegates remaining tasks to other components that can perform those tasks in an optimized manner. </p>
+
+<p><strong>Enterprise capabilities:</strong></p>
+<ul>
+<li>Serves multiple clients concurrently on a high bandwidth, low-latency connection</li>
+<li>Handles workers efficiently, running for longer duration and enabling optimal utilization of resources</li>
+<li>Performs like NGINX, and deploys applications without dropping live connections and clients</li>
+<li>Provides better control over forked process with the <strong>before_fork</strong> and <strong>after_fork</strong> hooks</li>
+</ul>
+
+<h2>Conclusion </h2>
+<p>Each of the servers discussed has its own unique strengths and weaknesses. An overall understanding of various web servers supporting Racks can help you select the appropriate web server for your organization.</p>
+
+</body>
+</html>

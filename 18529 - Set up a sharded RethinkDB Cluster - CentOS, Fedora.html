@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Set up a sharded RethinkDB Cluster - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up a sharded RethinkDB cluster on CentOS or Fedora, NoSQL, scaling</p>
+    <h1>Set Up a Sharded RethinkDB Cluster - CentOS, Fedora  </h1>
+    
+    <p><strong>Difficulty</strong>: <em>3</em><br/>
+        <strong>Time</strong>: <em>20 minutes</em></p>
+
+     <p>RethinkDB, a NoSQL database, is the first open-source, scalable JSON database built from the ground up for  real-time web applications. It's designed specifically to push data to applications in real time, dramatically reducing the time and effort necessary to build scalable real-time applications. In this article, we'll help you build a RethinkDB cluster, import a database onto it, and make it secure.	</p>
+<h2>Common Steps</h2>
+  <p>  Even though RethinkDB has a peer-to-peer architecture we will still have a Primary server act as the "brain".  As we will see later, being the brain doen't mean being the boss.  All "non-brain" servers will be thought of as secondary.  Our server nomenclature will therefore use the highly creative naming convention of 
+    server1 to refer to the primary and server2 to refer to the secondary.  Any tasks that apply to both are included in this section.</p>
+ <h2>Install the RethinkDB server</h2>
+<ol>
+<li>Add the RethinkDB yum repository to your existing list of repositories:
+
+<div class="hacker">sudo wget http://download.rethinkdb.com/centos/6/`uname -m`/rethinkdb.repo -O /etc/yum.repos.d/rethinkdb.repo</div>
+</li>
+<li>Install rethinkDB.
+	<div class="hacker">sudo yum install rethinkdb</div>
+    </li>
+</ol>   
+  <h2>Configure server1</h2>	
+<ol>
+<li>Make a copy of the RethinkDB configuration file using the default.
+<div class="hacker">sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance.conf</div></li>
+
+<li>Open the RethinkDB configuration file.
+<div class="hacker">sudo vim /etc/rethinkdb/instances.d/instance.conf</div>
+</li>
+<li>Locate the line starting with <code>server-name</code> (most likely the last line in the file). Uncomment this line and give your server a name.
+	<div class="hacker">server-name=<em><u>server1</u></em>	</div> Note that this is the machine name, NOT an IP address or domain name. 
+</li>
+<li> To make Rethink listen on all networks, find this line.
+		<div class="hacker">bind=127.0.0.1</div>
+		
+		And directly underneath it, add this.
+<div class="hacker">bind=all</div>
+</li>
+<li>Save the configuration changes made and close the file.</li> 
+
+<li>Restart RethinkDB with the new build configuration.
+<div class="hacker">rethinkdb --bind all</div>
+
+</li>
+
+</ol>
+<h2>Configure server2, Part 1</h2>
+   <ol>
+<li>Make a copy of the RethinkDB configuration file using the default.
+<div class="hacker">sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance.conf</div></li>
+
+<li>Open the RethinkDB configuration file.
+<div class="hacker">sudo vim /etc/rethinkdb/instances.d/instance.conf</div>
+</li>
+<li>Locate the line starting with <code>server-name</code> (most likely the last line in the file). Uncomment this line and give your server a name.
+	<div class="hacker">server-name=<em><u>Server2</u></em></div>	Note that this is the machine name, NOT an IP address or domain name.
+</li>
+<li> To make Rethink listen on all networks, find this line.
+		<div class="hacker">bind=127.0.0.1</div>
+		
+		And directly underneath it, add this.
+<div class="hacker">bind=all</div>
+</li>
+
+<li>Save the configuration changes made and close the file.</li> 
+
+<li>Start RethinkDB on server2.
+<div class="hacker">rethinkdb --bind all</div>
+</li>
+<li>Using a browser, navigate to the RethinkDB management console on port 8080
+<div class="hacker">http://Server2 IP address or domain name:8080</div>
+</li>
+<li>Select "Tables" from the main menu.  A list of all of your databases will be displayed.  Since this is a new instance, only the test database will be listed.  Delete it.  This will avoid collisions with the test database on server1
+</li>
+</ol> 
+<h2>Configure server2, Part 2</h2>
+<ol>
+      <li> On server2, stop rethinkdb by typing ^C (hold down the ctrl key while typing "c")
+   </li> 
+<li> Reopen the configuration file. 
+    <div class="hacker">sudo vim /etc/rethinkdb/instances.d/instance.conf</div>
+</li>
+<li>
+    To connect this server to server1, find this line.
+		<div class="hacker"># join=example.com </div>
+		
+		Directly underneath it, add this.
+<div class="hacker">join=<em><u>IP Address or domain name of Server1</u></em>:29015</div>
+    This tells server2 it belongs to a cluster and the "brain" of that cluster is server1.
+</li>
+    <li>
+  Save and close the file.
+        </li>
+    <li>Start RethinkDB on server2.
+<div class="hacker">rethinkdb --join <em><u>IP Address or domain name of Server1</u></em> --bind all</div>
+</li>  
+ </ol>   
+ <h2>Verify your cluster</h2>   
+<ol> 
+ <li>Using a browser, navigate to the RethinkDB management console on server1 (RMC1).
+<div class="hacker">http://Server1 IP address or domain name:8080</div>
+</li> 
+ <li>Using a new window in your browser, navigate to the RethinkDB management console on server2 (RMC2).
+<div class="hacker">http://Server2 IP address or domain name:8080</div>
+</li>
+<li>From RMC2, select "Tables" from the main menu.  A list of all of your databases will be displayed.  Since server2 is now in a cluster with server1, the test database will be listed.  
+    This is not the one you deleted, it's the one from server1. 
+</li>
+<li>Use RMC2 to create a new database.  
+</li>
+<li>Server1 is the "brain" not the boss.  Use RMC1 to verify you can see the new database created on server2.    
+</li>
+<li>Use RMC1 to create a new database.  
+</li>
+<li>Toggle over to RMC2.  The database you created on RMC1 appears in the list of databases.  
+</li>
+ </ol>    
+    
+    
+    	
+	<h2>Sharding</h2>
+	
+	<p>RethinkDB allows you to shard and replicate your cluster on a per-table basis.  You can control the sharding settings through the web management console.</p>
+	<p>When using the web management console, you can perform sharding  simply by specifying the number of shards you want and, based on the data available, RethinkDB will determine the best split points to maintain balanced shards. </p>
+	<p>To shard your data:</p>
+	<ol>
+	<li>Go to the table view (Tables &gt; table name).</li>
+	<li>Click  the <strong>Reconfigure</strong> button.</li>
+	<li>Set the number of shards and replicas you want.</li>
+	<li>Click  the <strong>Apply Configuration</strong> button.</li>
+</ol>
+	<p>In addition to the options in the web management console,<code> ReQL </code>commands for table configuration allow scripting capability, distributing replicas for individual tables across user-defined groups of servers using server tags. All these functionalities can be achieved through <code>ReQL</code> commands.</p>
+	<p>There are three primary commands for changing sharding in ReQL:</p>
+	<ul>
+	<li><code>table_create</code> : Specify initial values of shards and replicas.
+	</li>
+	<li><code>reconfigure</code> : Change the values of shards and replicas.
+	</li>
+	<li><code>rebalance</code> : Used to rebalance table shards.
+	</li>
+		</ul>
+	
+		<img src="images/18529/092515/sharding-and-replication.png" alt="sharding-and-replication.png"/><!--For advaiya testers:The screenshots needs to be changed after we do the final testing-->
+	
+	
+	<h2>Advanced configuration</h2>
+<p>The following describes  advanced configuration that cannot be performed through the web interface.</p>
+	
+<h3>Server tag</h3>
+	All servers in a RethinkDB cluster may be given zero or more tags that can be used in table configurations. This is used to map replicas to servers specified by tags. You can set a tag through the following command:
+    <div class="hacker">rethinkdb --server-tag us --server-tag us_west</div>
+	<p>If no tags are specified on startup, the server will start with the default tag (default). When servers are tagged, you can use the tags in the reconfigure command.</p>
+	<p>If you want to assign three replicas of the user's table to <code>us_1</code> and two to <code>us_2</code>, use the following command:
+</p>
+	<div class="hacker">r.table('users').reconfigure(shards=2, replicas={'us_1':3, 
+    'us_2':2}, primary_replica_tag='us_2').run(conn)
+    </div>
+
+<h3>Write acknowledgements and durability</h3>
+	<p>Write acknowledgements and write durability are two other settings that can't be configured or managed through the web management console or  <code>reconfigure</code> command.  They can  be configured only by editing table <code>table_config</code> for each individual table.</p>
+<p>The write acknowledgement setting for a table controls when the cluster acknowledges a <code>write</code> request as completed. There are two possible settings:</p>
+	<ul>
+	<li><code>majority:</code> The cluster sends the acknowledgement when the majority of replicas have acknowledged it. This is the default.
+	</li>
+	
+	<li><code>single:</code> The cluster sends the acknowledgement when any replica has acknowledged it.
+	</li>
+</ul>
+	<p>Below is an example:</p>
+	
+	<div class="hacker">
+r.db('rethinkdb').table('table_config').get(
+    '31c92680-f70c-4a4b-a49e-b238eb12c023').update(
+        {"write_acks": "single"}).run(conn)
+
+</div>
+	
+	<p>The durability setting for a table controls when writes are committed. They include both hard and soft mode:</p>
+	<ul>
+	<li>In hard mode, writes are committed to disk before acknowledgements are sent.
+	</li>
+	<li>In soft mode, writes are acknowledged immediately upon receipt. This is much faster.
+	</li>
+	</ul>
+<h2>Commonly Used ReQL Commands</h2>
+<h3>Merge</h3>
+<p>With <code>merge</code> command, you can merge two or more objects together and construct a new object which has properties of all objects.</p>	
+Command Syntax:<br />
+<code>
+singleSelection.merge([object | function, object | function, ...]) -> object <br />
+object.merge([object | function, object | function, ...]) -> object <br />
+sequence.merge([object | function, object | function, ...]) -> stream <br />
+array.merge([object | function, object | function, ...]) -> array<br /><br />
+</code>
+
+Example:
+<div class="hacker">
+r.table('everyday').get('john').merge(<br />
+    r.table('drink').get('chocolate'), <br />
+).run(conn, callback)<br />
+</div>
+
+<p>Merge command can be also used to modify nested objects within the objects.</p>
+<div class="hacker">
+r.expr({weapons : {sword : {dmg : 9, length : 20}}}).merge(<br />
+    {weapons : r.literal({knife : {dmg : 3, length : 5}})}).run(conn, callback)<br />
+</div>
+
+<h3>Split</h3>
+<p>Split command is used to split a string into sub strings.</p>
+Command Syntax:<br />
+<code>
+string.split([separator, [max_splits]]) -> array
+</code>
+<br /><br />
+Example: Split a string to characters 
+<div class="hacker">
+r.expr("client").split("").run(conn, callback)</div>
+Result:
+<div class="hacker">
+["c", "l", "i", "e", "n", "t"]
+</div>
+
+Example: Split on whitespace.
+<div class="hacker">
+r.expr("lets  do together").split().run(conn, callback)</div>
+Result:
+<div class="hacker">
+["lets", "do", "together"]
+</div>
+
+<h3>Pin</h3>
+<p>You can use this command to move the shard from one server to another machine.</p>
+Command Syntax:<br />
+<code>
+pin shard TABLE SHARD-RANGE --master MACHINE-NAME
+</code>
+<br /><br />
+Example:
+<div class="hacker">
+pin shard test.tester -inf-A --master <em><u>rethinkdb_server2</u></em>
+</div>
+
+<h2>Conclusion</h2>
+    <p>In this article, you learned the steps to set up a sharded RethinkDB cluster on CentOS or Fedora servers. </p>
+
+</body>
+</html>

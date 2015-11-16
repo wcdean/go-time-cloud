@@ -1,0 +1,336 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>17514</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+	
+    </style>
+</head>
+<body>
+<p>Setting up Rails application with Unicorn and NGINX in Ubuntu, Ruby, Rails,NGINX</p>
+<h1>Deploy Rails app with Unicorn and NGINX – Ubuntu</h1>
+
+<p><strong>Difficulty: </strong> 2</p>
+<p><strong>Time: </strong> 30 minutes</p>
+<p>In this article, we will be configuring a multi-layer deployment installation to host Rails based Ruby web applications. To do this, we will use the powerful, flexible, and extremely successful Unicorn application server running behind Nginx. </p>
+  <p class="note"> Note: Assuming, we are logged in as a sudo user.</p>
+  <h2>Prerequisites</h2>
+  <p>We assume that you have gone through <a href="#">17519 - Install Ruby on Rails with rbenv - Ubuntu</a> and <a href="#">17524 - Use PostgreSQL with your Ruby on Rails Application - Ubuntu</a> links.</p>
+  <h2>Prepare the deployment Server</h2>
+  <ol>
+	<li>Install the bundle of development tools and update the operating system using the following command:
+  <div class="hacker">sudo apt-get install build-essential  </div>
+ <div class="hacker"> sudo apt-get update  </div>
+</li>
+<li>Install Nginx
+ <div class="hacker"> sudo yum install nginx  </div>
+</li>
+<li>Start the Nginx service
+<div class="hacker"> sudo service nginx start </div>
+</li>
+<li>Install Unicorn
+<div class="hacker">gem install unicorn </div>
+</li>
+</ol>
+
+<h2>Setup a Rails Application for Deployment</h2>
+
+<ol>
+<li>Create a directory 
+<div class="hacker">sudo mkdir –p /var/www </div>
+</li>
+<li>Move to the directory and provide all the required permissions 
+<div class="hacker">cd /var </div>
+<div class="hacker">sudo chmod 777  www/ </div>
+</li>
+<li>Create a Rails Application in this directory
+<div class="hacker"> rails new HelloWorld -d postgresql </div>
+</li>
+<li>Move to the newly created application directory 
+<div class="hacker">  cd HelloWorld/ </div>
+</li>
+<li>Create a user for the production database 
+<div class="hacker">sudo -u postgres createuser -s HelloWorld  </div>
+</li>
+<li>
+To set database user password, run the following command:  
+<div class="hacker"> sudo -u HelloWorld psql </div>
+<div class="hacker">\password  HelloWorld  </div>
+</li>
+<li>Enter the new password and logout using the following command:
+<div class="hacker">  \q </div>
+</li>
+<li>To setup a database connection, we need move to our application directory.
+<div class="hacker">cd /var/www/HelloWorld </div>
+<div class="hacker">sudo  vim config/database.yml </div>
+</li>
+<li>
+Add the following line in the default section of this file:
+<div class="hacker">
+<pre>host: localhost</pre>
+</div>
+Notice the production section at the bottom of the file
+<div class="hacker">
+<pre>username: HelloWorld
+password: &amp;lt;%= ENV[HelloWorld_DATABASE_PASSWORD'] %>
+</pre>
+</div>
+If our production username and the database user are not equal, then make the required changes to set them equal.
+<p> Save and exit.</p>
+</li>
+
+<li>Install the pluggin for rbenv-vars 
+<div class="hacker">cd .rbenv/plugins </div>
+<div class="hacker">git clone https://github.com/sstephenson/rbenv-vars.git</div>
+
+</li>
+<li>Set environments variable. To generate a secret key, run the following command:
+<div class="hacker">cd /var/www/HelloWorld </div>
+<div class="hacker">rake secret </div>
+</li>
+<li>When we run this command, it might give some error. If the error is related to <code>bundle install</code>, then type
+<div class="hacker">Bundle Install</div>
+Else, if the error is related to <code>gem install pg</code>, then type the following command:
+<div class="hacker">sudo apt-get install libpq-dev </div>
+<div class="hacker">rake secret</div>
+</li>
+<li>Copy the generated key and open the following file:
+<div class="hacker">sudo vim .rbenv-varsl</div>
+Add the following line in this file
+<div class="hacker">
+<pre> 
+	SECRET_KEY_BASE=your_generated_secret
+	HelloWorld_DATABASE_PASSWORD=prod_db_pass
+</pre>
+</div>
+<p>Save and exit.</p>
+</li>
+<li>Create a sample resource
+<div class="hacker"> rails generate scaffold Task title:string note:text</div>
+</li>
+<li>Create a sample database
+<div class="hacker">RAILS_ENV=development rake db:migrate</div>
+<div class="hacker"> RAILS_ENV=production  rake db:migrate</div>
+</li>
+<li>Create a directory to hold the PID files
+<div class="hacker"> mkdir pids</div>
+</li>
+<li>Enter the application directory and run the following command:
+<div class="hacker"> rails s</div>
+<p>To terminate user press CTRL+C.</p>
+</li>
+<li>For binding to web browser, run the following command:
+<div class="hacker">rails server --binding=[your server's IP]</div>
+</li>
+<li>We can now access it on any browser by visiting: <em>http://[your_droplet's_IP]:3000/tasks</em>
+</li>
+<li>Upload the source code here:
+<p>
+<a href="#">Use SFTP to Securely Transfer Files with a Remote Server - ALL DISTROS</a></p>
+</li>
+</ol>
+
+ <h2>Configure the Server</h2>
+ <ol><li>To configure Unicorn, move to the Rails application directory
+ <div class="hacker">cd /var/www/HelloWorld</div>
+ </li>
+ <li>Create a blank <code>unicorn.rb</code> document
+ <div class="hacker">sudo vim config/unicorn.rb</div>
+ </li>
+ <li>Add the following code in this file:
+ <div class="hacker">
+ <pre># set path to application
+	app_dir = File.expand_path("../..", __FILE__)
+	shared_dir = "#{Application directory}/shared"
+	working_directory Application directory
+
+
+	# Set unicorn options
+	worker_processes 2
+	preload_app true
+	timeout 30
+
+	# Set up socket location
+	listen "#{shared_dir}/sockets/unicorn.sock", :backlog => 64
+
+	# Logging
+	stderr_path "#{shared_dir}/log/unicorn.stderr.log"
+	stdout_path "#{shared_dir}/log/unicorn.stdout.log"
+
+	# Set master PID location
+	pid "#{shared_dir}/pids/unicorn.pid"
+</pre></div>
+<p>Save and exit</p>
+ </li>
+ <li>Now create the directories that were referred in the configuration file 
+  <div class="hacker"> sudo mkdir -p shared/pids shared/sockets shared/log</div>
+ </li>
+ <li>Create a script for Unicorn init 
+   <div class="hacker"> sudo vi /etc/init.d/unicorn_HelloWorld</div>
+ </li>
+ <li>Add the following script code in the file:
+ <div class="hacker"><pre>#!/bin/sh
+
+	### BEGIN INIT INFO
+	# Provides:          unicorn
+	# Required-Start:    $all
+	# Required-Stop:     $all
+	# Default-Start:     2 3 4 5
+	# Default-Stop:      0 1 6
+	# Short-Description: starts the unicorn app server
+	# Description:       starts unicorn using start-stop-daemon
+	### END INIT INFO
+
+	set -e
+
+	USAGE="Usage: $0 &amp;lt;start|stop|restart|upgrade|rotate|force-	stop>"
+
+	# app settings
+	USER="HelloWorld"
+	APP_NAME="HelloWorld"
+	APP_ROOT="/home/$USER/$APP_NAME"
+	ENV="production"
+
+	# environment settings
+	PATH="/home/$USER/.rbenv/shims:/home/$USER/.rbenv/bin:$PATH"
+	CMD="cd $APP_ROOT &amp;&amp; bundle exec unicorn -c config/unicorn.rb -	E 	$ENV -D"
+	PID="$APP_ROOT/shared/pids/unicorn.pid"
+	OLD_PID="$PID.oldbin"
+
+	# make sure the app exists
+	cd $APP_ROOT || exit 1
+
+	sig () {
+	  test -s "$PID" &amp;&amp; kill -$1 `cat $PID`
+	}
+
+	oldsig () {
+	  test -s $OLD_PID &amp;&amp; kill -$1 `cat $OLD_PID`
+	}
+
+	case $1 in
+  	start)
+   	 sig 0 &amp;&amp; echo >&amp;2 "Already running" &amp;&amp; exit 0
+   	 echo "Starting $APP_NAME"
+   	 su - $USER -c "$CMD"
+  	  ;;
+ 	 stop)
+  	  echo "Stopping $APP_NAME"
+  	  sig QUIT &amp;&amp; exit 0
+ 	   echo >&amp;2 "Not running"
+  	  ;;
+ 	 force-stop)
+  	  echo "Force stopping $APP_NAME"
+  	  sig TERM &amp;&amp; exit 0
+	    echo >&amp;2 "Not running"
+  	  ;;
+  	restart|reload|upgrade)
+  	  sig USR2 &amp;&amp; echo "reloaded $APP_NAME" &amp;&amp; exit 0
+  	  echo >&amp;2 "Couldn't reload, starting '$CMD' instead"
+   	 $CMD
+  	  ;;
+  	rotate)
+  	  sig USR1 &amp;&amp; echo rotated logs OK &amp;&amp; exit 0
+  	  echo >&amp;2 "Couldn't rotate logs" &amp;&amp; exit 1
+  	  ;;
+ 	 *)
+  	  echo >&amp;2 $USAGE
+  	  exit 1
+ 	   ;;
+	esac
+
+ </pre></div>
+ </li>
+ <li>This script will allow to run unicorn_HelloWorld that will run and stop both the unicorn and Rails application
+ </li>
+ <li>Update the script's permissions and enable Unicorn to start on boot
+  <div class="hacker">	sudo chmod 755 /etc/init.d/unicorn_HelloWorld</div>
+   <div class="hacker">sudo update-rc.d unicorn_appname defaults</div>
+ </li>
+ <li>Start unicorn
+  <div class="hacker"> sudo service unicorn_HelloWorld start</div>
+ </li>
+ <li>Configure Nginx and enable it to communicate with Unicorn. To do this, we need to edit the default configuration file: <code>default.conf</code> and leave <code>nginx.conf</code>
+   <div class="hacker">	sudo vim /etc/nginx/sites-available/default</div>
+   <p>Swap the files contents with the following lines:</p>
+   <div class="hacker">	<pre>
+   upstream app {
+    		# Path to Unicorn SOCK file, as defined previously
+   		server 	unix:/home/UserName/HelloWorld/shared/sockets/unicorn.sock 	fail_timeout=0;
+	}
+
+	server {
+   	 listen 80;
+   	 server_name localhost;
+
+  	  root /home/UserName/HelloWorld/public;
+
+   	 try_files $uri/index.html $uri @app;
+
+   	 location @app {
+        	 proxy_pass http://app;
+       		 proxy_set_header X-Forwarded-For 			  		 $proxy_add_x_forwarded_for;
+        	 proxy_set_header Host $http_host;
+        	 proxy_redirect off;
+    	}
+
+   	 error_page 500 502 503 504 /500.html;
+        client_max_body_size 4G;
+    	 keepalive_timeout 10;
+	}
+
+   </pre></div>
+   <p> Save and exit.</p>
+ </li>
+ <li>Restart the Nginx service
+  <div class="hacker">sudo service nginx restart</div>
+ </li>
+ </ol>
+ <h2>Manage the servers</h2>
+ <ol><li>Once we finish configuring both the servers, we will initiate the Unicorn and run it as a daemon by using the configuration file. It is required to ensure that we are inside the application directory and then we will run the following command:
+  <div class="hacker">unicorn_rails -c config/unicorn.rb –D</div>
+</li>
+<li>Test server's IP address (or the domain name associated to it) at <em>http://[Your server's IP address]/tasks</em>
+</li>
+</ol>
+<h2>Next Step</h2>
+<p>By using all the above steps we will be able to deploy our Rails application with Unicorn and Nginx on Ubuntu.</p>
+</body>
+</html>

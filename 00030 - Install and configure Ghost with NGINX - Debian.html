@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head> 
+
+
+<title>00030 - Install and configure Ghost with Nginx – Debian</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+</style>
+
+
+</head>
+
+<body>
+
+
+<p>Install and configure Ghost with Nginx - Debian, CMS, Ghost, Nginx</p>
+<h1>Install and configure Ghost with Nginx - Debian</h1>
+        
+  <p><strong>Difficulty</strong>: <em>2</em><br/>
+  <strong>Time</strong>: <em>1.0 hrs</em></p>
+		
+    <p>Ghost is a simple blogging platform that is fast and easy to set up and provides good customization options. This article  will help you  to set up a Ghost blogging platform with Nginx on Debian platform.</p> 
+<p class="note">These procedures assume that you have <code>sudo</code> privileges.</p> 
+	
+	<h2>Prepare the machine</h2>
+		 <ol>
+		 <li>Update the Debian server.
+		   <div class='hacker'>sudo apt-get update</div>
+		 </li>
+		 <li>Install the additional dependencies. (When prompted for confirmation during installation, enter <strong>Y</strong>.)
+		   <div class='hacker'>sudo apt-get install unzip</div>
+		 <div class='hacker'>sudo apt-get install git-core curl build-essential openssl libssl-dev</div>
+		 </li>
+		 <li>Download the <code>node.js</code> source.
+		   <div class='hacker'>cd /tmp</div>
+		 <div class='hacker'>git clone https://github.com/joyent/node.git</div>
+		 </li>
+		 <li>Select the appropriate version from the list of provided version numbers. (In this article, version v0.12.7 is installed.)
+		   <div class='hacker'>cd node</div>
+		  <div class='hacker'>git tag</div>
+		  <div class='hacker'>git checkout <em><u>v0.12.7</u></em></div>
+		  </li>
+		  <li>Compile <code>node.js</code>.
+			<div class='hacker'>sudo ./configure &amp;&amp; sudo make &amp;&amp; sudo make install</div>
+		 </li>
+		 <li>Check the version numbers to ensure successful installations and to ensure that path variables are configured properly.
+		 <div class='hacker'>node -v</div>
+		 <div class='hacker'>npm --v</div>
+		 </li>
+		 </ol>
+		
+		
+		 <h2>Install Ghost</h2>
+		 <ol>  
+		 <li>Create a new directory for Ghost.
+		   <div class='hacker'>sudo mkdir /home/ghost</div></li>
+		 <li>Move to the new directory.
+		 <div class='hacker'>cd /home/ghost</div></li>
+		 <li>Download the <code>Ghost</code> application.
+		   <div class='hacker'>sudo wget https://ghost.org/zip/ghost-latest.zip</div>
+		   <div class='hacker'>sudo unzip ghost-latest.zip</div>
+		 </li>
+		   <li>Install <code>npm.</code>
+			 <div class='hacker'>sudo npm install --production</div>
+		 </li>
+		 <li>Prepare the <code>config</code> file for Ghost using the sample configuration file.
+		 <div class='hacker'>sudo cp config.example.js config.js</div>
+		 </li>
+		  <li>Open the <code>config.js</code> file for editing. 
+			<div class='hacker'>sudo vim config.js</div>
+		 </li>
+		  <li>Locate the following code in the file, and update the URL and host values with the appropriate IP address. (Modify the URL and host IP address with your settings.)
+			<div class='hacker'> 
+		 <pre>
+	    production: {
+        url: 'http://<em><u>Public IP Address of your server</u></em>',
+        mail: {},
+        database: {
+            client: 'sqlite3',
+            connection: {
+                filename: path.join(__dirname, '/content/data/ghost.db')
+            },
+            debug: false
+        },
+
+        server: {
+            // Host to be passed to node's `net.Server#listen()`
+            host: '<em><u>Public IP Address of your server</u></em>',
+            // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
+            port: '2368'
+        }
+     }
+</pre>
+		    </div>
+</li>
+			 <li>Save and exit the editor by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+			<li>Start Ghost (production environment).
+			<div class='hacker'>sudo npm start --production</div>
+			The default port used by Ghost is <em><u>IP_Address</u></em>:2368.
+			<p>When  starting, Ghost displays the message "Your blog is now available on <code> <em><u>http://provided URL</u></em>.</code>&quot;<br/>
+			</p>
+			<p>To stop the Ghost blog and return to command prompt, press <strong>Ctrl+C</strong></p>.
+			</li>
+			</ol>
+  <h2>Configure to run Ghost forever</h2>
+			<ol>
+			 <li>Configure the tool <code>forever</code> as the node daemon tool.
+			   <div class='hacker'>sudo npm install -g forever</div>
+			 </li>
+			 <li>Start the Ghost server.
+			   <div class='hacker'>sudo NODE_ENV=production forever start index.js</div>
+			 Upon successful start, the Ghost blog is available on the browser as <strong>http://<em><u>Your IP Address:2368/</u></em></strong>. Open the browser on your local system, and type in the domain name provided for hosting the Ghost blog. (Replace the given IP address with the public IP address of the server.)
+			   <br />
+			   <img src='images/00030- GhostOnBroowser.png' alt='00030- GhostOnBroowser.png'/>
+			 </li>
+			 <li>Display the list of processes running with forever. 
+			   <div class='hacker'>sudo forever list</div>
+			   </li>
+			   <li>Stop the server (just for sake of learning the process).
+			  <div class='hacker'>sudo forever stop <em><u>0</u></em> # where 0 is the process id of Ghost process</div>
+			  <p>or you can use following command to stop all processes running with forever:</p>
+			   <div class='hacker'>sudo forever stopall</div>
+			 </li>
+			 <li>Start Ghost again.
+			 <div class='hacker'>sudo NODE_ENV=production forever start index.js</div>
+			 </li>
+			 </ol>
+			 
+<h2>Set up Nginx and Ghost</h2>
+             <ol>
+			 <li>Install Nginx.
+			   <div class='hacker'>sudo apt-get install nginx</div>
+			 </li>
+			 <li>Create a new Ghost configuration file, and open it for editing. 
+			   <div class='hacker'>sudo vim /etc/nginx/nginx.conf</div>
+			 </li>
+			 <li>Update the file with following code. This is basically the same code, with some of the gzip variable settings uncommented, and the commented section about mail removed altogether.
+			   <div class='hacker'>
+			 <pre>
+user www-data;
+worker_processes 4;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 768;
+    # multi_accept on;
+}
+http {
+
+    ##
+    # Basic Settings
+    ##
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    # server_tokens off;
+    # server_names_hash_bucket_size 64;
+    # server_name_in_redirect off;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    ##
+    # Logging Settings
+    ##
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    ##
+    # Gzip Settings
+    ##
+
+    gzip on;
+    gzip_disable "msie6";
+
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/      xml application/xml+rss text/javascript;
+
+    ##
+    # Virtual Host Configs
+    ##
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+</pre>
+			 </div>
+			 </li>
+			 <li>Save and exit the editor by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+				
+			 <li>Create the Ghost configuration file for Nginx, and open it for editing.
+			   <div class='hacker'>sudo vim /etc/nginx/sites-enabled/ghost
+			 </div></li>
+			 <li>Put the following code into the configuration file (replacing the highlighted content with appropriate values):
+			   <div class='hacker'>
+			 <pre>
+server {
+    listen         80;
+    server_name <em><u>Public IP Address of your server</u></em>;
+    root ~;
+    index index.php;
+
+    if ($http_host != "<em><u>Public IP Address or domain name of your server</u></em>") {
+         rewrite ^ http://<em><u>Public IP Address or domain name of your server</u></em>$request_uri permanent;
+    }
+
+    location / {
+        proxy_set_header X-Real-IP  $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_pass http://127.0.0.1:2368;
+    }
+
+    location ~* \.(?:ico|css|js|gif|jpe?g|png|ttf|woff)$ {
+        access_log off;
+        expires 30d;
+        add_header Pragma public;
+        add_header Cache-Control "public, mustrevalidate, proxy-revalidate";
+        proxy_pass http://127.0.0.1:2368;
+    }
+
+    location = /robots.txt { access_log off; log_not_found off; }
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location ~ /\.ht {
+            deny all;
+    }
+}
+</pre>
+			 </div>
+			 </li>
+			 <li>Save and exit the editor by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+			 <li>Restart  Nginx.
+			   <div class='hacker'>sudo /etc/init.d/nginx start</div>
+			 </li>
+			 <li>Open the browser on your local system, and type in the domain name provided for hosting the Ghost blog. The Ghost blog should be available via the specified URL. 
+			<br/>	
+			<p><code><em><u>http://Your domain name or IP Address:2368/</u></em> </code></p>
+			 </li>
+			 </ol>
+            
+<h2>Next Steps</h2>
+<p>In this article, you installed and configured Ghost with Nginx  on Debian. The Ghost blogging platform, with its ease of deployment and use, can help you set up and extend your content management infrastructure. For an optimized performance, you can <a href="18319"> host multiple Ghost blogs on a single server</a>.
+</p>   
+</body>
+</html>

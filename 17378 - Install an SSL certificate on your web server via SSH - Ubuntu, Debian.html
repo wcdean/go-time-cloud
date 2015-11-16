@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Install an SSL certificate on your web server via SSH - Ubuntu, Debian</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <h1>Install an SSL certificate on your web server via SSH - Ubuntu, Debian</h1>
+    <!-- START: GD provided
+    Time value is the time it takes to complete with accommodation for reading article itself (appropriate options are 5, 10, 15, 20, 30, 45 minutes, or 1, 2, or 3 hours). Timeframes only need to include steps outlined in the article itself; do not include timeframes for articles linked to.
+
+    -->
+    <p>
+        <strong>Difficulty</strong>: 2
+        <br />
+        <strong>Time</strong>: 30 minutes
+    </p>
+    <!-- END: GD provided -->
+
+    <p>After downloading your certificate, you need to install it on your web server. This article will walk you through installing SSL certificate from a Commercial Certificate Authority (CA) on Ubuntu/Debian. </p>
+
+    <!-- Sections start with h2 -->
+    <h2>Install SSL Certificate in Nginx </h2>
+    <ol>
+        <li>
+            Change to the directory that contains your private key, certificate, and the CA intermediate certificates. Assuming they are in your home directory:
+            <div class="hacker">cd ~</div>
+        </li>
+        <li>
+            create a single "chained" certificate file that contains your certificate and the CA's intermediate certificates. Assuming your certificate file is called examplessl.com.crt and intermediate certificate is called intermediatessl.crt. Use this command to create a combined file called examplessl.com.chained.crt:
+            <div class="hacker">cat <em><u>examplessl.com.crt</u></em> <em><u> intermediatessl.crt</u></em> > <em><u>examplessl.com.chained.crt </u></em></div>
+        </li>
+        <li>
+            go to your Nginx server block configuration directory. Assuming it is located at /etc/nginx/sites-enabled:
+
+            <div class="hacker">cd /etc/nginx/sites-enabled</div>
+        </li>
+        <li>
+            Assuming you want to add SSL to your default server block file. Use the following commnad line:
+            <div class="hacker">sudo vim default</div>
+        </li>
+        <li>
+            Modify the listen directive to look like this:
+            <div class="hacker">listen 443 ssl;</div>
+        </li>
+        <li>
+            Configure the server_mame, ssl_certificate and ssl_certificate_key directives to match your certificate name, certificate paths and private key files:
+            <div class="hacker">
+                server_name examplesssl.com;<br />
+                ssl_certificate /home/sammy/examplessl.com.chained.crt;<br />
+                ssl_certificate_key /home/sammy/examplessl.com.key;
+            </div>
+        </li>
+        <li>
+            If you only allow the most secure SSL protocols and ciphers, add the following lines to the file:
+            <div class="hacker">
+                ssl_protocols TLSv1 TLSv1.1 TLSv1.2;<br />
+                ssl_prefer_server_ciphers on;<br />
+                ssl_ciphers AES256+EECDH:AES256+EDH:!aNULL;
+            </div>
+        </li>
+        <li>
+            Now restart Nginx to load the new configuration and enable TLS/SSL over HTTPS using the following command:
+            <div class="hacker">sudo service nginx restart </div>
+
+        </li>
+    </ol>
+    <h2>Install SSL Certificate in Apache </h2>
+    <ol>
+        <li>
+            Make copy of your configuration file, assuming your server is running on the default configuration file (<code>/etc/apache2/sites-available/000-default.conf</code>):
+            <div class="hacker">
+                cd /etc/apache2/sites-available<br />
+                cp 000-default.conf 000-default.conf.orig
+            </div>
+        </li>
+        <li>
+            Open the file for editing:
+            <div class="hacker">sudo vim 000-default.conf</div>
+        </li>
+        <li>Find the host port and change it to 443.</li>
+        <li>
+            Add the ServerName directive if it doesn't exist yet. However,  If they are currently commented out, uncomment them by removing the # character from the beginning of the line. Set the values of these directives to the absolute path and filename of the appropriate file.
+            <div class="hacker">
+                SSLEngine on<br />
+                SSLCertificateFile <em><u>/home/sammy/examplessl.com.crt</u></em><br />
+                SSLCertificateKeyFile <em><u>/home/sammy/examplessl.com.key</u></em>
+            </div>
+
+        </li>
+        <li>
+            Specify the CA intermediate bundle. <br />
+            For Apache 2.4.8 or greater,  adding this line: <div class="hacker">SSLCACertificateFile <em><u>/home/sammy/intermediatessl.crt</u></em></div>
+            For older version of Apache, adding this line:<div class="hacker">SSLCertificateChainFile <em><u>/home/sammy/intermediatessl.crt</u></em></div>
+        </li>
+        <li>Save and exit.</li>
+        <li>
+            Enable the Apache SSL module:
+            <div class="hacker">sudo a2enmod ssl</div>
+        </li>
+        <li>
+            Restart Apache to run the new cofiguration.
+            <div class="hacker">sudo service apache2 restart</div>
+        </li>
+
+    </ol>
+    <h2>Conclusion</h2>
+    <p>You have installed a SSL certificate. </p>
+    <!-- START: GD provided -->
+    <p>Have questions? Email us at <a href='mailto:clouddocs@godaddy.com'>clouddocs@godaddy.com</a> or leave a comment.</p>
+    <!-- END: GD provided -->
+</body>
+</html>

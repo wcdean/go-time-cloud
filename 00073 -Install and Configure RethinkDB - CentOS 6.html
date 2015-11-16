@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and Configure RethinkDB - CentOS 6</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up RethinkDB in CentOS 6, NoSQL</p>
+<h1>Install and Configure RethinkDB - CentOS 6</h1>
+
+ <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+<p> RethinkDB belongs to the NoSQL database family. It is designed specifically to push data to applications in real-time. This provides a base for creating real-time, scalable, database-oriented web applications. It has a very simple API to interact with the databases.</p>
+
+<p>Installing RethinkBD includes two main components: the database itself, and the client driver, which interacts with the database from your programming language.</p>
+
+ <p>This article will cover installing and configuring RethinkDB on a CentOS 6 system. You'll need <code>sudo</code> privileges to complete this tutorial.</p>
+
+<h2>Install the RethinkDB server</h2>
+<ol>
+<li>Add the RethinkDB yum repository to your existing list of repositories:
+
+<div class="hacker">sudo wget http://download.rethinkdb.com/centos/6/`uname -m`/rethinkdb.repo -O /etc/yum.repos.d/rethinkdb.repo</div>
+</li>
+<li>Install rethinkDB.
+	<div class="hacker">sudo yum install rethinkdb</div>
+    </li>
+</ol>
+
+<h2>Install the client drivers</h2>
+<ol>
+<li>At present official drivers are available for three languages - Javascript, Ruby, and Python. To install Ruby driver, first install rubygems with the following command:
+	<div class="hacker">sudo yum install rubygems</div>
+</li>
+<li>Install gem 
+		<div class="hacker">sudo gem install rethinkdb</div>
+</li>
+<li>Install <code>EPEL</code> repository using following command:
+<div class ="hacker"> sudo yum install epel-release
+</div>
+</li>
+<li>To install Javascript driver use the following command:
+		<div class="hacker">sudo yum install npm</div>
+		<div class="hacker">npm install rethinkdb</div>
+</li>
+<li>To install Python driver, use the following command:
+<div class="hacker">sudo easy_install pip</div>
+<div class="hacker">sudo pip install rethinkdb</div>
+</li>
+</ol>
+
+<h2>Install the Python client driver</h2>
+<p>In this article we will be installing the Python client driver. You can use pip (Python Package Manager) to install the client driver for RethinkDB. It is a best practice to run Python applications in an isolated environment.</p>
+<ol>
+<li>Install the virtual environment.
+<div class="hacker">sudo yum install python-virtualenv</div>
+<div class="hacker">mkdir rethink</div>
+<div class="hacker">cd rethink</div>
+</li>
+<li>Create virtual environment structure.
+<div class="hacker">virtualenv venv</div>
+</li>
+<li>Activate the environment.
+<div class="hacker">source venv/bin/activate</div>
+<p>You can use the command <code>deactivate</code> to deactivate the current environment.</p>
+</li>
+<li>Install the RethinkDB driver using <code>pip</code>.
+<div class="hacker">sudo pip install rethinkdb</div>
+<p>This step will install Python client drivers for RethinkDB.</p>
+</li>
+</ol>
+
+
+<h2>Start RethinkDB</h2>
+<ol>
+	<li>Start RethinkDB to access.
+<div class="hacker">
+rethinkdb --bind all
+</div>
+
+If you need to stop the process and continue working in your command line, press <strong>CTRL</strong>-<strong>C</strong>.
+</li>
+<li>
+Access your server at <strong>http://<u><em>public_IP_of_your_server_or_domain</em></u>:8080</strong>.
+
+<p><img src="images/00073/100815/rethinkDB-web-dashboard.png" alt="RethinkDB Dashboard" /></p>
+
+Using this Web interface, you can manage creating database, tables, and can configure RethinkDB cluster to manage table replication. 
+</li>
+</ol>
+
+<h2>Configure RethinkDB</h2>
+<ol>
+<li>First, make a copy of the RethinkDB configuration file using the default.
+<div class="hacker">sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance.conf</div></li>
+
+<li>Open the RethinkDB configuration file.
+<div class="hacker">sudo vim /etc/rethinkdb/instances.d/instance.conf</div>
+</li>
+<li>
+locate <code>server-name</code> and type following line beneath it to give your server name.
+<div class="hacker">server-name=<em><u>rethinkdb</u></em>	</div>
+</li>
+<li> To make it listen on all network. locate <code>bind=127.0.0.1</code> and type following line beneath it.
+<div class="hacker">bind=all</div>
+</li>
+
+<li>Save the configuration changes made and close the file.</li> 
+
+<li>Restart RethinkDB with the new build configuration.
+<div class="hacker">sudo service rethinkdb restart</div>
+</li>
+</ol>
+
+<h2>Interact with RethinkDB from Python</h2>
+
+<p>In most cases, you will be managing databases using Python. The following commands will help you perform these tasks:</p>
+<ol>
+<li>Activate the virtual environment for Python. 
+<div class="hacker">cd ~/rethink</div>
+<div class="hacker">source venv/bin/activate</div>
+</li>
+<li>Start the Python interpreter.
+<div class="hacker">sudo python</div>
+</li>
+
+<li>In the Python interpreter, import the client driver into the environment.
+<div class="hacker">import rethinkdb as r</div>
+</li>
+<li>Connect with the local database.
+<div class="hacker">r.connect("localhost",28015).repl()</div>
+</li>
+<li>Create a database.
+<div class="hacker">r.db_create("<em><u>your_rethink_database</u></em>").run()</div>
+</li>
+<li>Create a table called "posts."
+<div class="hacker">r.db("<em><u>your_rethink_database</u></em>").table_create("<em><u>posts</u></em>").run()</div>
+</li>
+<li>Insert some test values into the "posts" table.
+<div class="hacker">r.db("<em><u>your_rethink_database</u></em>").table("<em><u>posts</u></em>").insert({"hello":"world"}).run()</div>
+</li>
+<li>Print the contents in a table.
+<div class="hacker"><pre>c = r.db("<em><u>your_rethink_database</u></em>").table("<em><u>posts</u></em>").run()
+for x in c:
+    print x</pre></div>
+
+
+You might have to press <strong>Enter</strong> twice to see your return values. The output should look something like this:
+<div class="hacker">{u'hello': u'world', u'id': u'1afa0da6-6d28-4136-b601-e104e4c1339a'}</div>
+    </li>
+<li>
+Exit the Python shell.
+<div class="hacker">
+exit()
+</div>
+</li>
+
+<li>Come out of the virtual environment.
+<div class="hacker">deactivate</div></li>
+</ol>
+
+
+<h2>Next steps</h2>
+<p>Congratulations! You've installed and configured RethinkDB. For even more information on how to configure a RethinkDB cluster on CentOS or Fedora, see <a href="18529 - Set up a sharded RethinkDB Cluster - CentOS, Fedora.html">Set up a sharded RethinkDB Cluster - CentOS, Fedora</a></p>
+
+</body>
+</html>

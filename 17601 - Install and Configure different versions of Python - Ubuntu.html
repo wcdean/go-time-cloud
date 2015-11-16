@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17601 -->
+
+
+<title>Install and configure different versions of Python - Ubuntu</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+            <p>Describes how to install and compile different versions of Python within the same Ubuntu image.</p>
+<h1>Install and configure different versions of Python - Ubuntu</h1>
+
+                <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+                <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+
+<h2>Introduction</h2>
+
+            <p>When you provision a new self-managed Ubuntu server, you may notice that the Python version installed by default is Python <em><u>2.7.6</u></em>. It is possible you want to run a different version of Python than the system Python, namely Python 3. This guide will assist with how to install and run an alternate version of Python side-by-side with the system Python.</p>
+
+           <p class="warning"><strong>The native Python is always needed.</strong>  Modifying the existing Python <em><u>2.7</u></em> install will break apt, and prevent you from being able to use apt for package management and installation.</p>
+           
+<p>This article will show you how to install a different version of Python, while leaving the system version intact.</p>
+
+
+<h2>Overview</h2>
+
+            <p>This phase will contain three stages:</p>
+    <ul>
+                <li>Preparing the server for the install</li>
+                <li>Downloading, compiling, and installing Python <em><u>3.4.2</u></em></li>
+                <li>Configuring the PATH variable so that future calls to Python can be streamlined</li>
+    </ul>
+
+
+<h2>Prepare the server for compiling Python</h2>
+
+   <ol>
+                <li>Let's start with letting yum do some heavy lifting for us, and make sure that all our currently installed yum package are up-to-date:
+                        <div class="hacker">sudo apt-get -y update</div>
+                        <div class="hacker">sudo apt-get -y upgrade</div></li>
+
+                <li>There is a suite of tools that we need installed before we can continue. Instead of doing this the hard way and installing all of these tools one-by-one, we are again going to let apt do the heavy lifting for us. Apt            includes a software suite called <code>build-essential</code> that will contain almost everything we need, except for a few others that we'll add as well. Install these by running:
+                        <div class="hacker">sudo apt-get -y install build-essential libsqlite3-dev sqlite3 bzip2 libbz2-dev</div>
+                        Our server is now ready for the next steps to compile Python!</li>
+
+    </ol>
+
+<h2>Compiling Python from source</h2>
+
+        <p>This phase will contain three stages:</p>
+    <ol>
+            <li>Downloading the compressed source code package - using wget/</li>
+            <li> Extracting the files from this package</li>
+            <li>Configuring and building the application</li>
+    </ol>
+
+
+
+    <ol>
+            <li>Run the following command to grab the tarball (a Linux-lingo term for the archive) from the Python official page. This is an example using the link for Python <em><u>3.4.2</u></em>, if you are using a different version, you may substitute this link with whichever version you need:
+                <div class="hacker">wget http://www.python.org/ftp/python/<em><u>3.4.2</u></em>/Python-<em><u>3.4.2</u></em>.tar.xz</div> </li>
+
+
+            <li>You'll notice this is an <em><u>.xz</u></em> archive. This is an encoded TAR archive, so before proceeding we need to run it through the .xz decoder: <br/>
+                <div class="hacker">xz -d Python-<em><u>3.4.2</u></em>.tar.xz</div>
+                It should now be in the proper .tar format</li>
+
+            <li>Run the following command to extract our Python tarball:
+                <div class="hacker">tar -xvf Python-<em><u>3.4.2</u></em>.tar</div>
+              It should immediately unarchive into a folder named Python-3.4.2</li>
+
+          <li>We are almost ready to compile. Before doing that, we need to make sure that there aren't going to be any dependency issues when we compile, and that the environment is set up correctly for Python <em><u>3.4.2</u></em>. Luckily, Python contains a ./configure that does all of this for us. Start by navigating into the Python directory that you just extracted
+                    <div class="hacker">cd Python-<em><u>3.4.2</u></em></div>
+            You should now be in a directory with a <code>configure</code> and <code>setup.py</code> file. You can confirm this by running <code>ls</code> (short for list) to confirm that you are in the correct directory. You will be, if your <code>ls</code> looks like the example below:   <br/>
+          <div class="hacker">
+<pre>[root@ubuntuserver Python-<em><u>3.4.2</u></em>]# ls
+config.guess  configure     Demo  Grammar  install-sh  LICENSE  Makefile.pre.in  Modules  Parser  PCbuild        Python  RISCOS    Tools
+config.sub    configure.ac  Doc   Include  Lib         Mac      Misc             Objects  PC      pyconfig.h.in  README  setup.py </pre></div></li>
+
+
+            <li>Run the following command to configure the server for compilation. We are setting the flag for <code>--prefix</code> to specify which directory we will compile Python. Technically, you can install it into any directory you want, but generally it's a good idea to follow standard procedure. If you don't specify a directory, it will default it to <code>/usr/local.</code>
+                    <div class="hacker">./configure --prefix=/usr/local </div>
+                 <p class="note">Python is going to run through and check to make sure everything is appropriate for the compiling process. If the output ends in creating Makefile, you should be ready to go. If you get any errors during configuration, do NOT proceed with compiling Python - it will cause problems on the system. Read through the errors and resolve them first before moving forward. We did all the preparation steps, so it's unlikely that errors will occur, unless you had made custom changes that would have affected dependencies.</p></li>
+
+              <li>Alright - the time has come. If you were installing/compiling any other software suite from source, this is typically where we would run make install. Don't do this. Doing so will overwrite the system Python and will break all kinds of things on your server. Instead, this provides us with an <code>altinstall</code> file to use in its stead. Run the following commands in order to compile and install Python <em><u>3.4.2</u></em>.
+                    </br>
+                    First we compile. This part can take a while - be patient while C works its magic
+                    <div class="hacker">
+                    make
+                    </div>
+                    </br>
+                    Next we use altinstall to install our compiled Python libraries
+                    <div class="hacker">
+                    sudo make altinstall
+                    </div>
+                    After running both of these commands, the install will be complete, and Python <em><u>3.4.2</u></em> will be installed in <code>/usr/local/bin/python3.4</code></li>
+
+            <li>Python is now compiled, installed, and configured on your server. This means that you can now call directly to the <em><u>python3.4</u></em> variable and it will know to call to the proper location. To demonstrate and confirm this, run the following command inside your prompt:
+                   <div class="hacker">which python3.4</div></li>
+
+            <li>You should see it showing the path to the python <em><u>3.4</u></em> interpreter, which if you followed our steps, uses <code>/usr/local/bin/python3.4</code>. You can also confirm that it is recognizing this version by typing:
+                    <div class="hacker">python<em><u>3.4</u></em> -V</div>
+                    Your terminal should return an output confirming the version as 3.4</li>
+    </ol>
+
+<h2>Next steps</h2>
+        <p>Congrats! You've just compiled taken Python, compiled it from source, and installed it as an alternate Python install on your server. Now, any applications you run that require it, can refer directly to the version of Python you installed, instead of the system Python. </p>
+
+
+</body>
+</html>

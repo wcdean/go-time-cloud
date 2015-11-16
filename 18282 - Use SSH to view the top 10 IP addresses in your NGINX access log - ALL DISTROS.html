@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Using tail to report from your access log - ALL DISTROS</title>
+
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    .auto-style1 {
+        width: 1345px;
+    }
+    .auto-style2 {
+        width: 160px;
+    }
+</style>
+
+
+</head>
+
+<body>
+<p>Report the top 10 IP addresses from your Apache or Nginx access log, troubleshooting</p>
+<h1>Report the Top 10 IP Addresses from Your Apache or Nginx Access Logs - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>Value from spreadsheet</u></em><br/>
+        <strong>Time</strong>: <em><u>Time value</u></em></p>
+
+    <p>You can produce various reports on the activity that occurs on your website.  This article describes a way to report the top 10 IP addresses from your access logs using <code>awk</code> and the <code>tail</code>, <code>sort</code>, and <code>uniq</code> commmands.</p>
+     
+
+    <h2>Report most common IP addresses</h2>
+    <ol>
+<li>Navigate to the location of the access log: 
+    
+    <ul>
+      <li>In Apache, the filename is <code>access_log</code>. Some common locations are under the <code>/var</code> or <code>/usr</code> directory. </li>
+      
+<li>In Nginx, the filename is <code>access.log</code>. The default location is <code>log/nginx/</code>.</li>
+</ul>
+      The fully qualified location depends on your implementation of Linux.
+      </li>
+
+<li>Run one of the following commands:
+    
+    <ul><li>In Apache:
+       
+        <div class="hacker">sudo tail -10000 access_log | awk &#39;{print $1}&#39; | sort | uniq -c | sort -n | tail </div>
+     </li> 
+<li>In Nginx:
+        <div class="hacker">sudo tail -10000 access.log | awk &#39;{print $1}&#39; | sort | uniq -c | sort -n | tail </div>
+      </li>
+      
+      </ul>
+    The commands break down like this:
+    
+    <table>
+      <tr>
+        <th>Command</th>
+        <th>Definition</th>
+      </tr>
+      <tr>
+        <td><p><code>tail -10000 access_log |</code></p>
+        <p>or</p>
+        <p><code>tail -10000 access.log |</code></p></td>
+        <td>Capture the last 10000K lines from the <code>access_log</code> or <code>access.log </code>file and send the output to . . .</td>
+      </tr>
+      <tr>
+        <td><code>awk &#39;{print $1}&#39; |</code></td>
+        <td>Take the 10000 (or fewer) lines of input from the previous command and print it to . . .</td>
+        
+      </tr>
+      <tr>
+        <td><code>sort</code></td>
+        <td>Sort the results to help the subsequent <code>uniq</code> command, and send the output to . . .</td>
+      </tr>
+      <tr>
+        <td><code>uniq -c |</code></td>
+        <td>Show each value only once, but use <code>-c</code> to count the number of occurences; send the output to . . .</td>
+      </tr>
+      <tr>
+        <td><code>sort -n |</code></td>
+        <td>Sort again but this time numerically. Because each item in the list is now prefixed with the count, we have a list order by number of occurences. Send the output to . . .</td>
+      </tr>
+      <tr>
+        <td><code>tail</code></td>
+        <td>Tail, with no options will default to the last 10 lines of the input file.</td>
+      </tr>
+    </table>
+</li></ol>
+    <h2>Next steps</h2>
+    <p>This article shows how, with a little creativity, you can use Linux commands to help manage your server. For more sophisticated reporting capabiility, a number of reporting tools are available. </p>
+    <p>See also <a href="http://">Edit your NGINX configuration file to block IP addresses</a>.</p>
+   
+</body>
+</html>

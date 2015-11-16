@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17575 -->
+
+
+<title>Install and Configure Magento on your LAMP server - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up Magento on LAMP server, Applications, LAMP, PHP</p>
+    <h1>Install and configure Magento on your LAMP server - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>45 minutes</em></p>
+
+    <p>Magento is a popular Content Management System (CMS) for e-commerce websites. This article explains the installation and configuration of Magento on Debian and Ubuntu.</p>
+     <p class="note">You will need access to sudo privileges to perform the steps given in this article. </p> 
+	   
+<h2>Prerequisites</h2>
+<ul> 
+<li>Magento installation requires at least 2 GB of RAM.
+</li>
+<li>To install LAMP, please visit <a href="17346">Build a LAMP stack (Linux, Apache, MySQL, PHP) – Debian</a> or <a href="17341">Build a LAMP stack (Linux, Apache, MySQL, PHP) – Ubuntu</a> links.
+</li>
+</ul>
+
+
+<h2>Configure PHP and Apache</h2>
+<p>PHP and Apache can be configured to handle Magento’s traffic and computing tasks properly. In addition, some additional packages will be required to install.</p>
+
+<h3>Configure the virtual host of Apache</h3>
+<p>You need to configure a virtual host to let Apache know how to manage the site properly.</p>
+<ol> 
+<li>Create a new virtual host file at <code>/etc/apache2/sites-available/</code>. You can name this virtual host <em><u>magento</u></em> if you want, or another name.
+   <div class="hacker">sudo vim /etc/apache2/sites-available/<em><u>magento</u></em>.conf</div>
+   </li>
+   <li>Paste the following code in this file:
+   <div class="hacker">
+<pre>
+&lt;VirtualHost *:80&gt;
+    DocumentRoot /var/www/html
+    &lt;Directory /var/www/html/&gt;
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+</pre>   
+   </div>
+   </li>
+   <li>Save and exit the file pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.
+   </li>
+   <li>Enable the new site with Apache. 
+   <div class="hacker">sudo a2ensite magento.conf</div>
+   </li>
+   <li>Disable the default virtual host.
+   <div class="hacker">sudo a2dissite 000-default.conf</div>
+   <p>If you not find the <code>000-deafault.conf</code> file in Debian, use the following command:</p>
+   <div class="hacker">sudo a2dissite 000-default</div>
+   </li>
+  </ol>
+
+
+<h3>Configure PHP</h3>
+<ol> 
+<li>To increase the memory limit of PHP, open the PHP configuration file  <code>/etc/php5/apache2/php.ini </code>in a text editor.
+	<div class="hacker">
+		sudo vim /etc/php5/apache2/php.ini
+	</div>
+</li> 
+<li>Search for <code>memory_limit</code>, and then change the value from <em>128M</em> to <em>512M</em>.
+   <div class="hacker">memory_limit = 512M</div>
+   </li>
+   <li>Save and exit the file pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.
+   <li>Magento needs a few additional PHP modules. To install these, use the following commands:
+   <div class="hacker">sudo apt-get update</div>
+   <div class="hacker">sudo apt-get install libcurl3 php5-curl php5-gd php5-mcrypt rsync</div>
+   </li>
+   <li>To enable URL rewriting support for Apache and encryption support for PHP, use the following commands:
+   <div class="hacker">sudo a2enmod rewrite</div>
+   <div class="hacker">sudo php5enmod mcrypt</div>
+   </li>
+   <li>Restart the Apache service.
+   <div class="hacker">sudo service apache2 restart</div>
+   </li>
+  </ol>
+
+
+<h2>Create User and MySQL database </h2>
+<ol> 
+<li>Log in into MySQL root account with the following command:
+   <div class="hacker">mysql -u root -p</div>
+   </li>
+   <li>Create a database with the name <em><u>magento</u></em>, you may give any name.
+   <div class="hacker">CREATE DATABASE magento;</div>
+   </li>
+   <li>Create a user <em><u>magento_user</u></em>, and then assign a password <em><u>password</u></em> to it.
+   <div class="hacker">CREATE USER <em><u>magento_user</u></em>@localhost IDENTIFIED BY '<em><u>password</u></em>';</div>
+   </li>
+   <li>To grant privileges, type:
+   <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>magento</u></em>.* TO <em><u>magento_user</u></em>@localhost IDENTIFIED BY '<em><u>password</u></em>';</div>
+   </li>
+   <li>Exit from the MySQL command prompt.
+   <div class="hacker">FLUSH PRIVILEGES;</div>
+   <div class="hacker">exit</div>
+   </li>
+  </ol>
+
+
+<h2>Download Magento</h2>
+<ol> 
+	<li>Use <code>wget</code> to get Magneto files at home directory.
+   <div class="hacker">cd ~</div>
+    <div class="hacker">wget http://www.magentocommerce.com/downloads/assets/1.9.0.1/magento-1.9.0.1.tar.gz</div>
+ 	</li>
+   <li>Extract with tar files.
+   <div class="hacker">tar xzvf magento-1.9.0.1.tar.gz</div>
+   </li>
+   <li>You can see <em><u>magento</u></em> directory in your home directory. Move these unpack files to Apache’s document root.
+   <div class="hacker">sudo rsync -avP ~/<em><u>magento</u></em>/. /var/www/html/</div>
+      <div class="hacker">rm -rf ~/<em><u>magento</u></em>*</div>
+   </li>
+   <li>Give ownership of the file to Apache’s user and group.
+   <div class="hacker">sudo chown -R www-data:www-data /var/www/html/</div>
+   </li>
+   </ol>
+
+
+<h2>Complete installation</h2>
+<ol> 
+<li>Access the web interface: <strong>http://server_ip</strong>.  
+</li>
+   <li>Agree to the terms, and click <strong>Continue</strong>.
+   <br />
+   <img src="images/17575/091615/Installation-wizard.png" alt="Installation-wizard.png"/>
+   </li>
+   <li>Select the appropriate field, and click <strong>Continue</strong> on the next page. You will be asked for a language, time zone, and currency.
+  <br />
+  <img src="images/17575/091615/Locale-settings.png" alt="Locale-settings.png"/>
+   </li>
+   <li>Enter the username and password that you created during setup.
+   <br />
+  <img src="images/17575/091615/Database-connection.png" alt="Database-connection.png"/>
+   </li>
+   <li>Change the link for admin interface here. By default, it is <strong>admin</strong>. To improve search results, consider selecting <strong>Use Web Server (Apache) Rewrites</strong>.</li>
+<li> Select how you want your data stored.
+   <ul>
+   <li>
+   To store session data in a file, select <strong>File System</strong>. 
+   <li>To store the session data in the MySQL database, select <strong>Database System</strong>, which is the preferred choice when an installation is distributed on multiple servers.</li></ul>
+   For now, select <strong>File system</strong>, and then click <strong>Continue</strong>. <br />  
+   <img src="images/17575/091615/web_connection.png" alt="web_connection.png"/>
+   </li>
+   <li>Create an admin account on the next screen. You may leave the encryption key blank, unless you are migrating data over some existing installation. By leaving it blank and clicking <strong>Continue</strong>, a new encryption key will be generated. Store the encryption key somewhere safe, so that you can use it later, if you need to migrate in the future.
+    <img src="images/17575/091615/Create-admin-account.png" alt="Create-admin-account.png"/>
+   </li>
+   <li>On the next screen, you will find a survey from Magento, and at the bottom, links for frontend and backend. The process of installing Magento on LAMP server is complete.
+   </li>
+  </ol>
+
+    <h2>Conclusion</h2>
+    <p>In this article, you learned the steps to install and configure Magento on a LAMP server. You can now start building your site and selling your products.</p>
+   
+</body>
+</html>

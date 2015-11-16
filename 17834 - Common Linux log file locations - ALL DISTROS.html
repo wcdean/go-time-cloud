@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17834-->
+
+
+<title>Common Linux log file locations - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+  <p>System Tools</p>
+  <h1>Common Linux log file locations - ALL DISTROS</h1>
+
+  <p>
+    <strong>Difficulty</strong>: <em><u>1</u></em><br />
+    <strong>Time</strong>: <em><u>15 minutes</u></em>
+  </p>
+
+  <p>Knowing the locations where you can find logs in the Linux environment can be quite useful at times. If you encounter problems with your Linux environment, these locations would be a good place to start looking for logs to help you indentify what might be causing the issue.</p>
+  <ul>
+    <li><b>/var/log</b> – Location where logs files are usually placed.</li>
+    <li><b>/var/log/alternatives.log</b> – Tracks messages from the <code>update-alternatives</code> command.</li>
+    <li><b>/var/log/anaconda.log</b> – Tracks messages related to Linux installation and provisioning. This is useful when installing a new Linux system.</li>
+    <li><b>/var/log/audit</b> – Location where <code>auditd</code>, the audit daemon, writes its logs.</li>
+    <li><b>/var/log/auth.log</b> – Tracks usage of authorization systems. This log is useful for learning about user logins and usage of the <code>sudo</code> command.</li>
+    <li><b>/var/log/boot.log</b> – Log containing system bootup information.</li>
+    <li><b>/var/log/btmp</b> – Tracks messages related to unsuccessful  login attempts. Use the <code>last</code>command to view the content of this log.</li>
+    <li><b>/var/log/conman</b> – This directory is the location where the ConMan client writes its logs.</li>
+    <li><b>/var/log/cron</b> – Tracks messages from the cron daemon. The daemon logs information about jobs as it starts them.</li>
+    <li><b>/var/log/cups</b> – Tracks the messages related to the printer and printing.</li>
+    <li><b>/var/log/daemon.log</b> – Tracks messages from the various daemons that running on the system.</li>
+    <li><b>/var/log/dmesg</b> – Contains system bootup information. The system writes boot messages to this log. You can view the full kernel ring buffer messages with the <code>dmesg</code> command.</li>
+    <li><b>/var/log/dpkg.log</b> – Tracks messages about installations that use <code>dpkg</code> to install or remove packages.</li>
+    <li><b>/var/log/faillog</b> – Tracks failed user login attempts. Use the <code>faillog</code> command to view the contents of this log.</li>
+    <li><b>/var/log/httpd and /var/log/apache2</b> – Location where the Apache web server writes logs, such as error_log  and access_log.</li>
+    <li><b>/var/log/kern.log</b> – Tracks messages from the kernel. This is useful when trying to troubleshoot a custom built kernel.</li>
+    <li><b>/var/log/lastlog</b> – Tracks recent user login information. The <code>lastlog</code> command should used to view the content of this log.</li>
+    <li><b>/var/log/lighttpd</b> – Directory where the light HTTPD error_log and access_log logs are written to.</li>
+    <li><b>/var/log/mail</b> – Directory where additional logs from your mail server can be found. <code>Sendmail</code> stores a statistics file along with other files at this location.</li>
+    <li><b>/var/log/maillog and /var/log/mail.log</b> – These logs track  messages from the mail server running on the system.</li>
+    <li><b>/var/log/messages</b> – This log is a global system log that is used by various systems such as mail, cron, daemon, kern, and auth. It also includes the messages that are logged during system startup.</li>
+    <li><b>/var/log/prelink</b> – Directory where <code>prelink</code> writes details about .so files that it has modified.</li>
+    <li><b>/var/log/sa</b> – Directory where sysstat package writes its daily sar files.</li>
+    <li><b>/var/log/samba</b> – Directory where samba, which connects Windows to Linux, writes its logs.</li>
+    <li><b>/var/log/secure</b> – Tracks information related to authentication and authorization privileges. Sshd logs messages here about unsuccessful login attempts.</li>
+    <li><b>/var/log/setroubleshoot</b> – Directory where <code>setroubleshootd</code>, the SELinux Trouble Shoot Daemon, writes information about a files security context.</li>
+    <li><b>/var/log/sssd</b> – Directory where the system security services daemon writes information about remote access and authentication.</li>
+    <li><b>/var/log/user.log</b> – Tracks messages about all user level logs.</li>
+    <li><b>/var/log/wtmp or /var/log/utmp</b> – Log containing the login records. Use <code>wtmp</code> to find out who is logged into the system. The <code>who</code> command displays information contained in this log.</li>
+    <li><b>/var/log/Xorg.x.log</b> – Tracks messages from the XWindows system.</li>
+    <li><b>/var/log/yum.log</b> – Tracks messages about installations that use <code>yum</code> to install or remove packages.</li>
+  </ul>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Install and configure a Riak database Cluster - CentOS, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure a Riak database Cluster on CentOS or Fedora, clustering</p>
+
+    <h1>Install and Configure a Riak Database Cluster - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>15 minutes</em></p>
+
+    <p>In this article, you'll learn to install a Riak database cluster on a CentOS or Fedora server by compiling from the source. Riak is a distributed database system that is designed for high availability of data. To ensure better performance, CentOS or Fedora servers with 4 GB RAM are preferred. In this article, you'll perform all the installations as a <code>sudo</code> user.</p>
+    
+  <h2>Install dependencies</h2>
+<ol> 
+<li>Install Erlang on all the nodes that you want to include in a cluster.
+   <div class="hacker">sudo yum install gcc gcc-c++ glibc-devel make ncurses-devel openssl-devel autoconf java-1.8.0-openjdk-devel git pam-devel</div>
+   <div class="hacker">sudo yum install wxBase.x86_64</div>
+   </li>
+   <li>Download Erlang from the source, and then compile it. 
+     <div class="hacker">wget http://s3.amazonaws.com/downloads.basho.com/erlang/otp_src_R16B02-basho8.tar.gz</div>
+     <div class = "hacker"> sudo yum install tar </div>
+   <div class="hacker">tar zxvf otp_src_R16B02-basho8.tar.gz</div>
+      <div class="hacker">cd OTP_R16B02_basho8</div>
+    <div class="hacker">sudo ./otp_build autoconf</div>
+	 <div class="hacker">CFLAGS="-DOPENSSL_NO_EC=1" ./configure &amp;&amp; make &amp;&amp; sudo make install</div> 
+   </li>
+   <li>Start Erlang.
+     <div class="hacker">erl</div>
+   </li>
+  </ol>
+  
+  <h2>Install Riak</h2>
+  <p>Perform the following installation steps on all nodes that are included in this Riak cluster.</p>
+<ul> 
+<li>Download Riak from the source, and then compile it. 
+   <div class="hacker">wget http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.1/riak-2.1.1.tar.gz</div>
+
+  <div class="hacker">tar zxvf riak-2.1.1.tar.gz</div>
+    
+     <div class="hacker">cd riak-2.1.1</div>
+	<div class="hacker">make locked-deps</div>
+	<div class="hacker">make rel</div>
+	Because you  compiled Riak from the source, you need to understand the file locations before proceeding. The file locations are as follows:
+	<ul>
+	<li>Riak Configuration Directory: <code><em><u>Source_File</u></em>/rel/riak/etc/</code> </li>
+	<li>Binary files : <code><em><u>Source_File</u></em>/rel/riak/bin</code></li>
+	</ul>
+   </li>
+  </ul>
+  
+  <h2>Configure the first node</h2>
+<ol> 
+  <li>Stop the Riak service if it was started earlier. 
+    <div class="hacker">rel/riak/bin/riak stop</div>
+Alternatively, navigate to the <code><em><u>Source_File</u></em>/rel/riak/ </code>directory, and stop Riak.
+   <div class="hacker">bin/riak stop</div>
+   </li>
+   <li>Edit the Riak configuration file: Find and replace the following lines in  <code><em><u>Source_File</u></em>/rel/riak/etc/riak.conf</code>:
+     <div class="hacker">listener.protobuf.internal = <em><u>node_ip_address</u></em>:8087</div>
+   <div class="hacker">listener.http.internal = <em><u>node_ ip_address</u></em>:8098</div>
+   <div class="hacker">nodename = riak@<em><u>node_ip_address</u></em></div>
+   </li>
+   <li>Start the Riak service. 
+   <div class="hacker">rel/riak/bin/riak start</div>
+   <p>In the same way, you can configure all other nodes that you want to include in the cluster.</p>
+   </li>
+</ol>
+  
+  <h2>Add a second node to the cluster</h2>
+  <p>Perform all the steps  above to start Riak in a second node and to include these nodes in the cluster.</p>
+<ol> 
+<li>Inside the second node, execute the following command to join to the first node:
+   <div class="hacker">rel/riak/bin/riak-admin cluster join riak@<em><u>first_node_ip</u></em></div>
+   </li>
+   <li>Plan and commit the changes:
+     <div class="hacker">rel/riak/bin/riak-admin cluster plan</div>
+   <div class="hacker">rel/riak/bin/riak-admin cluster commit</div>
+   </li>
+   <li>View the complete ring cluster.
+     <div class="hacker">rel/riak/bin/riak-admin status | grep ring_members</div>
+   </li>
+  </ol>
+  
+    <h2>Conclusion</h2>
+    <p>In this article, you have learned to install multiple nodes, configured them to start Riak, and then joined them to the first node to build a Riak database cluster.</p>
+   
+</body>
+</html>

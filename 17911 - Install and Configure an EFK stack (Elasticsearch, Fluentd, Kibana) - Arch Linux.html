@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+	<title>Install and Configure an EFK stack (Elasticsearch, Fluentd, Kibana) - Arch Linux</title>
+    
+    <style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<p>Install  and configure an EFK stack (Elasticsearch, Fluentd, Kibana) - Arch Linux, Logging</p>
+<h1>Install and Configure an EFK Stack (Elasticsearch, Fluentd, Kibana) - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+
+<p>Using Elasticsearch, Fluentd, and  Kibana (also known as an <em>EFK stack</em>) is a common way to perform data analysis. This combination lets you collect, index, search, and  visualize log data. In this article, you'll  learn how to install an EFK stack on Arch Linux.</p>
+<p>This article assumes that you have <a href="17324 - Initial Server Setup - Arch Linux.html">completed the initial server setup</a> for your host machine and that you have <code>sudo</code> user privileges.</span></p>
+<h2>Install and configure ElasticSearch</h2>
+<h3>Install ElasticSearch</h3>
+<ol>
+	<li>Update pacman.
+		<div class="hacker">
+		sudo pacman  -Syu
+		</div>
+	</li>
+	<li>Install the required packages.
+	  <div class="hacker">
+	  sudo pacman -S zip unzip unrar
+	  </div>
+	</li>
+	<li>Install Java.
+		<div class="hacker">
+		sudo pacman -S jre8-openjdk
+		</div>
+	To confirm a successful installation, check the Java version.
+	  <div class="hacker">
+		java -version
+	  </div>
+	</li>
+	<li>Install the Elasticsearch deb packages.
+
+	These commands are for version <em><u>1.7.1</u></em>. To obtain the latest version, visit the <a href="http://www.elasticsearch.org/download/" target="_top"> Elasticsearch download page</a>.
+	
+	
+	
+	    <div class="hacker">
+			sudo wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-<em><u>1.7.1</u></em>.tar.gz
+	    </div>
+		<div class="hacker">
+			sudo tar xzf elasticsearch-<em><u>1.7.1</u></em>.tar.gz
+		</div>
+		<div class="hacker">
+			sudo mv  elasticsearch-<em><u>1.7.1</u></em> /usr/share/elasticsearch
+		</div>
+	</li>
+	</ol>
+<h3>Configure ElasticSearch</h3>	
+	<ol>
+	<li>Open the Elasticsearch configuration file <code>elasticsearch.yml</code>.
+    
+		  To make  Elasticsearch accessible from the public Internet, you need to disable its dynamic scripting so that it can be accessed by the Kibana dashboards.
+		    <div class="hacker">
+			cd /usr/share/elasticsearch
+	  </div>
+		<div class="hacker">
+			sudo vim config/elasticsearch.yml
+		</div>
+	</li>
+	
+	<li>Set the  variable <code>script.disable_dynamic</code> to <code>true</code> by appending the following code at  the end of the file:
+		<div class="hacker">
+			script.disable_dynamic: true
+		</div>
+	</li>
+	<li>Save and exit the file.</li>
+	<li>Start Elasticsearch.
+	  <div class="hacker">
+	   sudo ./bin/elasticsearch
+	  </div>
+	  A successful startup shows a <code>started</code> message.<br />
+	  To stop the server, press <strong>Ctrl+C</strong>
+	  
+  </li>
+</ol>
+<h2>Install and configure Kibana</h2>
+<h3>Install Kibana</h3>
+<ol>
+  <li>Move to the home directory for Kibana installation.
+		<div class="hacker">
+			cd ~
+		</div>
+  </li>
+  <li>Install Kibana.  
+  
+   These commands are for version 4.1.2. To obtain the latest version, visit the <a href="https://www.elastic.co/downloads/kibana" target="_top">Kibana download page</a>.
+   
+	<div class="hacker">
+			sudo curl -L https://download.elastic.co/kibana/kibana/kibana-4.1.2-linux-x64.tar.gz | tar xzf -
+		</div>
+		<div class="hacker">
+			sudo cp -r kibana-4.1.2* /usr/share/kibana-4.1.2
+		</div>
+  </li>
+  </ol>
+<h3>Configure Kibana</h3>
+  <ol>
+  <li>Open Kibana's configuration file to change the port from 9200 (the default)   to 80, which is used for interaction with Elasticsearch. 
+	<div class="hacker">
+		sudo vim /usr/share/kibana-4.1.2/config/kibana.yml
+	</div>
+  </li>  
+  <li>Locate the following code, which is related to the port setting:
+	<div class="hacker">elasticsearch_url: "http://localhost:9200"</div>
+  </li>
+  
+  <li>Update the content as follows: 
+	  <div class="hacker">elasticsearch_url: "http://localhost:<em><u>80</u></em>"</div>
+  </li>
+  	<li>Save and exit the file.</li>
+  </ol>  
+<h3>Install and configure Nginx</h3>
+  <ol>
+  <li>Install Nginx, which can be used as the proxy server. This enables access to the Kibana dashboards from the Internet.
+	  <div class="hacker"> 
+		sudo pacman -S nginx
+	  </div>
+  </li>
+  <li>Create and open the Nginx configuration file.
+	  <div class="hacker"> 
+		sudo vim /etc/nginx/nginx.conf
+	  </div>
+  </li>
+  <li>In this file, first make these changes:
+<div class="hacker"> <pre>#user html;
+worker_processes  1;
+ 
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+ 
+...
+   
+    #gzip  on;
+   
+    server {
+          listen       80;
+          server_name  <em><u>localhost</u></em>;
+          #charset koi8-r;
+          access_log  <em><u>/var/log/nginx/kibana.log</u></em>;
+   
+          location /
+			{
+				root  /usr/share/<em><u>kibana-4.1.2</u></em>;
+				index <em><u>index.php</u></em> index.html  index.htm;
+			}
+   ...</pre></div>
+     </li>
+
+  <li>Then, add this text in after that first location block, making sure to replace your own IP for <em><u>your public IP</u></em>.  
+ 
+    <div class="hacker"><pre>  location /
+			{
+				root  /usr/share/kibana-4.1.1;
+				index  index.html  index.htm;
+			}
+  # Beginning of new contents - added below:
+
+  location ~ ^/_aliases$
+			{
+				proxy_pass http://127.0.0.1:9200;
+				proxy_read_timeout 90;
+			}
+   
+		  location ~ ^/.*/_aliases$
+			{
+				proxy_pass http://127.0.0.1:9200;
+				proxy_read_timeout 90;
+			}
+   
+		  location ~ ^/_nodes$
+			{
+				proxy_pass http://127.0.0.1:9200;
+				proxy_read_timeout 90;
+			}
+   
+		  location ~ ^/.*/_search$
+			{
+				proxy_pass http://127.0.0.1:9200;
+				proxy_read_timeout 90;
+			}
+   
+		  location ~ ^/.*/_mapping
+			{
+				proxy_pass http://127.0.0.1:9200;
+				proxy_read_timeout 90;
+			}
+   
+		  # Password protected end points
+		  location ~ ^/kibana-int/dashboard/.*$
+			{
+				proxy_pass http://<em><u>your public IP</u></em>:9200;
+				proxy_read_timeout 90;
+				limit_except
+				GET
+				{
+					proxy_pass http://<em><u>your public IP</u></em>:9200;
+					auth_basic "Restricted";
+					auth_basic_user_file /etc/nginx/conf.d/kibana.myhost.org.htpasswd;
+				}
+			}
+   
+		  location ~ ^/kibana-int/temp.*$
+			{
+				proxy_pass http://127.0.0.1:9200;
+				proxy_read_timeout 90;
+				limit_except GET
+				{
+					proxy_pass http://127.0.0.1:9200;
+					auth_basic "Restricted";
+					auth_basic_user_file /etc/nginx/conf.d/kibana.myhost.org.htpasswd;
+				}
+			}</pre></div>
+
+  </li>
+  
+  	<li>Save and exit the file.</li>
+  <li>Restart Nginx.
+		<div class="hacker">
+			sudo systemctl restart nginx
+		</div>
+  </li>
+</ol>
+<h2>Install and configure Fluentd</h2>
+In this section you'll install Fluentd via Ruby. First, you need to install the dependencies, including RVM.
+
+<h3>Install Fluentd dependencies</h3>
+  <ol>	
+  <li>Download the RVM signatures.
+	  <div class="hacker">
+		command curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
+	  </div>
+  </li>
+  <li>Install RVM.
+	  <div class="hacker">
+		sudo curl -L get.rvm.io | bash -s stable
+	  </div>
+  </li>
+  <li>Open the <code>.bashrc</code> file.
+	  <div class="hacker"> 
+		sudo vim .bashrc
+	  </div>
+  </li>
+   <li>Add the following line at the end of the file:
+	  <div class="hacker"> 
+		[[ -s &quot;$HOME/.rvm/scripts/rvm&quot; ]] &amp;&amp; source &quot;$HOME/.rvm/scripts/rvm&quot;
+	  </div>
+   </li>
+
+<li>Save and close.</li>
+
+  <li>Close the session, and log in  to apply the  changes.</li>
+   <li> Install the dependencies of RVM.
+     <div class="hacker">
+       rvm  requirements
+     </div>
+   </li>
+   <li>Install other dependencies before installing Ruby.
+	  <div class="hacker">
+		sudo pacman -S libyaml
+	  </div>
+	  <div class="hacker">
+		sudo pacman -S git
+	  </div>
+	  <div class="hacker">
+		gem install bundle
+	  </div>
+  </li>
+	<li>Install Ruby with RVM.
+	   <div class="hacker">
+		rvm install ruby
+	   </div>
+	</li>
+</ol>
+<h3>Install Fluentd</h3>
+	<ol>
+	<li>Fetch the Fluentd source code.
+	  <div class="hacker">
+		git clone https://github.com/fluent/fluentd.git
+	  </div>
+	  <div class="hacker">
+	  cd fluentd
+	  </div>
+	</li>
+	<li>Build and install Fluentd.
+	
+	 These commands are  for version 0.12.16. For other versions, see the <a href="http://www.fluentd.org/download" target="_top"> Fluentd download page</a>.
+	   
+    <div class="hacker">gem install bundler</div>
+	  <div class="hacker">bundle install</div>
+	  <div class="hacker">
+		bundle exec rake build
+	  </div>
+	  <div class="hacker">
+		gem install pkg/fluentd-0.12.16.gem
+	  </div>
+	</li>
+	</ol>
+<h3>Configure Fluentd</h3>
+	<ol>
+	<li>Set up Fluentd.
+	  <div class="hacker">fluentd --setup /etc/fluent</div></li>
+	  
+<li>Run an optional quick test of the Fluent installation.
+	  <div class="hacker">fluentd -s conf</div>
+	  <div class="hacker">fluentd -c conf/fluent.conf &</div>
+ 	  <div class="hacker">'{"json":"message"}' | fluent-cat debug.test</div>
+
+If fluent is running, your output should resemble the following:
+  <div class="hacker">2015-10-22 06:00:20 -0400 debug.test: {"json":"message"}</div>
+
+If fluent is not running, the output will look something like this:
+<div class="hacker">connect failed: Connection refused - connect(2) for "127.0.0.1" port 24224"</div>
+
+If that's the case, see a full list of fluent commands. 
+<div class="hacker">fluentd -help</div>
+</li>
+
+	<li>Install additional plugins.        
+	  <div class="hacker">
+		gem install fluent-plugin-elasticsearch
+	  </div>
+	  <div class="hacker">
+		gem install fluent-plugin-record-reformer
+	  </div>
+	 
+</li>
+	<li>Update the fluent configuration file. Assuming you installed fluent in your home directory, use this command:
+	  <div class="hacker">sudo vim ~/fluentd/fluent.conf</div>
+	Make sure this is indeed the configuration file that opens, and not a blank file. If it's a blank file, exit out of this and go to the <code>fluentd</code> directory and find the fluent.conf file.</li>
+	<li>Add the following lines at the top of the  file:
+	  <div class="hacker">
+	  <pre>&lt;source&gt;
+    type syslog
+    port 5140
+    tag system
+ &lt;/source&gt;
+ &lt;match system.*.*&gt;
+    type record_reformer
+    tag elasticsearch
+    facility ${tag_parts[1]}
+    severity ${tag_parts[2]}
+ &lt;/match&gt;
+ &lt;match elasticsearch&gt;
+    type copy
+    &lt;store&gt;
+       type stdout
+    &lt;/store&gt;
+    &lt;store&gt;
+         type elasticsearch
+         logstash_format true
+         flush_interval 5s #debug
+    &lt;/store&gt;
+&lt;/match&gt; </pre>
+	  </div></li>
+  	<li>Save and exit the file.</li>
+
+  <li>Test Fluentd.
+	<div class="hacker">
+	  echo  '{&quot;json&quot;:&quot;message&quot;}' | fluent-cat debug.test
+	</div>
+  </li>
+</ol>
+   
+    <h2>Next steps</h2>
+  <p>Congratulations! You have successfully installed an EFK stack (Elasticsearch, Fluentd, and Kibana).</p>
+  
+</body>
+</html>

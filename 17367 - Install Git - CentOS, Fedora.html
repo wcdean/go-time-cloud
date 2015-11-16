@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17366-->
+
+<title>Install Git - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Getting started with Git on CentOS or Fedora</p>
+    <h1>Install Git - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>5 minutes</u></em></p>
+
+<p>Git is an open source, distributed version control system (DVCS) used by software developers to handle Linux kernel development projects of all sizes with speed and efficiency. In a DVCS, every developer clones a copy of all versions of a project’s files and has the full history of the project on their hard drive.</p>
+<p>Commonly used for source code management, each Git working directory is its own respository, with a complete history and version tracking. The most popular DVCS is GitHub.</p>
+                                              
+<p>This tutorial walks you through how to install Git on a CentOS or Fedora system. The steps are for a non-root user with sudo (administrator) privileges. For more on how to set up a non-root user with sudo for CentOS or Fedora, see these articles:</p>
+<ul>
+<li> <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17323 - Initial Server Setup - CentOS.html">Initial Server Setup - CentOS</a></li>
+<li> <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17322 - Initial Server Setup - Fedora.html">Initial Server Setup - Fedora</a></li>
+</ul>
+ 
+ <h2>Install Git using yum</h2> 
+
+<p>This guide will go over how to install Git from your package manager. Note that this method will get you the current version of Git available on your distribution.</p>     
+
+ <ol>
+<li>Use the yum package management tools to upgrade all your installed packages. Making sure your packages are up-to-date is a good practice before installing something new.
+<div class="hacker">sudo yum update</div></li>
+<li>At the prompt <code>Is this ok</code>, enter "y," and then press <strong>Enter</strong>.</li>
+<li>Download and install Git. 
+<div class="hacker">sudo yum install git </div></li>
+<li>At the prompt <code>Is this ok</code>, enter "y," and then press <strong>Enter</strong>.<br />
+                                           
+If the command completes without error, Git has downloaded and installed.</li> 
+
+<li>To verify that Git is working correctly, run Git's built-in version check.
+
+<div class="hacker">git --version </div>
+
+If the check produced a Git version number, the installation is complete. </li>
+</ol>
+
+ <h2>Next steps</h2>
+ 
+<p>Git is now installed! Your next step will be to set it up. See <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/19227%20-%20Set%20up%20Git%20-%20ALL%20DISTROS.html">Set up Git - ALL DISTROS</a> for instructions on how to do this. </p>
+
+<p>After setup, here are some ideas on where you can go from there: </p>
+<ul>
+<li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17737 - Effective Use of Git - ALL DISTROS.html">Effective Use of Git - ALL DISTROS</a></li>
+<li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17365 - Using Git to automate deployment to your server.html">Using Git to automate deployment to your server - ALL DISTROS</a></li>
+<li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17469 - Use Git Hooks to Automate Development and Deployment - ALL DISTROS.html">Use Git Hooks to Automate Development and Deployment - ALL DISTROS</a></li>
+</ul>
+
+<p>If you haven't used Git before, you should find that it'll make Linux coding easier, with features like version tracking and automatic system patches that can prove to be significant time-savers.</p>
+ 
+ 
+  
+</body>
+</html>

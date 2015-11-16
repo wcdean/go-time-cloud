@@ -1,0 +1,188 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Use PostgreSQL with your Ruby on Rails Application - Arch Linux</title>
+<style type ="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+</style>
+
+
+</head>
+
+<body>
+
+
+<p>Setting Up Rails Application with PostgreSQL in Arch Linux, PostgreSQL, Ruby, Rails</p>
+    <h1>Use PostgreSQL with a Ruby on Rails Application - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>30 mins</u></em></p>
+   
+    <p>In this article, we'll create a PostgreSQL server to use as a database layer for scaling a Ruby on Rails application. </p>
+    <p>These tasks assume that you have <code>sudo</code> privileges and that <a href ="17522">Ruby on Rails is installed</a>.</p>
+<h2>Install PostgreSQL  </h2>
+     <ol>
+		<li>Install PostgreSQL.
+			<div class="hacker">sudo pacman -S postgresql 
+			</div>
+		</li>
+		<li>Install <code>pgadmin3</code> for the administrator. <code>pgadmin3</code> is an easy-to-access GUI for PostgresSQL.
+          <div class="hacker">sudo pacman -S pgadmin3</div>
+			<p>When prompted about available providers for libgl, press <strong>1</strong> to select the default option.
+			</p>
+	   </li>
+		<li>Make sure that PostgreSQL is installed.
+			<div class="hacker">sudo pacman -Si postgresql <!-- corrected command :nt-->
+			</div>
+		</li>
+		<li>Initialize a database cluster by using the command <code>initdb</code>, which is installed with PostgreSQL. The <code>initdb</code> command must be initiated as the <code>postgres</code> user:
+			<div class="hacker">sudo -i -u postgres</div>
+			<div class="hacker">initdb -D '/var/lib/postgres/data'
+			</div>
+		</li>
+		<li>Log out  the <code>postgres</code> user, and start PostgreSQL.
+          <div class="hacker">logout
+		  </div>
+			<div class="hacker">sudo systemctl start postgresql</div>
+		</li>
+		<li>Optionally, set PostgreSQL to start automatically every time your VPS boots up.
+			<div class="hacker">sudo systemctl enable postgresql
+			</div>
+		</li>
+    </ol>
+<h2>Create a database user</h2>
+	<ol>
+		<li>Log in with the <code>postgres</code> system user.
+			<div class="hacker">sudo -i -u postgres
+			</div>
+		</li>
+		<li>Create a  database user and set a password.
+			<div class="hacker">createuser -s <em><u>user_name</u></em>
+			</div>
+			<div class="hacker">psql
+			</div>
+			<p>The above command will start the postgres command prompt, where all further steps are to be performed.</p>
+		</li>
+		<li>Setup password for the user.	
+			<div class="hacker"> \password <em><u>user_name</u></em>
+			</div>
+			<p>When prompted, enter the new password.</p>
+		</li>
+		<li>Modify the database template. (To drop a template, first you need to modify it.)
+			<div class="hacker">UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';
+			</div>
+		</li>
+		<li>Drop the template.
+			<div class="hacker">DROP DATABASE template1;
+			</div>
+		</li>
+		<li>Create a database from <code>template0</code>, with a new default encoding.
+			<div class="hacker">CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = 'UNICODE';
+			</div>
+		</li>
+		<li>Modify <code>template1</code>. 
+			<div class="hacker">UPDATE pg_database SET datistemplate = TRUE WHERE datname ='template1';
+			</div>
+		</li>
+		<li>Switch to <code>template1,</code> and collect the garbage data from <code>template1</code> using the <code>VACUUM FREEZE</code> command:
+			<div class="hacker">\c template1
+			</div>
+			<div class="hacker">VACUUM FREEZE;
+			</div>
+		</li>
+		<li>Close the session.
+			<div class="hacker"> \q
+			</div>
+			<div class="hacker">logout
+			</div>
+		</li>
+		
+		<li>Start the PostgresSQL service.
+			<div class="hacker">sudo systemctl start postgresql
+			</div>
+		</li>
+	</ol>	
+	<h2>Set up the Rails application</h2>
+	<ol>
+		<li>Move to your home directory to create a new Rails application. To set PostgreSQL as the database, use the <code>-d postgresql</code> option.
+			<div class = "hacker">cd ~
+			</div>
+			<div class = "hacker">rails new <em><u>your_application</u></em> -d postgresql <!-- Changed "Helloworld to "Your_application"--> <!-- fixed -->
+			</div>
+		</li>
+		<li>Move into the application directory.
+			<div class = "hacker">cd <em><u>your_application</u></em> <!-- Changed "Helloworld to "Your_application"--> <!-- fixed -->
+			</div>
+		</li>
+		<li>Open the <code>database.yml</code> file for editing.
+          <div class = "hacker">sudo vim config/database.yml
+		  </div>
+		</li>
+		<li>Look for <code>pool: 5</code> in the file, and add the following lines beneath it. Enter the username and password for the postgres  user.
+		  <div class = "hacker">
+				
+host: localhost<br />
+username: <em><u>user_name</u></em><br />
+password: <em><u>your_password</u></em><br />
+		  </div>
+	  
+	  <p class ="note">When adding this code, you need to ensure proper alignment with the code "<code>pool: 5</code>". Also  spacing  with in the code added must be maintained as shown above.</p> 
+	  </li>
+		<li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+	</ol>
+<h2>Create a database for your application</h2>
+	<ul>
+	  <li>Create the application's databases in the application directory.
+	  <div class="hacker">bundle install
+	    </div>
+        <div class="hacker">rake db:create
+	    </div>Two databases in the PostgreSQL server are created. For example, if the application's name is <code>your_application</code>, the command creates databases named <code>your_application_development</code> and <code>your_application_test</code>.</li>
+	</ul>
+	<h2>Test the configuration</h2>
+  <ul>
+		<li>Test the Rails application.
+		  <div class="hacker">rails server <!-- corrected the command --> <!-- fixed with correct command -->
+		  </div>
+		  <p>You can run your Rails application on your <code>localhost</code> on port 3000. To stop the server and return to the command prompt, press <strong>Ctrl + C</strong>.</p>
+		  <p>You can also access your application from a web browser, if it's located on a remote server, by assigning a public IP address using below command:</p>
+			<div class="hacker">rails server --binding=<em><u>Public_IP_Address_of_your_server</u></em> <!-- Changed to your server IP -->
+		  </div>
+		</li>
+</ul>
+<h2>Next steps</h2>
+    <p>In this article, we configured a PostgreSQL server  with a Rails application on Arch Linux. For further exploration, visit <a href= "17517">Deploy a Rails App with Unicorn and Nginx - Arch Linux</a>.</p>
+   
+</body>
+</html>

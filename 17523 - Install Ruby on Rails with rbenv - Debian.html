@@ -1,0 +1,158 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+    <title>Install Ruby on Rails with rbenv - Debian</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+
+<p>Install Ruby on Rails with rbenv on Debian, Ruby, Rails.</p>
+<h1>Install Ruby on Rails with rbenv - Debian</h1>
+
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>30 mins</em></p>
+
+<p>Ruby is a pure object-oriented language like Perl and Python. Rails is a framework for web application development written in Ruby. In this article, you'll learn to install Ruby on Rails on Debian with the help of rbenv, a lightweight Ruby version management tool.</p>
+ 
+ <p>This tutorial will walk you through installation on a Debian system. Make sure you have sudo privileges.</p>
+    
+
+	<p>To set up the Debian server, refer to <a href="17325">Initial Server Setup - Debian</a> and <a href="17370">Install Git - Debian</a>.</p>  
+
+<h2>Install rbenv</h2>
+		<ol>	
+		<li>Update the Debian package.
+			<div class='hacker'>sudo apt-get update</div>
+		</li>    
+
+		<li>Create a clone for rbenv from GitHub, and install it.
+			<div class='hacker'>sudo apt-get install git-core</div>
+			<div class='hacker'>git clone https://github.com/sstephenson/rbenv.git ~/.rbenv</div>
+		</li>    
+		
+		<li>Add a directory to your <code>$PATH</code> for accessing rbenv.
+			<div class='hacker'>echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc</div>
+		</li>    
+		<li>Add <code>rbenv init</code> into the <code>bashbc</code> shell.
+			<div class='hacker'>echo 'eval "$(rbenv init -)"' >> ~/.bashrc</div>
+			<div class='hacker'>source ~/.bashrc</div>
+		</li>    
+		<li>Restart the shell by either opening a new tab or closing the current terminal and starting it again.
+		</li>
+		<li>Check <code>rbenv</code> installed correctly using the following command.
+			<div class='hacker'>type rbenv</div>
+		</li>    
+		<li>Install the latest development version of <code>ruby-build</code> into the <code>~/.rbenv/plugins/ruby-build</code> directory.
+			<div class='hacker'>git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build</div>
+		</li>
+		<li>Install the <strong>rbenv rehash</strong> plugin to automate running the <code>rehash</code> command. 
+		  <div class='hacker'>git clone https://github.com/sstephenson/rbenv-gem-rehash.git ~/.rbenv/plugins/rbenv-gem-rehash</div>
+		</li>
+		</ol>
+<h2>Install Ruby</h2>
+		<ol>
+		<li>Install the required libraries and dependencies for Ruby.
+		<div class='hacker'>sudo apt-get install build-essential libssl-dev libcurl4-openssl-dev libreadline-dev -y</div>
+		</li>
+		<li>Check the list of available versions of Ruby.
+			<div class='hacker'>rbenv install --list</div>
+		</li>    
+		<li>Install Ruby. In this article, we used Ruby version 2.2.3.
+			<div class='hacker'>rbenv install -v <em><u>Latest_ruby_version</u></em></div>
+		</li>
+		<li>Set the default version of Ruby that all of your shells will use.
+			<div class='hacker'>rbenv global 2.2.3</div>
+		</li>    
+		<li>Display the version of Ruby that was installed.
+			<div class='hacker'>ruby -v</div>
+		</li>    
+		</ol>    
+		
+<h2>Install JavaScript runtime</h2>
+A few Rails features depend on a JavaScript runtime.The JavaScript runtime can be installed in a couple of ways.  We'll use <code>nodejs</code> from the Debian package system.
+		<ol>
+		<li>Open the file where the Debian repositories are located.
+			<div class='hacker'>sudo vim /etc/apt/sources.list</div>
+		</li>    
+		<li>Make sure this is added:
+<div class='hacker'>deb http://ftp.us.debian.org/debian/ wheezy-backports main</div>
+
+And add this line at the end of the file:
+<div class='hacker'>deb-src http://ftp.us.debian.org/debian/ wheezy-backports main</div>
+		</li>
+		<li>
+		Save and exit the file.</li>
+		
+		<li>Install <code>nodejs</code>.
+			<div class='hacker'>sudo apt-get -t wheezy-backports install nodejs</div>
+		 
+		 Press <strong>Y</strong> to continue when prompted.</li>
+		</ol>
+
+		<h2>Install Rails</h2>
+<ol>
+<li>To install Rails, type:
+	<div class='hacker'>gem install rails</div>
+<p>This will take several minutes, so patience is key! Once completed, Ruby on Rails will be installed.</p>
+</li>
+<li>To install shims for all Ruby executables known to rbenv, use the <code>rehash</code> command.
+     <div class='hacker'>rbenv rehash</div>
+</li>
+<li>To check the version of Ruby:
+	<div class='hacker'>ruby -v</div></li>
+
+<li>To check the version of Rails:
+	<div class='hacker'>rails -v</div>
+</li>
+</ol>
+<h2>Next steps</h2>
+		  <p>Congratulations! You've installed  rbenv, Ruby, RubyGems, and Rails on a Debian system. For supported enterprise level applications, you can also <a href="17952 - Scale Ruby on Rails Applications across Multiple Servers - Ubuntu, Debian.html">scale Ruby on Rails application across multiple servers</a>.</p>
+
+</body>
+</html>

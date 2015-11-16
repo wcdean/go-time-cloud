@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __17665________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Install and configure Laravel with NGINX - CentOS 7</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Instructions to install and configure Laravel in an Nginx / CentOS 7 environment.</p>
+    <h1>Install and configure Laravel with NGINX - CentOS 7</h1>
+
+   <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+   <p>Laravel is a framework used to create web applications. Be sure you have a <a href="17349 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 7.html">LEMP stack</a> installed.</p>
+
+    <p>If your server is 512 MB or smaller, it's recommended to <a href="17328 - Add Memory Swap - CentOS, Fedora.html">add swap</a> for Laravel to install correctly.</p>
+
+    <h2>Install Dependencies</h2>
+           <ol>
+               <li>Update your installation package
+                   <div class="hacker">sudo rpm -Uvh  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+                </div>
+               </li>
+               <li>Install Webtatic
+                   <div class="hacker">
+                       sudo rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm</div>
+               </li>
+               <li>Additional items
+                   <div class="hacker">
+                       sudo yum install php55w-fpm php55w-mysql mariadb-server php55w-mcrypt php55w-dom php55w-mbstring
+                   </div>
+
+If you have issues upgrading your PHP to the required version, do the following:
+ <div class="hacker">sudo yum install yum-plugin-replace</div>
+ <div class="hacker">sudo yum replace php-common --replace-with=php55w-common</div>
+  <div class="hacker">sudo yum install php55w-fpm php55w-mcrypt</div>
+               </li>
+
+               <li>Start Nginx.
+                   <div class="hacker">sudo systemctl restart nginx<br />
+                       </div>
+               </li>
+           </ol>
+         
+         <h2>Create your directories</h2>
+    <ol>
+      <li>Create a physical location for the Laravel server.
+                 <div class="hacker">sudo mkdir -p /var/www/laravel</div></li>
+     
+ </ol>
+
+
+      <h2>Configure Laravel</h2>
+
+<ol>
+  <li>Let's first make a backup copy of our main nginx.conf file just in case.
+<div class="hacker">sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.bak</div></li>
+
+ <li>Create a new Laravel configuration file. 
+<div class="hacker">sudo vim /etc/nginx/conf.d/laravel.conf</div> </li>
+
+<li>Add the following contents to the newly-created file:
+<div class="hacker"><pre>server {
+listen       81;
+root /var/www/laravel/public;
+index index.php index.html index.htm;
+server_name localhost;
+try_files $uri $uri/ /index.php?$query_string;
+
+# Load configuration files for the default server block.
+include /etc/nginx/default.d/*.conf;
+
+location / {
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+    }
+
+</pre></div></li>
+
+ <li>Save and close the file.</li> 
+
+<li>Open your <code>default.conf</code> file to edit your php location.
+<div class="hacker">sudo vim /etc/nginx/default.d/default.conf</div></li>
+
+<li>Modify it to look like this:
+<div class="hacker"><pre>location ~ \.php$ {
+<em><u>try_files $uri /index.php =404;</u></em>
+<em><u>fastcgi_split_path_info ^(.+\.php)(/.+)$;</u></em>
+fastcgi_pass unix:/run/php-fpm/php-fpm.sock;
+fastcgi_index index.php;
+fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; 
+include fastcgi_params;
+ }</pre></div>
+ </li>
+
+     <li>Save and close the file.</li> 
+ </ol>
+<h2>Make your main Nginx config file read your Laravel server block</h2>
+
+<ol>
+        <li>Open your main Nginx config file to edit. 
+         to edit. 
+      <div class="hacker">sudo vim /etc/nginx/nginx.conf</div> </li>
+
+<li>Add / verify these lines after the first include reference right before the server block:
+<div class="hacker"><pre>include /etc/nginx/conf.d/*.conf;
+server_names_hash_bucket_size 64;</pre></div> 
+
+Most likely, the <code>include</code> reference already exists. Add the <code>server_names</code> line underneath it.</li>
+
+  <li>Restart Nginx.
+  <div class="hacker">sudo systemctl restart nginx</div>
+       </li>
+
+<li>Restart PHP.
+<div class="hacker">sudo systemctl restart php-fpm </div></li>
+</ol>
+
+<h2>Install Composer</h2>
+    <p>Composer is a tool we will use to manage the Laravel implementation. </p>
+           <ol>
+               <li>Navigate to your home directory
+                   <div class="hacker">cd ~</div>
+               </li>
+               <li>Run the Composer install script.
+                   <div class="hacker">curl -sS https://getcomposer.org/installer | php</div>
+               </li>
+               <li>Change the name of the newly-created composer.phar file to &quot;composer&quot;
+                   <div class="hacker">sudo mv composer.phar /usr/local/bin/composer</div>
+               </li>
+</ol>
+
+
+<h2>  Install Laravel</h2>
+    <ol>
+               <li>Use composer to retrieve and install Laravel into /var/www. This might take a few minutes.
+                   <div class="hacker">sudo /usr/local/bin/composer create-project laravel/laravel /var/www/laravel 4.2</div>
+               </li>
+ <li>Change the owner to &quot;nginx&quot;.
+  <div class="hacker">sudo chown -R :nginx /var/www/laravel</div>
+               </li>
+<li> Grant permissions to your Laravel directory.
+   Laravel directory.
+  <div class="hacker">sudo chmod -R 755 /var/www/laravel</div></li>
+
+<li> Grant permissions to allow nginx to write to the app/storage directory<div class="hacker">sudo chmod -R 755 /var/www/laravel/app/storage</div>
+               </li>
+              <li>In your web browser, verify success by navigating to your server, appended by :81.
+<div class="hacker"><em><u>your server IP address</u></em>:81</div></li>
+           </ol>
+    <h2>Next steps</h2>
+    <p>You have arrived.&nbsp; Now you can use the Laravel framework to make beautiful apps.</p>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17759-->
+
+
+
+<title>Basic Linux navigation and file management - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up basic Linux navigation and file management in all distros, Linux Basics, System Tools</p>
+    <h1>Basic Linux Navigation and File Management - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>15 minutes</em></p>
+
+    <p>In this article, we will assist you to understand the basic Linux navigation and file management in all distros. To perform this task, we are assuming that the user has <code>sudo</code> privileges.</p>
+
+<h2>Find where you are in a directory</h2>
+
+   <ul>
+   <li>To find the present location of any directory, type:
+    <div class="hacker">pwd</div>
+    The result should look like this:
+	  <div class="hacker">/home/username</div>
+   </li>
+   </ul>
+   
+<h2>Look at the contents of directories</h2>
+<p>Use the <code>ls</code> command to view the contents of directories.</p>
+   <ul>
+   <li>To change the directory, type:
+   <div class="hacker">cd /usr/share</div>
+   </li>
+   
+   <li>To list all the directories and files, type:
+   <div class="hacker">ls</div>
+   The output will be shown as:
+   <img src="images/17759 - 1.png" alt="List of all directories and files"/>
+   </li>
+   
+   <li>To find all of the information about permissions of all directories and files, type:
+  <div class="hacker">ls -l</div>
+  The output will be shown as:
+  <img src="images/17759 - 2.png" alt="List of permissions of all directories and files"/>
+   </li>
+   
+   <li>To get a listing of all files, including hidden files and directories, type:
+   <div class="hacker">ls -al</div>
+   The output will be shown as:
+   <img src="images/17759 - 3.png" alt="List of all files, including hidden files"/>
+   </li>
+</ul>
+	
+	<h2>View files</h2> 
+ <ul>
+ <li>To view a specific file, type:
+   <div class="hacker">less /etc/services</div>
+   The output will be shown as:
+   <img src="images/17759 - 4.png" alt="View a specific file"/>
+   <ul>
+   <li>To scroll in the output file, press the <strong>up arrow</strong> and <strong>down arrow</strong> keys on the keyboard.</li>
+   <li>To scroll one page up the screen, press either the <strong>Ctrl-B</strong> or <strong>Page Up</strong> keys on the keyboard. </li>
+   <li>To scroll one page down the screen, press either <strong>Control/Ctrl+F</strong>, the <strong>spacebar</strong>, or the <strong>Page Down</strong> key on the keyboard. </li>
+
+   </ul>
+   </li>
+   
+   <li>To search something like <code>mail</code> in this file, type:
+   <div class="hacker">/mail</div>
+   </li>
+   
+   <li>To exit the file, type:
+   <div class="hacker">:q</div>
+   </li>
+   
+   <li>To display the content of a particular file, type:
+   <div class="hacker">cat <em><u>file1</u></em></div>
+   </li>
+   
+   <li>To display top 10 lines of a particular file, type:
+   <div class="hacker">head /etc/services</div>
+   </li>
+   
+    <li>To display last 10 lines of a particular file, type:
+   <div class="hacker">tail /etc/services</div>
+   </li>
+</ul> 
+  
+  <h2>Work with files and directories </h2>
+  <p>There are several commands that can create files and directories.</p>
+  <ul>
+    <li>To create an empty file with the name and location that you specify, type.
+   <div class="hacker">sudo touch <em><u>file1</u></em></div>
+   </li>
+    <li>To create multiple files at the same time, type:
+   <div class="hacker">sudo touch <em><u>file1</u></em> <em><u>file2</u></em> <em><u>file3</u></em> <em><u>file4</u></em></div>
+   </li>
+    <li>To create a directory, type:
+   <div class="hacker">sudo  mkdir <em><u>test</u></em></div>
+   </li>
+    <li>To create nested directories, type:
+   <div class="hacker">sudo mkdir -p /test/share/example</div>
+   </li>
+    <li>To rename directories and file, type either:
+   <div class="hacker">sudo mv <em><u>test</u></em> <em><u>share</u></em> </div>
+   <div class="hacker">sudo mv file1 example1 </div>
+   </li>
+    <li>To copy directories and files, type:
+   <div class="hacker">sudo cp  -rvf /test again </div>
+   For example:
+   <div class="hacker">sudo cp –rvf  /etc/services /usr/<em><u>file1</u></em></div>
+    <ul>
+    <li><code>-r</code> means recursive</li>
+    <li><code>-v</code> means visible</li> 
+    <li><code>-f</code> means force</li>
+   </ul></li>
+   
+   <li>To remove files directories, type the appropriate command:
+   <div class="hacker">sudo  rm –rvf /etc/services.txt </div>
+   <div class="hacker">sudo rm –rvf  /etc/test </div>
+    <ul>
+    <li><code>-r</code> means recursive</li>
+    <li><code>-v</code> means visible</li> 
+    <li><code>-f</code> means forcedly </li>
+   </ul>
+   </li>
+   </ul>
+   
+   <h2>Edit files</h2>
+   <ol>
+    <li>Open a file, type: 
+   <div class="hacker">sudo vim /etc/services</div>
+   </li>
+   <li>
+      <ul>
+      <li>To go into insert mode and make changes whatever you want, press the <strong>I</strong> key.</li>
+    <li>To go into maintenance mode, press <strong>ESC</strong>.</li>
+    <li>To save the file, type:
+   <div class="hacker">:wq!</div></li>
+   </ul></li>
+   <li>To exit without saving the file, type:
+   <div class="hacker">:q!</div>
+   </li>
+    </ol>
+	
+   
+    <h2>Conclusion</h2>
+    <p>In this article, we reviewed the steps involved with the basic Linux navigation and file management in all distros.</p>
+   
+</body>
+</html>

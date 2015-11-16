@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Use Makefiles to Automate Tasks - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+    <p>Install make, Makefile overview, create example Makefile on CentOS, Fedora</p>
+    <h1>Use Makefiles to Automate Tasks - CentOS, Fedora</h1>
+    <p><strong>Difficulty</strong>: <em><u>4</u></em>
+        <br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+    <p>Makefiles are special text files used by the <code>make</code> utility. Although <code>make</code> is  used primarily to automate software compilation, it can also automate repetitive tasks typically performed from the command line. In this article, we'll install the <code>make</code> utility, review the basic structure of a Makefile, and create a Makefile that backs up a basic website served by Apache on Centos 6, 7 and Fedora 20, 21.</p>
+    
+    <h2>Install prerequisites and make</h2>
+    <p>Although you can install <code>make</code>  as a standalone utility, it's typically installed as part of the "Development Tools" package on RHEL distributions that includes a number of other useful tools and libraries.</p>
+    <ol>
+      <li>Run these commands:
+        <div class="hacker">sudo yum update</div>
+        <div class="hacker">sudo yum install tar</div>
+Enter <strong>y</strong> at the prompt to continue installation.
+    <div class="hacker">sudo yum groupinstall "Development Tools"</div></li>
+Enter <strong>y</strong> at the prompt to continue installation.
+</li>
+
+    <li>Optionally, check the version of <code>make</code> installed:
+      <div class="hacker">make -v</div></li>
+    </ol>
+
+<h2>Makefile structure</h2>
+    <p>Makefiles are text files that contain a specific set of instructions, or rules. Each of the rules defined within a Makefile tells the <code>make</code> utility what the expected output should be, specific dependencies, and the type and order of actions to perform.</p>
+    <p>For the sake of this article, we'll follow a few good practices  in regards to the naming and location of your Makefiles. Based upon recommendations in the man page  for <code>make</code>, name your Makefile file <code>Makefile</code>. Also, limit the number of Makefiles within a single directory to one.</p>
+    <p>The structure of the instructions contained within a Makefile must follow a specific syntax. The basic syntax looks like this:</p>
+ 
+    <code>
+    target: dependencies<br />
+    [tab]command
+    </code>
+
+<ul>
+        <li><strong>target</strong>: Can be the name of a file or, for the purpose of this article, the name used to reference a group of commands.</li>
+        <li><strong>dependencies</strong>: Specific files or other targets that the current target needs in order to complete.</li>
+        <li><strong>command</strong>: A specific action to perform. You can use multiple commands, each on its own line.</li>
+    </ul>
+    <p>An example Makefile can look like this:</p>
+    <pre>  
+    sayHello: 
+      echo "Hello World"
+    </pre>
+    <p>To get <code>make</code> to run our "sayHello" target, we would use:</p>
+    <div class="hacker">make sayHello</div>
+    <h2>Create a Makefile that backs up a website</h2>
+    <p>For this article, we assume the following:</p>
+    <ul>
+        <li>You have Apache installed and configured</li>
+        <li>You have a site, <code>coolexample.com</code>, set up at <code>/var/www/coolexample.com/public_html</code> with a single <code>index.html</code> page</li>
+        <li>You have a backup folder at <code>/var/backups</code></li>
+        <li>Folder permissions for the <code>/var/backups</code> and the <code>/var/www/coolexample.com</code> folders globally allow for any user account to add and edit files within the folder</li>
+    </ul>
+    <p>We're going to create a single Makefile that does the following:</p>
+    <ul>
+        <li>Packs up the existing site in <code>/var/www/coolexample.com/</code> into a single <code>.tar</code> file</li>
+        <li>Copies the tar file to the <code>/var/backups/</code> folder</li>
+    </ul>
+   
+    <ol>
+      <li>
+      Navigate to the <code>coolexample.com</code> website html-content directory:
+        <div class="hacker">cd /var/www/coolexample.com/</div>
+      </li>
+      <li>Open a blank Makefile in vim:
+       <div class="hacker">sudo vim Makefile</div></li>
+    
+    <li>Add the Makefile rules by adding the following to the empty Makefile:
+      <pre>
+          backupSite: archive ; mv coolexample.com-`date +%F`.tar.gz /var/backups
+
+          archive: ; tar -cvzf coolexample.com-`date +%F`.tar.gz /var/www/coolexample.com/public_html
+    </pre>
+   The Makefile contents are as follows:
+    <ul>
+        <li><code>backupSite: archive</code>: Defines a new target, named <code>backupSite</code> with a dependency on another target named <code>archive</code>. Means that the <code>archive</code> target instructions need to run first, before the next line runs.</li>
+        <li><code>mv coolexample.com-`date +%F`.tar.gz /var/backups</code>: Is a terminal command that moves a file named <code>coolexample.com-<em><u>current-date-here</u></em>.tar.gz</code> to the backups folder at <code>/var/backups</code>. The <code>`date +%F`</code> grabs the current date.</li>
+        <li><code>archive:</code> Defines a new target named <code>archive</code>. This target is the same target referenced in the <code>backupSite</code> target on the first line.</li>
+        <li><code>tar -cvzf coolexample.com-`date +%F`.tar.gz /var/www/coolexample.com/public_html</code>: Is a terminal command that compresses (gzip) the contents of the <code>/var/www/coolexample.com/public_html</code> folder into a <code>.tar.gz</code> named <code>coolexample.com-<em><u>current-date-here</u></em></code>.</li>
+      </ul></li>
+  
+    
+    </ol>
+    
+    <h2>Run the Makefile</h2>
+    <ul>
+      <li> Navigate to the <code>coolexample.com</code> website html-content directory, and run the Makefile:
+        <div class="hacker">cd /var/www/coolexample.com</div>
+        
+  
+    <div class="hacker">sudo make backupSite</div>
+    The output looks similar to:
+    <div class="hacker">
+        <pre>tar -cvzf coolexample.com-`date +%F`.tar.gz /var/www/coolexample.com/public_html
+tar: Removing leading `/' from member names
+/var/www/coolexample.com/public_html/
+/var/www/coolexample.com/public_html/index.html
+mv coolexample.com-`date +%F`.tar.gz /var/backups</pre></div>
+
+    If you check the <code>/var/backups</code> folder, you should see a <code>.tar.gz</code> file named <code>coolexample.com-<em><u>current-date-here</u></em></code>.</li></ul>
+        <h2>Next steps</h2>
+        <p>In this article, you  installed the <code>make</code> utility and supporting libraries, created a  Makefile that backs up a website, and executed the Makefile, generating a  backup of an example Apache website. <code>make</code> is a powerful utility that lets you automate nearly any tasks performed from the terminal. For more information about <code>make</code>, see the official <a href='http://www.gnu.org/software/make/manual/make.html'> <code>make</code> documentation</a>.</p>
+</body>
+
+</html>

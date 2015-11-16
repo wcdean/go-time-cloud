@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>The LAMP stack explained - ALL DISTROS</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+    
+</head>
+
+<body>
+<p>Conceptual guide to LAMP Stack and its components, LAMP</p>
+<h1>The LAMP stack explained - ALL DISTROS</h1>
+<p><strong>Difficulty</strong>: <em>3</em></p>
+<p><strong>Time</strong>: <em>30 minutes</em></p>
+
+<p>This article is an overview of the LAMP stack. LAMP is a widely-used, open source web platform used to run dynamic websites and servers. Inspired by the names of the components (Linux&reg;, Apache&trade;, MySQL&trade;, and PHP&trade;), the acronym <em>LAMP</em> represents a generic software model. Being completely free and open source has made LAMP a popular choice with developers. LAMP stack combined with all Linux distributions has become a development standard today.</p>
+
+<p>The LAMP bundle is sometimes combined with other free, open source packages, such as:</p>
+<ul>
+<li>Netsniff (for security testing and hardening)</li>
+<li>Snort (for intrusion detection and prevention)</li>
+<li>RRDtool (for diagrams)</li>
+<li>Nagios, Collectd (for monitoring)</li>
+</ul>
+<p>Original LAMP has spawned many other related acronyms that focus on providing feature rich websites, such as LAPP, MAMP, and BAMP.</p>
+
+<h2>The components</h2>
+
+<p>If you simply explore the acronym letter by letter, you get the following components:</p>
+
+<ul>
+<li>Linux</li>
+<li>Apache web server</li>
+<li>MySQL database</li>
+<li>Perl, Python, or PHP</li>
+</ul>
+<p>
+Each component is powerful in itself, and is an example of Free and Open Source Software (FOSS). The FOSS approach has the following benefits:</p>
+<ul>
+<li>FOSS is freely available to download, making it easy to distribute.</li>
+<li>FOSS licenses are open, so there are fewer restrictions on the deployment of applications.</li> 
+<li>Users have access to the source, so it is easy to fix faults and improve the software.</li>
+</ul>
+
+<h3>Linux</h3>
+<p> Linux is a Unix-like computer operating system developed under FOSS development and distribution. Being an operating system, it is capable of doing much more than a web application platform. Linux is built on a collection of software based on the Linux kernel and a package management system that gives complete LAMP setups. You can customize Linux kernel to get the best performance out of it. It has been developed for a very wide range of platforms, from PCs to servers, to mainframe hardware and embedded systems. Thus, older hardware, which is no longer supported by Original Equipment Manufacturer (OEM), can now be used to run Linux.
+</p>
+<p> Despite all complexities, the distribution model of Linux, which packages different components, makes installation and development of Linux server very smooth. You can get distributions specially designed to develop and deploy LAMP, to further simplify the LAMP technology.</p>
+
+<h3>Apache</h3>
+<p>Apache HTTP server is the most popular web server. In June 2013, Netcraft concluded that Apache serves 54.2 % of all the active websites and 53.3% of the top servers. In June 2014, it was found that Apache serves 52.27% of active websites, followed by NGINX with 14.36%.</p>
+
+<p>Apache Software Solutions maintains and develops Apache HTTP server. It is an open-source software released under an Apache license. Many other features are supported and developed as compiled modules, to extend the core functionality of Apache, such as server-side programming language support and authentication schemes.
+</p>
+<p><em>Apache project</em> is a generic name for many high-quality, open source software, but its original project was HTTPS server. Apache supports basic file serving CGI to provide interactive application or loadable modules.
+</p>
+<p>Apache is easy to install, configure, and maintain, and requires less manual effort.</p>
+
+<h3>MySQL</h3>
+ <p>MYSQL is an example of a simple, but powerful application. It can be installed without any complex configuration, in the same way as Apache and Linux are installed. The default configuration already makes it a very powerful relational database, but if you need to optimize it further, the configuration can be customized.</p>
+ <p>MySQL is a multi-threaded, multi-user, SQL database management system (DBMS). Its source code is available under GNU general public license and a variety of proprietary agreements.</p>
+  
+ <p> MariaDB is a fork of MySQL, which is community-developed. PostgreSQL is an ACID-compliant relational database, not related to MySQL.</p>
+ 
+ <p> MySQL supports relational tables, and SQL makes it easy to develop enterprise level databases. MySQL is particularly more efficient with more number of queries, but less updates.</p>
+ <p>Applications with high rate of transactions, use InnoDB.</p>
+ 
+ <h3>Perl, Python, or PHP</h3>
+ 
+<p>Perl, Python, and PHP are <em>interpreted</em> languages, and therefore you can run the application without compiling it. CGI interface was built into early webservers, as a result, all these languages were commonly used then. CGI made it possible to communicate between a client browser and an external application, which gave rise to dynamic content. Interpreted languages made it very easy to develop such applications.</p>
+
+<p>Early web developers mostly used Perl when dealing with text elements. Perl made it easy to process data via a CGI interface and to manipulate text files. Later, the mod_perl extended the use of Perl as a dynamic language.</p>
+
+<p>PHP was originally a suite of Perl script to create dynamic pages with CGI interface. Later, it was developed as a separate language, but it still holds much of the language semantics of Perl. For some programmers, PHP is more logical than Perl, and the way that it embeds with HTML makes it easy to read and code. PHP is a server-side scripting language, but is also used in general purpose programming.</p>
+
+<p>Python is a general purpose high-level programming language. It supports object oriented, imperative, and functional programming paradigm. It features automatic memory management, standard library, and a strict use of white space. It is also used as a scripting language.</p>
+
+<h2>LAMP as a whole and other Linux-based solutions</h2>
+
+There are some commonly used Linux-based solutions:
+<ul>
+	<li>
+		<strong>MEAN</strong> : 
+		A free, open-source JavaScript software stack to develop dynamic web applications. It is a combination of MogoDB,Expression.js, and Angular.js.
+	</li>
+	<li><strong>NGINX</strong> : A free, open-source, high-performance HTTP server and reverse proxy. It can work as IMAP/POP3 proxy server too.</li>
+	<li><strong>LEMP</strong> : Stack is a group of open-source software to get web servers up and running. The acronym stands for Linux, NGINX, MySQL, and PHP.</li>
+	<li><strong>LAPP</strong> : Considered to be an alternative to the LAMP stack, it includes Linux, Apache, PostgreSQL and PHP, and Python and Perl.</li>
+</ul>  
+<p>As we have seen in this article, by combining a webserver, a dynamic component, and a database, we can easily create database-driven dynamic websites. This is the power of LAMP. It is often considered as the best free and open source solution to compete with other commercial solutions, such as IIS, Windows, and .NET. It is a popular solution, not only in terms of cost, but also performance and optimization.</p>
+
+
+<h2>Next steps</h2>
+<p>In this article, you learned about LAMP stack and its components. With LAMP, you can build dynamically running websites and web applications.
+To build a LAMP stack, you can reference these articles:</p>
+<ul>
+ <li><a href="17345 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux</a></li>
+<li><a href="17343 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6</a></li>
+<li><a href="17344 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7</a></li>
+<li><a href="17346 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Debian">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Debian</a></li>
+<li><a href="17342 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Fedora">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Fedora</a></li>
+<li><a href="17341 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu</a></li>
+</ul>
+
+
+
+</body>
+</html>

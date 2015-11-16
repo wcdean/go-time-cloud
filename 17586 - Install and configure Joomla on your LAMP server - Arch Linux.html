@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is _17586 -->
+
+
+
+<title>Install and configure Joomla on your LAMP server - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <p>Installation of Joomla on your LAMP web server with Arch Linux.</p>
+    
+    <h1>Install and configure Joomla on your LAMP server - Arch Linux</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>5 minutes</u></em>
+    </p>
+
+    <p>Joomla is an open source content management system that helps you build websites and online applications. Joomla is built in PHP and makes use of a database system like MySQL. </p>
+    This article walks you through the installation of Joomla on your Arch Linux server. 
+    
+    <h2>Prerequisite</h2>
+    
+            You need to have LAMP (Linux, Apache, MySQL, PHP) set up on your server. For instructions, see
+            <a href="http://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17345 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux"> the article: Installing LAMP stack.</a>
+       
+    
+
+    
+    <h2>Download Joomla</h2>
+    <ol>
+     
+        <li>
+           Download the latest version of Joomla.
+            <div class="hacker">sudo wget https://github.com/joomla/joomla-cms/archive/master.zip</div>
+        </li>
+        <li>
+            Install <code>unzip</code> and unzip the downloaded package, moving it to the default Apache directory.
+            <div class="hacker">sudo pacman -S unzip</div>
+            <div class="hacker">unzip -q master.zip</div>           
+        </li>  
+        <li>Move the downloaded package to the default Apache directory.
+        <div class="hacker">sudo mv joomla-cms-master/* /srv/http</div>
+        </li>  
+        <li>Remove the master file.
+        <div class="hacker">rm -rf master.zip</div>
+        </li>       
+
+    </ol>
+
+    <h3>Grant permissions</h3>
+    Change ownership of the directory.
+    <div class="hacker">sudo chown -R http /srv/http</div>
+    
+       
+
+    <h2>Create Joomla database and user</h2>
+    <ol>
+        <li>
+            Login to MySQL. 
+            <div class="hacker">sudo mysql -u root -p</div>
+            When prompted, enter the MySQL root password that you set during the MySQL installation.
+        </li>
+        <li>
+            Create a database with any name.
+            <div class="hacker">CREATE DATABASE <em><u>testdb</u></em>;</div>
+            
+        </li>
+        <li>
+            Create user. 
+            <div class="hacker">CREATE USER <em><u>joomlauser</u></em>@localhost;</div>
+        </li>
+        <li>Set the password for the newly created user. 
+            <div class="hacker">SET PASSWORD FOR <em><u>joomlauser</u></em>@localhost= PASSWORD(<em><u>"testdbpwd"</u></em>);</div>
+        </li>
+        <li>Grant privileges to the newly created user.
+        <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>testdb</u></em>.* TO <em><u>joomlauser</u></em>@localhost IDENTIFIED BY '<em><u>testdbpwd</u></em>';</div>
+        </li>
+        <li>
+            Refresh MySQL.
+            <div class="hacker">FLUSH PRIVILEGES;</div>
+        </li>
+        <li>
+            Exit the MySQL shell.
+            <div class="hacker">exit</div>
+        </li>
+        <li>
+            You also need to edit the MySQL configuration in the <code>php.ini</code> file.
+            <div class="hacker">sudo vim /etc/php/php.ini</div>
+        </li>
+        <li>Uncomment the following line in the file:
+        <div class="hacker">extension=mysql.so</div>
+        </li>
+        <li>
+            Restart Apache.
+            <div class="hacker">sudo systemctl restart httpd</div>
+        </li>
+    </ol>
+    <h2>Install Joomla</h2>
+    <ol>
+        <li>
+            In your browser, navigate to <strong>http://<em><u>your server address or domain name/installation </u></em></strong>. You will see the Joomla installation page.
+        </li>
+        <li>Enter <strong>Configuration information</strong> for your website, such as the name of the site, email and password for the administrator. </li>
+        <li>Click <strong>Next</strong> to enter <strong>Database configuration</strong> details. Enter the new user credentials (<em><u>joomlauser</u></em>, <em><u>testdbpwd</u></em>) that you created for the <em><u>testdb</u></em> database.</li>
+        <li> Click <strong>Next</strong>.We will not be entering any information in the <strong>FTP Configuration</strong> page as we will not be using FTP right now, so simply click next. Click <strong>Next</strong>.</li> 
+        <li>Install <strong>Sample Data</strong> of any choice or you can choose <strong>None</strong>.</li>
+       <li>To complete the installation you will be asked to remove the installation folder. You can delete the installation directory manually from your console.
+         <div class="hacker">sudo rm -rf /srv/http/installation/</div>
+        </li>
+        <li>In your browser, navigate to <strong>http://<em><u>your server address or domain name</u></em>/index.php</strong> or domain name. The new Joomla page displays.</li>
+    </ol>
+    <h2>Next steps</h2>
+   Now that you have set up a Joomla site, you can <a href="http://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17611 - Install Joomla Console to manage your Joomla site by command line - Arch Linux.html">install Joomla Console to manage your Joomla site by command line.</a>
+
+</body>
+</html>

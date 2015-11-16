@@ -1,0 +1,405 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17517  -->
+
+
+<title>17517 - Deploy a Rails App with Unicorn and NGINX - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up Rails application with Unicorn and NGINX in Arch Linux, Ruby, Rails, NGINX</p>
+    <h1>Deploy a Rails App with Unicorn and NGINX – Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br />
+        <strong>Time</strong>: <em>30 minutes</em></p>
+
+    <p>In this article, we will be configuring a multi-layer deployment installation to host Rails-based Ruby web applications. To do this, we will use the powerful, flexible, and extremely successful Unicorn application server running behind NGINX.  </p> 
+<p class="note">We assume that you are logged in as a sudo user.</p>
+   
+  In this article, we assume that you have already installed Ruby on Rails with rbenv and your Rails application uses PostgreSQL. If not, please visit:
+    <ul>
+	<li><a href="17522">Install Ruby on Rails with rbenv – Arch Linux</a>
+	 </li>
+	<li><a href="17527">Use PostgreSQL with your Ruby on Rails application – Arch Linux</a>
+	 </li>
+	 </ul>
+	 
+	 <h2>Prepare the deployment server</h2>
+    <ol> 
+	<li>Install the bundle of development tools, and then update the operating system using the following commands:
+	<div class='hacker'>sudo pacman -Sy base-devel</div>
+	<div class='hacker'>sudo pacman -Syu</div>
+    </li>
+	<li>Install NGINX.
+	<div class='hacker'>sudo pacman -S nginx</div>
+	</li>
+	<li>Start the NGINX service.
+	<div class='hacker'>sudo systemctl start nginx </div>
+	</li>  	
+	</ol>
+	
+	<h2>Set up a Rails Application and install Unicorn </h2>
+    <ol>
+
+	
+	<li>Go to home directory and create a Rails application in this directory.
+	<div class ="hacker">cd /home/<em><u>Logged_in_user</u></em></div>
+	<div class='hacker'>rails new <em><u>your_application</u></em> -d postgresql</div>
+    </li>
+	
+	<li>Move to the newly created application directory. 
+	<div class='hacker'> cd <em><u>your_application</u></em>/</div>
+	</li>
+  <li>Install Unicorn, and then bundle all gems:
+	<div class='hacker'>gem install unicorn</div>    
+	</li>
+  <li>
+      Make sure that the Unicorn gem is added in the gemfile.
+      <div class = "hacker"> sudo vim Gemfile</div>
+      Add the following line, if it is not already present, towards the end of the file just before the <code>end</code>
+      <div class = "hacker">gem 'unicorn'</div>
+  </li>
+  <li> Run the bundler to install any dependencies.
+  <div class = "hacker">bundle</div>
+  </li></ol>
+  
+	<h2>Create production database user</h2>
+	<ol>
+	<li>Create a user for the production database. 
+	<div class='hacker'>sudo -i -u postgres </div><div class="hacker">createuser -s <em><u>username</u></em>
+</div>
+    </li>
+	<li>To set the database user password, run the following commands:  
+	<div class='hacker'>psql</div>
+	<div class='hacker'>\password <em><u>username</u></em></div>
+	</li>
+		<li>To drop a template, first you need to modify it: 
+	<div class='hacker'>UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';
+</div>
+    </li>
+	
+	<li>Drop the existing template to delete it, using the following command:
+	<div class='hacker'>DROP DATABASE template1;
+</div>
+    </li>
+	<li>Create a database from <code>template0</code>, with a new default encoding. 
+	<div class='hacker'>CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = 'UNICODE';
+</div>
+    </li>
+	<li>Modify <code>template1</code>, so that it's actually a template.
+	<div class='hacker'>UPDATE pg_database SET datistemplate = TRUE WHERE datname ='template1';
+</div>
+    </li>
+	<li>Switch to <code>template1</code> and collect the garbage data of the template using following command:  
+	<div class='hacker'>\c template1
+</div>
+<div class='hacker'>VACUUM FREEZE;
+</div>
+    </li>
+	<li>Start the PostgresSQL service.
+	<div class='hacker'>sudo systemctl start postgresql
+</div>
+    </li>
+	
+	<li>Enter the new password and logout.
+	<div class='hacker'>\q</div>
+<div class="hacker">logout</div>
+    </li></ol>
+	<h2>Set up database connection</h2>
+	<ol>
+	
+	<li>To set up a database connection, move to your application directory.
+	<div class='hacker'>cd /home/<em><u>Logged_in_user</u></em><em><u>/your_application</u></em>
+</div>
+<div class='hacker'>sudo  vim config/database.yml
+</div>
+    </li>
+	<li>Add the following line in the default section of this file and go to the <code>production</code> section at the bottom of the file:
+	<div class='hacker'><pre>host: localhost
+username: <em><u>username</u></em>
+password: &lt;%= ENV['YOUR_APPLICATION_DATABASE_PASSWORD'] %&gt;
+</pre>
+</div>
+   <p>If your production and development username and the database user are not the same, then make the required changes to make them the same.</p> 
+    </li>
+	<li>Save and exit the file by pressing <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+	</ol>
+	<h2>Set up rbenv plug-ins</h2>
+	<ol>
+	<li>Navigate to root directory.</code>.
+		<div class='hacker'>cd ~
+</div>
+	</li>
+	<li>Install the plug-in for <code>rbenv-vars</code>. 
+		<div class='hacker'>cd .rbenv/plugins
+</div>
+<div class='hacker'>git clone https://github.com/sstephenson/rbenv-vars.git</div>
+    </li>
+	<li>Set environments variable by generating a secret key.
+	<div class='hacker'>cd /home/<em><u>logged_in_user</u></em><em><u>/your_application</u></em></div>
+	<div class='hacker'>rake secret</div>
+	</li>
+<li>Create a file with name :
+	<div class='hacker'>sudo vim .rbenv-vars
+</div>
+<p>Add the following line in this file:</p>
+<div class='hacker'>SECRET_KEY_BASE=<em><u>your_generated_secret</u></em> <br />
+YOUR_APPLICATION_DATABASE_PASSWORD=<em><u>prod_db_pass</u></em>
+</div>
+</li>
+<li>Save and exit the file by pressing <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+<li>Export the secret key and the database password.
+	<div class='hacker'>rbenv vars
+</div>
+<p>Export them manually, if required.</p>
+</li>
+<li>Create the production database for the Rails application and generate a scaffold controller to manage the production database.
+	<div class='hacker'>RAILS_ENV=production rake db:create</div>  
+  <div class='hacker'>RAILS_ENV=development rake db:create</div>
+	
+	<div class='hacker'>rails generate scaffold Task title:string note:text</div>
+	</li>
+	<li>Update  the  production database and run your application from the application directory.
+	<div class='hacker'>RAILS_ENV=production  rake db:migrate</div>
+	<div class='hacker'>RAILS_ENV=development  rake db:migrate</div>
+	<div class='hacker'>rails s</div>
+	<p>To terminate user, press <strong>Control/CTRL+C</strong>.</p>
+	</li>
+	<li>For binding to web browser, run the following command:
+	<div class='hacker'>rails server --binding=[<em><u>your_server_ip</u></em>]</div>
+	<p>You should now be able to access it on any browser by visiting:
+	<strong>http://<em><u>your server's IP</u></em>:3000/tasks</strong>.</p>
+	</li>
+	</ol>
+	
+<h2>Configure Unicorn server</h2>
+
+    <ol>
+	<li>To configure Unicorn, move to your Rails application directory.
+	<div class='hacker'>cd /home/<em><u>logged_in_user</u></em>/your_application</div>
+	</li>
+	<li>Create a blank <code>unicorn.rb</code> document.
+	<div class='hacker'>sudo vim config/unicorn.rb</div>
+    </li>
+	
+	<li>Add the following code in this file:
+	<div class='hacker'>
+	<pre>
+	# set path to application
+	app_dir = File.expand_path("../..", __FILE__)
+	shared_dir = "#{app_dir}/shared"
+	working_directory app_dir
+
+
+	# Set unicorn options
+	worker_processes 2
+	preload_app true
+	timeout 30
+
+	# Set up socket location
+	listen "#{shared_dir}/sockets/unicorn.sock", :backlog => 64
+
+	# Logging
+	stderr_path "#{shared_dir}/log/unicorn.stderr.log"
+	stdout_path "#{shared_dir}/log/unicorn.stdout.log"
+
+	# Set master PID location
+	pid "#{shared_dir}/pids/unicorn.pid"
+</pre>
+</div>
+	</li>
+  <li>Save and exit the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. </li> 
+</ol>
+  
+<h2>Connect Unicorn with Rails application</h2><ol>
+	<li>Create the directories that were referred in the configuration file. 
+	<div class='hacker'>sudo mkdir -p shared/pids shared/sockets shared/log</div>
+    </li>
+	
+	<li>Create a script for Unicorn.
+	<div class='hacker'>sudo vim /etc/pam.d/<em><u>unicorn_your_application</u></em></div>
+	</li>
+	
+	<li>Add the following script code in the file: 
+	<div class='hacker'>
+	<pre>
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          unicorn
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the unicorn app server
+# Description:       starts unicorn using start-stop-daemon
+### END INIT INFO
+
+set -e
+USAGE="Usage: $0 &lt;start|stop|restart|upgrade|rotate|force-stop>"
+
+# app settings
+USER="<em><u>username</u></em>"
+APP_NAME="<em><u>your_application</u></em>"
+APP_ROOT="<em><u>/home/$USER/$APP_NAME</u></em>"
+ENV="production"
+
+
+# environment settings
+PATH="/home/$USER/.rbenv/shims:/home/$USER/.rbenv/bin:$PATH"
+#CMD="cd $APP_ROOT &amp;&amp; bundle exec unicorn -c config/unicorn.rb -E $ENV -D"
+CMD="bundle exec unicorn -c config/unicorn.rb -E $ENV -D"
+
+PID="$APP_ROOT/shared/pids/unicorn.pid"
+OLD_PID="$PID.oldbin"
+
+# make sure the app exists
+cd $APP_ROOT || exit 1
+
+sig () {
+  test -s "$PID" &amp;&amp; kill -$1 `cat $PID`
+}
+
+oldsig () {
+  test -s $OLD_PID &amp;&amp; kill -$1 `cat $OLD_PID`
+}
+case $1 in
+  start)
+    sig 0 &amp;&amp; echo >&amp;2 "Already running" &amp;&amp; exit 0
+    echo "Starting $APP_NAME"
+    #su - $USER -c "$CMD"
+    /home/<em><u>username/Application_name</u></em>/bin/bundle exec unicorn -c config/unicorn.rb -E $ENV -D
+    ;;
+  stop)
+    echo "Stopping $APP_NAME"
+    sig QUIT &amp;&amp; exit 0
+    echo >&amp;2 "Not running"
+    ;;
+  force-stop)
+    echo "Force stopping $APP_NAME"
+    sig TERM &amp;&amp; exit 0
+    echo >&amp;2 "Not running"
+    ;;
+  restart|reload|upgrade)
+    sig USR2 &amp;&amp; echo "reloaded $APP_NAME" &amp;&amp; exit 0
+    echo >&amp;2 "Couldn't reload, starting '$CMD' instead"
+    $CMD
+    ;;
+  rotate)
+    sig USR1 &amp;&amp; echo rotated logs OK &amp;&amp; exit 0
+    echo >&amp;2 "Couldn't rotate logs" &amp;&amp; exit 1
+    ;;
+  *)
+    echo >&amp;2 $USAGE
+    exit 1
+    ;;
+esac
+</pre>
+	
+	</div>
+	</li>
+	
+	<li>Save and exit the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. </li> 
+
+	
+	<li>This script will allow you to run <em><u>unicorn_your_application</u></em>, which  will run and then stop both your Unicorn and your Rails application.</li>
+	
+	<li>Update the script's permissions and enable Unicorn to start on boot.
+		<div class='hacker'>sudo chmod 755 -R /etc/pam.d/unicorn_your_application</div>     
+	</li>
+	
+	<li>Start the Unicorn service.
+	<div class='hacker'>sudo  /etc/pam.d/unicorn_your_application start</div>
+
+	</li>
+	</ol>
+	<h2>Configure NGINX server </h2>
+	<ol>
+	<li>Configure NGINX and enable it to communicate with the Unicorn. Edit the default configuration file: <code>default.conf</code>.
+	<div class='hacker'>sudo vim /etc/nginx/default.conf</div>
+	</li>
+	
+	<li>Swap the files contents with the following lines: 
+	<div class='hacker'>
+	<pre>
+	upstream app {
+    		# Path to Unicorn SOCK file, as defined previously
+   		server 	unix:/home/<em><u>UserName/your_application</u></em>/shared/sockets/unicorn.sock 	fail_timeout=0;
+	}
+
+	server {
+   	 listen 80;
+   	 server_name <em><u>192.169.169.119</u></em>; //your public ip
+
+  	  root /home/<em><u>username/your_application/</u></em>public;
+
+   	 try_files $uri/index.html $uri @app;
+
+   	 location @app {
+        	 proxy_pass http://app;
+       		 proxy_set_header X-Forwarded-For 			  		
+			 $proxy_add_x_forwarded_for;
+        	 proxy_set_header Host $http_host;
+        	 proxy_redirect off;
+    	}
+
+   	 error_page 500 502 503 504 /500.html;
+        client_max_body_size 4G;
+    	 keepalive_timeout 10;
+	}
+</pre>
+	</div>
+
+	</li>
+  <li>Save and exit the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. </li> 
+
+	<li>Start the NGINX service.
+	<div class='hacker'>sudo systemctl start nginx</div>
+	</li>
+	<li>Test your server's IP address (or the domain name associated to it) at <strong>http://<em>your_IP_address</em>/tasks</strong>.
+	</li>
+	</ol>
+	 
+	
+    <h2>Conclusion</h2>
+<p> By using all the above steps we will be able to deploy your Rails application with Unicorn and NGINX on Arch Linux. 
+
+</p>   
+</body>
+</html>

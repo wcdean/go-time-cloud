@@ -1,0 +1,294 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18309  -->
+
+
+<title>Configure Devise and Omniauth for your Rails Application - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Configuring Devise and OmniAuth for your Rails application on all distros, Ruby, Rails, API</p>
+    <h1>Configure Devise and OmniAuth for your Rails Application - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em>3</em><br />
+        <strong>Time</strong>: <em>Less than 20 minutes</em></p>
+
+    <p>Devise and OmniAuth are the two most popular user registration and authentication mechanisms in use with Ruby on Rail applications. Developing these mechanisms from the ground up requires a lot of effort and time. However, you can use the Devise gem to set up an authentication mechanism within minutes. OmniAuth allows your users to log in with their existing Facebook, Amazon, or Twitter accounts.</p>
+	
+	<p>In this article, you will learn to install Devise and OmniAuth gems with your Ruby application. You should set up a sudo user for each RethinkDB server, as working with a sudo user is a good security practice.</p>
+	<p>Before starting with the installation steps, you should have a server (with any Linux version) with Ruby installed through RVM (Ruby Version Manager). You can refer the following articles to learn more:</p>
+	<ul>
+	<li><a href="17537">Install Ruby on Rails using RVM - Arch Linux</a>
+	</li>
+	<li><a href="17536">Install Ruby on Rails using RVM - CentOS</a>
+	</li>  
+	<li><a href="17538">Install Ruby on Rails using RVM - Debian</a>
+	</li>
+	<li><a href="17535">Install Ruby on Rails using RVM - Fedora</a>
+	</li> 
+	<li><a href="17534">Install Ruby on Rails using RVM - Ubuntu</a>
+	</li>
+	</ul>
+	
+	
+	<h2>Create a Rails application</h2>
+<ol> 
+<li>Install Rails application on a separate directory, before adding a new Rails application. This is always recommended.
+   <div class="hacker">cd ~ && mkdir  <em><u>rails_applications</u></em></div>
+    <div class="hacker">cd <em><u>rails_applications</u></em></div>
+   </li>
+   <li>Start the RVM script from <code>~/.rvm/scripts/rvm</code>. Because you are using <code>sudo</code> users, RVM will be installed in user’s home directory. 
+   <div class="hacker">source ~/.rvm/scripts/rvm</div>
+   <div class="hacker"> rvm use ruby --default</div>
+   </li>
+   <li>Create a new application. For this example, you can name it <em><u>myapp</u></em>. 
+   <div class="hacker">rails new <em><u>myapp</u></em></div>
+   <div class="hacker">cd <em><u>myapp</u></em></div>
+   </li>
+   <li>Run all Rails installations inside your application directory <code>~/.rails_applications/<em><u>myapp</u></em></code>.
+   </li>
+  </ol>
+  
+  <h2>Add the required gems to the gemfile</h2>
+  <p>In this section, you will need Devise and OmniAuth gems. In addition, you also need separate gems for every OAuth service provider that you would like to add. In this example, you will log in through Facebook for which<code> omniauth-facebook</code> gem is required for Facebook authentication.</p>
+<ol> 
+<li>Add the following lines to the end of the file <code>Gemfile</code>:
+<div class="hacker">vim Gemfile</div>
+    <div class="hacker">gem 'therubyracer'</div>
+    <div class="hacker">gem 'devise'</div>
+    <div class="hacker">gem 'omniauth'</div>
+	<div class="hacker">gem 'omniauth-facebook'</div>
+   </li>
+   <li>To save and exit press <strong>Esc</strong> and type the following characters <strong>:wq!</strong>.
+  <p>To support other providers, you may add additional gems. Here are some of the most the popular authentication gems:</p>
+   <ul>
+   <li>Twitter : omniauth-twitter
+   </li>
+    <li>Amazon : omniauth-amazon   
+	</li>
+   <li>Google : omniauth-google
+   </li>
+   <li>Github : omniauth-github
+   </li>
+   </ul>
+</li>
+   <li>Install the newly added gems.
+     <div class="hacker">bundle install</div>
+   </li>
+  </ol>
+  
+  <h2>Add the application for testing</h2>
+  <p>You can add a few pages for testing. These pages will be available after you log into your application.</p>
+<ol> 
+<li>Use the Rails scaffolding feature to add these pages. With the <code>rails g scaffold</code> command, you need to specify the model, and then Ruby will generate the fully functional pages for you.
+   <div class="hacker">rails g scaffold Product name:string price:integer description:text</div>
+   <div class="hacker">rake db:migrate</div>
+   </li>
+   <li>Define the root of this application. To add the root of the application, edit existing file at <code>~/.rails_applications/myapp/config/routers.rb</code>.
+   <div class="hacker">sudo vim ~/.rails_applications/myapp/config/routers.rb</div></li>
+<li>Append the line <code>root 'products#index'</code> below the  <code>resources :products</code> line  
+  <div class="hacker">
+   <pre>
+Rails.application.routes.draw do
+  resources :products
+  root 'products#index'
+end
+</pre>
+   </div>
+   </li>
+   <li>Start your application server to test the newly added features. 
+   <div class="hacker">rails s </div>
+   </li>
+   <li>
+   Start the application in your <code>localhost</code> by visiting your browser and typing:
+   <div class="hacker">http://localhost:3000 </div>
+ 
+  Or, in case the application is binded to any IP Address, then start your application server by typing:
+   <div class="hacker">rails s --binding=<em><u>ip_address</u></em></div>
+ Visit your browser and type:
+   <div class="hacker">http://<em><u>ip_address</u></em>:3000</div>
+  </li>
+      <li>Run <strong>Ctrl + C</strong> to stop the rails server.
+   </li>
+  </ol>
+  
+  
+  <h2>Authenticate through Devise</h2>
+<ol> 
+<li>Run the following commands to add Devise authentication support. This will create the sign in and sign up forms.
+   <div class="hacker">rails generate devise:install</div>
+   <div class="hacker">rails generate devise User</div>
+   <div class="hacker">rake db:migrate</div>
+   </li>
+   <li>Edit <code>~/rails_applications/myapp/app/controllers/application_controller.rb </code> file with the following code to add <code>authenticate_user!</code>. This code ensures that all pages in the application will be accessible only after the application log in.
+    <div class="hacker">sudo vim ~/rails_applications/myapp/app/controllers/application_controller.rb</div>
+   <div class="hacker">
+   <pre>
+class ApplicationController &lt; ActionController::Base
+  protect_from_forgery with: :exception
+  before_action :authenticate_user!
+end
+</pre></div>
+   </li>
+   <li>Start the development server.
+   <div class="hacker">rails s</div>
+   </li>
+   <li>Access it in a browser.
+   <div class="hacker">http://localhost:3000</div>
+   </li>
+   <li>Enter the specific IP address, if required:
+   <div class="hacker">rails s --binding=<em><u>ip_address</u></em></div>
+     <div class="hacker">http://<em><u>ip_address</u></em>:3000</div>
+   </li>
+   <li>Log in or sign up using the <strong>Sign up</strong> link on this <strong>Log in</strong> page.<br />
+   <img src="images/18309/091115/login-page.png" alt="login-page"/>
+   </li>
+   <li>Close the application session by pressing <strong>Ctrl-C</strong>.</li>
+  </ol>
+  
+  <h2>Add OmniAuth support</h2>
+<ol> 
+
+<li>Add OmniAuth and add columns named <code>uid</code> and <code>provider string</code> to the model that Devise generated.
+   <div class="hacker">rails g migration AddColumnsToUsers provider uid</div>
+      <div class="hacker">rake db:migrate</div>
+   </li>
+   <li>Contact the OAuth provider to get the <code>Client ID</code> and <code>Secret ID</code>, and submit their forms accordingly. You will be asked for a callback URL, which is separate for each provider. Here are a few of them for your reference:
+   <ul>
+   <li>Facebook: http://localhost:3000/users/auth/facebook/callback
+   </li>
+   <li>Amazon: http://localhost:3000/users/auth/amazon/callback
+   </li>
+   <li>Twitter: http://localhost:3000/users/auth/twitter/callback
+   </li>
+   <li>Google: http://localhost:3000/users/auth/google/callback
+   </li>
+   </ul>
+   </li>
+   <li>Declare the provider in <code> ~/rails_applications/myapp/config/initializers/devise.rb. </code>
+   </li>
+   <li>Add the <code>Client ID</code> and the <code>Secret ID</code>.
+   <div class="hacker">
+<pre>
+#Add your ID and secret here
+  #ID first, secret second
+  config.omniauth :&lt;facebook, "Client ID", "Secret ID"&gt;
+end
+</pre>
+   </div>
+   </li>
+   <li>To set an email address, add it to the configuration file.
+      <div class="hacker">config.mailer_sender = '<em><u>mailer@coolexample.com</u></em>'</div>
+   </li>
+  </ol>
+
+
+<h2>Update model</h2>
+<ol> 
+<li>Make your model <code>omniauthable</code> by changing the service providers in the user model. To do this, edit file <code>~/rails_applications/myapp/app/models/user.rb</code>, and add the following lines:
+     <div class="hacker">sudo vim ~/rails_applications/myapp/app/models/user.rb</div>
+   <div class="hacker">
+<pre>
+class User &lt; ActiveRecord::Base
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable,
+     :omniauthable, :omniauth_providers => [:facebook]
+def self.from_omniauth(auth)
+      where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
+        user.provider = auth.provider
+        user.uid = auth.uid
+        user.email = auth.info.email
+        user.password = Devise.friendly_token[0,20]
+      end
+  end
+end
+</pre>   
+   </div>
+   </li>
+   <li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+   </li>
+  </ol>
+
+
+<h2>Handle callback URLs</h2>
+<ol> 
+<li>Specify the controller that will be handling your call back requests.  To do this, edit the following file, and update the <code>devise_for</code> line.
+   <div class="hacker">sudo vim ~/rails_applications/myapp/config/routes.rb</div>
+   </li>
+   <li>Add the line <code>:controllers => { :omniauth_callbacks => "callbacks" }</code> next to <code>devise_for : users</code>.
+   <div class="hacker">
+<pre>
+Rails.application.routes.draw do
+  devise_for :users, :controllers => { :omniauth_callbacks => "callbacks" }
+  resources :products
+  root 'products#index'
+end
+</pre>
+   </div>
+   </li>
+   <li>Create a new file at <code>~/rails_applications/myapp/app/controllers/callbacks_controller.rb</code>.
+    <div class="hacker">sudo vim ~/rails_applications/myapp/app/controllers/callbacks_controller.rb</div>
+   </li>
+   <li>Add the following code in the newly created file:
+   <div class="hacker">
+<pre>
+class CallbacksController &lt; Devise::OmniauthCallbacksController
+    def facebook
+        @user = User.from_omniauth(request.env["omniauth.auth"])
+        sign_in_and_redirect @user
+    end
+end
+</pre>
+  </div>
+   </li> 
+  </ol>
+ <p>If you want more OAuth providers, then you must have separate methods for them. It is mandatory that the name of the method and the provider name are same. For example, for adding Twitter support, the method will be defined using <code>def twitter.</code> </p>
+ 
+<h2>Start the development server</h2> 
+
+<ol><li>Now that you have made all the required configurations, you can now start the development server.
+   <div class="hacker">rails s</div></li>
+   <li>
+   Log in into your application with your Facebook account.</li> </ol>
+          
+    <h2>Conclusion</h2>
+    <p>In this article, you reviewed the steps involved in configuring Devise and OmniAuth on all distros. Using the example in the article, you can log into your applications with your Facebook login details, and then use the same procedure to add other logins. </p>
+   
+</body>
+</html>

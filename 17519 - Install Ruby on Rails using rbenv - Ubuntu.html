@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Install Ruby on Rails using rbenv – Ubuntu </title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+</head>
+
+<body>
+
+<p>Setting up Ruby on Rails using rbenv on Ubuntu, Ruby, Rails.</p>
+<h1>Install Ruby on Rails using rbenv - Ubuntu </h1>
+
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>30 minutes</em></p>
+<p>Ruby is a pure object oriented language like PERL and Python, while Rails is a web application development framework written in Ruby. This article will assist you to install Ruby on Rails on Ubuntu, with the help of rbenv. rbenv is a new, lightweight Ruby version management tool.</p>
+
+<p>You'll need <code>sudo</code> privileges for this tutorial. See <a href="17321 - Initial Server Setup - Ubuntu.html"> Initial Server Setup - Ubuntu</a> for more instructions. Optionally, you can also <a href="17366 - Install Git - Ubuntu.html"> install Git</a>.</p> 
+
+<h2>Install rbenv</h2>
+<ol>
+<li>Update all the packages of operating system.
+	<div class='hacker'>sudo apt-get update</div>
+</li>
+<li>Install the rbenv and  all Ruby dependencies.
+   <div class='hacker'>sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev</div>
+</li>
+<li>Create a clone for rbenv from GitHub, and install it.
+			<div class='hacker'>git clone https://github.com/sstephenson/rbenv.git ~/.rbenv</div>
+		</li>    
+		
+		<li>Add a directory to your <code>$PATH</code> for accessing rbenv.
+			<div class='hacker'>echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc</div>
+		</li>    
+		<li>Add <code>rbenv init</code> into the <code>bashbc</code> shell.
+			<div class='hacker'>echo 'eval "$(rbenv init -)"' >> ~/.bashrc</div>
+			<div class='hacker'>source ~/.bashrc</div>
+		</li>    
+		<li>Restart the shell by either opening a new tab or closing the current terminal and starting it again.
+		</li>
+		<li>Check <code>rbenv</code> installed correctly using the following command.
+			<div class='hacker'>type rbenv</div>
+    If it was set up correctly, your output will include a message saying "rbenv is a function."
+		</li>    
+		<li>Install the latest development version of <code>ruby-build</code> into the <code>~/.rbenv/plugins/ruby-build</code> directory.
+			<div class='hacker'>git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build</div>
+		</li>
+		<li>Install the <strong>rbenv rehash</strong> plugin to automate running the <code>rehash</code> command. 
+		  <div class='hacker'>git clone https://github.com/sstephenson/rbenv-gem-rehash.git ~/.rbenv/plugins/rbenv-gem-rehash</div>
+		</li>
+</ol>
+
+<h2>Install Ruby</h2>
+
+<ol>
+<li>To see all the available versions of Ruby, use this command:
+    <div class='hacker'> rbenv install --list</div>
+</li>
+
+<li>The format of the command to install Ruby is:
+	<div class='hacker'>rbenv install  <em><u>latest_version of Ruby</u></em> -k</div>
+    For instance, to install v2.2.3: 
+    <div class='hacker'>rbenv install -v <em><u>2.2.3</u></em> </div>
+</li>    
+<li>Set the default version of Ruby that all of your shells will use.
+ <div class='hacker'>rbenv global <em><u>latest_version of Ruby</u></em></div>
+</li> 
+<li>Check your version of Ruby.
+	<div class='hacker'>ruby -v</div>
+</li>    
+</ol>
+    
+<h2>Install RubyGems</h2>
+<ol>
+<li>By default, when we install gems, documentation files will also get installed along with it. However, this takes time. You can stop the document installation by disabling them.
+      <div class='hacker'>echo "gem: --no-document" > ~/.gemrc</div>
+</li>
+<li>After you have disabled the document installation, install the bundler gem. The Bundler gem is an essential tool for managing gems when developing and running Rails applications.
+    <div class='hacker'>gem install bundler</div>
+</li>    
+</ol>
+<h2>Install the JavaScript Runtime</h2>
+			<p>There are a few Rails features like the <strong>Asset Pipeline</strong>, that requires a Javascript runtime to execute. JavaScript runtime can be installed in a couple of ways. In this article, we will use <code>nodejs</code> from Debian package system.</p>
+<ol>
+<li>Add the <code>node.js</code> PPA to <code>apt-get</code>:
+      <div class='hacker'>sudo add-apt-repository ppa:chris-lea/node.js</div>
+</li>
+<li>Install the <code>node.js</code> package.
+	<div class='hacker'>sudo apt-get install nodejs</div>
+</li>
+</ol>
+
+<h2>Install Rails</h2>
+<ol>
+<li>To install Rails, type:
+	<div class='hacker'>gem install rails</div>
+<p>This will take some time, so be patience. Once completed, Ruby on Rails will be installed.</p>
+</li>
+<li>To install shims for all Ruby executables known to rbenv, use the <code>rehash</code> command.
+     <div class='hacker'>rbenv rehash</div>
+</li>
+<li>To check the version of both Ruby and Rails, type:
+	<div class='hacker'>ruby -v</div>
+	<div class='hacker'>rails -v</div>
+</li>
+</ol>
+
+
+
+<h2>Next steps</h2>
+  <p>In this article, you reviewed the steps involved in installing rbenv, Ruby, Ruby Gems, and finally Rails in Ubuntu. For supported enterprise level application, you can also <a href="17952 - Scale Ruby on Rails Applications Across Multiple Servers - Debian, Ubuntu">scale Ruby on Rails application across multiple servers</a>.</p>
+
+  
+</body>
+</html>

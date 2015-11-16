@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 00042-->
+
+
+
+<title>Build a LLMP Stack (Linux, Lighttpd, MySQL, PHP) -Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+
+</head>
+
+<body>
+    <p>Install Lighttpd, MySQL, and PHP on a server running Fedora to serve web applications.</p>
+    <h1>Build a LLMP (Linux, Lighttpd, MySQL, PHP) stack on a server running  Fedora</h1>
+    <p>
+        <strong>Difficulty</strong>: <em><u>3 </u></em>
+        <br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em>
+    </p>
+    <p>
+        LLMP is an acronym used for the software suite that is used by developers and administrators to serve web applications quickly on a stable platform. In this article, you will learn how to build a LLMP stack on Fedora 20 and 21.
+    </p>
+    <h2>Prerequisites</h2>
+    <p>
+        You must have completed the <a href="17322 - Initial Server Setup - Fedora.html">initial server setup</a> for Fedora. Linux is installed with Fedora.
+    </p>
+    <h2>Install Lighttpd</h2>
+    <ol>
+        <li>
+            Before you begin any installation, make sure that you install all the updates.
+            <div class="hacker">sudo yum update</div>
+
+        </li>
+         
+
+        <li>
+            Install Lighttpd.
+            <div class="hacker">sudo yum install lighttpd</div>
+
+        </li>
+        <li>
+            Start the service.
+            <div class="hacker">sudo systemctl start lighttpd.service</div>
+
+        </li>
+        <li>
+            To verify that Lighttpd is installed, type this URL in a browser: <strong>http://<em><u>your server address</u></em>.</strong> 
+            You will see a Lighttpd test page. If you do not know your IP address, you can <a href="/article/19041?prog_id=PROG_ID">look it up</a>.
+
+        </li>
+        
+    </ol>
+
+
+    <h2>Install MySQL</h2>
+    <ol>
+        <li>
+            Install MySQL.
+            <div class="hacker">sudo yum install mysql mysql-server</div>
+        </li>
+        <li>
+            After the installation is complete, start the service.
+            <div class="hacker">sudo service mysqld start</div>
+        </li>
+
+
+        <li>
+            Run the following security script:
+            <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>
+        </li>
+        <li>You will be asked for the root password. Because you didn't set it earlier, press <strong>Enter</strong> to set a password now. </li>
+        <li>Type <strong>Y</strong> to set the root password.</li>
+        <li>Enter and confirm the new password.</li>
+        <li>You will be asked more questions as part of security configuration. It is a best practice to respond <strong>Y</strong> to these system prompts.</li>
+
+    </ol>
+    <h2>Install PHP</h2>
+    <ol>
+        <li>
+            To install PHP, open the terminal and type:
+            <div class="hacker">sudo yum install php-fpm lighttpd-fastcgi php-mysql</div>
+            Enter <strong>Y</strong> to install.
+        </li>
+        <li>Add lighttpd to the user and the group in the <code>www.conf</code>
+        <div class="hacker">sudo vim /etc/php-fpm.d/www.conf</div>
+        Find the following block :
+        <div class="hacker">
+        <pre>; Unix user/group of processes
+; Note: The user is mandatory. If the group is not set, the default user's group
+;       will be used.
+; RPM: apache Choosed to be able to access some dir as httpd
+user = apache
+; RPM: Keep a group allowed to write in log dir.
+group = apache</pre> </div></li>
+        
+          Change <code>user=apache</code> to <code>user=<em><u>lighttpd</u></em></code> and <code>group=apache</code> to <code>group=<em><u>lighttpd</u></em></code>.
+        <li>Save and exit the file.</li>
+   <li>This step is recommended, even though it's optional. Create a system startup link for PHP-FPM to start every time the system boots up.
+        <div class="hacker">sudo chkconfig --levels 235 php-fpm on</div>
+        </li>
+        <li>Start the service.
+        <div class="hacker">sudo systemctl start php-fpm.service</div></li>
+        </ol>
+     <h3>Configure Lighttpd with PHP</h3>
+    <ol>
+        <li>
+            Open the <code>php.ini</code> file. 
+            <div class="hacker">sudo vim /etc/php.ini</div>
+            </li>
+            <li>Uncomment the following line :
+            <div class="hacker">cgi.fix_pathinfo=1</div></li>
+            <li>Save and exit the file.
+        </li>
+        <li>
+            Edit the <code>modules.conf</code> file.
+            <div class="hacker">sudo vim /etc/lighttpd/modules.conf</div>
+            Uncomment the following line :
+            <div class="hacker">include "conf.d/fastcgi.conf"</div>
+        </li>
+
+ <li>Save and exit the file.</li>
+
+        <li>Edit the <code>fastcgi.conf</code> file.
+        <div class="hacker">sudo vim /etc/lighttpd/conf.d/fastcgi.conf</div>
+         Enter the following block of code just after the <code>server.modules += ( "mod_fastcgi" )</code> line and before the PHP Example.
+        <div class="hacker"><pre>fastcgi.server += ( ".php" =>
+        ((
+                "host" => "127.0.0.1",
+                "port" => "9000",
+                "broken-scriptfilename" => "enable"
+        ))
+)</pre></div></li><li>
+        Save and exit the file.
+        </li>
+       <li>Restart Lighttpd.
+        <div class="hacker">sudo systemctl restart lighttpd.service</div></li>
+
+    </ol>
+   
+    <h3>Test PHP processing on Lighttpd</h3>
+    <ol>
+        <li>
+            Create a new PHP file under the <code>/var/www/lighttpd</code> directory.
+            <div class="hacker"> sudo vim /var/www/lighttpd/info.php</div>
+        </li>
+        <li>
+            When the file opens, type in the following code:
+            <div class="hacker"> &lt;?php <br /> phpinfo(); <br /> ?> </div></li>
+            <li>Save and exit the file.</li>
+        <li>
+            To verify that it works, type this URL in your browser:
+            <strong>http://<em><u>your IP address</u></em>/info.php</strong>.            
+            If it works, a page displays the PHP version, extensions, build date, and other information.
+        </li>
+
+    </ol>
+    
+    <h2>Next steps</h2>
+  
+  <p>Congratulations! You have successfully built a LLMP stack on your server. 
+
+        <!--CT: Commenting out because this article's not written yet... If you are interested, you can learn more about <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18811 - Set Up Multiple SSL Certificates on One IP with Lighttpd - CentOS, Fedora.html">setting up multiple SSL certificates on one IP</a>. ...--> </p>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Arch Linux Package Management with PACMAN - Arch Linux</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Arch Linux Package Management with PACMAN on Arch Linux, Linux Basics, PACMAN</p>
+    <h1>Arch Linux Package Management with PACMAN - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>Time value</u></em></p>
+
+    <p>PACMAN is one of the utility tools for  package management in Arch Linux. Using this tool, you can install, update, remove, query, and search the package from the repository available by Arch Linux.</p>
+
+    <h2>Install package</h2>
+    
+    <table border="1">
+    <tr>
+    <th>Description</th>
+     <th>Command</th>
+      </tr>
+    <tr>
+    <td>Install a package online.</td>
+       <td><code>sudo pacman -S <em><u>package_name</u></em></code></td>
+               </tr>
+               <tr>
+    <td>Install a package that has a similar name.</td>
+       <td><code>sudo pacman -S lua-{sec,socket,zlib}</code></td>
+         
+             
+               </tr>
+               <tr>
+    <td>Download the package from the repository for archive purposes.</td>
+       <td><code>sudo pacman -Sw <em><u>package_name</u></em></code></td>
+	   </tr>
+                       </table>
+              
+     <h2>Update and upgrade</h2>         
+      <table border="1">
+    <tr>
+    <th>Description</th>
+     <th>Command</th>
+      </tr>
+    <tr>
+    <td>Ensure that the package manager is up to date.</td>
+       <td><code>sudo pacman -Sy</code></td>
+               </tr>
+               <tr>
+    <td>Upgrade the packages.</td>
+       <td><code>sudo pacman -Su</code></td>
+         
+             
+               </tr>
+               <tr>
+    <td>Upgrade a particular package.</td>
+       <td><code>sudo pacman -Sy <em><u>package_name</u></em></code></td>
+	   </tr>
+                       </table>        
+           
+    <h2>Search package</h2>         
+      <table border="1">
+    <tr>
+    <th>Description</th>
+     <th>Command</th>
+      </tr>
+    <tr>
+    <td>Search a package from PACMAN repository.</td>
+       <td><code>pacman -Ss <em><u>package_name</u></em></code></td>
+               </tr>
+               <tr>
+    <td>Search a package with color highlighted output.</td>
+       <td><code>pacsearch <em><u>package_name</u></em></code></td>
+         
+             
+               </tr>
+               <tr>
+    <td>Search a package using wildcard operator ^.  This command will show a list of packages that begin only with the specified text, in this "ruby".</td>
+       <td><code>pacsearch ^ruby</code></td>
+	   </tr>
+	   <tr>
+    <td>Guarantee that a regular expression works as intended; surround it with quotes.</td>
+       <td><code>pacsearch '<em><u>python</u></em>'</code></td>
+	   </tr>
+
+  <tr>
+    <td>List all installed packages using the <code>grep</code> command, to include one line before and after each match.</td>
+       <td><code>pacsearch linux | grep installed -A 1 -B 1</code></td>
+	   </tr> 
+
+<tr>
+    <td>Check an installed package in noncolored output.</td>
+       <td><code>pacman -Qs <em><u>python</u></em></code></td>
+	   </tr> 	   
+                       </table> 
+<h2>Retrieve information</h2>         
+      <table border="1">
+    <tr>
+    <th>Description</th>
+     <th>Command</th>
+      </tr>	
+<tr>
+    <td>Fetch the information about the installed package.</td>
+       <td><code>pacman -Qi <em><u>python</u></em></code></td>
+	   </tr>
+<tr>
+    <td>Find the size of the installed package.</td>
+       <td><code>pacman -Qi | grep -e "<em><u>Name</u></em>" -e "<em><u>Package Installed Size</u></em>"</code></td>
+	   </tr>	   
+    <tr>
+    <td>Print the recently update information of the installed package.</td>
+       <td><code>pacman -Si <em><u>python</u></em></code></td>
+	   </tr>
+<tr>
+    <td>Print the list of files associated with a package.</td>
+       <td><code>pacman -Ql vim</code></td>
+	   </tr>	   
+<tr>
+    <td>Print the list of files without the package name. </td>
+       <td><code>pacman -Qlq vim</code></td>
+	   </tr>
+<tr>
+    <td>Get the URL of the downloaded package.</td>
+       <td><code>sudo pacman -U <em><u>package_path</u></em></code></td>
+	   </tr>	   
+</table>	
+
+<h2>Remove/uninstall a package</h2>         
+      <table border="1">
+    <tr>
+    <th>Description</th>
+     <th>Command</th>
+      </tr>	
+<tr>
+    <td>Remove or uninstall a package.</td>
+       <td><code>sudo pacman -R <em><u>package_name</u></em></code></td>
+	   </tr>
+<tr>
+    <td>Remove a package, provided nothing is dependent on it. Remove its dependencies that aren't required by anything else.</td>
+       <td><code>sudo pacman -Rs <em><u>package_name</u></em></code></td>
+	   </tr>
+   <tr>
+    <td>Forcefully remove a package. This is the command to just wipe the package from your system and reinstall, when reinstalling alone isn't enough.</td>
+       <td><code>sudo pacman -Rdd <em><u>package_name</u></em></code></td>
+	   </tr>
+	   </table>
+    <h2>Conclusion</h2>
+    <p>In this article, you learned various commands for package management with PACMAN in Arch Linux.</p>
+   
+</body>
+</html>

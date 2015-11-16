@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<!--article ID# 18239-->
+<head>
+    <title>Configure your Rails application for MySQL - CentOS, Fedora</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+
+    
+</head>
+
+<body>
+
+<p>Setting up Rails application for MySQL server on CentOS and Fedora, MySQL, Ruby, Rails</p>
+<h1>Configure your Rails application for MySQL - CentOS, Fedora</h1>
+
+<p><strong>Difficulty: </strong><em><u>1</u></em></p>
+<p><strong>Time: </strong> <em><u>30 minutes</u></em></p>
+
+<p>CentOS or Fedora uses MariaDB as its database system, instead of MySQL. MariaDB is based on MYSQL, and in this article, the term MariaDB will be used in place of MySQL in some instances.</p>
+<p>This article will explain how to install MySQL&trade; and MySQL adaptor, create a Rails&reg; Application, configure a database connection, and create an application database on a CentOS or Fedora&trade; distribution. Before you perform these tasks, you will need to <a href="17536">install Ruby on Rails using RVM on CentOS</a> or <a href="17535">install Ruby on Rails using RVM on Fedora</a> on your server.</p>
+
+<h2>Install MariaDB</h2>
+<ol>
+<li>Install MariaDB and all its dependencies.
+	<div class="hacker"> sudo yum install mariadb-server mariadb-devel </div>
+</li>
+<li>Start MariaDB.
+
+      <div class="hacker">sudo systemctl start mariadb</div>
+</li>
+<li>Enable MariaDB to start on boot.
+
+      	<div class="hacker"> sudo systemctl enable mariadb.service </div>
+</li>
+<li>Install MySQL.
+      <div class="hacker">sudo mysql_secure_installation </div>
+
+After you have finished the previous command, a Welcome screen displays. Provide appropriate passowrd to continue.
+<div class="hacker">
+<pre>
+	NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MySQL
+    	      SERVERS IN PRODUCTION USE!  PLEASE READ EACH STEP CAREFULLY!
+
+	In order to log into MySQL to secure it, we'll need the current
+	password for the root user.  If you've just installed MySQL, and
+	you haven't set the root password yet, the password will be blank,
+	so you should just press enter here.
+	
+	Enter current password for root (enter for none): 
+</pre>
+</div></li>
+<li>Answer the following questions prompted by MySQL installer by entering <strong>y</strong>.
+<div class="hacker">
+<pre>
+	  Set root password?                     --> y
+	  Remove anonymous users?                --> y
+	  Disallow root login remotely?          --> y
+	  Remove test database and access to it? --> y
+	  Reload privilege tables now?           --> y
+</pre>
+</div> </li>
+<!--
+<li>If you could not set a password earlier, use the following command to set the password now: 
+<div class="hacker">
+	/usr/bin/mysqladmin -u root password '<em><u>new-password</u></em>'
+</div></li>
+-->
+</ol>
+
+<h2>Install MySQL adapter</h2>
+<ol>
+<li>Connect a Rails application with a MySQL database, and then install the MySQL adapter gem.
+      <div class="hacker">gem install mysql2 </div>
+</li>
+<li>Make sure that your <code>gem</code> package manager is up-to-date.
+     <div class="hacker">gem update –system </div>
+</li>
+</ol>
+<h2>Set up a Rails application</h2>
+<ol>
+<li>Confirm that <code>Rails</code> is installed on the machine, otherwise verify the version of Rails using the following command:
+<div class="hacker">rails -v</div>
+</li>
+<li>Create a Rails application, and use the <code>-d mysql</code> option to set MySQL as the database. 
+	<div class="hacker">cd ~</div>
+	<div class="hacker">rails new <em><u>Your_application</u></em> -d mysql </div>
+</li>
+<li>Change the directory to the application directory.
+	<div class="hacker">	cd <em><u>Your_application</u></em> </div>                     
+</li>
+</ol>
+
+<h2>Set up the database connection</h2>
+<ol>
+<li>Open the configuration file <code>database.yml</code> to update the database credential. 
+	<div class="hacker"> vim config/database.yml </div>
+</li>
+<li>Set the database credentials to connect with MySQL. The following is an example of database connection.
+<div class="hacker">
+<pre>
+default: &amp;default
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  username: <em><u>root</u></em>
+  password: <em><u>your_password</u></em>
+  socket: /var/lib/mysql/mysql.sock
+</pre>
+</div></li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.
+</li>
+</ol>
+<h2>Create a new MySQL database</h2>
+
+<ol>
+<li>Login to the MySQL console.
+	<div class="hacker">mysql -uroot -p</div>
+</li>
+<li>Create a new database.
+<div class="hacker">create database <em><u>your_database_name</u></em>; </div>
+<p class="note">In MySQL, commands are known as <b>Query Set</b> .</p>
+</li>
+<li>Revoke the privileges.
+<div class="hacker">FLUSH PRIVILEGES; </div>
+</li>
+<li>Exit from the MySQL console.
+<div class="hacker">exit</div>
+</li>
+</ol>
+<h2>Conclusion</h2>
+<p>By using all of the above steps, you will be able to configure a MariaDB/MySQL server on CentOS or Fedora for your Rails application.</p>
+
+</body>
+</html>

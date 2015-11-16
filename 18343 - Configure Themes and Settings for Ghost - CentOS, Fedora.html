@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Configure Themes and Settings for Ghost - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Configuring themes and settings for Ghost on CentOS and Fedora, Ghost</p>
+<h1>Configure Themes and Settings for Ghost - CentOS, Fedora</h1>
+
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>30 minutes</em></p>
+
+<p>Ghost is an open-source project for bloggers. It provides a simple blogging platform, is fast and easy to set up, and provides good customization options. This article helps you set up a Ghost blogging platform using Nginx on CentOS or Fedora. The theme used is available as freeware from the Ghost Marketplace. </p>
+<p>Before starting, make sure to <a href="18133">install and configure Ghost with Nginx.</a></p>
+<h2>Change the Ghost theme</h2>
+<ol>
+<li>Log in, and then move to the <code>themes</code> directory of Ghost.
+	<div class="hacker">cd /var/www/ghost/content/themes/</div>
+</li>
+<li>Install <code>Git</code> and <code>NodeJS package manager</code> unless they are already installed.
+	<div class="hacker">sudo yum -y install git wget unzip man</div>
+	<div class="hacker">sudo yum install npm</div>
+</li>
+<li>Clone the <code>N-Coded</code> theme (as an example) from the GitHub project.
+	<div class="hacker">sudo git clone https://github.com/polygonix/N-Coded.git</div>
+</li>
+<li>Change the ownership of the Ghost user.
+	<div class="hacker">sudo chown -R apache:apache N-Coded</div>
+
+<p>If you receive an invalid user error,  create a Ghost user and then retry.</p>
+</li>
+<li>Restart <code>npm</code> production services.
+	<div class="hacker">sudo npm start --production</div>
+</li>    
+</ol>
+
+<h2>Change the Ghost settings</h2>
+<ol>
+<li>
+ In a  browser, type <strong>http://<em><u>your_IP_address</u></em>/ghost/settings/general</strong> in the address bar.<br />
+You are redirected to the time setting page.</li>
+<li>Fill in the required information about your blog and credentials on the  setup form. <br/><img src="images/18343-1.png" alt="18343" />
+</li>
+<li>Click <strong>OK, LET'S DO THIS</strong>.</li>
+<li>In the general settings page, select the theme from the <strong>Theme</strong> dropdown list, and click <strong>Save</strong>. <br/><img src="images/18343-2.png" alt="18343" />
+</li>
+<li>Refresh your Ghost public home page to see the blog with the updated theme.  
+<br/>
+</li>
+</ol>
+<h2>Conclusion</h2>
+<p>In this article, you learned to configure themes and settings for Ghost on CentOS or Fedora.</p>
+</body>
+</html>

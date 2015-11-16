@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17449-->
+
+
+
+<title>Install an SSL Certificate on NGINX - ALL DISTROS</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Installing a SSL certificate on a server running NGINX.</p>
+    <h1>Install SSL Certificates on NGINX - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>6 hours</u></em></p>
+    
+
+Installing a Secure Sockets Layer (SSL) certificate on your server can improve the security of your website. Using a combination of the certificate and a key pair, a third-party certificate authority (CA) validates the identity of both parties in a transaction. A website protected by an SSL certificate is identified by a URL that starts with <strong>https</strong>.<p />
+        
+This article walks you through installing an SSL certificate on any server running NGINX.<p />
+
+    <h2>Use a self-signed certificate</h2>
+Most web sites are capable of generating self-signed certificates.These are not particularly useful from a security perspective, but generating and then using one illustrates some of the steps required to install a commercial certificate.<p />    
+    <ol>
+
+   <li>Navigate to the NGINX directory.
+        <div class="hacker">cd /etc/nginx</div>
+   </li>
+   <li>Generate your self-signed private key.    
+        <div class="hacker"><pre>sudo openssl genrsa -out server.key 4096</pre></div>
+        Your screen will display:
+        <div><pre>Generating RSA private key, 4096 bit long modulus
+         ....................................................................................................................++
+         ............................................................................................................................................++
+         e is 65537 (0x10001)</pre></div>
+    </li>
+    <li>Set appropriate permissions on the key file so that it is read-only.
+     <div class="hacker">sudo chmod 600 server.key</div></li>
+      <li>Enter the metadata for certificate.  
+     <div class="hacker">sudo openssl req -new -key server.key -out server.csr</div>
+     Follow the instructions that will appear on the screen. Enter &quot;yourcloudserver.com&quot; for the Common Name.&nbsp; After you have completed the form, you will be returned to a command prompt.</li>
+     <li>Sign the key and give it a shelf life of 365 days.
+     <div class="hacker">sudo openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt</div>
+         Your screen will display:
+     <pre>Signature ok
+         subject=[some of the information you just provided]
+         Getting Private key</pre>
+</li> 
+        </ol> 
+    
+    <h2>Use a commercial certificate</h2>
+    Using a commercial certificate is similar. The main difference is that you will follow the directions from your certificate provider to acquire your certificate and key, then move them into the <code>/etc/nginx</code> directory. 
+
+<h2>Set up NGINX</h2>
+
+   <ol> 
+   <li>Navigate to your nginx configuration file, nginx.conf and find the secure server section.  This may be located in an include file.  If you look for "443" you should be able to find it.&nbsp; If it does not exist, you can create it. 
+    <div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
+     <li>Edit the configuration file so that the section of the secure server context above the location context looks like this for a self-signed certificate:
+    <div class="hacker"><pre>server { listen 443 ssl;
+        server_name yourservername.com;
+        ssl_certificate /etc/nginx/server.crt; 
+        ssl_certificate_key /etc/nginx/server.key;
+        
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+       
+        ssl_ciphers HIGH:!aNULL:!MD5;</pre></div></li>
+    <li>For a commercial certificate, edit the configuration file as above, but with the name of your certificate instead of <code>server</code>.
+    <div class="hacker"><pre>server { listen 443 ssl; 
+        server_name yourservername.com;
+       
+        ssl_certificate /etc/nginx/yourcertname.crt; 
+        ssl_certificate_key /etc/nginx/yourcertname.key;
+      
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+       
+        ssl_ciphers HIGH:!aNULL:!MD5;</pre></div>
+      </li>
+       </ol>  
+        
+    <h2>Set up multiples certificates on one IP</h2>
+    
+    <p>If you have multiple server blocks set up on a single IP, you can generate as many certificates as you need by following the steps above (edit each server block individually).</p>
+    <div class="hacker"><pre>server { listen 443 ssl;
+        server_name yourserverblockname.com;
+      
+        ssl_certificate /etc/nginx/yourserverblockcertname.crt;
+        ssl_certificate_key /etc/nginx/yourserverblockcertname.key;
+      
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      
+        ssl_ciphers HIGH:!aNULL:!MD5;</pre></div>
+
+    <h2>Next steps</h2>
+    <p>You have just set up your NGINX server for https. You might want to explore <a href="http://">other security considerations</a>.</p>
+   
+</body>
+</html>

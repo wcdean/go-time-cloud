@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18267-->
+
+
+<title>Install and configure Django CMS - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+            <p>Describes how to install Django CMS on a CentoOS and Fedora Linux VPS.</p>
+    <h1>Install and Configure Django CMS - CentOS, Fedora Linux</h1>
+    
+                <p><strong>Difficulty</strong>: <em><u>Value from spreadsheet</u></em><br/>
+                <strong>Time</strong>: <em><u>Time value</u></em></p>
+<!--Missing difficulty and time-->
+
+            <p><b>Django CMS </b>is one of the content management systems that is geared towards working with Django framework based web applications, we will walk you through installing Django CMS on a CentOS, Fedora Linux VPS, ready to be configured and used. </p>
+<p>Django CMS comes with a relatively straight forward and quite rich documentation for development which will be more than enough to get you going after completing this tutorial. You can access the latest version on the                               <a href="http://docs.django-cms.org/en/2.4.2/getting_started/tutorial.html">Django web site</a>.</p>
+<!--Links should not use "here."-->
+
+
+    <h2>Installing Django CMS</h2>
+
+<!--            <h3>Python Package Manager: pip</h3>
+             <p>pip is a package manager which will help us to install the software packages (tools, libraries, applications).   </p>
+
+
+            <h3>Python Package Distribution Utility: setuptools   </h3>
+            <p>A dependency of pip, setuptools library builds on the functionality of Python's standard software distribution utilities toolset distutils.  </p>
+
+
+            <h3>Virtual Python Environment Builder: virtualenv  </h3>
+            <p>The virtualenv tool is here to isolate our Django CMS application repository and its complex dependencies from the rest of the system, allowing us to have everything in order, easing maintenance at the same time.  </p>
+
+<h2>Update and Configure the VPS</h2>
+<p class="note">We will be using a freshly created VPS for this article. This prevents any possible software related or security issues from the past installations. </p>
+<ol>
+<li>Upgrade the software repository list followed by upgrading the installed tools on our machine to more recent versions:</p>
+               <div class="hacker">sudo yum -y update</div></li>
+  <li>Install the Virtual Environment.<br /> -->
+     <!--Too much intermediary content. Move this to the introduction, and then try to limit the procedure to just the steps.-->
+   <p> Everything we need runs on Python. Default Debian 7 installation comes with Python <code>version 2.7</code>. As this suits our requirements, we can continue with installing pip, which we need for the virtualenv (and other packages') installation. </p>
+<ol>
+<li>Install setuptools with curl to securely get these files. These setup files will not only allow us to have the installation process automated, but also ensures that we have the latest stable versions running on our system. curl here will
+            verify the SSL certificates from the source and pass the data to the Python interpreter.<br /> 
+            Run the following command:
+
+              <div class="hacker">$ curl http://pypi.python.org/pypi/setuptools</div>
+              We can now install and set up pip on our linux server.</li>
+<li>Install pip system-wide.
+<div class="hacker">$ sudo yum install python-pip</div></li>
+<li>By default, pip installs its files under <code>/usr/local/bin location</code>. We need to append it to our PATH so that we will be able to run it with calling pip command directly.
+<div class="hacker">export PATH="/usr/local/bin:$PATH"</div>
+
+With the pip the package manager, all installations from now on are as easy as <code>pip install <em>package-name</em></code>. </li>
+
+
+<li>Install virtualenv system-wide.
+<div class="hacker">sudo pip install virtualenv</div>
+</li>
+</ol>
+<h2>Preparing our Virtual Environment (venv) for Django CMS</h2>
+
+        <p>All the tools we need are ready and we can begin preparing the virtual environment where our Django CMS project is going to reside.
+            Let's start with initiating a venv (virtual environment) called "project_cms" using virtualenv and go to the project's folder.</p>
+
+           <div class="hacker">svirtualenv project_cms <br />
+            virtualenv project_cms  <br />
+            cd project_cms      <br /></div>
+
+
+        <p>We chose <code>project_cms</code>as the project repository's folder name. You can change it as you wish, keep in mind that choosing an unrelated name could cause trouble in the future with maintenance. </p>
+
+        <p>Upon creating a virtualenv, you need to activate it in order to use it. </p>
+             <div class="hacker">source bin/activate </div>
+
+              <p class="note">Note: Upon activation, in order to deactivate, simply run the command deactivate when needed. </p>
+
+
+    <h2>Setting up Django CMS Dependencies</h2>
+
+    <h3>Install pillow (drop-in pil replacement):</h3>
+
+        <p>Run the following to have pillow downloaded and installed:</p>
+            <div class="hacker">project_cms$ pip install pillow</div>
+
+            <p class="note">Note: As we have our venv activated, this will not be a system-wide installation.</p>
+
+     <h3>Installing database drivers</h3>
+
+        <p>The PostgreSQL database adapter which is used by Django is called psycopg2. It needs libpq-dev library installed and we recommend installing it in the beginning:</p>
+            <div class="hacker">project_cms$ pip install psycopg2</div>
+
+        <p>Since our virtualenv is activated, this will not be a system-wide installation.</p>
+
+        <p>For more on <code>psycopg2</code>, you can visit <a href="http://initd.org/psycopg/docs/faq.html">http://initd.org/psycopg/docs/faq.html</a>.</p>
+
+            <p class="note">Please note: These commands ready PostgreSQL for Django but does not give you a fully configured installation. If you choose to work
+            with PostgreSQL and you need further instructions on Django, you may wish to visit the following DigitalOcean tutorial on the exact subject by clicking here.
+            Below we are using an SQLite database. You should also modify that setting to work with your PostgreSQL installation if you decide to use it. </p>
+
+
+    <h2>Installing and Setting up Django CMS</h2>
+
+    <h3>Installing Django CMS</h3>
+
+        <p>Django CMS comes with a number of other dependencies we yet need to install.Simply run the following to conclude the installations:</p>
+            <div class="hacker">project_cms$ pip install django-cms</div>
+
+        <p>We now have everything installed: <code>Django, django-classy-tags, south, html5lib, django-mptt, django-sekizai.</code></p>
+
+
+    <h3>Setting up Django CMS</h3>
+
+        <p>Creating a Django CMS project consists of two parts. First, we will start a regular Django project in our virtual environment and then continue with setting it up to have it working as Django CMS.
+            Let's begin with creating the Django project. We will name it <b>dev_cms </b>, you can choose it to suit your needs.</p>
+
+        <p>Simply run the following:</p>
+              <div class="hacker">project_cms$ django-admin.py startproject dev_cms <br />
+              project_cms$ cd dev_cms </div>
+
+        <p>You will see that our project is created. In order to test the installation before continuing with the configuration part,
+         let's run the following to start a simple development server which we can access from the outside:</p>
+              <div class="hacker">project_cms$ python manage.py runserver 0.0.0.0:8000 </div>
+
+        <p>Visit the URL from your browser, replacing <code>0.0.0.0</code> with your server's IP address.</p>
+
+
+    <h3>Finalizing setup</h3>
+
+        <p>Most of the configurations for Django CMS takes place inside the <code>settings.py</code> file located inside the project folder.  <br />
+        Open it with your favourite editor. In this tutorial, we will be using <code>vim</code>.  <br /> <br />
+        <code>project_cms$ vim dev_cms/settings.py</code>  <br /><br />
+        Add the following lines to the top of the file under the highlighted sentence in the file:  <br />  <br />
+        <code># Build paths inside the project like this: os.path.join(BASE_DIR, ...)</code> <br />  <br />
+
+        <code>import os</code> <br/> <br />
+
+        <code>BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))</code> <br /> <br />
+        Let's begin with the <b>INSTALLED_APPS</b> section. there is an existing list of modules, append the names of a few more which we've already installed, including the Django CMS module itself.
+        As stated on the Django CMS documentation:</p>
+
+        <p>Add the following apps to your INSTALLED_APPS (under the highlighted portion). This includes django CMS itself as well as its dependenices and other highly recommended applications/libraries:</p>
+
+            <div class="hacker"> INSTALLED_APPS = (   <br />
+                                'django.contrib.admin', <br />
+                                'django.contrib.auth',     <br />
+                                'django.contrib.contenttypes', <br />
+                                'django.contrib.sessions',   <br />
+                                'django.contrib.messages',   <br />
+                                'django.contrib.staticfiles',  <br />
+                                'cms',     # django CMS itself   <br />
+                                'mptt',    # utilities for implementing a modified pre-order traversal tree    <br />
+                                'menus',   # helper for model independent hierarchical website navigation   <br />
+                                'south',   # intelligent schema and data migrations <br />
+                                'sekizai', # for javascript and css management     <br />
+                                )  </div>
+
+            <p class="note"> Please note: Before moving on, make sure to uncomment django.contrib.admin from the list as well. That module is needed for the setup procedure.</p>
+
+        <p>Next, let's find <code>MIDDLEWARE_CLASSES</code> and add the following to the bottom of the list:</p>
+
+
+            <div class="hacker">'cms.middleware.page.CurrentPageMiddleware', <br />
+                                'cms.middleware.user.CurrentUserMiddleware', <br />
+                                'cms.middleware.toolbar.ToolbarMiddleware',  <br />
+                                'cms.middleware.language.LanguageCookieMiddleware', </div>    <br/>
+
+        <p>Afterwards your MIDDLEWARE_CLASSES should look similar to:   </p>  <br />
+
+            <div class="hacker">MIDDLEWARE_CLASSES = (                          <br />
+                                'django.middleware.common.CommonMiddleware',      <br />
+                                'django.contrib.sessions.middleware.SessionMiddleware',    <br />
+                                'django.middleware.csrf.CsrfViewMiddleware',       <br />
+                                'django.contrib.auth.middleware.AuthenticationMiddleware',     <br />
+                                'django.contrib.messages.middleware.MessageMiddleware',       <br />
+                                # Uncomment the next line for simple clickjacking protection:   <br />
+                                # 'django.middleware.clickjacking.XFrameOptionsMiddleware',    <br />
+                                'cms.middleware.page.CurrentPageMiddleware',      <br />
+                                'cms.middleware.user.CurrentUserMiddleware',     <br />
+                                'cms.middleware.toolbar.ToolbarMiddleware',     <br />
+                                'cms.middleware.language.LanguageCookieMiddleware', <br />
+                                ) </div>    <br />
+
+
+        <p>As stated in the Django CMS documentation, we need to add a missing piece of settings code block to the file. It does not exist in <code>settings.py</code> . Copy-and-paste the block to a free location in the file:</p>
+
+            <div class="hacker">TEMPLATE_CONTEXT_PROCESSORS = (  <br />
+                                'django.contrib.auth.context_processors.auth',  <br />
+                                'django.core.context_processors.i18n',      <br />
+                                'django.core.context_processors.request', <br />
+                                'django.core.context_processors.media',   <br />
+                                'django.core.context_processors.static',  <br />
+                                'cms.context_processors.media',        <br />
+                                'sekizai.context_processors.sekizai',  <br />
+                                )  </div>
+
+
+        <p>Now let's find and modify the <code>STATIC_ROOT</code> and <code>MEDIA_ROOT</code>directives similar to the following: </p>
+
+            <div class="hacker">MEDIA_ROOT = os.path.join(PROJECT_PATH, "media") <br />
+                                MEDIA_URL = "/media/" <br />
+                                 <br />
+                                STATIC_ROOT = os.path.join(PROJECT_PATH, "static")  <br />
+                                STATIC_URL = "/static/" </div>
+
+
+        <p>Continue with modifying the <code>TEMPLATE_DIRS</code> directive to:</p>
+
+            <div class="hacker">TEMPLATE_DIRS = ( <br />
+                                os.path.join(PROJECT_PATH, "templates"), <br />
+                                ) </div>
+
+
+        <p>Add the following code block to the file, amending it as necessary to suit your needs:</p>
+            <div class="hacker"> CMS_TEMPLATES = (     <br />
+                                ('template_1.html', 'Template One'),       <br />
+                                )    <br /> </div>
+
+
+
+        <p>We need to set the translation languages as well. Add the following code block:</p>
+            <div class="hacker">LANGUAGES = [  <br />
+                                ('en-us', 'English'),    <br />
+                                ]     </div>
+
+        <p>Finally let's define a database engine. You can modify the DATABASES setting to work with PostgreSQL as shown or use the following to have SQLite database set up temporarily:</p>
+
+            <div class="hacker"> DATABASES = {  <br />
+                                'default': {     <br />
+                                'ENGINE': 'django.db.backends.sqlite3', <br />
+                                'NAME': os.path.join(PROJECT_PATH, 'database.sqlite'), <br />
+                                }    <br />
+                                }  </div>  <br />
+
+
+         <p>We are done with the settings.py . We can save and close it. (Press CTRL+X and type Y to save and close).  <br />
+            We need to define routes for our project.  <br />
+            We will do this by editing <b>urls.py file:</b>   </p>
+
+            <div class="hacker">project_cms$ vim dev_cms/urls.py</div>
+
+         <p>Replace the document with the following code snippet:</p>
+
+            <div class="hacker">from django.conf.urls.defaults import *  <br />
+                                from django.conf.urls.i18n import i18n_patterns   <br />
+                                from django.contrib import admin  <br />
+                                from django.conf import settings  <br /> <br />
+
+                                admin.autodiscover()  <br /> <br />
+
+                                urlpatterns = i18n_patterns('',  <br />
+                                    url(r'^admin/', include(admin.site.urls)),v
+                                    url(r'^', include('cms.urls')),   <br />
+                                )    <br /> <br />
+
+                                if settings.DEBUG:  <br />
+                                    urlpatterns += patterns('',  <br />
+                                    url(r'^media/(?P&lt;path&gt;.*)$', 'django.views.static.serve', <br />
+                                        {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}), v
+                                    url(r'', include('django.contrib.staticfiles.urls')), <br />
+                                ) + urlpatterns   </div>
+
+
+        <p>Please note that the last conditional created in the above snippet slightly differs from the Django CMS introductory settings, whereby <code>urlpatterns = patterns(</code> is replaced with <code>urlpatterns += patterns(</code> to fix the problem of overriding <code> urlpatterns </code>set above. <br />
+           Again press CTRL+X and type Y to save and close. <br />
+           Execute the following commands to synchronise database according to our settings: </p>
+
+            <div class="hacker">project_cms$ python manage.py syncdb --all <br />
+                                project_cms$ python manage.py migrate --fake </div>
+
+
+        <p>If you see "Installation okay", it means everything is fine and we can try it on the test server before continuing with building on our Django CMS project. <br />
+            Let's run the server again:</p>
+
+            <div class="hacker"> project_cms$ python manage.py cms check</div>
+
+
+        <p>If you see "Installation okay", it means everything is fine and we can try it on the test server before continuing with building on our Django CMS project.  <br />
+           Let's run the server again:  </p>
+
+           <div class="hacker">project_cms$ python manage.py runserver 0.0.0.0:8000</div>
+
+
+        <p>For further instructions, tutorials and documentation you can visit <a href="http://docs.django-cms.org/en/2.4.2/">http://docs.django-cms.org/en/2.4.2/</a>. To get more support on Django CMS, you can visit the support page located at <a href="https://www.django-cms.org/en/suppor">https://www.django-cms.org/en/support/</a>.</p>
+
+
+</body>
+</html>

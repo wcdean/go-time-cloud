@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Set up a custom Composer Repository - Ubuntu, Debian</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>This article describes two separate ways to set up a Composer repository</p>
+    <h1>Set Up a Custom Composer Repository with Satis - Debian, Ubuntu</h1>
+    
+  <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+    <p>Composer is a package dependency tool that helps users install software.  Because you are reading this article, you probably have used it in that capacity and are ready to create a repository of your own that others can use to download whatever cool software you have built.
+        This article covers implementing two mutually exclusive custom repositories with Composer, Satis, and Pakagist.   
+    </p>
+
+    <h2>Platform requirements</h2>
+    <ul>
+<li>LAMP or LEMP stack</li>
+<li>git</li>
+<li>curl</li>
+    </ul>
+
+<h2>Install Composer</h2>
+    <ol>
+<li>Start from your web root (usually /usr/share/nginx/html)  .
+  <div class="hacker">cd /usr/share/nginx/html</div>
+</li>
+<li>Install php5-cli.
+  <div class="hacker">sudo apt-get install php5-cli </div>
+</li>
+<li>Change permissions on the web root.
+  <div class="hacker">sudo chmod 667 /usr/share/nginx/html</div>
+</li>
+<li>Install Composer.
+  <div class="hacker">sudo curl -sS https://getcomposer.org/installer | php</div>
+</li>
+        </ol>
+<h2>Install Satis</h2>
+        <ol>
+<li>Use Composer to install Satis.
+  <div class="hacker">php composer.phar create-project composer/satis --stability=dev --keep-vcs</div>
+</li>
+<li>Create a <code>satis.json</code> file.
+<div class="hacker">sudo vim /var/repo/satis.json</div>
+</li>
+<li>Edit <code>satis.json</code> as follows:
+<div class="hacker"><pre>{
+    "name": "My Cool Repository",
+    "homepage": "http://Your Ip address",
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/symfony/yaml" },
+        { "type": "vcs", "url": "https://github.com/symfony/HttpFoundation"
+}
+    ],
+    "require-all": true
+}</pre></div>
+</li>
+
+ <li>Change permissions on the index file.
+   <div class="hacker">sudo chmod 666 index.html</div>
+</li>
+<li>Generate Satis web pages.
+  <div class="hacker">sudo php satis/bin/satis build satis.json</div>
+           <p class="warning">The process may ask you to supply your github user name and password.</p> 
+</li>
+
+        
+        
+        
+        <li>Verify your installation by navigating to your server or IP.
+          <div class="hacker">http://your server or IP/index.html</div>
+   Your repository will display.</li>
+    </ol>
+
+<h2>Install Packagist</h2>
+     <p class="warning">Packagist and Satis do not play well together.  Start from a clean LEMP stack, and install Composer as above.</p> 
+   
+<h3>Prepare</h3>
+    <ol>
+<li>Install the build-essential package.  
+  <div class="hacker">sudo apt-get -y install build-essential tcl8.5</div>
+</li>
+<li>Navigate to the <code>/opt</code> directory.
+  <div class="hacker">cd /opt </div>
+</li>
+</ol>
+        <h3>Install Redis </h3>
+<ol>
+<li>Download Redis.
+  <div class="hacker">sudo wget http://download.redis.io/releases/redis-2.8.7.tar.gz </div>
+</li>
+<li>Unzip it.
+  <div class="hacker">sudo tar xzf redis-2.8.7.tar.gz</div>
+</li>
+<li>Move Redis to its own dierectory.
+  <div class="hacker">sudo mv redis-2.8.7 redis</div>
+</li>
+       <li>Navigate to it.
+         <div class="hacker">cd redis</div>
+</li>
+
+       <li>Install Redis by building it from source.
+         <div class="hacker">sudo make</div>
+</li>
+       <li>Compile it.
+         <div class="hacker">sudo make install</div>
+</li>
+
+</ol>
+ <h3>Configure Redis </h3>
+    <ol>
+                   <li>Navigate to the <code>utils</code> directory.
+                     <div class="hacker">cd utils</div>
+</li>
+ <li>Install the Redis server. (Press <strong>Enter</strong> after each question to accept the defaults.)
+   <div class="hacker">sudo ./install_server.sh</div>
+</li>
+ <li>Set it up to autostart.
+   <div class="hacker">sudo update-rc.d redis_6379 defaults</div>
+</li>
+ <li>Verify (ping-pong).
+   <div class="hacker">redis-cli ping</div>
+</li>
+
+
+        </ol>
+
+<h3>Download Java</h3>
+<ol>
+<li>Make a directory for Java.
+  <div class="hacker">sudo mkdir /usr/java</div>
+</li>
+<li>Download Java.
+  <div class="hacker">sudo apt-get -y install openjdk-7-jdk </div>
+</li>
+ <li>Make a symbolic link to the Java directory. (Substitute <code>i386</code> for <code>amd64</code> if you are on a 32 bi system.)
+   <div class="hacker">ln -s /usr/lib/jvm/java-7-openjdk-amd64 /usr/java/default</div>
+</li>
+</ol>
+<h3>Install Solr</h3>
+    <ol>
+<li>Navigate to <code>/opt</code>.
+  <div class="hacker">cd /opt</div>
+</li>
+
+ <li>Get the Solr package.
+   <div class="hacker">sudo wget http://archive.apache.org/dist/lucene/solr/3.6.2/apache-solr-3.6.2.tgz </div>
+</li>
+ <li>Unzip it.
+   <div class="hacker">sudo tar -xvf apache-solr-3.6.2.tgz</div>
+</li>
+<li>Copy it to its own directory.
+  <div class="hacker">sudo cp -R apache-solr-3.6.2/example /opt/solr</div>
+</li>
+</ol>
+<h3>Install Jetty</h3>
+    <ol>
+<li>Navigate to <code>/opt/solr</code>.
+  <div class="hacker">cd /opt/solr</div>
+</li>
+
+ <li>Get the Jetty package.
+   <div class="hacker">sudo wget -O /etc/default/jetty https://gist.githubusercontent.com/koesie10/93cd2f2ab68471c34a25/raw/jetty </div>
+</li>
+ <li>Get the Jetty logging package.
+   <div class="hacker">sudo wget -O /opt/solr/etc/jetty-logging.xml https://gist.githubusercontent.com/koesie10/1070b285b45fb9de652c/raw/6adbb2d54455de4a0adce44015a294b77795d298/jetty-logging.xml </div>
+</li>
+       </ol>
+
+<h3>Set up Solr</h3>
+
+     <ol>
+ <li>Create a Solr user.
+   <div class="hacker">sudo useradd -d /opt/solr -s /sbin/false solr</div>
+</li>
+<li>Change ownership of the Solr directory.
+  <div class="hacker">sudo chown solr:solr -R /opt/solr</div>
+</li>
+<li>Get the Jetty service.
+  <div class="hacker">sudo wget -O /etc/init.d/jetty https://raw.githubusercontent.com/jetty-project/codehaus-jetty6/master/bin/jetty.sh </div>
+</li>
+<li>Change permissions of the Jetty directory.
+  <div class="hacker">sudo chmod a+x /etc/init.d/jetty</div>
+</li>
+<li>Make a service.
+  <div class="hacker">sudo update-rc.d jetty defaults</div>
+</li>
+<li>Restart Solr.
+  <div class="hacker">sudo /etc/init.d/jetty restart</div>
+</li>
+<li>Verify Solr installation by visiting your website.
+  <div class="hacker">http;//Your server or IP:8983/solr</div>
+You'll see the "Welcome to Solr" admin page.</li>
+</ol>
+
+
+<h2>Set up Packagist</h2>
+    <h3>Prepare</h3>
+
+              <ol>
+               <li>Navigate to your web root folder.
+                   <div class="hacker">cd /usr/share/nginx/html </div>
+               </li>
+               <li>Remove all files.
+                   <div class="hacker">sudo rm *</div>
+               </li>
+               <li>Clone Packagist from git to your web root.
+                   <div class="hacker">git clone https://github.com/composer/packagist . </div>
+               </li>
+                 </ol>
+<h3>Set up the database </h3>
+     <ol>
+              
+               <li>Open a MySQL session.
+                   <div class="hacker">mysql -u root -p </div>
+               </li>
+               <li>Create a new database, <code>packagist</code>.
+<div class="hacker"> ysql&gt; CREATE DATABASE packagist'; </div>
+               </li>
+               <li>Create a new user (Choose your own password).
+                   <div class="hacker">mysql&gt; CREATE USER 'packagist'@'localhost' IDENTIFIED BY 'password'; </div>
+               </li>
+               <li>Grant usage to all databases.
+                   <div class="hacker">GRANT USAGE ON * . * TO  'packagist'@'localhost'; </div>
+               </li>
+               <li>Grant all privileges to the Packagist database.
+                   <div class="hacker">GRANT ALL PRIVILEGES ON  `packagist` . * TO  'packagist'@'localhost'; </div>
+               </li>
+               <li>Write changes to disk.
+                   <div class="hacker">Flush Privileges; </div>
+               </li>
+               <li>Exit.
+                   <div class="hacker">exit </div>
+               </li>
+       </ol>
+<h3>Configure Packagist parameters </h3>
+
+
+           <ol>
+
+               <li>Copy the default parameters file to the configuration directory. 
+                   <div class="hacker">sudo cp app/config/parameters.yml.dist app/config/parameters.yml </div>
+               </li>
+               <li>Edit it.
+                   <div class="hacker">sudo vim app/config/parameters.yml </div>
+               The resulting file should look like this:
+                   <div class="hacker">
+                     <pre>parameters:
+    database_driver: pdo_mysql
+    database_host: localhost
+    database_name: packagist
+    database_user: root
+    database_password:
+    database_name_test: packagist_test
+
+    mailer_transport:
+    mailer_host: localhost
+    mailer_user:
+    mailer_password:
+    mailer_from_email: admin@example.org
+    mailer_from_name: Admin Team
+
+     packagist_host: <em><u>your site or IP addresss</u></em>your site or IP address
+     router.request_context.host: %packagist_host%
+     router.request_context.scheme: https
+
+    redis_dsn: redis://localhost/1
+    redis_dsn_test: redis://127.0.0.1/14
+    redis_session_dsn: redis://localhost/2
+
+    locale: en
+
+    google_analytics:
+        ga_key:
+
+    # set those to values obtained by creating an application at https://github.com/settings/applications
+    github.client_id: <em><u>your clientid</u></em>  572b6674b6214ddb8ad4
+    github.client_secret: <em><u>your client secret</u></em>  0baea690eac3acfb771d44ba151d091c0bb9bf83
+
+    # -- performance features --
+    # set both to apc to optimize things if it is available
+    validation_cache_backend: ~
+    doctrine_cache_backend: array
+
+    # -- security features --
+    secret: <em><u>your secret (make one up)</u></em>  CHANGE_ME_IN_PROD
+    remember_me.secret: <em><u>your remember_me secret (make one up)</u></em>  CHANGE_ME_IN_PROD
+                     </pre>
+                   </div>
+               </li>
+</ol>
+<h3>Install Packagist  (finally)</h3>
+    <ol>
+               <li>Install Packagist.
+                   <div class="hacker">php composer.phar install</div>
+               </li>
+                <li>Create schema.
+                   <div class="hacker">app/console doctrine:schema:create</div>
+               </li>
+                <li>Clear the cache.
+                   <div class="hacker">app/console cache:clear --env=prod</div>
+               </li>
+                <li>Install the web app.
+                   <div class="hacker">app/console assets:install web</div>
+               </li>
+                <li>Make a home directory.
+                   <div class="hacker">sudo mkdir home</div>
+               </li>
+                <li>Change the owner to the Nginx owner.
+                   <div class="hacker">sudo chown www-data:www-data -R root:root /usr/share/nginx/html/home </div>
+               </li>
+            </ol>
+            <h2>Conclusion            </h2>
+            <p>&nbsp;</p>
+</body>
+</html>

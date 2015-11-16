@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Apache vs. NGINX - Which web server is right for you? - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Choosing between an Apache and Nginx web server.</p>
+    <h1>Apache vs. Nginx - Which Web Server Is Right for You? - ALL DISTROS</h1>
+    
+<p>Created in 1995, Apache is the legacy web server  and prevailing market leader, powering more sites than any other server. Nginx was released in 2004 and is event-based rather than process-based like Apache. Which of these servers you choose depends on your server needs, resources, and capabilities.</p>
+
+<h2>Comparing the two servers</h2>
+    <p>Because of its power and flexibility, Apache has been the world’s go-to server since 1996. It can be extended by adding modules, and it processes many languages natively. </p>
+    <p>Nginx (pronounced "Engine-X") is a reverse proxy server that was built as a response to the burgeoning Internet and modern computer hardware. Its architecture is asynchronous, and it’s known for efficient utilization of resources, allowing it to scale easily. This ability can (though not always) mean that Nginx can serve more clients simultaneously with higher speed and response times than Apache on the same hardware. Nginx started offering a paid enterprise version in August 2013.</p>
+
+   
+    <table>
+    <tr>
+    <th>Feature / Capability</th>
+     <th>Apache</th>
+      <th>Nginx</th>
+    </tr>
+    <tr>
+    <td>Design / Architecture</td>
+       <td><strong>Process-driven design</strong><br />
+       Creates new process and threads for each web request.<br />
+The system administrator and the CPU define the maximum number of processes it can handle. When the maximum number of processes is reached, Apache refuses additional connections.  <br />
+Each simultaneous connection is an additional load on the server.
+</td>
+          <td><strong>Event-driven design</strong><br />
+Single-threaded, asynchronous, process.     <br />
+The system administrator decides the number of worker processes to create for the main Nginx process. Each worker can handle thousands of concurrent connections. <br /> 
+Because it’s event-based, Nginx has high performance and ability to scale while RAM and CPU usage stay fairly consistent.  <br />
+</td>
+</tr>
+
+<tr>
+ <td>How Modular System Works</td>
+       <td><strong>Dynamic</strong><br />
+       Comes with different Multi-Processing Modules (MPMs) that load or unload modules depending on server needs. It accepts web requests and dispatch child processes to handle requests. Only one MPM can be loaded into the server at a time.
+<br />
+The Apache core is always present, while modules can be turned on or off, adding or removing additional functionality and hooking into the main server. <br />
+</td>
+          <td><b>Non-dynamic</b><br />
+Modules must be selected and compiled into the core software. Nginx  has only the most common modules. If other modules are needed, you must build them from source. <br />
+    </td>
+  </tr>
+  
+  <tr>
+       <td>How Server Interprets PHP</td>
+       <td>Can process dynamic content 2 ways:<br />
+ <ul><li>    
+<code>CGI</code>: Allows the web server to interact with external programs, often dynamic content. That process interprets the PHP code. </li>
+ <li>
+<code>mod_php</code>: An Apache module. Bcause the module is contained within the Apache process, there is no external PHP process. This results in a faster way of running PHP apps.
+</li></ul>
+     </td>
+    <td><code>php-fpm</code>: Separates the PHP processing from the web server. But there is no <code>AllowOverride</code> option (which typically lets you use <code>.htaccess</code> files to overwrite configurations for the web server). </td>
+      </tr> 
+  
+  <tr>       
+ <td>Type of Configuration in Content Directory</td>
+       <td><b>Directory-level, decentralized configuration </b><br />
+       Uses <code>.htaccess</code> files to allow additional configuration on a per-directory basis. These files work immediately without reloading the server. This also means that you can give users permissions to change some content without having access to the entire configuration file. <br />
+ <br /></td>
+ 
+ <td><strong>Centralized configuration</strong><br /> 
+    No directory overrides allowed. The administrator maintains control over the entire web server. </td>
+       </tr>
+       
+         <tr>       
+ <td>Ease of Use</td>
+       <td>Can use “out of the box.”</td>
+   <td> Learning curve for first-time users. Control panels and automatic configuration tools are sometimes not available. Features that work automatically in Apache may require additional configuration and research in Nginx.
+     </td>
+       </tr>
+       
+      <tr>       
+ <td>Documentation and Support</td>
+       <td>As the more mature platform, has strong universal user-community support and a wealth of documentation as well as bootstrapping tools. </td>
+       <td>
+Resources are fewer, but growing. Support is included with the paid commercial version, Nginx Plus.  
+     </td>
+       </tr>
+               </table>
+
+ <h2>Choosing a server </h2>
+<h3>Using Apache or Nginx</h3>
+Use Apache if you:  </p>
+               <ul>
+               <li>Use traditional <code>MySQL</code>/<code>PHP</code> applications, such as WordPress or Drupal</li>
+<li>Plan to host several websites with different configurations per site through an <code>.htaccess</code></li> 
+<li>Are more comfortable with a mature platform with plenty of user documentation and tools</li>
+<li>Want access to a variety of different modules, add-ons, and components                  </li>
+<li>Need out-of-the-box functionality</li>
+
+               </ul>
+              
+              <p>Use Nginx if you :</p>
+              <ul>
+               <li>Use the server to host a single website with high traffic</li>
+<li>Are comfortable with and have the skillset for advanced configuration and tweaking</li> 
+<li>Are more comfortable with a mature platform with plenty of user documentation and tools</li>
+<li>Plan to use newer frameworks like <code>Node.js</code>, <code>Rails</code>, or <code>Python</code>/<code>Django</code></li>
+
+               </ul>
+     
+ <h3>Using Nginx and Apache together</h3>
+    <p>There is also the multi-layer strategy of using the two servers together. The typical setup is to put Nginx in front of Apache as a reverse proxy. That way, Nginx handles all the connections and static files while Apache can handle dynamic content, such as PHP files. This configuration capitalizes on Nginx’s processing speed and ability to handle large numbers of connections simultaneously.</p>
+    
+    <p>  Administrators often turn to this scenario  when they are running an existing website on Apache and are confronted with big increases in traffic. While it can be worth exploring if your  site has high traffic, for most average sites it's a better idea to go with the server you know best.  
+  </p> 
+             
+<h2>Conclusion</h2>
+    <p>In the end, the speed gained from Nginx is negligible in most scenarios. Ultimately, both servers are a good fit for most sites. Again, it comes down to what you, the administrator, are more familiar or comfortable with. </p>
+   
+</body>
+</html>

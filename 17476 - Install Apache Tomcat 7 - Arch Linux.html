@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<!--article 17476-->
+<head>
+
+<title>Install Apache Tomcat 7 - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px;
+}
+
+.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+</head>
+
+<body>
+	<p>Install Apache Tomcat 7 in Arch Linux.</p>
+    <h1>Install Apache Tomcat 7 - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <h2>About Tomcat</h2>
+	<p>Apache Software Foundation&trade; developed Tomcat&trade; as an open source web server to serve Java&reg; applications. This article walks through the installation and basic configuration of Tomcat 7 on a Arch Linux&trade; server. It assumes you have completed the initial server setup on your <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17324%20-%20Initial%20Server%20Setup%20-%20Arch%20Linux.html">Arch Linux</a> server, and have also created a non-root user account.</p>                                        
+
+    <h2>Install Tomcat</h2>
+    <p>There are a number of ways to install Tomcat, but we will use pacman as it is the most simple. Note that this method will install the latest version of Tomcat that is in the Arch Linux repositories, not necessarily the latest Tomcat release.</p>
+    <ol>
+    <li>Update the packages repository. Type <strong>y</strong> when prompted to confirm the installation.
+	<div class="hacker">sudo pacman -Syu</div></li>
+    <li>Install Tomcat. Type <strong>y</strong> when prompted to confirm the installation.
+	<div class="hacker">sudo pacman -S tomcat7</div></li>
+    <li>To change the default Java options that Tomcat will reference when starting, create a parameters file.
+	<div class="hacker">sudo vim $CATALINA_BASE/bin/setenv.sh</div></li>
+	<li>Add the following line to the empty file:
+	<div class="hacker">JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx512m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC"</div>
+	<div class="note">You can also safely change the <code>Xmx</code> and/or <code>MaxPermSize</code> values to change Tomcat's memory usage.</div></li>
+    <li>Exit vim and confirm the save when prompted.</li>
+    </ol>
+	
+	<h2>Install additional package</h2>
+	<ul>
+	<li>Tomcat documentation suggests installing a source control system, like Git.
+    <div class="hacker">sudo pacman -S git</div></li>
+	</ul>
+    	
+	<h2>Configure Tomcat's web management interface</h2>
+	<p>In order to use the web application manager you installed above (under "Install additional package"), you will first need to create a user.</p>
+	
+	<ol>
+	<li>Open Tomcat's users file.
+	<div class="hacker">sudo vim /etc/tomcat7/tomcat-users.xml</div></li>
+	<li>Add the following line of code immediately after <code>&#60;tomcat-users&#62;</code>:
+	<div class="hacker">&#60;user username="admin" password="password" roles="manager-gui,admin-gui"/&#62;</div>
+	<div class="note">You will obviously want to change the <code>username</code> and <code>password</code> values to something more secure.</div></li>	
+    <li>Exit vim and confirm the save, if prompted.</li>
+    <li>Restart Tomcat.
+	<div class="hacker">sudo systemctl restart tomcat7</div></li>
+    </ol>
+	
+	<h2>Access Tomcat's web management interface</h2>
+	<p>Now that Tomcat knows who the admin user is, it will allow you to access the Web Application Manager, which helps you manage your Java applications. This is where you can Start, Stop, Reload, Deploy, and Undeploy applications or run diagnostics on your apps. You can find information about your server at the very bottom of the page.</p>
+	
+	<ul>
+	<li>To see the Web Application Manager, enter <strong>http://<u><em>server_ip_address</em></u>:8080/manager/html</strong> into your web browser.</li>
+	</ul>
+	
+	<p>Tomcat's Virtual Host Manager is where you add virtual hosts, which is where applications are served.</p>
+	
+	<ul>
+	<li>To see the Virtual Host Manager, enter <strong><em><u>http://server_ip_address:8080/host-manager/html</u></em></strong> into your web browser.</li>
+	</ul>
+	
+	<div class="note">For both URLs, you will be prompted for the new user's credentials you entered above.</div>
+	
+    <h2>Conclusion</h2>
+    <p>You're done! You have successfully installed and configured Apache Tomcat 7. Now you can go deploy your own web apps.</p>
+  
+</body>
+</html>

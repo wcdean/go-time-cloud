@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Scaling Ruby on Rails Setting Up A Dedicated MySQL Server (part 2) - Arch Linux</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+    
+</head>
+<body>
+<p>Setting up a dedicated MySQL server to host Ruby on Rails application servers, Ruby, Rails, MariaDB, MySQL, NoSQL, Scaling</p>
+
+<h1>Scaling Ruby on Rails: Setting up a Dedicated MySQL Server (part 2) - Arch Linux</h1>
+    <p><strong>Difficulty</strong>: <em><u>4</u></em><br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+<p>In this article, we will be creating a database layer using MySQL to host the application servers running Ruby on Rails. You'll be setting up a dedicated MySQL server and scaling Ruby on Rails applications between the servers in an Arch Linux distribution.</p>
+
+<h2>Prerequisites</h2>
+Make sure to have <a href="17537 - Install Ruby on Rails using RVM - Arch Linux.html">Ruby on Rails using RVM installed</a> and running.
+
+This article is part 2 of the scaling Ruby on Rails series. To refer to the first or third part, see:
+<ul>
+<li><a href="17954 - Scale Ruby on Rails Applications Across Multiple Servers (Part 1) - Arch Linux.html">Scale Ruby on Rails Applications across multiple Servers - Arch Linux (part 1)</a></li>
+<li><a href="C:\Users\BPCS\Desktop\GoDaddy\gd-cloud-docs\17896 - Scaling Ruby on Rails Setting Up A Dedicated PostgreSQL Server (Part 3) - Arch Linux.html">Scaling Ruby on Rails Setting Up A Dedicated PostgreSQL Server - Arch Linux (part 3)</a></li>
+</ul>
+
+<p> This tutorial is for a non-root user with sudo privileges.</p>
+
+<h2>Step 1: Select the Database</h2>
+<p>Based on the needs and application type, choose your database server to build a database layer for your application development. Following are some popular databases:</p>
+<ol>
+	<li>For Relational database server: Use MySQL and derivatives, PostgreSQL</li>
+	<li>For Non-relational database servers: Use column-based Cassandra and HBase, document-based MongoDB and Couchbase and graph-based OrientDB, Neo4J and related databases.</li>
+</ol>
+<h2>Step 2: Understanding the Database Server Layer</h2>
+<p>To make our database server centrally accessible, we need a load-balancer, two application servers and one database server to set-up the database server layer. This is how the architecture will look like:</p>
+<img src="images\17983\102115\17983.png">
+<h2>Step 3: Add the Database Server to the deployment det-up</h2>
+<ol>
+	<li>
+Let us create and configure MySQL database. First, update <code>pacman</code>.
+<div class="hacker">sudo pacman -Sy</div>
+	</li>
+</ol>
+<h2>Step 4: MySQL Installation</h2>
+<ol>
+	<li>
+Download and install the MySQL database server.
+<div class="hacker">sudo pacman -S mariadb</div>
+	</li>
+	
+	<li>Initialize MySQL database directories.
+<div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div></li>
+
+	<li>Start mysqld.
+<div class="hacker">sudo systemctl start mysqld</div>
+
+<!--CT:...
+<p>If you encounter any error saying <strong>"Failed to start mysqld.service: Unit mysqld.service failed to load: No such file or directory"</strong> then, first double check if the spelling is correct, then try rebooting and starting <span class="command">mysqld </span>again.</p>
+	</li>
+...-->
+
+<li>Enable mysqld.
+<div class="hacker">sudo systemctl enable mysqld</div></li>
+
+<li>We need to tell MySQL to create a database directory structure where it will store its                 information.
+<div class="hacker">sudo mysql_install_db</div>
+	</li>
+
+<li>Run the MySQL installation process.
+<div class="hacker">sudo mysql_secure_installation</div>
+	After you have finished the above command, a welcome screen will display.
+</li>
+
+<!--CT:...	
+<p class="note">RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MySQL
+SERVERS IN PRODUCTION USE!  PLEASE READ EACH STEP CAREFULLY!</p>
+<p>In order to log into MySQL to secure it, we'll need the current
+password for the root user.  If you've just installed MySQL, and
+you haven't set the root password yet, the password will be blank,
+so you should just press enter here.
+</p>
+...-->
+
+<li>At the prompt, since you don't have a current password for root, press <strong>Enter</strong>, then you'll be prompted to create a password.
+
+<!--CT:...
+using the following command:
+<div class="hacker">
+   /usr/bin/mysqladmin -u root password '<em><u>new-password</u></em>'    
+</div></li>
+<li>
+Press <strong>Enter.</strong></li>
+...-->
+
+<li>Answer the following questions by pressing <strong>Y</strong>.
+<div class="hacker">
+<pre>    Set root password?                     --> Y
+    Remove anonymous users?                --> Y
+    Disallow root login remotely?          --> Y
+    Remove test database and access to it? --> Y
+    Reload privilege tables now?           --> Y</pre></div></li>
+
+	<li>
+<p>To enable remote connections, open the MySQL database configuration my.cnf and edit using the vim text editor</p>
+<div class="hacker">
+	sudo vim  /etc/mysql/my.cnf
+</div>
+<p>Insert this line somewhere after <code>mysqld</code>:</p>
+<div class="hacker">
+	<pre>
+[mysqld]
+..
+.
+bind-address   =  0.0.0.0	</pre>
+</div>
+	</li>
+<li>Save and close.</li>
+
+	<li>Establish a database connection using your MySQL client.
+<div class="hacker">sudo mysql -u root -p</div>
+	</li>
+	
+<li>Create a new database for your Rails app.
+<div class="hacker">create database rails_database_name;</div>
+	</li>
+	
+	<li>
+Create a new user for your database and grant remote and local access to this user.
+<div class="hacker">CREATE USER 'rails_database_name_user'@'localhost' IDENTIFIED BY 'your_password';</div>
+<div class="hacker">CREATE USER 'rails_database_name_user'@'%' IDENTIFIED BY 'your_password';</div></li>
+
+<li>Confirm that your user was created:
+<div class="hacker">SELECT User,host FROM mysql.user;</div>
+	</li>
+
+<li>Grant access rights:
+<div class="hacker">GRANT ALL ON rails_database_name.* TO 'rails_database_name_user'@'localhost';</div>
+<div class="hacker">GRANT ALL ON rails_database_name.* TO 'rails_database_name_user'@'%';</div></li>
+
+<li>Then revoke the privileges:
+<div class="hacker">FLUSH PRIVILEGES;</div></li>
+
+<li>Exit MySQL.
+<div class="hacker">exit</div>
+	</li>
+</ol>
+
+<h2>Step 5: Set up your Rails application</h2>
+<ol>
+
+<li>
+Install Rails package with following command.
+<div class="hacker">sudo gem install rails</div>
+	</li>
+
+<li>Create a Rails application and Use the -d mysql option to set MySQL as the database:
+<div class="hacker">rails new <span class="red-text">Appname</span> -d mysql</div>
+	</li>
+
+	<li>Move into your application directory.
+<div class="hacker">cd <span class="red-text">Appname</span></div>
+	</li>
+
+	<li>
+You will find the database configuration settings for your Rails applications in the <code>database.yml</code> file in /config directory. Let's open that file now for editing.
+<div class="hacker">sudo vim config/database.yml</div></li>
+
+<li><p>Find the <code>production</code> section towards the end of the file. We'll be adding  in our configuration details.</p>
+
+<p> The database, username, and password lines will be there and should be pulling in the right values - they can be left as is.</p>
+	Add in these 2 lines right after production:
+<div class="hacker">adapter: mysql<br/>
+  encoding: utf8</div></li>
+
+<li>Then add these lines after the password line, making sure to replace you actual IP for <em><u>your_server_IP</u></em>.
+  <div class="hacker">host:<em><u>your_server_IP</u></em>
+  port: 3306
+  pool: 10</div>
+
+  So that the final product looks something like this:
+<div class="hacker"><pre>production:
+  adapter: mysql
+  encoding: utf8
+  database: <em><u>Appname_production</u></em>
+  username: <em><u>Appname</u></em> 
+  password:<em><u>your_password</u></em>
+  host:<em><u>your_server_IP</u></em>
+  port: 3306
+  pool: 10
+</pre></div></li>
+
+<li>Save and close.</li>
+
+<li>Open the <code>Gemfile</code>. 
+<div class="hacker"> sudo vim Gemfile </div></li>
+
+<li>Add this line i file.
+       <div class="hacker"> gem 'mysql' </div></li>
+
+<li>Save and close.</li>
+
+<li>Install all the dependencies of <code>Gemfile</code>.
+<div class="hacker">bundle install</div>
+	</li>
+</ol>
+
+<h2>Next Steps</h2>
+<p>Congratulations! You've scaled a Ruby on Rails application and set up a dedicated MySQL Server on your Arch Linux system.</p>
+
+</body>
+</html>

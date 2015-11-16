@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Set up WordPress pretty permalinks in Nginx - CentOS 7, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Set up WordPress pretty permalinks in Nginx for CentOS 7, Fedora.</p>
+    <h1>Set up WordPress pretty permalinks in Nginx - CentOS 7, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Permalinks are URLs of the content published on your WordPress site. Best practices state that these URLs should be permanent and never change, but you can of course change your permalink structure at any time. Doing so, however, would change the URL of all your pages, which would cause your search and referral traffic to drop since the links would be broken.</p>
+     
+<p>WordPress produces dynamic links by default that are appended with the post ID number. Though these links work on all server environments, they're not descriptive, easily identifiable, or SEO-friendly.</p>
+
+<p>"Pretty" permalinks, on the other hand, are human-readable, descriptive, search-friendly, and depending on which format you choose, structured.</p>
+  
+<p>Setting up permalinks is a surprisingly easy process in Nginx. This article will walk you through it on a CentOS 7 or Fedora 20, 21 system. </p>
+
+    <h2>Prerequisites</h2>
+    <p>Before you begin, WordPress has to be fully installed. You most likely have already done this, but if not, choose the appropriate article for either a single or a multi-site installation:</p>
+         
+<ul>
+    <li><a href="17386 - Install WordPress on your LEMP server - CentOS 7.html">Install WordPress on your LEMP server - CentOS 7</a></li>
+    <li><a href="17684 - Set up WordPress Multisite in Nginx - CentOS 7.html">Set up WordPress Multisite in Nginx - CentOS 7</a></li>
+       <li><a href="19203 - Install WordPress on your LEMP server - Fedora 20.html">Install WordPress on your LEMP server - Fedora 20</a></li>
+    <li><a href="00037 - Set up WordPress Multisite in NGINX - Fedora 20.html">Set up WordPress Multisite in Nginx - Fedora 20</a></li>
+    <li><a href="19206 - Install WordPress on your LEMP server - Fedora 21.html">Install WordPress on your LEMP server - Fedora 21</a></li>
+    <li><a href="00038 - Set up WordPress Multisite in NGINX - Fedora 21.html">Set up WordPress Multisite in Nginx - Fedora 21</a></li>
+</ul>
+
+
+<p>This article is for a non-root user with <code>sudo</code> privileges. </p>
+
+    
+<h2>Choose your pretty permalink type in WordPress </h2>
+
+    <ol>
+        <li>In your WordPress admin dashboard (http://<em><u>coolexample.com</u></em>/wp-admin), go to the <strong>Settings</strong> panel on the left, then to the <strong>Permalink Settings</strong>.<br /></li>
+      
+
+        <li>Choose your permalink type. A common option is the <strong>Post name</strong> option.<br />
+        <img src="images/00060/091715/wordpress-pretty-permalinks-page.png" alt="wordpress pretty permalinks page" /></li>
+
+        <li>Select <strong>Save changes</strong>.</li>
+</ol>
+
+<h2>Enable URL rewrites</h2>
+  
+<p>Modify your Nginx config file to enable permalinks.</p>
+
+<ol>
+<li>Open your <code>nginx.conf</code> file to edit.
+<div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
+
+<li>In your file, find your WordPress block and add this try_files line in the location context.
+<div class="hacker">try_files $uri $uri/ /index.php?q=$ur&amp;$args;</div>
+
+  So, the entire section may look like this:
+
+  <div class="hacker"><pre>server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  _;
+        root         /var/www/wordpress;
+        index index.php index.html index.htm;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        location / {
+        <em><u>try_files $uri $uri/ /index.php?q=$uri&amp;$args;</u></em>
+        }</pre></div>
+
+
+Also, you should have made these two changes in your WordPress installation already, but double-check that:  <ul>
+<li><code>root</code> is pointed to your WordPress document root.</li>
+<li><code>index.php</code> is added to the beginning of the line of index file types.   </li></ul></li>
+
+<li>Save and close.</li>
+
+
+<li>Restart Nginx.
+     <div class="hacker">sudo service nginx restart</div></li>
+
+ </ol>
+
+<p>That's it, you're done!</p>
+
+    <h2>Next steps</h2>
+    
+    <p>Congratulations! You have set up WordPress pretty permalinks on your Nginx server.</p>
+   
+</body>
+</html>

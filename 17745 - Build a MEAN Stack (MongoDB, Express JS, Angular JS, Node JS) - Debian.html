@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 17745-->
+    <title>17745 - Build a MEAN.JS Application (MongoDB, Express.js, Angular.js, Node.js) - Debian</title>
+    <style type='text/css'>
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+</head>
+
+<body>
+    <p>How to configure a COMPANY_NAME Debian server to host a MEAN.JS application</p>
+    <h1>17745 - Build a MEAN.JS Application (MongoDB, Express.js, Angular.js, Node.js) - Debian</h1>
+    <p><strong>Difficulty</strong>: 2
+        <br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+    <p>MEAN.JS is an open-source full-stack solution for building web applications using MongoDB, Express, AngularJS and Node.js. In this article, we will install MongoDB, git, Node.js, NPM, the Bower package manager, Grunt and a sample MEAN.JS boilerplate application.</p>
+    <h2>Step 1: Install MongoDB</h2>
+    <ol>
+        <li>
+            Update the local package database
+            <br/>
+            <div class="hacker">sudo apt-get update</div>
+        </li>
+        <li>Import the MongoDB public key
+            <br/>
+            <div class="hacker">sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10</div>
+        </li>
+        <li>
+            Create a list file for MongoDB. The list file is specific to the distribution version you are using. In this article, we will focus on Debian 7. For more information about list files, see the <a href='https://docs.mongodb.org/manual/administration/install-on-linux/'>official MongoDB documentation</a>
+            <br/>
+            <div class="hacker">echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list</div>
+        </li>
+        <li>
+            Reload the package database
+            <br/>
+            <div class="hacker">sudo apt-get update</div>
+        </li>
+        <li>
+            Install MongoDB
+            <br/>
+            <div class="hacker">sudo apt-get install -y mongodb-org</div>
+        </li>
+        <li>
+            Verify MongoDB installation
+            <br/>
+            <div class="hacker">mongod --version</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+            <pre>db version v3.0.7
+git version: 6ce7cbe8c6b899552dadd907604559806aa2e9bd</pre>
+            </div>
+        </li>
+    </ol>
+    
+    <h2>Step 2: Install Git</h2>
+    <ol>
+      <li>
+            Install Git
+            <div class="hacker">sudo apt-get install -y git</div>
+        </li>
+        <li>
+            Verify Git installation
+            <br/>
+            <div class="hacker">git --version</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+            <pre>git version 1.9.1</pre>
+            </div>
+        </li>
+    </ol>
+
+    <h2>Step 3: Install Node.js and NPM</h2>
+    NPM is the default package manager used for installing and managing packages used by NodeJS. For more information about Node and NPM, see the official <a href="https://www.npmjs.com/">NPM documentation</a>
+    <ol>
+      <li>
+            Install Node.JS
+            <div class="hacker">sudo apt-get install -y nodejs</div>
+            To address issues with possible namespace collisions and upstream compatibility, install the legacy package<br/>
+            <div class="hacker">sudo apt-get install nodejs-legacy</div>
+            
+        </li>
+        <li>
+            Install NPM
+            <div class="hacker">curl -L --insecure https://www.npmjs.org/install.sh | sudo sh</div>
+        </li>
+        <li>
+            Verify Node.js installation
+            <br/>
+            <div class="hacker">nodejs --version</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+            <pre>v0.10.25</pre>
+            </div>
+        </li>
+    </ol>
+
+    <h2>Step 4: Install Bower and Grunt</h2>
+    MEAN.JS uses a package management system called Bower to manage front-end packages and Grunt to automate development processes. Both are prerequisites for building MEAN.JS applications.
+    <ol>
+      <li>
+            Install Bower and Grunt using NPM
+            <div class="hacker">sudo npm install -g bower grunt-cli</div>
+        </li>
+    </ol>
+
+    <h2>Step 5: Download, Install and Start MEAN.JS Boilerplate Application</h2>
+    <ol>
+      <li>
+            Download MEAN.JS boilerplate using Git. Because this is a third-party package, we will download and configure our MEAN.JS test application (named 'test') to run from the <code>/opt</code> folder.
+            <div class="hacker">sudo git clone https://github.com/meanjs/mean.git /opt/test</div>
+        </li>
+        <li>
+          Install 'test' application dependencies.
+          <div class="hacker">cd /opt/test</div>
+          <div class="hacker">sudo npm install</div> 
+            This may take a few minutes.
+        </li>
+        <li>
+          Use bower to install and configure the front-end packages
+          <div class="hacker">sudo bower --allow-root --config.interactive=false install</div>
+        </li>
+        <li>
+          Use grunt to start the application
+          <div class="hacker">sudo grunt --force</div>
+        </li>
+        <li>
+          Once all processes start, verify the 'test' application installed by visiting the domain name or IP address of your server in a web browser, using port 3000.
+          <div class="hacker">http://<em><u>domain_or_IP_address</u></em>:3000</div><br/>
+          <img src="images/17745/102315/mean-test.png" alt="Screenshot of MEAN.JS test application"/>
+        </li>
+    </ol>
+
+    <h2>Conclusion</h2>
+    <p>In this article, you installed MongoDB, git, Node.js, NPM, the Bower package manager, Grunt and a sample MEAN.JS boilerplate application.</p>
+</body>
+
+</html>

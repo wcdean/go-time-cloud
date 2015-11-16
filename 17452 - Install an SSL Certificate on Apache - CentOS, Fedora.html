@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Install an SSL Certificate on Apache - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install an SSL certificate on Apache, CentOS, Fedora</p>
+<h1>Install an SSL Certificate on Apache - CentOS, Fedora</h1>
+<p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 mins</u></em></p>
+         <p>Installing a Secure Sockets Layer (SSL) certificate on your server can improve the security of your website. Using a combination of the certificate and a key pair, a third-party certificate authority (CA) validates the identity of both parties in a transaction. A website protected by an SSL certificate is identified by a URL that starts with <strong>https</strong>.</p>
+  <p> This article guides you through the installation of an SSL certificate on a CentOS or Fedora server running Apache. A web server with SSL certificates allows secure sessions with its clients. Installing an SSL certificate activates the HTTPS protocol. </p>
+  
+  <p>If you don't have Apache installed on your server, see the Apache installation section in this article for help: <a href="/article/17342?prog_id =PROG_ID">Build a LAMP (Linux, Apache, MySQL, PHP) stack on a server running CentOS 6 or Fedora</a>. </p> 
+
+<h2>Check the OpenSSL client software</h2>
+   <ol>
+    <li>Make sure that the OpenSSL client software needed for a secure website is in place.
+      <div class="hacker">sudo yum install mod_ssl openssl</div></li>
+    <li>
+   Restart Apache.
+     <div class="hacker">sudo service httpd restart</div></li></ol>
+    <h2>Generate the CSR and key</h2>    
+
+   <p> A CSR (Certificate Signing Request) contains information such as organization, country, state, common name, and email address to be included in the certificate. It also includes a public key. You will also generate a private key that is stored on your server.</p>
+    <ol>
+      <li>
+            Create the directory to store your certificate and key.
+              <div class="hacker">sudo mkdir /etc/httpd/ssl</div>
+           
+        </li>
+        <li>Generate the CSR and private key.
+            <div class="hacker">sudo openssl req -out CSR.csr -new -newkey rsa:2048 -nodes -keyout /etc/httpd/ssl/<em><u>certkey.key</u></em></div>
+        To see the newly generated CSR, use the following command.
+        <div class="hacker">cat CSR.csr</div>
+        </li>
+        <li>Input the CSR into the certificate authority's web site when you generate the certificate. </li>
+
+        <li>
+            When prompted, enter the information to be included in your certificate request such as country, state, common name, and email address. The <strong>Common Name</strong> field is the FQDN name of the server for which you are obtaining the certificate.<br />
+            
+        </li>
+        <li>Point your domain name to your server's IP address.</li>
+    </ol>
+
+<h2>Install the certificate</h2>
+    Now that you have your CSR generated, you can go to your certificate authority and get the certificate bundle and follow their instructions on installing the certificate. If you're getting your certificate from COMPANY_NAME, check out <a href="https://www.godaddy.com/help/ssl-certificates">this guide</a>  on how to install your certificate. Make sure that you  move the certificates to the directory you created in the previous section where you have  your key, in this case <em><u>ssl</u></em>.
+
+    <h2>Configure Apache to use SSL</h2>
+    <p>Finally, you need to edit your SSL configuration file to make sure that its SSL entries point to the right artifacts.</p>
+    <ol>
+        <li>
+            Open the <code>ssl.conf</code> file for editing.
+            <div class="hacker" >sudo vim /etc/httpd/conf.d/ssl.conf</div>
+        </li>
+        <li>
+            Make the following changes in the <code>Virtual host </code>section.
+            <div class="hacker">
+                <pre>
+    ServerName <em><u>yourdomainname.com</u></em>
+    ServerAlias www.<em><u>yourdomainname.com</u></em> 
+    SSLEngine on 
+    SSLCertificateFile  /etc/httpd/ssl/<em><u>gdcert.crt</u></em>
+    SSLCertificateKeyFile /etc/httpd/ssl/<em><u>certkey.key</u></em>
+    SSLCertificateChainFile /etc/httpd/ssl/<em><u>gdBundle.crt</u></em>
+</pre>
+            </div>
+      </li><li>Save and close the file.
+        </li>
+        
+        <li>
+            Restart Apache to load the new virtual host file.
+              <div class="hacker">sudo service httpd restart</div>
+        </li>
+        <li>
+            Optionally, test your setup by typing <strong>https://<em><u>yourdomainname.com</u></em></strong> in your web browser. <br />
+        You can also use your server's public IP address instead of the domain name. </li>
+    </ol>
+    <h2>Conclusion</h2>
+    <p>
+        You have successfully installed an SSL certificate on your web server. The certificate ensures the privacy and integrity of the data between your web server and the client. 
+    
+    </p>
+    
+</body>
+</html>

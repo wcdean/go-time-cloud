@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17611 -->
+
+
+<title>Install Joomla Console to manage your Joomla site by command line - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <p>Installation of Joomla Console on your server.</p>
+  
+    <h1>Install Joomla Console to manage your Joomla site by command line - Arch Linux</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>10 minutes</u></em>
+    </p>
+
+    <p>Joomla Console is a command-line utility for the Joomla web CMS/application. It provides advanced functionality for power users who want to manage their Joomla site via SSH. These advanced functions include creating new sites in Joomla rapidly, installing extensions, creating symlinks to custom code, version control with git, and many more - all through command line.</p> 
+
+<p>This article will cover how to properly install Joomla Console on your Arch Linux. </p>
+
+    <h2>Install and configure PHP</h2>
+    <ol>
+        <li>
+            Install and configure PHP, if you haven't done so already.
+        <div class="hacker">sudo pacman -Syu</div>
+            <div class="hacker">sudo pacman -S php php-apache</div></li>
+
+         <li>
+            In order to configure the way Apache serves its files, you need to make some changes. Open the <code>httpd.conf </code>file.
+            <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+        </li>
+        <li>
+            Under the <code>Dynamic Shared Object (DSO) Support </code> section: 
+              <ul>
+                <li>Add the line:
+                    <code> LoadModule php5_module modules/libphp5.so</code></li>
+                <li>Comment out the line: <code>LoadModule mpm_event_module modules/mod_mpm_event.so</code></li>
+                <li>Uncomment the line: <code> LoadModule mpm_prefork_module modules/mod_mpm_prefork.so</code></li>
+              </ul>
+        </li>
+        <li>
+            Under the <code>Supplemental configuration</code> section, add the following lines:<div class="hacker">
+<pre># PHP 5
+Include conf/extra/php5_module.conf</pre>
+            </div>
+        </li>
+        <li>
+            Under the <code>IfModule mime_module</code> section, add the following lines:<div class="hacker">
+<pre>AddType application/x-httpd-php .php
+AddType application/x-httpd-php-source .phps</pre>
+            </div></li>
+       <li>Save and exit the file.
+        </li>
+        <li>
+            Restart Apache.
+            <div class="hacker">sudo systemctl restart httpd</div>
+        </li> 
+        </ol> 
+        
+          <h2> Download and install Joomla Console </h2>
+          <ol>
+        <li>Open the <code>php.ini</code> file.
+        <div class="hacker" >sudo vim /etc/php/php.ini</div>
+        </li>
+
+        <li> Make the following changes:
+            <ul>
+            <li>
+            Uncomment <code>extension=phar.so</code> and <code>extension=openssl.so</code>   </li>
+            <li>Comment out the existing <code> open_basedir </code> line</li>
+            <li>Add the line <code>open_basedir = none</code> </li>
+            </ul></li>
+              <li>
+           From your home directory, use the <code>wget</code> command to get the newest version of Joomla Console. Get this directly from the <strong>joomlatools.com</strong> GitHub, to ensure that it is always the most up-to-date version of Joomla Console. 
+            <div class="hacker"> wget https://github.com/joomlatools/joomla-console/archive/master.zip</div>
+        </li>
+        <li>  Install <code>unzip</code> and unzip the Joomla Console archive.
+            <div class="hacker">sudo pacman -S unzip</div>
+            <div class="hacker">unzip -q master.zip</div>
+            
+
+        </li>
+
+        <li>For the ease of use, rename this directory "joomla-console." 
+        <div class="hacker"> mv joomla-console-master/<em><u>joomla-console</u></em></div>
+            You should now have a directory in your home directory named <code>joomla-console</code>.
+        </li>
+        <li>Remove the original <code>master.zip</code> file.
+        <div class="hacker">rm master.zip</div>
+        Confirm with <strong>Y</strong>.</li>
+        <li>Update the permissions to the Joomla Console executable, so that can be executed by the server.
+        <div class="hacker">chmod u+x ./joomla-console/bin/joomla</div>
+        </li>
+       
+
+    </ol>
+    <h2>Install Composer</h2>
+<p>PHP Composer is a PHP dependency management suite that allows PHP to do the heavy lifting for you which means that it handles the download and proper installation of PHP dependencies. Leveraging Composer helps you manage extensions for Joomla. It makes sure that PHP uses the proper libraries and other artifacts when running Joomla commands. This section  shows how to get Composer and then  to use Composer to complete the installation of Joomla Console.</p>
+    <ol>
+        
+        <li>Use the <code>curl</code> command to grab the Composer files, then pipe them to PHP to be executed.
+            <div class="hacker">curl -sS https://getcomposer.org/installer | php</div>
+            You should see an output regarding the settings of Composer.
+        </li>
+       
+        <li>Globally set up Composer.
+           <div class="hacker">sudo mv composer.phar /usr/local/bin/composer</div>
+        </li>
+        <li>
+            Go to <code>joomla-console</code> directory, and install Composer.
+            <div class="hacker">cd joomla-console</div>
+            <div class="hacker">composer install</div>
+            You will see an output of different dependencies that are installed for Joomla Console. Composer should now complete the dependency installs for Joomla Console.
+        </li>
+       
+     </ol>
+   
+       
+    <h2>Configure bash</h2>
+    <ol>
+        <li>Switch back to your home directory.
+            <div class="hacker">cd ~</div>
+        </li>
+        
+        <li>Add the proper alias to your <code>.bashrc</code> file in your home directory. If you've never edited your <code>.bashrc</code> file, or never installed any other command line utilities, you may need to add this one-line command to the <code>.bashrc</code> file:
+            <div class="hacker">echo "alias joomla='~/joomla-console/bin/joomla'" >> .bashrc</div>
+        </li>
+        <li>
+            Make a similar edit to your <code>.bash_profile</code> file.
+            <div class="hacker">echo "export PATH='$PATH:~/joomla-console/bin:/usr/local/bin'" >> .bash_profile</div>
+        </li>
+        <li>
+            Update the settings in bash, so that it pulls the new settings from the new <code>.bashrc</code> and <code>.bash_profile</code> files.
+            <div class="hacker">source .bashrc</div>
+            <div class="hacker">source .bash_profile</div>
+        </li>
+        <li>Check installation by running:
+        <div class="hacker"> joomla help</div></li>
+    </ol>
+    <h2>Conclusion</h2>
+    You have successfully installed the Joomla Console.
+        <!-- Code validated -->
+</body>
+</html>

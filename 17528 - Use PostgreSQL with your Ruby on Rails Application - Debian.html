@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Use PostgreSQL with your Ruby on Rails Application - Debian</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Setting Up a Rails Application with PostgreSQL in Debian, PostgreSQL, Ruby, Rails</p>
+    <h1>Use PostgreSQL with Your Ruby on Rails Application - Debian</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>30 mins</u></em></p>
+
+    <p>This article will help you create a PostgreSQL server to use as a database layer for scaling a Ruby on Rails (RoR) application. </p>
+    <p>The tasks in this article assume that you have <code>sudo</code> privileges.    If you have not installed Ruby on Rails,  please visit <a href ="17523 - Install Ruby on Rails with rbenv - Debian.html">Install Ruby on Rails with rbenv - Debian</a>. </p>
+<h2>Install PostgreSQL </h2>
+    <ol>
+		<li>To install PostgreSQL, open the terminal and type: 
+			<div class="hacker">sudo apt-get install postgresql postgresql-contrib
+			</div>
+		</li>
+		<li>Install <code>pgadmin3</code> for the administrator. This is an easy-to-access GUI for PostgresSQL and is an optional installation.  
+			<div class="hacker">sudo apt-get install pgadmin3
+			</div>
+		</li>
+	</ol>	
+	<h2>Create a database user</h2>
+	<ol>
+		<li>Log in with the <code>postgres</code> system user, and create a new user.
+			<div class="hacker">sudo -u postgres createuser -s <em><u>user_name</u></em></div>
+		</li>
+		<li>Set a password for the database user.
+			<div class="hacker">sudo -u postgres psql
+			</div>
+			<div class="hacker">\password <em><u>user_name</u></em></div>
+		</li>
+		<li>Close the session.
+			<div class="hacker">\q
+			</div>
+		</li>
+		<li>Restart the PostgresSQL service.
+			<div class="hacker">sudo  service postgresql restart
+			</div>
+		</li>
+	</ol>
+	<h2>Set up a Rails application</h2>
+	<ol>
+		<li>Install the Rails dependencies
+			<div class="hacker">sudo apt-get install libpq-dev
+		  </div>
+
+		</li>
+		<li>Move to your home directory to create a new Rails application. To set PostgreSQL as the database, use the <code>-d postgresql</code> option.
+			<div class = "hacker">cd ~
+			</div>
+			<div class = "hacker">rails new <em><u>Your_application</u></em> -d postgresql
+			</div>
+		</li>
+		<li>Change the directory to the application directory.
+			<div class = "hacker">cd <em><u>Your_application</u></em>
+			</div>
+		</li>
+		<li>Install and update all gems using <code>bundle install</code>.
+					<div class="hacker">bundle install
+			</div>
+		</li>	
+		<li>Open the <span class="hacker"><code>database.yml</code></span> file.
+          <div class = "hacker">sudo vim config/database.yml
+			</div>
+		</li>
+		<li>Look for "<code>pool: 5</code>" in the file, and add the following user name and password lines beneath it. Enter this block of information directly below it (i.e., make sure these lines are lined up perfectly underneath <code>pool: 5</code>). <!--CT:...
+		Fill in your user name and password for the <code>postgres</code> user when prompted.
+		...-->
+			<div class = "hacker">
+				<pre>
+host: localhost
+username: <em><u>user_name</u></em>
+password: <em><u>user_password</u></em></pre>
+			</div>
+
+			Be sure to replace <em><u>user_name</u></em> with your actual username, etc.
+			<p class ="note">Again, when adding this code, you must ensure proper alignment with the code "<code>pool: 5</code>". Also  spacing  within the code (between "username:" and your actual username, for example) must be maintained as shown above.</p>
+		</li>
+		<li>Save and exit the file.
+		</li>
+	</ol>
+<h2>Create a database for your application</h2>
+	<ol>
+		<li>Use the <code>rake</code> command to create your application's databases in the application directory.
+<div class="hacker">rake db:create
+			</div>
+
+		This command creates two databases on your PostgreSQL server: <code><em><u>Your_application</u></em>_development</code> and <code><em><u>Your_application</u></em>_test</code>.		</li>
+	</ol>
+<h2>Test the configuration</h2>
+	<ol>
+		<li>Test your Rails application.
+			<div class="hacker">rails server
+			</div>
+		<p>This will run your Rails application on your <code>localhost</code> on port 3000. To stop the server and return to the command prompt, press Ctrl + C.</p> </li>
+		<li>You can bind the rails server to the public IP address of your server, to access your application from a web browser, if it's located on a remote server.
+			<div class="hacker">rails server --binding=<em><u>public IP of your server</u></em>
+			</div>
+			Open the web browser on your local system, and for URL, type http://Public_IP_address of Your server:3000. A successful exection should show a <strong>Welcome aboard</strong> message by Rails.
+		</li>
+	</ol>
+<h2>Next steps</h2>
+    <p>You have configured a PostgreSQL server with a Rails application in Debian. For further exploration, visit <a href ="17518 - Deploy a Rails App with Unicorn and NGINX - Debian.html">Deploy a Rails App with Unicorn and Nginx - Debian</a>. </p>
+   
+</body>
+</html>

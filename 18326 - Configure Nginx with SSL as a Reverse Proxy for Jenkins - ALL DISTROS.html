@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is _18326_-->
+
+
+
+
+<title>Configure NGINX with SSL as a reverse proxy for Jenkins - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    </style>
+
+
+</head>
+
+<body>
+<p>Configures an NGINX server as an SSL proxy for a Jenkins server.</p>
+    <h1>Configure NGINX with SSL as a reverse proxy for Jenkins - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>3</u></em><br />
+        <strong>Time</strong>: <em><u>30 Minutes</u></em></p>
+
+    <p>Jenkins is a popular tool for continuous pipeline integration, offering features for managing and monitoring project build jobs.  
+        This article describes how to use NGINX&reg; as a reverse proxy with SSL for Jenkins.  
+        It assumes you have already <a href="http://17408%20-%20Install%20NGINX%20on%20your%20server%20-%20Debian,%20Ubuntu.html">installed NGINX </a>and acquired and <a href="http://17449%20-%20Install%20an%20SSL%20Certificate%20on%20NGINX%20-%20ALL%20DISTROS.html">installed an SSL certificate</a>.
+        Although the steps for creating a reverse proxy NGINX configuration with SSL for Jenkins are covered here, you may want to consult <a href="http://17500%20-%20Configure%20NGINX%20as%20a%20reverse%20proxy%20-%20ALL%20DISTROS.html">configuring NGINX as a reverse proxy</a> for a more general understanding.
+    </p>
+
+    <h2>Configure NGINX</h2>
+     Since your NGINX server is already set up for SSL, your configuration file has at least two servers defined and looks something like this: 
+         <div class="hacker"><pre>
+         server { listen 80;
+                 server_name <em><u>YourServerName or IP</u></em>;
+                 ...
+                 # Various location contexts
+                 ...
+                }
+
+        server { listen 443 ssl; 
+                 server_name <em><u>YourServerName or IP</u></em>;
+                 ssl_certificate /etc/nginx/<em><u>yourcertname</u></em>.crt; 
+                 ssl_certificate_key /etc/nginx/<em><u>yourcertname</u></em>.key;
+                 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+                 ssl_ciphers HIGH:!aNULL:!MD5;
+               }</pre>
+    </div>
+<h3>Update the NGINX configuration file</h3>              
+               <ol>
+               <li>Change the server context listening on port 80 to redirect requests to https.
+                    <div class="hacker"><pre>
+         server { listen 80;
+                 return 301 https://$host$request_uri;
+                }</pre></div>
+            </li>
+         <li>Add a location context to the SSL server with proxying directives to send traffic to your Jenkins server.
+                    <div class="hacker"><pre>
+        server { listen 443 ssl; 
+                 server_name <em><u>YourServerName or IP</u></em>;
+                 ssl_certificate /etc/nginx/<em><u>yourcertname</u></em>.crt; 
+                 ssl_certificate_key /etc/nginx/<em><u>yourcertname</u></em>.key;
+                 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+                 ssl_ciphers HIGH:!aNULL:!MD5;
+               }
+        location / {
+                    proxy_pass              <em><u>JenkinsServerName or IP</u></em>:8080;    
+                    proxy_set_header        Host $host;
+                    proxy_set_header        X-Real-IP $remote_addr;
+                    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header        X-Forwarded-Proto $scheme;
+                   }</pre></div>
+
+
+               </li>
+               <li>The final NGINX configuration file should look like this:
+<div class="hacker"><pre>
+           server { listen 80;
+                 return 301 https://$host$request_uri;
+                }
+
+        server { listen 443 ssl; 
+                 server_name <em><u>JenkinsServerName or IP</u></em>;
+                 ssl_certificate /etc/nginx/<em><u>yourcertname</u></em>.crt; 
+                 ssl_certificate_key /etc/nginx/<em><u>yourcertname</u></em>.key;
+                 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+                 ssl_ciphers HIGH:!aNULL:!MD5;
+
+                 location / {
+                    proxy_pass              <em><u>JenkinsServerName or IP</u></em>:8080;    
+                    proxy_set_header        Host $host;
+                    proxy_set_header        X-Real-IP $remote_addr;
+                    proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header        X-Forwarded-Proto $scheme;
+                            }
+               }</pre>
+    </div>
+               </li>
+               <li>Restart NGINX. </li> 
+               <li>Verify your configurat
+               ion by opening a browser and navigating to <strong>http://YourServerName</strong> or IP. Your <em>http</em> request will change to <em>https</em> and you will be redirected to your Jenkins server. Even though you are connected to your Jenkins server, it will appear as if <em>YourServerName</em> is serving the page. 
+                   You can also access your Jenkins server by using <strong>https://YourServerName</strong> or the IP. </li>
+               </ol>
+
+
+             
+    <h2>Conclusion</h2>
+    <p>You have implemented a two-server environment with an NGINX proxy with SSL and a Jenkins server.</p>
+   
+</body>
+</html>

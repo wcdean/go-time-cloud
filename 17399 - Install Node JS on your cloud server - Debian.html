@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install Node.js on your cloud server - Debian</title>
+ <style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+<body>
+<p>Installation of Node.js on Debian </p>
+    <h1>Install Node JS on your cloud server - Debian</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>10 mins</u></em></p>
+
+    <p>Node.js is a web platform based entirely in Javascript that can be used to rapidly deploy scalable sites and site networks. With the advent of the Chrome JavaScript V8 runtime engine, Javascript can now be run server-side for deploying web applications. Because JavaScript uses event-driven and non-blocking I/O, Node.js is able to deliver high performance websites with the capability to handle a large amount of concurrent connections with a low resource impact. This article walks through installing Node two ways.</p>
+
+    
+    <!--CT: Debian 7 can't do basic install w/o the PPA 10/5/15...
+   <h2>Basic installation </h2>
+    <p>We will be installing the latest distro-stable version on a Debian 7 system.</p>
+    <ol>
+        <li>As is best practice run <code>update</code> to update the installed packages.
+        <div class=" hacker">sudo apt-get update</div>
+        </li>
+
+        <li>Install Node.js
+            <div class="hacker">sudo apt-get install nodejs</div>
+        </li>
+        <li>You can also install the Node.js Package Manager (NPM) to manage the modules and packages.
+        <div class="hacker">sudo apt-get install npm</div>
+         </li>
+        <li>
+            You can verify the the current verion of Node.js that got installed by :
+            <div class="hacker">nodejs -v</div>
+        </li>
+    </ol>
+...-->
+
+    <h2>PPA Installation</h2>
+
+<p>        You can install Node.js on Debian using a PPA (Personal Package Archive). </p>
+
+<ol>
+        <li>Update the installed packages.
+        <div class="hacker">sudo apt-get update</div></li>
+        <li>
+            Install PPA to get access to its contents.
+            <div class="hacker">curl -sL https://deb.nodesource.com/setup | sudo bash -</div>
+        </li>
+        <li>Install the node.js
+        <div class="hacker">sudo apt-get install nodejs</div>
+        </li>
+
+        <li>The <code>nodejs</code> package already contains the pakage manager <code>npm</code>, so you don't have to install <code>npm</code> like you did in the previous section. But it you would need to install another package <code>build-essentials</code> for some of the <code>npm</code> packages to work.
+        <div class="hacker">sudo apt-get install build-essential</div>
+        </li> 
+        <li>
+            You can verify the the current verion of Node.js that got installed by running this command:
+            <div class="hacker">node -v</div>
+        </li>
+       
+            
+    </ol>
+    <h2>NVM installation</h2>
+    <p>The second method to install Node.js is through the Node Version Manager (NVM) which essentially allows you to manage different versions of Node.js in the same box.You will be able to select the any version of Node.js from older right till the latest version.</p>
+
+    <ol>
+            <li>Update the repositories.
+<div class="hacker">sudo apt-get update</div>
+</li>
+        <li>Install the <code>build-essential</code> package that is required to build your components with nvm.
+        <div class="hacker">sudo apt-get install build-essential libssl-dev</div>
+        </li>
+        <li>Install nvm installation script from the <a href="https://github.com/creationix/nvm">Github</a> page
+            <div class="hacker">curl https://raw.githubusercontent.com/creationix/nvm/<em><u>v0.26.1</u></em>/install.sh | sh</div>
+        <p class="note">In this guide we are installing version 26. You can choose to install any version instead.</p>
+        <p>This will install it to a subdirectory of your home directory at <code>~/.nvm</code> along with adding code to <code>~./profile</code></p>
+        </li>
+        <li>Source the <code>~/.profile</code> for your session to accept the changes, so that you now can access the NVM functionality.
+        <div class="hacker">source ~/.profile</div> </li>
+    </ol>
+    <h3>Basic nvm commands</h3>
+    <p>Once nvm is installed you can choose to install any version of Node.js that is available. Listed below are some basic commands that you can use with nvm. </p>
+    <ul>
+        <li>To see the list of available versions:
+        <div class="hacker">nvm ls-remote</div></li>
+        <li>If you wish to install a version from the available list, you can do so with the below command. For this example we will install version 0.12.7.
+        <div class="hacker">nvm install <em><u>0.12.7</u></em></div>
+        
+        </li>
+        <li>Configure nvm to use the downloaded version.
+        <div class="hacker">nvm use <em><u>0.12.7</u></em></div></li>
+        <li>You can see the current version of Node.js that is installed with :
+        <div class="hacker">node -v</div></li>
+        <li>If you have several versions of Node.js installed, you can check the installed version with :
+        <div class="hacker">nvm ls</div></li>
+        <li>In case you have several versions, you can default one of those by running this command:
+        <div class="hacker">nvm alias default <em><u>0.12.7</u></em></div>
+        You can also reference it by :
+        <div class="hacker">nvm use default</div></li>
+        <li>You can use NPM to install the packages to Node.js project's <code>./node_modules</code> directory. For example we will install the <code>express</code> package. Express is a minimal but flexible HTTP server framework.
+        <div class="hacker">npm install express</div>
+        </li>
+        <li>To install it globally so that other projects using the same verson of Node.js, use the <code>-g</code> option.
+        <div class="hacker">npm install -g express</div>
+        The package will be installed in <code>~/.nvm/versions/node/v0.12.7/lib/node_modules/express</code> </li>
+        <li>Now that you have installed it globally, you will be able to run the commands from the command line. Before you do that you need to link the package into your local sphere.
+        <div class="hacker">npm link express</div></li>
+        <li>For more options, use:
+        <div class="hacker">nvm help</div></li>
+    </ul>
+        
+             
+    <h2>Next steps</h2>
+    Congratulations! You've just installed Node.js with its NPM system. <!--CT: Commenting out links as the articles don't exist yet 10/5/15... From here, you have all kinds of options to:
+   
+        <ul>
+
+            <li><a href="17352 - Set up Node JS application for production - Debian.html">Set up Node.js application for production</a></li>
+            <li><a href="18415 - Configure a Node JS development environment for your team - Debian, Debian.html">Configure a Node.js development environment for your team</a></li>
+            <li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18027 - Install and configure Sails JS on your Node JS server - Debian, Debian">Install and configure Sails.js on your Node.js server</a></li>
+            <li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18059 - Connect Node JS to a MongoDB Database - Debian, Debian">Connect Node.js to a MongoDB Database</a></li>
+            <li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18170 - Deploy your Node JS Application with Systemd and NGINX - Debian, Debian">Deploy your Node.js Application with Upstart and NGINX</a></li>
+        </ul>
+   ...-->
+
+   
+</body>
+</html>

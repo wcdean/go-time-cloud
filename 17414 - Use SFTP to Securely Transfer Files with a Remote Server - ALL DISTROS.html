@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+
+
+<title>Use SFTP to Securely Transfer Files with a Remote Server - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+</head>
+
+<body>
+            <p>Transfer files securely using SFTP.</p>
+
+
+<h1>Use SFTP to Securely Transfer Files with a Remote Server - ALL DISTROS</h1>
+
+                    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+                    <strong>Time</strong>: <em><u>1.50</u></em></p>
+
+                <p>SFTP uses the SSH  protocol to authenticate and establish a secure connection.  It's recommended to  create SSH keys and transfer the public key to any system where access is needed.</p>
+
+<h2>Prerequisite</h2>
+<p><a href="17357 - Use SSH Keys with your Cloud Server (Linux and Mac OS X) - ALL DISTROS.html">Set up SSH keys</a> in order to access your server if you have not done so already.
+</p>
+<p>You can  test SSH access by running this command: </p>
+<div class="hacker">ssh <em><u>yourusername@remote_hostname_or_IP</em></u></div>
+If that works, exit back out by running this command:
+                    <div class="hacker">exit </div>
+
+<h2>Connecting with SFTP</h2>
+
+
+    <ul>
+
+
+            <li>Set up an SSH connection, and then open up an SFTP session.
+                    <div class="hacker"><em><u>sftp yourusername@remote_hostname_or_IP</em></u></div>
+            You'll connect the remote system, and your prompt will change to an SFTP prompt.</li>
+
+    </ul>
+
+
+<h2>Getting help in SFTP</h2>
+
+
+<ul>
+  <li>For a helpful  list of the available commands for SFTP, run either of these commands:
+    <div class="hacker">help</div>or 
+                    <div class="hacker">?</div>
+
+
+
+            Example output:
+                    <div class="hacker">
+<pre>Available commands:
+bye                                Quit sftp
+cd path                            Change remote directory to 'path'
+chgrp grp path                     Change group of file 'path' to 'grp'
+chmod mode path                    Change permissions of file 'path' to 'mode'
+chown own path                     Change owner of file 'path' to 'own'
+df [-hi] [path]                    Display statistics for current directory or
+                                   filesystem containing 'path'
+exit                               Quit sftp
+get [-Ppr] remote [local]          Download file
+help                               Display this help text
+lcd path                           Change local directory to 'path'</pre></div></li></ul>
+
+
+<h2>Exploring SFTP</h2>
+
+
+    <ul>
+            <li>Find the remote system's current directory.
+                    <div class="hacker">pwd</div>
+
+            Example output:
+                    <div class="hacker">Remote working directory: /home/newuser</div>
+                    <p class="note">The filenames and home directories are examples used for this document.</p></li>
+
+
+            <li>View the contents of the current directory on the remote system.
+                    <div class="hacker">ls</div>
+            Example output:
+
+                    <div class="hacker">example.txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; faq.html&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; docu.txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exampleDirectory</div></li>
+
+            <li>View the flags that the SFTP interface implements.(The commands within the SFTP interface are not as feature-rich. However, they do implement some of the more important optional flags.) <br />
+              <div class="hacker">ls -la</div>
+            Example output:
+                <div class="hacker">
+<pre>drwxr-xr-x    5 newuser   newuser       4096 Aug 13 15:11 .
+drwxr-xr-x    3 root     root         4096 Aug 13 15:02 ..
+-rw-------    1 newuser   newuser          3 May 15 15:04 .bash_history
+-rw-r--r--    1 newuser   newuser        175 May 15 15:02 .bash_logout
+-rw-r--r--    1 newuser   newuser       1591 May 15 15:02 .bashrc
+drwx------    2 newuser   newuser       2345 May 15 15:04 .cache
+-rw-r--r--    1 newuser   newuser        874 May 15 15:02 .profile
+. . .</pre></div></li>
+
+            <li>Change to another directory.
+                    <div class="hacker">cd exampleDirectory</div></li></ul>
+            <p>You can direct commands towards the local file system by preceding the command with an "<code>l</code>" for &quot;local.&quot; All of the commands discussed so far have local equivalents. <br />
+              
+              
+</p><ul>
+            <li>
+              Print the local working directory.
+                <div class="hacker">lpwd</div>
+                      Example output:
+                      <div class="hacker">Local working directory: /Users/newuser<br/>
+                    . . .</div></li>
+
+
+
+            <li>List the contents of the current directory on the local machine.
+                    <div class="hacker">lls</div>
+                      Example output:
+                      <div class="hacker">
+<pre>Desktop            local.txt       test.html
+Documents       data.rtf       echo.html</pre>
+                    . . .</div></li>
+
+            <li>Change the directory with which to interact  on the local system.
+
+              <div class="hacker">lcd Desktop</div></li>
+    </ul>
+
+
+<h2>Transferring files with SFTP</h2>
+<h3>Transferring remote files to the local system</h3>
+
+    <ul>
+                <li>Download files from the remote host.
+                    <div class="hacker">get remote File </div>
+                    Example output:
+                    <div class="hacker">
+<pre> Fetching /home/newuser/remoteFile to remoteFile
+ /home/newuser/remoteFile                              100%    29KB    42.8KB/s    00:01</pre></div>
+ By default, the <code>get</code> command downloads a remote file to a file with the same name on the local file system. </li>
+
+                <li>Copy the remote file to a different name by specifying the name afterwards.
+                    <div class="hacker">get remoteFile localFile</div></li>
+
+                <li>Specify the recursive option to copy a directory and all of its contents.
+                    <div class="hacker">get -r someDirectory</div> </li>
+
+                <li>Maintain the appropriate permissions and access times by using the -<code>P</code> or <code>-p</code> flag:
+<div class="hacker">get -Pr someDirectory</div></li>
+    </ul>
+
+
+<h3>Transferring local files to the remote system</h3>
+
+    <ul>
+                <li>To transfer files to the remote system, use the  <code>put</code> command:
+                    <div class="hacker">put localFile </div>
+                    Example output:
+                    <div class="hacker">
+<pre>Uploading localFile to /home/newuser/localFile
+localFile                                     100% 7607     6.3KB/s   00:00</pre></div></li>
+                <li><code>put</code> utilizes the same flags as <code>put</code>.<!--Testers, should "put" be "get"?  cj --> To copy an entire local directory, run this command:
+                        <div class="hacker">put -r localDirectory</div> </li>
+
+                 <li>The <code>df</code> command reports file system disk space usage. To verify available disk space for transfers, run this command:
+                        <div class="hacker">df -h </div>
+                    Example output:
+                    <div class="hacker">
+<pre>   Size       Used        Avail (root)        %Capacity
+   19.9GB     1016MB      17.9GB 18.9GB           4%</pre> </div>
+                        <p class="note">There is no local variation of this command, but we can get around that by issuing the  <code>!</code> command. Any other local command  works as expected.</p></li>
+
+        <li> Use the <code>!</code> command  to drop into a local shell. To check disk usage, run this command:
+          <div class="hacker"> ! <br />
+                                        df -h</div>
+                    Example output:
+                    <div class="hacker">
+<pre>  Filesystem     Size    Used    Avail   Capacity    Mounted on
+ /dev/disk0s2   425Gi   82Gi    644Gi   9%      /
+ devfs          155Ki   155Ki   0Bi     100%    /dev
+ map -hosts     0Bi     0Bi     0Bi     100%    /net
+ map auto_home  0Bi     0Bi     0Bi     100%    /home</pre></div> </li>
+
+
+                <li> To return to the SFTP session, run this command:
+<div class="hacker">exit</div>
+
+
+                The SFTP prompt  returns.</li>
+
+
+    </ul>
+
+<h2>Conclusion</h2>
+
+         <p>SFTP is a simple tool that provides file access, file transfer, and file management functionalities over a secure data stream. It leverages the strengths of FTP or SCP. </p>
+
+
+
+
+</body>
+</html>

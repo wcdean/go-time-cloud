@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17507 -->
+
+
+<title>17507 - Configure Two-factor SSH authentication with Authy - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Configuring two-factor SSH authentication with Authy on Arch Linux, SSH, Security</p>
+<h1>Configure Two-Factor SSH Authentication with Authy - Arch Linux</h1>
+<p><strong>Difficulty:</strong> <em>1</em></p>
+<p><strong>Time:</strong> <em>10 minutes</em>.</p>
+
+<p>Authy provides an easier platform for setting up an authentication, as compared to two-factor authentication. Authy is very simple to install and manage.</p> 
+
+<p>In this article, you will learn how to configure a two-factor SSH authentication with Authy. For this, you need to install an Authy application in your smartphone. You can find this app in Google play. </p>
+
+<h2>Configure Authy in phone</h2>
+<ol>
+<li>On your smartphone, download Authy from Google play, and then configure Authy by verifying it with your mobile number.</li>
+
+<li>Build a developer account at <a href="https://dashboard.authy.com/signup">https://dashboard.authy.com</a>.
+
+<p class="note">Make sure that you use the same mobile number that you used in the Authy application.</p>
+</li>
+<li>Verify your account by completing the verification process sent to your registered email account. You will get a token on your smartphone.</li>
+</ol>
+
+<h2>Create an application</h2>
+<ol>
+<li>Log into your developer's account at <a href="https://dashboard.authy.com">https://dashboard.authy.com</a>. 
+<p><img src="images/17507/091815/Enterprise-and-developers-dashboard.png" alt="Enterprise and Developers Dashboard" /></p></li>
+<li>Enter the <strong>Application Name</strong>, and then click <strong>Create App</strong> to create an application.
+<p><img src="images/17507/091815/welcome-to-the-Authy-Dashboard.png" alt="welcome-to-the-Authy-Dashboard.png" /></p></li>
+
+<li>You will get an API key for ssh.
+ <p><img src="images/17507/091815/API-key.png" alt="API Key message" /></p>
+
+<p>Copy the API key as it is. You will need this in future steps.</p></li>
+<li>Click <strong>Finish</strong>. </li>
+</ol>
+<h2>Configure server</h2>
+<ol>
+<li>Download the Authy installer.
+<div class="hacker">curl "https://raw.githubusercontent.com/authy/authy-ssh/master/authy-ssh" -o authy-ssh</div></li>
+
+<li>Install Authy.
+<div class="hacker">sudo bash authy-ssh install /usr/local/bin</div> </li>
+
+<li>When prompted, enter the API key that you received from the Authy Dashboard web site.</li> 
+<li>When prompted for <strong>what to do when Authy is down</strong>, choose <code>option 1</code>.
+</li>
+
+</ol>
+<h2>Configure two-factor for the user </h2>
+<ol>
+<li>Run the following command to configure the user.
+<div class="hacker">sudo /usr/local/bin/authy-ssh enable <em><u>User_name</u></em> <em><u>email_id</u></em> <em><u>country_code</u></em></div>
+</li>
+
+
+<li>Open the <code>/etc/ssh/sshd_config</code> 
+<div class="hacker">sudo vim /etc/ssh/sshd_config</div>
+</li>
+<li>Go to the bottom of the file.
+If the <code>ForceCommand</code> is present at the bottom of the file, then press <strong>Enter</strong> before the <code>ForceCommand</code> to move it in the new line.
+In case the <code>ForceCommand</code> is not present, then manually enter it as the following:
+<div class="hacker">ForceCommand /usr/local/bin/authy-ssh login</div>
+</li>
+<li>Restart the SSH server.
+<div class="hacker">sudo systemctl restart sshd.service</div>
+</li>
+
+<li>Make sure that the command is located in the <code>your/etc/ssh/sshd_config</code> file.
+<div class="hacker">cat /etc/ssh/sshd_config | grep ForceCommand</div>
+</li>
+
+
+<li>Uninstall <code>authy-ssh</code>.
+<div class="hacker">sudo /usr/local/bin/authy-ssh uninstall</div>
+</li>
+</ol>
+
+<h2>Conclusion</h2>
+<p>In this article, you have learned to configure two-factor authentication on a SSH server using Authy. </p>
+
+</body>
+</html>

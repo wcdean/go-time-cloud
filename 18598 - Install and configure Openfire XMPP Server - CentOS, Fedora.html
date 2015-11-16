@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and configure Openfire XMPP Server - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install and Configure Openfire XMPP Server, CentOS, Fedora, Openfire XMPP, Miscellaneous, Java</p>
+    <h1>Install and Configure Openfire XMPP Server - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>0.5 hours</em></p>
+
+   <p>This article will help you to understand the installation and configuration of Openfire XMPP server on   CentOS or Fedora.</p>
+<p>Extensible Messaging and Presence Protocol (XMPP) is an XML-based communication protocol for middleware. It enables the near real-time exchange of structured yet extensible data between any two or more network entities.</p>
+<p>Openfire enables collaboration in real time and provides a tightly secured and high performing server. You can use the open source Apache license for Openfire and can easily set up and configure it using Java. </p>
+<p> Openfire is a Java-based tool to use the utility of XMPP server.</p>
+<p class="note">Openfire disallows  chat options. </p>
+	  <h2>Install Openfire</h2>
+<ol> 
+<li>Update the operating system.
+   <div class="hacker">sudo yum –y update</div>
+   </li>
+   <li>Install Java.
+   <div class="hacker">sudo yum install java</div>
+   </li>
+   <li>Download Openfire.
+   <div class="hacker">sudo wget http://www.igniterealtime.org/downloadServlet?filename=openfire/openfire-3.9.3-1.i386.rpm -O /root/openfire-3.9.3-1.i386.rpm</div>
+   </li>
+   <li>Install Openfire.
+   <div class="hacker">sudo yum install -y /root/openfire-3.9.3-1.i386.rpm</div>
+   <p>The Openfire package does not require separate installation of Java Runtime Environment (JRE) as it provides its own. This package is available in 32-bit version only. So, if you are running this installation on a 64-bit machine, corresponding 32-bit libraries must be installed separately.</p>
+   </li>
+   <li>Install 32-bit libraries (if you use a 64-bit system).
+     <div class="hacker">sudo yum install -y glibc.i686</div>
+   </li>
+   <li>Start the service again after every reboot.
+   <div class="hacker">sudo chkconfig openfire on</div>
+   </li>
+   <li>Start the service.
+   <div class="hacker">sudo systemctl start openfire.service</div>
+   </li>
+  </ol>
+	  
+	  
+	  <h2>Test Openfire </h2>
+<ol> 
+<li>Test the Openfire installation on your system by opening the following URL on your browser:
+ <strong>http://<em><u>your_IP</u></em>:9090.<br />
+ </strong>Successful installation of Openfire  shows the Openfire wizard on your browser. </li>
+<li>Follow the instructions to proceed with the setup. <ul><li>
+  On the first page, choose the language.</li><li>
+  On the second page, provide appropriate values for domain and associated ports.<br/>
+  <img src="images/18598 - 1.png" alt="18598 - 1.png"/></li><li>
+  
+ Keep the default values for the rest of the steps. 
+</li></ul></li>
+<li>After the setup procedure is complete, log into the Administration Console using the admin account.<br/>
+    <img src="images/18598 - 2.png" alt="18598 - 2.png"/><br />
+    After you log in, the first screen shows the <strong>Server Manager</strong> tab under the <strong>Server</strong> tab. The Server Manager provides information about server properties and environment, system properties, language and time, clustering, database, logs, email settings, and the security audit viewer.<br/>
+    <img src="images/18598 - 3.png" alt="18598 - 3.png"/>   <br />
+    The <strong>Server Settings</strong> tab provides information about profile settings, client connections, server to server connections, external components, HTTP bindings, update management, registration and login management, resource policies, offline messages, audit policies for messages, private data storage options, security settings, server certificates, compression settings, and file transfer settings.<br/>
+	<img src="images/18598 - 4.png" alt="18598 - 4.png"/>	<br />
+	The <strong>Media Services</strong> tab provides information about media proxy settings.
+	<br/>
+	<img src="images/18598 - 5.png" alt="18598 - 5.png"/>	</li>
+	     </ol>
+<h2>Conclusion</h2>
+    <p>By using the above steps, you can install and configure Openfire XMPP server on CentOS or Fedora.</p>
+   
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18569-->
+ 
+ 
+ 
+<title>Install and configure CouchDB with Elasticsearch - Arch Linux</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure CouchDB with Elasticsearch – Arch Linux, NoSQL</p>
+    <h1>Install and configure CouchDB with Elasticsearch – Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br />
+        <strong>Time</strong>: <em>1.5 hours</em></p>
+
+    <p>CouchDB is often categorized as a <em>NoSQL</em> database, and it stores data in <em>JSON (JavaScript Object Notation)</em> format. It is a lightweight, data-interchange format that provides Master-Master replication. Elasticsearch is a popular search server, based on Lucene. It is developed in Java language. </p>
+<p>This article covers the steps to install and configure CouchDB with Elasticsearch on Arch Linux.</p> 
+<p class="note">This article assumes that user is logged in with sudo user privileges.</p>
+
+<h2>Prepare the system</h2>
+  
+    <ol>
+	<li>Update the Arch Linux machine.
+	<div class='hacker'>sudo pacman -Syu</div>
+	 </li>
+	
+	<li>Install Erlang. CouchDB is written in Erlang language.
+	<div class='hacker'>sudo pacman -S erlang</div>
+	</li>
+	<li>From the provided list of options for repository, choose <code>option 1, mesa-libgl</code>, and when prompted for confirmation, press <strong>y</strong> to continue.
+	</li>
+	</ol>
+	
+<h2>Install and configure CouchDB</h2>
+    <ol>
+	<li>Install CouchDB.
+	<div class='hacker'>sudo pacman -S couchdb</div>
+	</li>
+	<li>Start CouchDB.
+	<div class='hacker'>sudo systemctl start couchdb.service</div>
+    </li>	
+	<li>Test CouchDB.
+	<div class='hacker'>sudo curl -XGET http://127.0.0.1:5984/</div>
+	<p>A successful run of CouchDB will display the following message:</p>
+	<div class='hacker'>{"couchdb":"Welcome","uuid":"fb70ea02576a9a96af5cf9c302305eab","version":"1.6.1","vendor":{"version":"1.6.1","name":"The Apache Software Foundation"}}</div> 
+	</li>
+	<li>Open the config file <code>local.ini</code> for editing.
+	<div class='hacker'>sudo vim /etc/couchdb/local.ini</div>
+	</li>
+	<li>Uncomment the following code by removing the semicolon (<strong>;</strong>) sign from beginning of the line, and update the highlighted sections with appropriate values:
+	<div class="hacker">port:5984</div>
+	<div class="hacker">bind_address = <em><u>Your server's public IP</u></em></div>
+    </li>
+	<li>Save and exit the file.
+	</li>
+    <li>Restart the database server CouchDB.
+	<div class='hacker'>sudo systemctl start couchdb.service</div>
+	</li>
+	</ol>
+	
+<h2>Install Elasticsearch </h2>
+    <ol>
+	<li>Install the latest Java development kit. 
+	<div class='hacker'>sudo pacman -S jre8-openjdk</div>
+	</li>
+	<li>Verify the Java version to ensure successful installation and configuration with the following command:
+	<div class='hacker'>java -version</div>
+    </li>
+	
+	<li>Install the Elasticsearch deb packages.	
+	<p class="note">These steps install version 1.7.1. For other versions, visit <strong>elasticsearch.org/download</strong>. </p>
+	<div class='hacker'>wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-<em><u>1.7.1</u></em>.tar.gz</div>
+	<div class='hacker'>sudo tar xzf elasticsearch-<em><u>1.7.1</u></em>.tar.gz</div>
+	<div class='hacker'>sudo mv elasticsearch-<em><u>1.7.1</u></em> /usr/share/elasticsearch</div>
+	</li>
+	</ol>
+
+<h2>Configure Elasticsearch </h2>
+	<ol>
+	<li>Open the configuration file <code>elasticsearch.yml</code> to make updates and enable access from the Internet.
+	<div class='hacker'>cd /usr/share/elasticsearch</div>
+	<div class='hacker'>sudo vim config/elasticsearch.yml</div>
+    </li>	
+	<li>Locate the following lines, uncomment it by removing the hashtag (<strong>#</strong>), and then enter the IP address of your server. It is usually under the section <code>Network And HTTP</code>.
+	<div class="hacker">network.bind_host: <em><u>Your server's public IP</u></em></div>
+	</li>
+	
+	<li>Locate, and uncomment the code by removing the <strong>#</strong>, and update the IP value as shown below:
+	<div class="hacker">network.publish_host: 127.0.0.1 </div>
+	</li>
+	
+	<li>Insert the following line anywhere under the section <code>Security</code> (usually at the end of the file):  
+	<div class="hacker">script.disable_dynamic: true</div>
+	</li>
+	
+	<li>Save and exit the file.</li>
+	
+	<li>Restart the Elasticsearch service for the changes to take effect. 
+	<div class="hacker">sudo ./bin/elasticsearch</div>
+	
+	<p>A successful execution will display a <strong>Started</strong>, and then <strong>Recovered</strong> message.</p>
+	</li>
+	
+	<li>Open a new terminal (or connect to the machine using another client), and test Elasticsearch using the following command: 
+	<div class='hacker'>sudo curl http://<em><u>Your server's public IP</u></em>:9200</div>
+   A successful execution will display the following output:
+	<div class='hacker'>
+	<pre>
+{
+  "ok" : true,
+  "status" : 200,
+  "name" : "Mason, Louise",
+  "version" : {
+    "number" : "0.90.8",
+    "build_hash" : "909b037218cf880e8772b066a764f179f2d5e719",
+    "build_timestamp" : "2013-12-18T16:08:16Z",
+    "build_snapshot" : false,
+    "lucene_version" : "4.6"
+  },
+  "tagline" : "You Know, for Search"
+}
+</pre>
+	</div>
+	</li>
+	</ol>
+	 
+<h2>Test CouchDB with Elasticsearch</h2>
+
+    <ol>
+	<li>Switch back to the terminal where Elasticsearch was running, and then press <strong>CTRL+C</strong> to stop Elasticsearch.<br />
+
+	</li>
+	
+	<li>Create a new directory for Elasticsearch Stores Indices.
+	<div class='hacker'>sudo vim /usr/share/elasticsearch/config/elasticsearch.yml</div>
+	</li>
+	
+	<li>Locate the following code (under the <code>Paths</code> section):
+	<div class='hacker'>#Path to where plugins are installed:
+<br />#
+<br />#path.plugins: /path/to/plugins
+</div>
+	</li>
+
+	<li>Uncomment this line by removing the hashtag (<strong>#</strong>), and then update it with the following:
+	<div class='hacker'>#Path to where plugins are installed:
+<br />#
+<br />path.plugins: /usr/share/elasticsearch/plugins
+</div>
+	</li>
+	<li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+	<li>Install the <code>elasticsearch-river-couchdb</code> plug in.
+	<div class='hacker'>cd /usr/share/elasticsearch/bin</div>
+	<div class='hacker'>sudo sh plugin install elasticsearch/elasticsearch-river-couchdb/2.6.0</div>
+	</li>
+	
+	
+	<li>Restart the Elasticsearch.
+	<div class='hacker'>sudo ./elasticsearch
+	</div>
+	A successful execution will display a Started, and then Recovered message.
+	</li></ol>
+<h2>Create a sample CouchDB database, and set up the Elasticsearch index</h2>
+<ol>
+<li>Open a new terminal (or connect to the machine using another client), and test Elasticsearch using the following command: 
+<div class='hacker'>sudo curl -X PUT http://127.0.0.1:5984/mydatabase</div>
+<p>A successful execution will display the following message:</p>
+<div class='hacker'>{"ok":true}</div>
+</li>
+
+   <li>Create the sample documents.
+   <div class="hacker">sudo curl -X PUT 'http://127.0.0.1:5984/mydatabase/1' -d '{"name":"My Name 1"}'</div>
+   <div class="hacker">sudo curl -X PUT 'http://127.0.0.1:5984/mydatabase/2' -d '{"branch":"My brach 1"}'</div>
+   <div class="hacker">sudo curl -X PUT 'http://127.0.0.1:5984/mydatabase/3' -d '{"roll no":"My rollno  1"}'</div>
+   </li>
+	
+	<li>Set up ElasticSearch with the CouchDB database by creating an index.
+	<div class='hacker'>
+	curl -X PUT '<em><u>PUBLIC_IP_ADDRESS_OF_YOUR_SERVER</u></em>:9200/_river/mydatabase/_meta' -d '{ "type" : "couchdb", "couchdb" : { "host" : "localhost", "port" : 5984, "db" : "mydatabase", "filter" : null }, "index" : { "index" : "mydatabase", "type" : "mydatabase", "bulk_size" : "100", "bulk_timeout" : "10ms" } }'
+
+	</div>
+	</li>
+	
+	<li>Test the index with the following query:
+	<div class='hacker'>curl http://<em><u>PUBLIC_IP_ADDRESS_OF_YOUR_SERVER</u></em>:9200/mydatabase/mydatabase/_search?pretty=true</div>
+	<p> Successful execution of query would result in output similar to following:</p>
+	<div class='hacker'>
+	<pre>
+{
+  "took" : 69,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 4,
+    "max_score" : 1.0,
+    "hits" : [ {
+      "_index" : "mydb",
+      "_type" : "mydb",
+      "_id" : "4",
+      "_score" : 1.0,
+      "_source":{"_rev":"1-8596f0546d30c466c3094f309023d145","name":"Name 4","_id":"4"}
+    }, {
+      "_index" : "mydb",
+      "_type" : "mydb",
+      "_id" : "1",
+      "_score" : 1.0,
+      "_source":{"_rev":"1-405492a75edaedac1183d77aafe60958","name":"Name 1","_id":"1"}
+    }, {
+      "_index" : "mydb",
+      "_type" : "mydb",
+      "_id" : "2",
+      "_score" : 1.0,
+      "_source":{"_rev":"1-17e5fdad9f957d8b365833cdecc3a8b6","name":"Name 2","_id":"2"}
+    }, {
+      "_index" : "mydb",
+      "_type" : "mydb",
+      "_id" : "3",
+      "_score" : 1.0,
+      "_source":{"_rev":"1-91d26403a8e4de569a97f06fb9bbb057","name":"Name 3","_id":"3"}
+    } ]
+  }
+}
+</pre>
+</div>
+	</li>
+	 </ol>
+    <h2>Conclusion</h2>
+<p>In this article, you installed and configured CouchDB with Elasticsearch. In combination with CouchDB, Elasticsearch can perform full text queries on data. This reduces the dependency on map-reduce. In addition, when using Elasticsearch with CouchDB, the user does not need to know the document ID, which can further enhances the efficiency.</p>   
+</body>
+</html>

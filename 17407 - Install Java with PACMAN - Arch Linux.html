@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is _17407_-->
+
+
+<title>Install Java with pacman - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Install Java</p>
+    <h1>Install Java with pacman - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Java is used by many applications, so it benefits many administrators to have Java already installed.  This article contains directions for installing both the Java runtime and SDK using the Arch Linux pacman package deployment tool. </p>
+
+    <h2>Install Java</h2>
+    <ol>
+<li>Update your repository.
+ <div class="hacker">sudo pacman -Syu </div>
+</li>
+
+<li>Find the current versions of Java available in your package manager.
+   <div class="hacker">pacman -Ss openjdk</div>
+Note the version you want.</li>
+
+<li>Download Java runtime using this format for your command. 
+
+ <div class="hacker">sudo pacman -S jre<em><u>version number</u></em>-openjdk</div>
+  Replace the version number with the version you want. For example, we'll download version <em><u>8</u></em>. 
+ <div class="hacker">sudo pacman -S jre<em><u>8</u></em>-openjdk</div>
+   Enter <strong>y</strong> at the prompt to continue installation.</li>
+
+<li>Download Java OPEN JDK using this format.
+  Do the same for the SDK. 
+  <div class="hacker">sudo pacman -S jdk<em><u>version number</u></em>-openjdk </div>
+
+   Again, we'll download version <em><u>8</u></em>. 
+ <div class="hacker">sudo pacman -S jdk<em><u>8</u></em>-openjdk </div>
+Enter <strong>y</strong> at the prompt to continue installation.
+</li>
+
+<li>You can also get the latest version number and tar.gz archive from the <a href="http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html">Oracle downloads</a> page. This site requires a license agreement.</li>
+ 
+       </ol>
+
+<h2>Check your Java version</h2>
+   <ul>
+            <li>Check the versions of Java installed on your server.
+<div class="hacker">java -version</div>
+ If your output shows just one version of Java installed, as in this example,  you are all finished!
+
+<div class="hacker">openjdk version "1.8.0_60"<br/>
+                        OpenJDK Runtime Environment (build 1.8.0_60-b24)<br/>
+                        OpenJDK 64-Bit Server VM (build 25.60-b23, mixed mode)</div>
+     
+If you have more than one Java version installed, continue on to select and verify the default version.</li>
+ </ul>
+<h2>(Optional) Select and verify the default Java version</h2>
+ 
+ <p>If you have multiple versions of Java on the same server, choose your default version. Then set your environment.</p>
+ <h3>Select the default version of Java</h3>
+
+ <li>Create or edit the file <code>/etc/environment</code>.
+      <div class="hacker">sudo vim /etc/environment</div>
+</li>
+ <li>Select your <code>Java_home</code>. In this case, we will use the <code>jdk</code> version.  
+ <div class="hacker">JAVA_HOME="/usr/lib/jdk8-openjdk&quot;
+</div>
+</li>
+<li>Save and close.
+ </li>
+ <li>Load the environment file.
+ <div class="hacker">source /etc/environment
+</div>
+</li>
+<li>Test it.
+ <div class="hacker">echo $JAVA_HOME
+</div>
+</li>
+</ol>
+    <h2>Conclusion</h2>
+        <p>Congratulations! You have succesfully installed Java on your server. </p>
+
+</body>
+</html>

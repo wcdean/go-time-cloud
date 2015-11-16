@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and configure a Riak database Cluster - Ubuntu</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure a Riak database cluster on Ubuntu, clustering</p>
+    <h1>Install and Configure a Riak Database Cluster - Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+
+    <p>In this article, you will learn to install a Riak database cluster on an Ubuntu server. Riak is a distributed NoSQL database that is designed for high availability of data. To ensure better performance, Ubuntu servers with at least 4 GB RAM are preferred.</p>
+    <p> In this article, you need to perform all the installations as a <code>sudo</code> user.</p>
+    
+  <h2>Install Riak</h2>
+<p>Perform the following installation steps on all nodes that are included in this Riak cluster.</p>
+
+<ol> 
+<li>Add the Riak repository and key.
+   <div class="hacker">sudo curl -s https://packagecloud.io/install/repositories/basho/riak/script.deb.sh | sudo bash</div>
+   </li>
+   <li>Install Riak, and update the <code>apt</code> repository.
+     <div class="hacker">sudo apt-get update</div>
+      <div class="hacker">sudo apt-get install riak</div>
+   </li>
+   </ol>
+   
+   <h2>Configure the first node	</h2>
+   <p>Configure the first node in a Riak cluster with the following steps.</p>
+   <ol>
+   <li>Stop the Riak service if it was started earlier.
+     <div class="hacker">sudo riak stop</div>
+   </li>
+   <li>Open the configuration file of <code>riak</code>.
+   <div class ="hacker">sudo vim /etc/riak/riak.conf</div>
+   </li>
+   <li>Edit the Riak configuration file: Find and replace the following lines in the <code>/etc/riak/riak.conf</code> file.
+     <div class="hacker">listener.protobuf.internal = <em><u>node_ip_address</u></em>:8087</div>
+   <div class="hacker">listener.http.internal = <em><u>node_ip_address</u></em>:8098</div>
+   <div class="hacker">nodename = riak@<em><u>node_ip_address</u></em></div>
+   </li>
+   <li>Save and close.</li>
+   
+  </ol>
+
+  <h2>Raise the ulimit</h2>
+  <ol>
+    <li>Find your current <code>ulimit</code>.
+       <div class="hacker">ulimit -n</div>
+
+   <li>Find out the maximum <code>ulimit</code> value allowed.
+ <div class="hacker">sudo sysctl fs.file-max</div>
+
+In this example, the output is: 
+ <div class="hacker">fs.file-max = 400145</div>
+
+This is the system-level max.</li>
+
+<li><p>Let's raise the limits of the riak user by adding new bounds to the limits.conf file.</p>
+
+  Open the limits.conf file for editing.
+
+ <div class="hacker">sudo vim /etc/security/limits.conf</div>
+</li>
+
+<li>Add these two lines anywhere in the file.
+ <div class="hacker">riak soft nofile 4096<br/>
+riak hard nofile 60000</div></li>
+
+<li>Save and close.</li>
+
+<li>Log out of your server.
+<div class="hacker">exit</div></li>
+
+<li>Log back in to your server and create this file.
+   <div class="hacker">sudo touch /etc/default/riak</div>
+ </li>
+
+<li>Now raise your <code>ulimit</code> to a number below your max. In this case, we'll raise it to 40000.
+   <div class="hacker">ulimit -n 40000</div>
+</li>
+<li>Save and close.</li>
+</ol>
+
+<p>You can configure all the other nodes that you want to include in the cluster in this way.</p>
+
+  <h2>Add a second node to the cluster</h2>
+  <p>Perform all the steps  above to start Riak in a second node and to include these nodes in the cluster. </p>
+<ol> 
+<li>Inside the second node, start <code>riak</code> service and execute the following command to join the first node:
+<div class ="hacker">sudo riak start</div>
+   <div class="hacker">sudo riak-admin cluster join riak@<em><u>first_node_ip</u></em></div>
+ </li>
+   <li>Plan and commit the changes.
+     <div class="hacker">sudo riak-admin cluster plan</div>
+   <div class="hacker">sudo riak-admin cluster commit</div>
+   </li>
+   <li>View the complete ring cluster.
+     <div class="hacker">sudo riak-admin status | grep ring_members</div>
+   </li>
+   <li>Create a file, <code>/etc/default/riak</code>, and add the following line to make the <code>ulimit</code> setting permanent:
+     <div class="hacker">sudo vim /etc/default/riak</div>
+   <div class="hacker">ulimit -n 40000</div></li>
+    <li>Save and close.</li>
+  
+    </ol>
+  
+  
+    <h2>Conclusion</h2>
+    <p>In this article, you have learned to install multiple nodes, configured them to start Riak, and then joined them to the first node to build a Riak database cluster. </p>
+   
+</body>
+</html>

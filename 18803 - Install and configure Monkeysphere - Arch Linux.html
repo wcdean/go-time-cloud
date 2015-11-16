@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Install and configure Monkeysphere - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure Monkeysphere - Arch Linux, Security, SSH.</p>
+    <h1>Install and configure Monkeysphere - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>1 hour</em></p>
+
+    <p>
+		Monkeysphere is a utility suite that provides a framework for TSL/SSL communication authentication using simple tools like a web browser and secure shell. The Monkeysphere system uses GPG keys to validate the servers to users. In this article, you will install and configure Monkeysphere, which will allow you to have a trusted SSH login.
+	</p>
+	<p>You should have 3 servers for configuring and testing purpose. The admin and the client servers will be used for generating the keys. After the keys are generated, these will be uploaded to the centralized keyserver.</p>
+	<ul>
+	<li><strong>server.<em><u>coolexample</u></em>.com</strong>: The SSH server to which you connect to validate the client and should have a publicly accessible domain name configured.
+	</li>
+	<li><strong>admin.<em><u>coolexample</u></em>.com</strong>: Administrator computer that is used to configure access.
+	</li>
+	<li><strong>client.<em><u>coolexample</u></em>.com</strong>: The client from which you initiate the connection.
+	</li>
+	</ul>
+    
+	<h2>Install the dependencies</h2>
+<ol> 
+<li>Install dependency packages on all servers (client, admin and server).
+   <div class="hacker">sudo pacman -Sy</div>
+   <div class="hacker">sudo pacman -S --needed base-devel</div>
+   <p>Choose the default option or just press <strong>Enter</strong>.</p>
+   <div class="hacker">sudo pacman -S perl-crypt-openssl-rsa perl-digest-sha1 openssh cpio lockfile-progs socat</div>
+   </li>
+   <li>Install <code>gnupg</code> version 1 from AUR since Monkeysphere needs <code>gnupg</code> version 1.
+   <div class="hacker">mkdir <em><u>build</u></em></div>
+   <div class="hacker">cd <em><u>build</u></em>/</div>
+   <div class="hacker">wget https://aur.archlinux.org/cgit/aur.git/snapshot/gnupg1.tar.gz</div>
+   <div class="hacker">tar -xvzf gnupg1.tar.gz</div>
+   <div class="hacker">cd gnupg1</div>
+   <div class="hacker">makepkg -s</div>
+   <p>If you get an error like <code>FAILED (unknown public key 2071B08A33BD3F06)</code>, then edit<code> ~/.gnupg/gpg.conf</code> to allow downloading the keys from the key server. </p>
+</li>
+
+<li>Edit the file <code>~/.gnupg/gpg.conf</code> by uncommenting the following line at 159.
+    <div class="hacker">keyserver-options auto-key-retrieve</div></li>
+   
+<li>Save the file and then continue building <code>gnupg1</code>.
+   <div class="hacker">makepkg -s</div>
+   <div class="hacker">sudo pacman -U gnupg1-1.4.19-4-x86_64.pkg.tar.xz</div>
+   </li>
+  </ol>
+  
+  <h2>Build GPG keys and authentication</h2>
+  <p>Configure the GPG Keys on the client and admin servers. This process include the following steps:</p>
+<ol> 
+				<li>Generate GPG Keys in both the client and admin servers.
+				<div class="hacker">gpg1 --gen-key</div>
+				<p>This will begin the process of GPG key generation where a series of questions will be asked.</p></li>
+			
+			<li> Choose <strong>1</strong> to create two RSA keys. Choose <strong>2048 bit encryption</strong>for key length. When asked about the key expiry, choose <strong>O</strong> to select option <strong>key never auto expire</strong> and finally press <strong>Y</strong> to confirm the details provided.
+			</li>
+			
+			<li>For the client server, provide username as <strong>client</strong> and email address as <strong>client@<em><u>coolexample</u></em>.com</strong>; while for the admin server, provide username as <strong>admin</strong> and email address as <strong>admin@<em><u>coolexample</u></em>.com</strong>.
+			<p>It will take some time to complete the key generation process. </p>
+			</li>
+	    
+			<li>View the key using the following command:
+				<div class="hacker">gpg1 --list-keys</div>
+				<div class="hacker">
+<pre>
+/home/user/.gnupg/pubring.gpg
+----------------------------
+pub   2048R/<em><u>1258D8EF</u></em> 2015-09-06
+uid                  client &lt;client@coolexample.com&gt;
+sub   2048R/FF569918 2015-09-06
+</pre>
+				</div>
+				<p>Issue the above command in admin server and you will see the keys in both servers.</p>
+			</li>
+			
+			<li>Upload the keys to <code>key-server</code>.
+			<p>You can find the key id from the above command. In this case, key id is <em><u>1258D8EF</u></em>. Perform this step on both the client and admin servers.</p>
+			<div class="hacker">gpg1 --send-key <em><u>1258D8EF</u></em></div>
+			</li>
+		</ol>
+		
+		
+  <h2>Sign the keys</h2>	
+	<ol>
+		<li>Pull down the opposite key on each of the servers and then sign those keys. To do this, get the <code>fingerprint</code> in the client server.
+		<div class="hacker">gpg1 --with-colons --fingerprint client</div>
+		<div class="hacker">
+<pre>
+tru::1:1441518267:0:3:1:5
+pub:u:2048:1:9E0613031258D8EF:2015-09-06:::u:client &lt;client@coolexample.com&gt;::scESC:
+fpr:::::::::<em><u>BF867BD82FAF8559633336829E0613031258D8EF</u></em>:
+sub:u:2048:1:E0150AD6FF569918:2015-09-06::::::e: 
+</pre>
+		</div>
+		Here, <em><u>BF867BD82FAF8559633336829E0613031258D8EF</u></em> is the fingerprint for the client.
+		</li>
+   
+		<li>On admin server, download the key, sign and then upload it to the <code>key-server</code>.
+			<div class="hacker">
+<pre>
+gpg1 --recv-keys BF867BD82FAF8559633336829E0613031258D8EF
+gpg1 --sign-key BF867BD82FAF8559633336829E0613031258D8EF
+gpg1 --send-key BF867BD82FAF8559633336829E0613031258D8EF
+</pre>
+			</div>
+		</li>
+		
+		<li>Do the opposite on the admin server. Take the fingerprint of admin key and then download, sign and upload the key from the client server. Take the fingerprint from admin server using the following command:
+		<div class="hacker">gpg1 --with-colons --fingerprint admin</div></li>
+		
+        <li>On the client server, download the key, sign and then upload it to the <code>key-server</code>.
+		<div class="hacker">
+<pre>
+gpg1 --recv-keys BF867BD82FAF8559633336829E0613031258D8EF
+gpg1 --sign-key BF867BD82FAF8559633336829E0613031258D8EF
+gpg1 --send-key BF867BD82FAF8559633336829E0613031258D8EF
+</pre>
+		</div>
+		</li>
+   
+        <li>Refresh both your server keys now. You will get the correct result after the propagation completes.  Wait for few minutes and then execute the below command:
+		<div class="hacker">gpg1 --refresh-keys</div>
+		<p>You will see an output stating <code>new signatures: 1</code>. This means that you have successfully executed the commands. Otherwise wait for some more time and issue a refresh command.</p>
+		</li>
+	</ol>
+	
+	
+<h2>Trust the administrator's judgment</h2>
+Here, the client will know that the SSH server to which it is connecting is trusted by the administrator.
+	<ol>
+	<li>Check the current trust settings of the client.
+	<div class="hacker">gpg1 --check-trustdb</div>
+	</li>
+	
+	<li>Update the trust by executing the below command.
+		<div class="hacker">gpg1 --update-trustdb</div>
+	</li>
+
+	<li>Choose option <strong>4</strong> to trust fully. On successful execution, you will get the output as:
+	<div class="hacker">
+<pre>
+gpg1: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+gpg1: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg1: depth: 1  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 0u
+</pre>
+   </div>
+   <p>The value <code>0 -</code>, shows that both the keys are trusted.</p>
+   </li>
+  </ol>
+ <h2>Install Monkeysphere </h2>
+   <p>Perform the following step on all the servers (Client, Admin and on SSH Server).</p>
+   <ol>
+   <li>Install Monkeysphere from AUR.  
+   <div class="hacker">cd <em><u>/home/user/build</u></em></div>
+   <div class="hacker">wget https://aur.archlinux.org/cgit/aur.git/snapshot/monkeysphere.tar.gz</div>
+   <div class="hacker">tar -xvzf monkeysphere.tar.gz</div>
+   <div class="hacker">cd monkeysphere</div>
+   <div class="hacker">makepkg -s</div>
+   <div class="hacker">sudo pacman -U monkeysphere-0.37-2-any.pkg.tar.xz</div>
+   </li>
+   <li>Generate the GPG key on SSH Server.
+   <div class="hacker">sudo monkeysphere-host import-key /etc/ssh/ssh_host_rsa_key ssh:// <em><u>server.coolexample.com</u></em></div>
+   </li>
+   <li>Upload the key to key-server.
+   <div class="hacker">sudo monkeysphere-host publish-key</div>
+   </li>
+  </ol>
+  
+  <h2>Validate server key as server administrator</h2>
+<p>The GPG key of the SSH server should be signed as a server administrator, so that client user can verify server identity by trusting administrator.</p>
+	<ol>
+	<li>Get the GPG fingerprint on SSH server:
+	<div class ="hacker">sudo monkeysphere-host show-key</div>
+	</li>
+	<li>The OpenPGP fingerprint provided by the SSH server that is same as the GPG fingerprint. In this case, the OpenPGP key is <em><u>58921230505B96E5D50A8968684414D33F68800A</u></em>.
+	<div class = "hacker">
+	<pre>pub 2048R/3F68800A 2015-09-06
+uid ssh://server.coolexample.com
+OpenPGP fingerprint: <em><u>58921230505B96E5D50A8968684414D33F68800A</u></em>
+ssh fingerprint: 2048 35:77:0b:f6:9b:1e:7c:69:45:6a:20:54:ab:ef:84:33 (RSA)
+</pre>
+</div>
+</li>
+<li>On the <strong>admin server</strong>, execute the command below to receive the key:
+<div class = "hacker">gpg1 --recv-key  <em><u>58921230505B96E5D50A8968684414D33F68800A</u></em></div>
+</li>
+<li>Sign the key on the admin server.
+<div class = "hacker">gpg1 --sign-key <em><u>58921230505B96E5D50A8968684414D33F68800A</u></em></div>
+</li>
+<li>Upload the key back to the key-server.
+<div class = "hacker">gpg1 --send-key <em><u>58921230505B96E5D50A8968684414D33F68800A</u></em></div>
+</li>
+</ol>
+   <h2>Verifying identity/key of SSH server from client</h2>
+   <ol>
+   <li>Download the key to the client.
+   <div class  ="hacker">gpg1 --recv-keys <em><u>58921230505B96E5D50A8968684414D33F68800A</u></em></div></li>
+<li>Execute the following command to verify the identity.
+<div class  ="hacker">ssh -oProxyCommand='monkeysphere ssh-proxycommand %h %p' <em><u>server.coolexample.com</u></em></div>
+</li>
+<li>Check that the server key is found in your key list.
+<div class = "hacker">gpg1 --list-keys</div>
+<div class = "hacker">
+<pre>
+/home/user/.gnupg/pubring.gpg
+----------------------------
+pub   2048R/1258D8EF 2015-09-06
+uid                  client &lt;client@<em><u>coolexample</u></em>.com&gt;
+sub   2048R/FF569918 2015-09-06
+pub   2048R/462908AF 2015-09-05
+uid                  admin &lt;admin@<em><u>coolexample</u></em>.com&gt;
+sub   2048R/62F4D3E5 2015-09-05
+pub   2048R/3F68800A 2015-09-06
+uid                  ssh://server.coolexample.com
+</pre>
+</div>
+</li>
+   <li>Wait for some time and issue the the following command on all the servers to refresh the keys.
+  <div class="hacker">gpg1 --refresh-keys</div> 
+   <p>In the output, you will see <code>new signatures: 1</code>. This ensures that everything is proper.</p></li>
+   
+   <li>Check the signature of the server from client to find both the admin and server keys:
+<div class = "hacker">gpg1 --list-sigs ssh://<em><u>server.coolexample.com</u></em></div>
+
+<p>Successful propagation of the keys would show an output similar to the following:</p>
+<div class = "hacker">
+<pre>pub   2048R/3F68800A 2015-09-06
+uid                  ssh://<em><u>server.coolexample.com</u></em>
+sig 3        3F68800A 2015-09-06  ssh://<em><u>server.coolexample.com</u></em>
+sig          462908AF 2015-09-06  admin admin@<em><u>coolexample</u></em>.com
+</pre>
+</div>
+</li>
+<li>Connect to the server again. This time you should not get any warning message.
+<div class ="hacker">ssh -oProxyCommand='monkeysphere ssh-proxycommand %h %p' <em><u>server.coolexample.com</u></em></div>
+<div class = "hacker"><em><u>user</u></em>@<em><u>server.coolexample.com</u></em>'s password:</div>
+</li>
+</ol>
+  
+   <h2>Make client-server connection easier</h2>
+   <ol>
+<li>Make the connecting procedure easier by adding the following command in client’s ssh configuration file.
+   <div class="hacker">sudo vim ~/.ssh/config</div>
+   <div class="hacker">
+<pre>
+Host *
+ProxyCommand monkeysphere ssh-proxycommand %h %p
+</pre>
+</div>
+ <p>This will perform all the verification process and you will only get a password prompt.</p>
+ </li>
+	<li>Test the setup by cleaning up the <code>known_host</code> file and run the <code>ssh</code> command to connect to the server. This time there should be no warning message from server.
+   <div class="hacker">ssh <em><u>server.coolexample.com</u></em></div>
+   <div class="hacker"><em><u>user</u></em>@<em><u>server.coolexample.com</u></em>'s password:</div>
+	</li> 
+	</ol>
+ 	         
+    <h2>Conclusion</h2>
+    <p>In this article you have learnt to install and configure Monkeysphere in Arch Linux to trust the <code>ssh</code> server. With this, if administrator trusts the server, then the clients will not be asked to validate server for connection. After this, you can <a href="18806">use Monkeysphere to authenticate
+ SSH users on Arch Linux server.</a></p>
+   
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install a UFW firewall - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install UFW firewall to increase security on Debian and Ubuntu</p>
+    <h1>Install an Uncomplicated Firewall (UFW)  - Debian, Ubuntu</h1>
+    
+  <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>5 minutes</u></em></p>
+
+    <p>Uncomplicated Firewall (UFW) is the front end for IPtables. Its command-line user interface makes it easy to configure your Linux&trade; firewall.
+    Ubuntu and some Debian systems come prepackaged with UFW.</p> 
+    
+<p>This article  walks you through the  basics of installing and enabling UFW.</p>   
+
+    <h2>Install UFW</h2>
+<ol>
+<li>Update your packages:
+  <div class="hacker">sudo apt-get update</div>
+  It's always good practice to update your packages  before installing anything new.</li>
+    
+<li> Install UFW.
+    <div class="hacker">sudo apt-get install ufw</div>
+    
+  </li>
+<li>(Debian only) If you get an error message  about missing dependencies (such as &quot;E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?&quot;), update your package manager.<br/>
+    <div class="hacker">sudo apt-get install --fix-missing</div>
+</li>
+    </ol>
+         
+    <h2>Enable UFW</h2>
+
+<ol>
+<li>
+Check the status of UFW to make sure it's not already running.
+     <div class="hacker">sudo ufw status</div></li>
+  <li>View the output:
+    <ul>
+  <li>If the output is similar to <code>ufw start/running</code>,  the firewall is active. You're finished!</li>
+     <li>If the firewall is not active, enable UFW.
+       <div class="hacker">sudo ufw enable</div>
+       Enter <strong>y</strong> to at the prompt, &quot;Command may disrupt existing ssh connections. Proceed with operation (y|n)?&quot;<br />
+    The system returns this output:<br />
+    <div class="hacker">Firewall is active and enabled on system startup</div>
+     </li>
+    </ul>
+</li></ol>
+
+             
+    <h2>Next steps</h2>
+    <p>Congratulations! You installed and/or enabled UFW. From here you can do either of the following:</p>
+    
+    <ul>
+    <li>Set up your firewall (by managing connections and rules). See 
+  <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17849%20-%20Set%20up%20UFW%20firewall%20-%20Debian,%20Ubuntu.html">Set up UFW firewall - Debian, Ubuntu</a>.
+  </li>                      
+
+ <li>Learn more on how to use UFW with IPv6. See 
+ <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/19190%20-%20Use%20UFW%20firewall%20with%20IPv6%20-%20Debian,%20Ubuntu.html">Use UFW firewall with IPv6 - Debian, Ubuntu</a>.
+  </li> 
+  </ul>
+  
+</body>
+</html>

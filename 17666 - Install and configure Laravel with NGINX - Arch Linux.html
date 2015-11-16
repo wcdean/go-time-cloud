@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and configure Laravel with NGINX - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Instructions to install and configure Laravel in a Nginx / Arch environment.</p>
+    <h1>Install and configure Laravel with Nginx - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>Laravel is a framework used to create web applications.&nbsp; It is assumed you are installing on top of a <a href="http://17350%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Arch%20Linux.html">LEMP stack</a> and have created a <a href="http://17329%20-%20Add%20Memory%20Swap%20-%20Arch%20Linux.html">swap file</a>.</p>
+
+    <h2>Update and Install Dependencies</h2>
+           <ol>
+               <li>Update
+                   packages
+                   <div class="hacker">sudo pacman -Su </div>
+               </li>
+               <li>Install git
+                   <div class="hacker">sudo pacman -Syu git</div>
+               </li>
+               <li>Install php-related items
+                   <div class="hacker">sudo pacman -Syu php-mcrypt</div>
+               </li>
+           </ol>
+     <h2>Configure php</h2>  
+      <h3>php.ini</h3>  
+    
+    <ol>
+         <li>Edit php initialization file.  Open /etc/php.ini for editing 
+         <div class="hacker">sudo vim /etc/php/php.ini</div>
+       </li>  
+        <li>Find the <b><i>cgi.fix_pathinfo</i></b> directive under a section called <b>Paths and Directories</b>.  Verify / modify the cgi.fix_pathinf directive as shown below: 
+         <div class="hacker">cgi.fix_pathinfo=0</div>
+       </li> 
+         <li>Further down in the file, under a section titled "Dynamic Extensions" remove the comment(;) from the following lines so they look like this (these should be within the same vicinity, but won't be grouped together perfectly like this):  
+   <div class="hacker"><pre>
+        extension=mcrypt.so
+        extension=mysqli.so
+        extension=mysql.so    
+        extension=openssl.so
+        extension=phar.so
+        extension=zip.so
+                       </pre></div>
+
+                     </li>
+        <li>Save and close.</li>
+
+      </ol>
+    
+    <h2>Configure Nginx</h2>  
+    
+       <h3>Nginx.conf</h3>  
+    <ol>
+      <li>Create a physical location for the Laravel server.
+                 <div class="hacker">sudo mkdir /usr/share/nginx/html/laravel</div>
+      </li> 
+      
+      <li>Open the nginx.conf file 
+                  <div class="hacker">sudo vim /etc/nginx/nginx.conf</div> 
+      </li> 
+  
+  <li>Find this line in the file:
+    <div class="hacker"># another virtual host using mix of IP-, name-, and port-based configuration</div>
+
+Above it, add the following contents:
+    <div class="hacker"><pre># server context
+    server {
+        listen       81;
+        server_name  localhost/laravel;
+        root /usr/share/nginx/html/laravel/public;
+
+        location / {
+        }
+
+ #location context
+ location ~ \.php$ {
+       try_files $uri /index.php =404;
+       fastcgi_split_path_info ^(.+\.php)(/.+)$;
+       fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+       fastcgi_index index.php;
+       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  
+       include fastcgi_params;
+
+    }      
+        }</pre></div>
+     </li> 
+         
+
+          <li>Save and close the file.       </li>
+    
+<li>Restart Nginx<div class="hacker">sudo systemctl restart nginx</div>
+       </li> 
+        </ol>
+
+<h2>Install Composer</h2>
+    <p>Composer is a tool we will use to manage the Laravel implementation. </p>
+           <ol>
+               <li>Navigate to your home directory and run the Composer install script.
+                   <div class="hacker">cd ~<br />
+                       curl -sS https://getcomposer.org/installer | php</div>
+               </li>
+<li> You will see 
+                   <div class="hacker"><pre>All settings correct for using Composer
+Downloading...
+
+Composer successfully installed to: /home/randomcode/composer.phar
+Use it: php composer.phar </pre>
+</div>
+               </li> 
+
+               <li>Change the name of the newly-created composer.phar file to &quot;composer&quot;
+                   <div class="hacker">sudo mv composer.phar /usr/local/bin/composer</div>
+               </li> 
+                       </ol>
+<h2>Install Laravel</h2>
+    <ol>             
+               <li>Use composer to retrieve and install Laravel into the directory we created earlier.   If you are challenged for a <a href="https://github.com/settings/tokens">personal access token</a> from github, supply it. This will take a few minutes.
+    <div class="hacker">sudo /usr/local/bin/composer create-project laravel/laravel /usr/share/nginx/html/laravel 4.2</div>
+               </li>              
+     <li>Change the owner of the Laravel directory to be the same as the user and group defined in <code>php-fpm.conf</code><div class="hacker">sudo chown -R http:http /usr/share/nginx/html/laravel</div>
+               </li>                           
+               <li>Grant permissions to the Laravel directory<div class="hacker">sudo chmod -R 755 /usr/share/nginx/html/laravel</div>
+               </li>   
+               <li>Change the permissions to allow the http user to write to the app/storage directory<div class="hacker">sudo chmod -R 755 /usr/share/nginx/html/laravel/app/storage</div>
+               </li>   
+              <li>Verify success by navigating to yourcloudserver.
+                  <div class="hacker">http://your server IP address.com/index.php</div>
+               </li>
+           </ol>
+
+<h2>Next steps</h2>
+    <p>You have arrived. Now you can use the Laravel framework to make beautiful apps.</p>
+   
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Use PostgreSQL with your Ruby on Rails Application - Ubuntu</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+
+    
+</head>
+
+<body>
+
+<p>Setting up Rails Application with PostgreSQL in Ubuntu, PostgreSQL, Ruby, Rails</p>
+<h1>Use PostgreSQL with a Ruby on Rails Application - Ubuntu</h1>
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>30 mins</em></p>
+
+<p>In this article, we'll create a PostgreSQL server to use as a database layer for scaling a Ruby on Rails application.  </p>
+
+<p> The tasks in this article assume that you have <code>sudo</code> privileges. If you have not installed Ruby on Rails, please visit <a href="17534">Install Ruby on Rails using RVM - Ubuntu</a>.</p>
+<h2>Install PostgreSQL</h2>
+<ol>
+<li>Install PostgreSQL and other dependencies.
+	<div class='hacker'>sudo apt-get install postgresql postgresql-contrib</div>
+</li>
+<li>Install <code>pgadmin3</code> for the administrator. <code>pgadmin3</code> is an easy-to-access GUI for PostgresSQL. 
+	<div class='hacker'>sudo apt-get install pgadmin3</div>
+</li>
+</ol>
+<h2>Create a database user</h2>
+<ol>
+<li>Log in with <code>postgres</code> system user, and create a user.
+		<div class='hacker'>sudo -u postgres createuser -s <em><u>username</u></em></div> 
+</li>        
+<li>Set a password for the database user.
+		<div class='hacker'>sudo -u postgres psql</div>
+    		  <div class='hacker'>\password <em><u>username</u></em></div>
+</li>              
+<li>Close the session.
+	<div class='hacker'>\q</div>
+</li>
+<li>Restart the PostgresSQL service.
+		<div class='hacker'>sudo service postgresql restart</div>
+Successful execution should show an <strong>OK</strong> message.
+		</li>        
+</ol>
+
+<h2>Set up the Rails application</h2>
+<ol>
+<li>Move to the home directory to create a new Rails application and install a necessary dependency. To set PostgreSQL as the database, use the<code> -d postgresql</code> option.
+  <div class='hacker'>cd ~</div>
+  <div class="hacker">sudo apt-get install libpq-dev</div>
+<div class='hacker'>rails new <em><u>your_application</u></em> -d postgresql</div>
+</li>
+<li>Move to the application directory.
+  <div class='hacker'>cd <em><u>your_application</u></em></div>
+ </li>
+<li>Open the <span class="hacker"><code>database.yml</code></span> file:
+<div class='hacker'>sudo vim config/database.yml</div>
+ </li>
+<li>Look for <code>pool: 5</code> in the file, and add the following lines beneath it. Enter the username and password for the <code>postgres</code>  user.
+  <div class='hacker'>
+<pre>host: localhost
+username: <em><u>postgres user username</u></em>
+password: <em><u>postgres user password</u></em></pre></div>
+<p class ="note">When adding this code, you need to ensure proper alignment with the code "<code>pool: 5</code>". Also  spacing  with in the code added must be maintained as shown above.</p>
+</li>        
+<li>Save and exit the file by pressing the  <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+</ol>
+
+<h2>Create a database for  the application</h2>
+<ul>
+<li>Create the application's database in the application directory.
+  <div class='hacker'>rake db:create</div>
+Two databases in the PostgreSQL server are created. For example, if the application's name is <code>your_application</code>, the command creates databases named <code>your_application _development</code> and <code>your_application _test</code>. 
+</li>
+</ul>
+
+<h2>Test the configuration</h2>
+<ol>
+<li>Test  the Rails application.
+  <div class='hacker'>rails server</div>
+  This would run the Rails application on your localhost on port 3000.  
+  <p>To stop the server, press <strong>Ctrl+C</strong>
+  </li>
+	<li>You can bind the rails server to the public IP address of your server, to access your application from a web browser, if it's located on a remote server.
+	<div class="hacker">rails server --binding=<em><u>Public_IP_address of Your server</u></em>
+	</div>
+	Open the web browser on your local system, and for URL, type http://Public_IP_address of Your server:3000. A successful exection should show a <strong>Welcome aboard</strong> message by Rails.
+	</li>
+</ol>
+
+<h2>Next steps</h2>
+<p>In this article, we configured a PostgreSQL  server with a Rails application in Ubuntu. For further exploration, see <a href="17514"> Deploy a Rails App with Unicorn and Nginx - Ubuntu</a>.</p>
+</body>
+</html>

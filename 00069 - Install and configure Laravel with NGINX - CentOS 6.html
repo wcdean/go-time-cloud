@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Use this template for articles that include steps for accomplishing a task or tasks (for example, installing). For articles that explain or describe something (such as an operating system), use the Informational template instead.  -->
+
+<title>Install and configure Laravel with NGINX - CentOS 6</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Instructions to install and configure Laravel in an Nginx / CentOS 6 environment.</p>
+    <h1>Install and configure Laravel with NGINX - CentOS 6</h1>
+
+   <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>Laravel is a framework used to create web applications. Be sure you have a <a href="19186 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 6.html"> CentOS 6 LEMP stack</a> installed.</p>
+
+    <p>If your server is 512 MB or smaller, it's recommended to <a href="17328 - Add Memory Swap - CentOS, Fedora.html">add swap</a> for Laravel to install correctly.</p>
+
+    <h2>Install Dependencies</h2>
+           <ol>
+               <li>Update your installation package.
+                   <div class="hacker">sudo rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm</div>
+
+               </li>
+               <li>Install Webtatic.
+                   <div class="hacker">
+                    sudo rpm -Uvh https://mirror.webtatic.com/yum/el6/latest.rpm</div>
+               </li>
+               <li>Install your PHP extensions.
+                   <div class="hacker">
+                       sudo yum install php56w-fpm php56w-mysql mariadb-server php56w-mcrypt php56w-dom php56w-mbstring
+                   </div>
+
+If you have issues upgrading your PHP to the required version, do the following:
+ <div class="hacker">sudo yum install yum-plugin-replace</div>
+ <div class="hacker">sudo yum replace php-common --replace-with=php56w-common</div>
+ <div class="hacker">sudo yum install php56w-mcrypt</div>
+<!--CT...
+<div class="hacker">sudo yum remove epel-release</div>
+<div class="hacker">sudo wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm</div>
+<div class="hacker">sudo yum install php56w</div>
+...-->
+               </li>
+
+<li>Install git and curl.              
+ <div class="hacker">sudo yum install -y curl git</div></li>
+
+
+<li>Restart Nginx.
+<div class="hacker">sudo service nginx restart</div>
+</li>
+
+           </ol>
+
+ <h2>Configure NGINX for Laravel</h2>
+
+<ol>
+  <li>First, create a physical location for the Laravel server.
+<div class="hacker">sudo mkdir -p /var/www/laravel</div>
+       </li> 
+
+ <li>Create a new Laravel configuration file. 
+<div class="hacker">sudo vim /etc/nginx/conf.d/laravel.conf</div> </li>
+
+<li>Add the following contents to the newly-created file:
+<div class="hacker"><pre>server {
+listen       81;
+root /var/www/laravel/public;
+index index.php index.html index.htm;
+server_name localhost;
+try_files $uri $uri/ /index.php?$query_string;
+
+# Load configuration files for the default server block.
+
+location / {
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+
+location ~ \.php$ {
+try_files $uri /index.php =404;
+fastcgi_split_path_info ^(.+\.php)(/.+)$;
+fastcgi_pass unix:/var/run/php-fpm/php5-fpm.sock;
+fastcgi_index index.php;
+fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; 
+include fastcgi_params;
+ }
+
+    }</pre></div></li>
+
+ <li>Save and close the file.</li> 
+</ol>
+
+<h2>Make your main Nginx config file read your Laravel server block</h2>
+
+<ol>
+<li>Open your main Nginx config file to edit. 
+      <div class="hacker">sudo vim /etc/nginx/nginx.conf</div> </li>
+
+<li>Make sure this <code>include</code> line is present.  It should be under the heading <code> # Virtual Host Configs</code>. Add this <code>server_names </code>line underneath it.
+<div class="hacker"><pre>include /etc/nginx/conf.server_names_hash_bucket_size 64;</u></em></pre></div> </li>
+
+    <li>:wq</li>
+
+</ol>
+
+<h2>Make sure PHP is configured correctlynfigured correctly</h2>
+
+<ol>
+  <li>Open the <code>/etc/php-fpm.d/www.conf</code> file for editing. 
+ <div class="hacker">sudo vim /etc/php-fpm.d/www.conf</div> </li>
+
+  <li>Find the <code>Listen</code> directive (it should be first) and verify that it's set as follows:
+  <div class="hacker">listen = /var/run/php-fpm/php5-fpm.sock;</div></li>
+
+   <li>Save and close.</li>
+
+
+<li>Open your <code>default.conf</code> file for editing.
+  <div class="hacker">sudo vim /etc/nginx/conf.d/default.conf</div></li>
+
+  <li>Find the <code>location ~ \.php$</code> towards the bottom. In it, make sure the <code>fastcgi_pass</code> line is set as follows:  
+<div class="hacker">fastcgi_pass   unix:/var/run/php-fpm/php5-fpm.sock;</div>
+  </li>
+
+     <li>Save and close.</li>
+
+<li>Restart Nginx.
+  <div class="hacker">  sudo service nginx restart</div>
+       </li>
+
+<li>Restart PHP.
+<div class="hacker">sudo service php-fpm restart</div></li>
+        </ol>
+
+<h2>Install Composer</h2>
+    <p>Composer is a tool we will use to manage the Laravel implementation. </p>
+           <ol>
+               <li>Navigate to your home directory
+                   <div class="hacker">cd ~</div>
+               </li>
+               <li>Run the Composer install script.
+                   <div class="hacker">curl -sS https://getcomposer.org/installer | php</div>
+               </li>
+               <li>Change the name of the newly-created <code>composer.phar</code> file to &quot;composer&quot;
+                   <div class="hacker">sudo mv composer.phar /usr/local/bin/composer</div>
+               </li>
+</ol>
+
+
+<h2>  Install Laravel</h2>
+    <ol>
+               <li>Use Composer to retrieve and install Laravel into /var/www. This might take a few minutes.
+                   <div class="hacker">sudo /usr/local/bin/composer create-project laravel/laravel /var/www/laravel 4.2</div>
+               </li>
+ <li>Change the owner to &quot;nginx&quot;.
+                   <div class="hacker">sudo chown -R nginx:nginx /var/www/laravel</div>
+               </li>
+<li> Grant permissions to your Laravel directory.
+  <div class="hacker">sudo chmod -R 755 /var/www/laravel</div></li>
+
+<li> Grant permissions to allow Nginx to write to the app/storage directory<div class="hacker">sudo chmod -R 755 /var/www/laravel/app/storage</div>
+               </li>
+<li>Restart PHP.
+<div class="hacker">sudo service php-fpm restart</div></li>
+
+
+<li>Restart Nginx.
+  <div class="hacker">  sudo service nginx restart</div>
+       </li>
+
+              <li>In your web browser, verify success by navigating to your server, appended by :81.
+<div class="hacker"><em><u>your server IP address</u></em>:81</div></li>
+
+           </ol>
+    <h2>Next steps</h2>
+    <p>You have arrived. Now you can use the Laravel framework to make beautiful apps.</p>
+
+</body>
+</html>

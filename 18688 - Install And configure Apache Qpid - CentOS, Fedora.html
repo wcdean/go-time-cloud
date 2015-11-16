@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18688 -->
+
+
+
+<title>Install and configure Apache Qpid - CentOS, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+</head>
+
+<body>
+<p>Setting up Apache QPID on CentOS and Fedora, Messaging</p>
+    <h1>Install and configure Apache Qpid - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>15 minutes</em></p>
+
+    <p>This article explains how to install and configure Apache Qpid&trade; on CentOS and Fedora&trade;. Apache Qpid is an open source messaging system used to send and receive messages between the application and processes. It implements <strong>Advanced Message Queuing Protocol</strong> (AMQP). </p>
+	<p>To send and receive message between process and applications, we need a third-party program to provide an interface. These third-party programs are called <em>message brokers</em>.</p>
+  
+  
+<h2>Advanced Message Queuing Protocol (AMQP) Overview</h2>
+       
+    <p>AMQP is a well-known, open source standard used for transferring messages. It provides a common ground to many applications and message brokers to operate without issues caused by an individual’s design or development.</p>
+ 
+ 	<h2>Install Apache Qpid</h2>
+	<ol>
+	<li>You will need to install two different set of tools:
+	<ul>
+	<li>Implement Qpid broker for your selected language. For example, C++broker for Python, or Java Broker for Java</li>
+	<li>Qpid Client libraries For example, Qpid Python </li>
+	</ul>
+	</li>
+	<li>Update the server.
+	<div class="hacker">sudo yum –y update</div>
+	</li>
+	<li>To download C++ server and its tools, run the following command:
+	<div class="hacker">sudo yum install -y qpid-cpp-server qpid-tools  </div>
+	</li>
+	<li>To install the Qpid language bindings, run the following command:
+	<div class="hacker">sudo yum install -y python-qpid</div>
+	</li>
+	</ol>
+	
+	<h2>Managing Qpid</h2>
+<ul>
+<li>To start, stop, restart, check the status, and reload, you can use following commands:
+
+<table>
+	<tr>
+		<th>
+			Task
+		</th>
+		<th>
+			Command
+		</th>
+	</tr>
+	<tr>
+		<td>
+			Start the service
+		</td>
+		<td>
+			<code>sudo /sbin/service qpidd start</code>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Stop the service
+		</td>
+		<td>
+			<code>sudo /sbin/service qpidd stop</code>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Restart the service
+		</td>
+		<td>
+			<code>sudo /sbin/service qpidd restart </code>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Check the status
+		</td>
+		<td>
+			<code>sudo /sbin/service qpidd status</code>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Force Reload
+		</td>
+		<td>
+			<code>sudo /sbin/service qpidd force-reload</code>
+		</td>
+	</tr>
+</table>
+</li>
+</ul>
+<h2>Explore Qpid</h2>
+	<p>After you have configured Qpid and its Python language binding, we can explore how it works.</p>
+	<ol>
+	<li>Create a <code>qpid_test.py</code> file with your text editor.
+		<div class="hacker">sudo vim qpid_test.py</div></li>
+	
+	<li>Paste the following code (explained in comments) into the file, save it, and exit.
+	<div class="hacker">
+	<pre>
+# Import the modules we need
+from qpid.messaging import *
+
+broker     = "localhost:5672" 
+address    = "amq.topic" 
+connection = Connection(broker)
+
+try:
+    connection.open()
+
+    # Define the session
+    session = connection.session()
+
+    # Define a sender and a receiver
+    sender   = session.sender(address)
+    receiver = session.receiver(address)
+
+    # Send a simple message to the queue
+    sender.send(Message("Hello world!"));
+
+    # Fetch the message from the queue
+    message = receiver.fetch()
+
+    # display the message
+    print message.content
+
+    # Check with the server
+    session.acknowledge()
+
+except MessagingError, err:
+    print err
+
+finally:
+    connection.close()
+</pre>
+	</div>
+	</li>
+	
+	<li>Run the following script: 
+	<div class="hacker">python qpid_test.py</div>
+	
+	You'll get the following message as your output: <code>Hello world!</code>
+	</li>
+	</ol>
+	
+	<h2>Next steps</h2>
+    <p>Congratulations! You have successfully installed Apache Qpid. From here, you can install other language bindings for Qpid if you'd like. </p>
+
+	For example, to get Qpid with Perl bindings, you can use the following command as we did for python-qpid earlier.
+	<div class="hacker">
+		sudo yum install perl-qpid
+	</div>
+   
+</body>
+</html>

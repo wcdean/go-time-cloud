@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Deploy your Rails application with Mina - CentOS, Fedora</title>
+<style type ="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting Up a Rails application with Mina, Ruby, Rails.</p>
+    <h1>Deploy Your Rails Application with Mina - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>4</u></em><br/>
+        <strong>Time</strong>: <em><u>1 hr</u></em></p>
+
+<p>This article will help you install Mina and deploy a Rails application with Mina. Mina is a Ruby-based tool used for creating scripts with a list of tasks to perform and to facilitate everyday operations. Mina converts these RAKE based programming files to bash scripts, connects to a defined remote server, and executes them.</p>
+<p>To perform these tasks, you need a GitHub account (For help, see the <a href="https://help.github.com/articles/create-a-repo/">Github documentation)</a>. Also, make sure that the host machine has Ruby on Rails using rbenv installed and running. For instructions, see  the following:</p>
+	<ul>
+	<li><a href="#17521">Install Ruby on Rails with rbenv - CentOS</a>
+	</li>
+	<li><a href="#17520">Install Ruby on Rails with rbenv - Fedora</a></li>
+
+	</ul>
+	<p class ="note">This article assumes that you are logged in as a <code>sudo</code> user.</p>
+<h2>Prepare the system</h2>
+ <ol>
+	 <li>Update the system packages.
+	
+	 <div class ="hacker">sudo yum -y update </div>
+	 
+	 </li>
+	 <li>Install the development tool.
+	   
+	 <div class ="hacker">sudo yum groupinstall  'Development-tools'  </div>
+	 
+	 </li>
+ </ol>	
+ <h2>Create a Rails application</h2>
+<ol>
+	
+	<li>Go to the home directory, and create a Rails application.
+	  <div class ="hacker">cd /home/<em><u>Logged_in_user</em></u></div>
+	<div class ="hacker">rails new <em><u>Your_application</u></em></div>
+	</li>
+	<li>Go to the Rails application directory.
+	  <div class ="hacker">cd <em><u>Your_application</u></em></div>
+	
+	</li>
+</ol>
+<h2>Install Mina</h2> 
+<ol>
+	<li>Install Mina.
+	
+	<div class ="hacker">gem install mina</div>
+	</li>
+	<li>Create <code>deploy.rb</code>.
+	  <div class ="hacker">mina init</div>
+</li>
+	<li>Create a user for deployment.
+	  <div class ="hacker">sudo useradd <em><u>username</u></em></div>
+	<div class ="hacker">sudo passwd <em><u>username</u></em></div>
+	</li>
+	<li>Open the <code>/etc/sudoers</code> file.
+	  <div class ="hacker">sudo vim /etc/sudoers</div>
+	</li>
+	<li>Scroll down to the bottom of the file, and then add the following line just after where the root is defined:
+	 
+	<div class ="hacker"><em><u>username</u></em> ALL=(ALL) ALL  </div>
+	</li>
+	<li>Save and exit the file by pressing the <strong>Esc</strong> key,  then typing <strong>:wq</strong>, and then pressing  the <strong>Enter</strong> key.
+	
+	</li>
+</ol>	
+<h2>Create a Git repository</h2>
+<ol>
+	<li>Make a repository on GitHub: Log into GitHub on your local browser, and create a <em><u>Your_application</u></em> repository.
+	  
+	  <div class ="hacker">sudo yum install git </div>
+	</li>
+	<li>Initiate the repository.
+	  <div class ="hacker">git init</div>
+	<div class ="hacker">git add .</div>
+	<div class ="hacker">git config --global user.name "<em><u>GitHub_UserName</u></em>"</div>
+	<div class ="hacker">git config --global user.email "<em><u>GitHub_Email_Address</u></em>"</div>
+	</li>
+	<li>Commit the changes.
+	  <div class ="hacker">git commit -m "first commit"</div>
+	</li>
+	<li>Add your GitHub repository link.
+	  <div class ="hacker">git remote add origin 	git@github.com:<em><u>GitHub_UserName</u></em>/<em><u>Your_application</u></em>.git</div>
+	</li>
+	<li>Create an RSA/SSH key.
+	  <div class ="hacker">ssh-keygen -t rsa</div>
+	<div class ="hacker">sudo cat /root/.ssh/id_rsa.pub</div>
+	<p>Or</p>
+	<div class ="hacker">sudo cat /home/<em><u>username</u></em>/.ssh/id_rsa.pub  </div>
+	<p>Copy the ssh-key and go to GitHub account and add ssh-key.</p>
+	</li>
+	<li>Push the project's source code to your Github account.
+	  <div class ="hacker">git push -u origin master</div>
+	</li>
+	<li>Change the ownership of the Rails application to the deployer.
+	  <div class ="hacker">sudo chown -R  <em><u>username</u></em>  /home/<em><u>Logged_in_user</em></u><em><u>/Your_application</u></em></div>
+	</li>
+</ol>
+<h2>Deploy the Rails application</h2>
+<ol>
+	<li>Go to the application directory.
+	  <div class ="hacker">cd  /home/<em><u>Logged_in_user</em></u><em><u>/Your_application</u></em></div>
+	</li>
+	<li>Open the <code>deploy.rb</code> file.
+	  <div class ="hacker">sudo vim config/deploy.rb</div>
+	</li>
+	<li>Add the following lines to the beginning of this file. Mina requires  configuration of the bundler, Rails, Git, and Ruby. 
+	  <div class ="hacker"><pre>require 'mina/bundler'
+    require 'mina/rails' 
+     require 'mina/git' 
+    require 'mina/rbenv'
+    # require 'mina/rvm'(uncomment this if you have installed ruby with rvm)
+</pre></div>
+	</li>
+	<li>Set the domain name or IP, and then set the path for the Rails application folder, repository, and branch.   
+	  <div class ="hacker"><pre> set :rails_env, 'production'
+ set :domain,     '<em><u>Your_ip_adress</u></em>' #your public IP
+ set :deploy_to,  "/home/Deployer_username/app/#{rails_env}"
+ set :app_path,   "#{deploy_to}/#{current_path}" #rails application path
+set :repository, 'https://github.com/<em><u>GitHub_username</u></em>/<em><u>Your_application</u></em>.git'
+    set :branch,     'master'
+
+</pre></div>
+	</li>
+	<li>Uncomment the line that says <code>'rbenv:load'</code> in the environment task section, if you have installed Ruby using rbenv. Otherwise, uncomment the other line that invokes Ruby installation using <code>rvm</code>. 
+	  <div class ="hacker"><pre> task :environment do  
+     invoke :'rbenv:load'
+     # invoke :'rvm:use[ruby-1.9.3-p125@default]'   
+    End
+</pre></div>
+	</li>
+	<li>Add the following lines to clone the repository. Then configure the shared paths, and execute a bundle to set all the required gems to the server. Optionally you can migrate the database and precompile the assets. 
+	  <div class ="hacker"><pre>task :deploy => :environment do 
+     deploy do 
+       invoke :'git:clone' 
+        invoke :'deploy:link_shared_paths' 
+        invoke :'bundle:install' 
+        
+        #invoke :'rails:db_migrate' 
+        #invoke :'rails:assets_precompile' 
+       
+        to :launch do 
+          queue "touch #{deploy_to}/tmp/restart.txt" 
+        end 
+      end 
+   end
+
+</pre></div>
+	</li>
+	<li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. 
+  </li>
+	<li>Create the folder structure in the <code>deploy.rb</code> file.
+	  <div class ="hacker">mina setup -verbose
+	</div>
+  </li>
+	<li>Create all folders, and deploy the Rails application.
+	  <div class ="hacker">mina setup
+	</div>
+	<div class ="hacker">mina deploy
+	</div>
+  </li>
+	<li>Test your application by running the following command in the application directory:
+	<div class ="hacker">bundle exec rails server
+	</div>
+	</li>
+	<li>For binding to a web browser, run the following command:
+	  <div class ="hacker">rails server --binding=[<em><u>your server's IP</u></em>]
+	</div>
+	</li>
+</ol>
+<h2>Conclusion</h2>
+<p>By following the above steps, you have deployed your Rails application with Mina on CentOS or Fedora.</p>
+	</body>
+</html>

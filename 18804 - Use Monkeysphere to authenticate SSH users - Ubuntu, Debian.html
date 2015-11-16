@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18804 -->
+
+
+
+<title>Use Monkeysphere to authenticate SSH users - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Use Monkeysphere to authenticate SSH users on Debian, Ubuntu, Security</p>
+    <h1>Use Monkeysphere to authenticate SSH users - Debian, Ubuntu </h1>
+    
+    <p><strong>Difficulty</strong>: <em>3</em><br/>
+        <strong>Time</strong>: <em>2.5 hours</em></p>
+
+    <p>In this article, you will authenticate <code>ssh</code> users through Monkeysphere, which will allow you to have a trusted SSH login.</p>
+    <p>Before starting this section, you need to have <a href="18801">Monkeysphere installed and configured. </a></p>
+ 
+    <h2>Create an SSH Server identity certifier</h2>
+	<p>Identity certifier is an entity that is trusted, and ensures that users are trusted.  In this article, admin server is used as the identity certifier.</p>
+<ol> 
+<li>Get the fingerprint of the administrative user.
+   <div class="hacker">gpg --with-colons --fingerprint <em><u>admin</u></em>@<em><u>coolexample.com</u></em></div>
+   </li>
+   <li>Locate and note the short fingerprint, which is a long alphanumeric string next to <code>fpr</code> in the output from above command. In this case, it is <em><u>99981C07DC4177F646AFF531DEA69AE3462908AF</u></em>.
+   <div class="hacker">
+<pre>
+tru::1:1441542079:0:3:1:5
+pub:u:2048:1:DEA69AE3462908AF:2015-09-05:::u:admin &lt;<em><u>admin@coolexample.com</u></em>&gt;::scESC:
+fpr:::::::::<em><u>99981C07DC4177F646AFF531DEA69AE3462908AF</u></em>:
+sub:u:2048:1:D5542FF062F4D3E5:2015-09-05::::::e:
+</pre> 
+  </div>
+   </li>
+   <li>Add the fingerprint in the SSH server. With this, Monkeysphere will get the GPG key from key server that will be added to its key ring.
+   <div class="hacker">sudo monkeysphere-authentication add-identity-certifier <em><u>99981C07DC4177F646AFF531DEA69AE3462908AF</u></em></div>
+   </li>
+  </ol>
+
+
+<h2>Generate the SSH user authentication subkeys</h2>
+<p>All the client machines need to generate a GPG sub key. This key will be used for user authentication of the server. In case you already have a GPG key, it can be used to identify and authenticate the user.</p>
+<ol> 
+<li>Generate sub keys on client servers using the <code>Monkeysphere</code> command.
+   <div class="hacker">monkeysphere gen-subkey</div>
+   <p>After the sub key is generated, it is added to the local GPG key ring of client server. This key generation process will take few minutes.</p>
+   </li>
+   <li>List out the sub key in client key ring.
+   <div class="hacker">gpg --list-keys <em><u>client@coolexample.com</u></em></div>
+   <li>Upload the key change to the key server.
+   <div class="hacker">gpg --keyserver pool.sks-keyservers.net --send-key <em><u>87791BD0</u></em></div>
+     
+  </ol>
+
+
+<h2>Create authentication files on SSH server</h2>
+
+<p>Monkeysphere uses some authentication files to generate actual authentication files at <code>/var/lib/monkeysphere/authorized_keys</code> location for the SSH server. To create the authentication file, perform the following steps on the <strong>SSH Server</strong>:</p>
+<ol> 
+<li>Create the <code>monkeysphere</code> directory.
+   <div class="hacker">mkdir <em><u>.monkeysphere</u></em></div>
+   </li>
+   <li>Grant the required permissions.
+   <div class="hacker">chmod 755 <em><u>.monkeysphere</u></em></div>
+   </li>
+   <li>Move to the <code><em><u>monkeysphere</u></em></code> directory.
+   <div class="hacker">cd <em><u>.monkeysphere</u></em></div>
+   </li>
+   <li>Create a new file named <code><em><u>authorized_user_ids</u></em></code>. 
+   <div class="hacker">vim <em><u>authorized_user_ids</u></em> </div>
+   </li>
+   <li>On the <strong>client server</strong>, get the information about the client user (name and email).
+   <div class="hacker">gpg --list-keys <em><u>client</u></em>@<em><u>coolexample.com</u></em></div>
+   </li>
+   <li>Locate and note the client user name from the output. This information is in the exact format required in the file <code><em><u>authorized_user_ids</u></em></code> above.
+   <div class="hacker">
+<pre>
+pub   2048R/87791BD0 2015-08-20
+uid              <em><u>client client@coolexample.com</u></em>
+sub   2048R/3294D31D 2015-08-20
+sub   2048R/0FECF512 2015-08-20
+</pre>
+   </div>
+   </li>
+   <li>On the <strong>admin server</strong>, get the information about the admin user (name and email).
+   <div class="hacker">gpg --list-keys <em><u>client</u></em>@<em><u>coolexample.com</u></em></div>
+   </li>
+   <li>Locate and note the admin user name from the output. This information is in the exact format as required in the <code>authorized_user_ids </code> above.
+   <div class="hacker">
+<pre>
+pub   2048R/87791BD0 2015-08-20
+uid              <em><u>admin admin@coolexample.com</u></em>
+sub   2048R/3294D31D 2015-08-20
+sub   2048R/0FECF512 2015-08-20
+</pre>
+   </div>
+   </li>
+   <li>Add the information collected from the previous two steps, and put them in the same format in the file <code>authorized_user_ids </code> on the SSL server.
+   <div class="hacker"><em><u>client &lt;client@coolexample.com&gt;</u></em></div>
+   <div class="hacker"><em><u>admin &lt;admin@coolexample.com&gt;</u></em></div>
+   </li>
+   <li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+   </li>
+   <li>Provide proper permission for the file.
+   <div class="hacker">chmod 644 <em><u>authorized_user_ids</u></em></div>
+   <p>You need to repeat this step for all users.</p>
+   </li>
+  </ol>
+
+
+<h2>Create internal authentication files</h2>
+<ol> 
+<li>Create internal authentication files by using the following command:
+   <div class="hacker">sudo monkeysphere-authentication update-users </div>
+   If a particular user needs to be updated, the following command can be used:
+   <div class="hacker">sudo monkeysphere-authentication update-users <em><u>user_name</u></em></div>
+   </li>
+   <li>Navigate to <code>/var/lib/monkeysphere/authorized_keys</code> directory.
+   <div class="hacker">cd /var/lib/monkeysphere/authorized_keys</div>
+   </li>
+   <li>List to the contents of the directory to ensure that generated authentication file exists. 
+   <div class="hacker">ls</div>
+   <p>A file named <code>user</code> should be available. </p>
+   </li>
+   <li>Open the <code>user</code> file for viewing.
+   <div class="hacker">cat user</div>
+   Note that the file contains the key, like normal <code>authorized_keys</code> entries.
+   <div class="hacker">
+   <pre>
+   ssh-rsa 
+   AAAAB3NzaC1yc2EAAAADAQABAAABAQC9R9BtcAFfd+qsGoaSqpDstif5UgM+CqVp46eNrfBsfXR9wT5vs1uPmdAiulM7GwB9Pl2J6IEobpceF516wv72OuUuH+Bg1
+   Y8TIm6YI4MKALuCeBSP6uIT1uyN/Cdcnfk3LADphIBq8Un5xvB5taG8iVFnvYQ/E/wObJ7SLTGPsPzB2X7BEqFwAek6/VN8pzMr7djbEAOdoyD/GJ7iyZbWy2eLH65yl/2WiJa4cC6U/
+   sfZlOLvp7XQX0oRV6iMJLOMCEWFOqekTHVsmOdszqHIRqe0n0zs8ZQtxkq7ODpNkn5XEG6Dq1Xz5Eqy06lNrjRM7UbxmKV7niFAJTQ7OcCX MonkeySphere2015-09-07T09:49:32 
+   <em><u>client &lt;client@coolexample.com&gt;</u></em>
+   </pre>
+   </div>
+   </li>
+   <li>Specify the authorized key location in <strong>ssh</strong> configuration file:
+   <div class="hacker">sudo vim /etc/ssh/sshd_config</div>
+   </li>
+   <li>Locate the <code>AuthorizedKeysFile</code> parameter, and update it as follows:
+   <div class="hacker">AuthorizedKeysFile /var/lib/monkeysphere/authorized_keys/%u</div>
+   </li>
+   <li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <strong>:wq</strong>, and then pressing the <strong>Enter</strong> key.
+   </li>
+   <li>Restart ssh service.
+   <div class="hacker">sudo service ssh restart</div>
+   </li>
+  </ol>
+
+
+
+<h2>Setup client for authentication through GPG key</h2>
+<ol> 
+<li>On the <strong>client server</strong>, execute the below command:
+   <div class="hacker">ssh-agent sh -c 'monkeysphere subkey-to-ssh-agent &amp;&amp; ssh server.coolexample.com'</div>
+   <p>You will be asked to enter the key passphrase and no user password will be prompted. After entering the key pass phrase, you will be logged in to the server.</p><!--tester, I am assuming that "server server" is a server called "server" and not a repeated word.--><!--fixed-->
+   </li>
+   <li>Set up an agent session.
+   <div class="hacker">eval $(ssh-agent)</div>
+   </li>
+   <li>Edit the <code>bash_profile</code> file to start the session automatically.
+   <div class="hacker">echo 'eval $(ssh-agent)' >> ~/.bash_profile</div>
+   </li>
+   <li>Add the GPG subkey to the client.
+   <div class="hacker">monkeysphere subkey-to-ssh-agent</div>
+   </li>
+   <li>Provide the password upon the prompt. This will save the password for the entire session.
+   </li>
+   <li>Check that the password has been accepted using the following command:
+   <div class="hacker">ssh-add –l</div>
+   </li>
+  </ol>
+     
+    <h2>Conclusion</h2>
+    <p>In this article, you learned the procedure to authenticate user through Monkeysphere. When using Monkeysphere, clients do not need to worry about the authenticity of the server to which it is connecting.</p>
+   
+</body>
+</html>

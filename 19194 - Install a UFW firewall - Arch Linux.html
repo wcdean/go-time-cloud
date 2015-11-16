@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Install a UFW firewall - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<p>Install UFW firewall to increase security on Arch Linux</p>
+    <h1>Install a UFW firewall - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+<strong>Time</strong>: <em><u>5 minutes</u></em></p>
+
+    <p>Uncomplicated Firewall (UFW) is the front end for Iptables. Its command-line user interface makes it easy to configure your Linux&trade; firewall. 
+    UFW is available in the Arch Linux repositories.</p> 
+    
+<p>This article walks you through the basics of installing and enabling UFW.</p>   
+
+<h2>Install Iptables</h2>
+
+<p>UFW won't function properly without Iptables, which comes pre-installed in Arch Linux but needs to be set up. See 
+  <a href="Articles\17400 - Set up a Firewall using IPtables - ALL DISTROS.html">Set up a Firewall using Iptables - ALL DISTROS</a> for instructions.
+</p>
+
+  <h2>Install UFW</h2>
+
+<ol>
+<li>First, update your packages. It's always good practice to update your packages before installing anything new. 
+  <div class="hacker">sudo pacman -Syu</div></li>
+<li>
+ Enter <strong>y</strong> at the prompt to continue.</li>
+<li>Install UFW using <code>pacman</code>.</li>
+    <div class="hacker">sudo pacman -Syu ufw</div>
+  <li>
+     Enter <strong>y</strong> at the prompt to continue.</li></ol>        
+    <h2>Enable UFW</h2>
+     
+<ul>
+
+     <li>Enable UFW.
+        <div class="hacker">sudo ufw enable</div>
+
+To check the status of UFW:
+<div class="hacker">sudo ufw status</div></li>
+
+</ul>
+             
+    <h2>Next steps</h2>
+    <p>Congratulations! You installed and/or enabled UFW. From here you can do either of the following:</p>
+    
+    <ul>
+    <li>Set up your firewall (by managing connections and rules). See 
+  <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/19189%20-%20Set%20up%20UFW%20firewall%20-%Arch%20Linux.html">Set up UFW firewall - Arch Linux</a>. </li>                      
+
+ <li>Learn more on how to use UFW with IPv6. See 
+ <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/19190%20-%20Use%20UFW%20firewall%20with%20IPv6%20-%20Debian,%20Ubuntu.html">Use UFW firewall with IPv6 - Arch Linux</a>.
+  </li> 
+  </ul>
+  
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17848-->
+
+
+<title>Find and remove runaway processes - ALL DISTROS</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+
+td:nth-child(1) {font-weight:bold;}
+</style>
+
+
+</head>
+
+<body>
+ <p>Finding and killing runaway processes, including parents .for all DISTROS</p>
+<h1>Find and remove runaway processes</h1>
+
+<p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+		
+<p>There might be sometimes where your COMPANY_NAME cloud server becomes laggy or slow to respond. This article explains how to troubleshoot your server's responsiveness before resorting to the usual solution of rebooting it.</p>
+
+<h2>Display your server's processes</h2>
+
+<p>When in trouble, the <code>top</code> command is the first command to try. The <code>top</code> command displays the most processor-intensive processes running on the server at the moment.</p>
+<ol>
+<li>Log in to your server and run <code>top</code> from the command line. You should see something like the following: <br />
+
+<div class="hacker"> <pre>
+top - 11:25:38 up 6 days, 14:56,  1 user,  load average: 0.00, 0.01, 0.05 
+Tasks:  75 total,   1 running,  74 sleeping,   0 stopped,   0 zombie  
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+ PID USER      PR  NI    VIRT    RES    SHR S %CPU %MEM     TIME+ COMMAND
+    1 root      20   0  129448   4972   3580 S  0.0  1.0   0:01.44 systemd
+    2 root      20   0       0      0      0 S  0.0  0.0   0:00.05 kthreadd
+    3 root      20   0       0      0      0 S  0.0  0.0   0:00.52 ksoftirqd/0
+    5 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 kworker/0:0H
+    6 root      20   0       0      0      0 S  0.0  0.0   0:02.54 kworker/u2:0
+    7 root      20   0       0      0      0 S  0.0  0.0   0:41.13 rcu_sched
+    8 root      20   0       0      0      0 S  0.0  0.0   0:00.00 rcu_bh
+    9 root      20   0       0      0      0 S  0.0  0.0   0:47.57 rcuos/0
+   10 root      20   0       0      0      0 S  0.0  0.0   0:00.00 rcuob/0
+   11 root      rt   0       0      0      0 S  0.0  0.0   0:00.00 migration/0
+   12 root      rt   0       0      0      0 S  0.0  0.0   0:03.47 watchdog/0
+   13 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 khelper
+   14 root      20   0       0      0      0 S  0.0  0.0   0:00.00 kdevtmpfs
+   15 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 netns
+   16 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 perf
+   17 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 writeback
+   18 root      25   5       0      0      0 S  0.0  0.0   0:00.00 ksmd
+
+
+</pre>
+</div>
+  <p>Here is what those column names mean:       </p>
+  <table>
+  <tr>  
+  <td>1st row</td>
+  <td>Displays the current time, the number of days the system has been up, number of users logged in and the average load on the system for the last one, five and 15 mins. </td>
+  </tr>
+  <tr>  
+  <td>2nd row</td>
+  <td>Displays the total processes, running processes, sleeping processes, proccessed that are stopped and processes that are waiting to be stopped. </td>
+  </tr>
+  <tr>  
+  <td>3rd row</td>
+  <td>Displays the CPU percentage for user processes, system processes, processes with priority upgrade "nice", CPU % not used, CPU% serving hardware and software interrupts and lastly the amount of CPU time stolen by the virtual machine for running other tasks,  </td>
+  </tr>
+  
+       <tr>
+               <td>PID</td>
+               <td>Process ID</td>
+       </tr>
+         <tr>
+               <td>USER </td>
+               <td>User who is the process owner</td>
+       </tr>
+         <tr>
+               <td>PR</td>
+               <td>Priority of the process</td>
+       </tr>
+         <tr>
+               <td>NI</td>
+               <td>"NICE" value of the process</td>
+       </tr>
+         <tr>
+               <td>VIRT</td>
+               <td>Virtual memory being used by the process</td>
+       </tr>
+         <tr>
+               <td>RES</td>
+               <td>Physical memory being used by the process</td>
+       </tr>
+        <tr>
+               <td>SHR</td>
+               <td>Shared memory of the process </td>
+       </tr>
+        <tr>
+               <td>S</td>
+               <td>Indicates the status of the process: S=sleep R=running Z=zombie  </td>
+       </tr>
+       <tr>
+               <td>%CPU </td>
+               <td>Percentage of CPU used by this process</td>
+       </tr>
+      <tr>
+               <td>%MEM</td>
+               <td>Percentage of RAM used by the process</td>
+       </tr>
+</table>
+
+<li>If you receive an error message "Error opening terminal: unknown" or "unknown terminal type," use the <code>TERM=xterm top</code> command.</li>
+</ol>
+<p>The <code>top</code> command display updates every few seconds. To quit, use the <code>q</code> command. </p>
+
+
+
+<h2>Review Linux's load average</h2>
+<p>The server's <code>load average</code> displays on the first line and indicates how many processes are waiting for processor time. </p>
+
+<div class="hacker">
+top - 11:25:38 up 6 days, 14:56,  1 user,  load average: 0.00, 0.01, 0.05<br />
+
+Tasks:  75 total,   1 running,  74 sleeping,   0 stopped,   0 zombie<br />
+
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st<br />
+</div>
+
+<p>During normal processing, the <code>load average</code> is equal to or less than the number of processor cores in the dedicated or virtual server. The service is not overloaded, at least not from the CPU perspective. The problem arises when the load average exceeds the number of cores. For example, on a single-core server, a load average of "3.40" indicates severe overload, but on a four-core server, it would be considered normal.</p>
+
+<p>You need to pay attention to numbers that exceed the number of cores. If the load average is "15" or "150", something almost certainly is going wrong. The good news is that a high load average can be resolved, after we understand the root cause of the congestion.</p>
+
+<h2>Stop slow processes</h2>
+Stopping, or killing, slow processes can help your server return to normal.<p />
+
+<ol>
+<li>In the Top process list, identify the process you want to kill.</li> 
+<li>With Top running, type "k" in the command window. <br />
+Top displays the <code>PID to signal/kill</code> prompt.</li> 
+<li>Enter the numeric <code>PID</code> (displayed in the first column) of the process you want to kill.</li>
+<li>To verify if you actually killed the process
+<div class = "hacker"> ps aux | grep PID</div>
+</li>
+</ol>                                                           
+<p>Configuration of the server and its processes might block the <code>kill</code> command from working within the Top display directly. If security or other rules block you from removing a process from within <code>top</code>, use the command line <code>kill</code> command. For example:</p>
+
+<div class="hacker">sudo kill -9 <em><u>process id</u></em></div>
+
+After the problem process is dead, the server's load average should return to normal.  The Top display should display the updated server load average.
+
+<h2>Stop a parent process</h2>
+
+<p>The one practical exception that deserves mention at this level is when a root error results in launching many child processes.</p>
+
+<p>Sometimes, you can kill a process and another pops up in the display with similar name, but with a different process number. In this case, the server might have an incorrectly set timer or confused script, which is creating new processes faster than you can kill them. 
+In this case, you need to identify and kill the parent process that is launching the new child processes.</p>
+<ol>
+<li>To find the problem parent process, use the <code>ps</code> command. This command reports on a process's status.
+                                                                                                      
+<div class="hacker">
+ps -p <em><u>child process number</u></em> -o ppid
+</div></li>
+
+<li>Suppose, for example, that a certain process is near the top, and you believe the server should not be running it now. Type:
+
+<div class="hacker">
+ps -p <em><u>process id</u></em> -o ppid
+</div></li>
+
+<li>The server responds with something like this:
+<div class="hacker">
+PPID
+
+<em><u>XXXXX</u></em>
+</div></li>
+</ol>
+
+<p>Examine or kill the parent process and its children, as appropriate.</p>
+
+<h2>Conclusion</h2>
+<p>If none of the steps described in this article work, rebooting the real or virtual server may be your best bet. Fortunately, this is a rare situation. Most of the time, you will be using <code>top</code>, <code>kill</code>, and <code>ps</code> and you'll be able to get the server back on track without a reboot.</p>
+
+<p>Occasionally, killing off high-profile processes aren't enough. There might be other tricks to try, but those are for a more advanced Linux article.</p>
+
+</body>
+</html>

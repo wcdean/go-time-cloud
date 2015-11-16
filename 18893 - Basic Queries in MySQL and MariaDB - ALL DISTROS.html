@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18893-->
+   
+<title>18893 - Basic Queries in MySQL and MariaDB - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Basic queries in MySQL and MariaDB - ALL DISTROS, Getting Started, MySQL</p>
+<h1>Basic queries in MySQL and MariaDB - ALL DISTROS</h1>
+
+<h2>What are MySQL and MariaDB?</h2>
+<p>MySQL and MariaDB are relational databases. These tools are used to handle large volumes of data for different kinds of application programs. Both tools use SQL query language to retrieve the information from different tables and databases. Both MySQL and MariaDB support Virtual Private Server (VPS) or cloud to manage your data.</p>
+
+<h2>Prerequisites </h2>
+<p>Before you begin, install MySQL by either installing a LAMP or LEMP stack:</p>
+
+<!-- Keeping the prerequisites as bulleted list. If this is not the correct way to represent the "Prerequisites" then, please let us know. We will do the needful-->
+<ol>
+	<li><a href="17341">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu</a>.</li>
+	<li><a href="17342">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Fedora</a>.</li>
+	<li><a href="17343">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6</a>.</li>
+	<li><a href="17344">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7</a>.</li>
+	<li><a href="17345">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux</a>.</li>
+<li><a href="17347">Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu</a>.</li>
+<li><a href="17348">Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora</a>.</li>
+<li><a href="17349">Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS</a>.</li>
+<li><a href="17350">Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Arch Linux</a>.</li>
+<li><a href="17351">Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Debian</a>.</li>
+	
+	</ol>
+<h2>Login to MySQL/MariaDB</h2>
+Make sure that MySQL/MariaDB is installed on machine as well as database already exist.
+<ul><li>Login to MySQL/MariaDB terminal.
+<div class="hacker">mysql -u <em><u>mysql_username</u></em> -p</div>
+Enter MySql password when prompted
+</li>
+</ul>
+
+
+<h2>Create sample database</h2>
+<ul><li>Create database using the following command if database is not exist.
+<div class="hacker">CREATE DATABASE <em><u>database_name</u></em>;</div>
+</li>
+</ul>
+
+<h2>Create sample table</h2>
+<ul><li>Create database using the following command if database is not exist.
+<div class="hacker">USE <em><u>database_name</u></em>;</div>
+<div class="hacker">CREATE TABLE <em><u>datatable (selected_fied1 VARCHAR(30) NOT NULL,selected_fied2 VARCHAR(30) NOT NULL);</u></em></div>
+</li>
+</ul>
+
+<h2>Fetch information</h2>
+<ul><li>You can tell the database server to fetch information from the <code>datatables</code> table by using the following query:
+<div class="hacker">SELECT <em><u>selected_fied1</u></em> FROM <em><u>datatables</u></em> WHERE <em><u>search_crietaria</u></em>;</div> </li>
+</ul>
+
+<h2>Select data source</h2>
+<ol>
+<li>To use the default <code>mysql</code> database for your queries, start with this command:
+<div class="hacker">USE <em><u>mysql</u></em>;</div>
+The database will confirm with the following message:
+<div class="hacker">Database changed</div>
+</li>
+<li>To view the list of tables within MySQL database, and to confirm the data sources, use the following query:
+<div class="hacker">SHOW TABLES;</div>
+<p class="note"> There is a semicolon after every command, which indicates that the engine query ends there.</p>
+
+<p class="note">Ubuntu will return only twenty-four results for a MySQL installation.</p>
+</li>
+<li>To view the column headers for a specific table, such as <code>user</code> table, and to get an idea of which categories you can select from, use this command:
+<div class="hacker">SHOW COLUMNS FROM <em><u>user</u></em>;</div>
+</li>
+</ol>
+
+<h2>Create a basic query</h2>
+<p>You can use the SELECT query to retrieve data for specific fields. The following query will return results for the three fields included in the <code>SELECT</code> query. Separate fields by a comma.</p>
+<ul>
+<li>You can select specific information about a <em>user</em> with the following query:
+<div class="hacker">SELECT <em><u>user,password,host</u></em> FROM <em><u>user</u></em>;</div>
+</li>
+</ul>
+
+
+<h3>Use a wildcard in queries</h3>
+
+<p>You can use an asterisk (<code>*</code>) as a wildcard to query all the information from a specified table. </p>
+<ul>
+<li>You can select all information about a <em>user</em> with the following query:
+<div class="hacker">SELECT * FROM <em><u>user</u></em>;</div>
+</li>
+</ul>
+
+<h2>Filter results</h2>
+
+<p>You can apply a filter to the results that meet a specific criteria by using the <code>where</code> keyword.</p>
+<ol>
+<li>You can query for <code>user</code>, <code>password</code>, and <code>host</code>, and then filter for the <em>user</em> named <em>root</em>.
+
+<div class="hacker">SELECT <em><u>user,password,host</u></em> FROM <em><u>user</u></em> WHERE <em><u>user</u></em> = <em><u>"root"</u></em>;</div>
+</li>
+ 
+<li>You can apply a filter for different fields. In this example, the results will return <code>user</code>, <code>password</code>, and <code>host</code> from the <code>user</code> table, which has a value named <code>localhost</code> for <code>host</code>. 
+<div class="hacker">SELECT <em><u>user,password,host</u></em> FROM <em><u>user</u></em> WHERE <em><u>host</u></em> = <em><u>"localhost"</u></em>;</div>
+</li>
+</ol>
+ 
+ 
+<h2>Compare values with the Like operator</h2>
+
+<p>The <code>Like</code> operator compares the value from the right side of the expression.</p> 
+<ol>
+<li>The following query will fetch <em>user</em>, <em>password</em>, and <em>host</em> fields from <strong>user</strong> table, where the criteria host is <code>LIKE l%</code>. 
+<div class="hacker">SELECT <em><u>user,password,host</u></em> FROM <em><u>user</u></em> WHERE <em><u>host</u></em> LIKE <em><u>"l%"</u></em>;</div>
+This will result in an output with all the respective fields starting with letter <code>"l"</code>.<br/>
+</li>
+ 
+<li>You can also apply <code>and</code> or <code>or</code> for equality comparison. The following query will match each record and return result with filter condition that matches the criteria, such as host starting from either <strong>l</strong> or <strong>127</strong>.
+<div class="hacker">SELECT <em><u>user,password,host</u></em> FROM <em><u>user</u></em> WHERE <em><u>host</u></em> LIKE <em><u>"l%"</u></em> or <em><u>host</u></em> LIKE <em><u>"127%"</u></em>;  </div>
+</li>
+</ol>
+
+<h2>Conclusion</h2>
+<p>In this article, we reviewed the queries that provide a basic understanding of how to retrieve data from databases. There are several other queries that were not covered in this article, but the list provided is a good start on how to retrieve information in MySQL and MariaDB. </p>
+
+</body>
+</html>

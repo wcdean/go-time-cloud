@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Install Ruby on Rails Using rbenv - Arch Linux </title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up Ruby on Rails using rbenv on Arch Linux, Ruby, Rails</p>
+<h1>Install Ruby on Rails Using rbenv - Arch Linux </h1>
+
+<p><strong>Difficulty:</strong> <em>1</em></p>
+<p><strong>Time:</strong> <em>30 minutes</em></p>
+
+<p>Ruby is a pure object oriented language like Perl and Python. Rails is a framework for web application development written in Ruby. In this article, you'll learn to install Ruby on Rails on Arch Linux, with the help of rbenv, a lightweight Ruby version management tool.</p>
+<p>To set up the Arch Linux server, refer to <a href="17324"> Initial Server Setup - Arch Linux</a>. Optionally, you can also <a href="17369"> install Git</a>.</p>
+
+<p class="note">Please make sure that you have assigned super user privileges to your user. </p>
+
+<h2>Install rbenv</h2>
+<ol>
+  <li>Upgrade and install all the latest dependencies.
+    <div class="hacker">sudo pacman -Syyu</div>
+<div class="hacker">sudo pacman -Sy base-devel</div>
+<p>When prompted about Repository core member to be installed, press <strong>Enter</strong> to select <code>all</code>.</p>
+</li>
+<li>Install rbenv and Ruby dependencies.
+
+  <div class="hacker">sudo pacman -Sy git zsh</div>
+
+<div class="hacker">git clone git://github.com/sstephenson/rbenv.git ~/.rbenv</div>
+</li>
+<li>Install rbenv, and check that rbenv is located in <code>.rbenv</code> directory.
+    <div class="hacker">cd ~/.rbenv</div>
+
+<div class="hacker">
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
+</div>
+<div class="hacker">
+sudo echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.zshrc
+</div>
+<div class="hacker">
+sudo echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+</div>
+<div class="hacker">
+exec $SHELL
+</div>
+<div class="hacker">
+source ~/.bash_profile 
+</div>
+
+</li>      
+<li>Install the ruby-build plugin. 
+
+<div class="hacker">git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build</div>
+</li>       
+</ol>
+
+<h2>Install Ruby</h2>
+
+<p>Before you start using rbenv, you need to make sure which version of Ruby you want to install. 
+In this article, we are installing the latest version of Ruby.In this article Ruby <code>2.2.2</code> is used for example.</p>
+<ol>
+<li>Install  Ruby:
+	<div class="hacker">rbenv install  <em><u>2.2.3</u></em> -k</div>
+</li>
+<li>Set the default version of Ruby that all of your shells will use.
+	  <div class='hacker'>rbenv global <em><u>2.2.3</u></em></div></li>
+<li>Display  which version of Ruby was installed.
+	<div class="hacker">ruby -v</div>
+</li>    
+</ol>
+    
+<h2>Install RubyGems</h2>
+<ol>
+<li>Disable document installation. (By default, when you install gems, documentation files are also installed. But this takes time, so let's stop the document installation.)
+    <div class="hacker">echo "gem: --no-document" > ~/.gemrc</div>
+</li>
+<li>Install the bundler gem. The bundler gem is an essential tool for managing gems when developing and running Rails applications.
+  <div class="hacker">gem install bundler</div>
+</li>    
+</ol>
+<h2>Install JavaScript runtime</h2>
+<p>A few Rails features, such as Asset Pipeline, depend on a JavaScript runtime.</p>
+<ul>
+  <li>Install the <code>Node.js</code> package.
+    <div class="hacker">sudo pacman -S nodejs npm</div></li>
+</ul>
+
+<h2>Set up Rails</h2>
+<ol>
+<li>Install Rails. 
+	<div class="hacker">gem install rails</div>
+<p>This installation takes some time.</p>
+</li>
+<li>Install shims for all Ruby executables.
+     <div class="hacker">rbenv rehash</div>
+</li>
+<li>Check the version of both Ruby and Rails to make sure that they installed.
+  <div class="hacker">ruby -v</div>
+<div class="hacker">rails -v</div>
+</li>       
+</ol>
+
+
+
+<h2>Next steps</h2>
+    <p>In this article, you reviewed the steps to install rbenv, Ruby, RubyGems, and finally Rails in Arch Linux . For supported enterprise level application, you can also <a href="17954 - Scale Ruby on Rails Applications Across Multiple Servers - CentOS, Fedora">scale Ruby on Rails application across multiple servers</a>.</p>
+
+</body>
+</html>

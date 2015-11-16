@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Set up WordPress Pretty Permalinks in Nginx - Debian, Ubuntu</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Set up WordPress pretty permalinks in Nginx for Debian, Ubuntu.</p>
+    <h1>Set up WordPress pretty permalinks in Nginx - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Permalinks are URLs of the content published on your WordPress site. Best practices state that these URLs should be permanent and never change, but you can of course change your permalink structure at any time. Doing so, however, would change the URL of all your pages, which would cause your search and referral traffic to drop since the links would be broken.</p>
+     
+<p>WordPress produces dynamic links by default that are appended with the post ID number. Though these links work on all server environments, they're not descriptive, easily identifiable, or SEO-friendly.</p>
+
+<p>"Pretty" permalinks, on the other hand, are human-readable, descriptive, search-friendly, and depending on which format you choose, structured.</p>
+  
+<p>Setting up permalinks is a surprisingly easy process in Nginx. This article will walk you through it on an Ubuntu or Debian system. </p>
+
+    <h2>Prerequisites</h2>
+    <p>Before you begin, WordPress has to be fully installed. You most likely have already done this, but if not, choose the article for your system for either a single or a multi-site installation:</p>
+         
+<ul>
+    <li><a href="17385 - Install WordPress on your LEMP server - Ubuntu.html">Install WordPress on your LEMP server - Ubuntu</a></li>
+    <li><a href="17683 - Set up WordPress Multisite in Nginx - Debian, Ubuntu.html">Set up WordPress Multisite in Nginx - Debian, Ubuntu</a></li>
+        <li><a href="19193 - Install WordPress on your LEMP server - Debian.html">Install WordPress on your LEMP server - Debian</a></li>
+</ul>
+
+
+<p>This article is for a non-root user with <code>sudo</code> privileges. </p>
+
+    
+<h2>Choose your pretty permalink type in WordPress </h2>
+
+    <ol>
+        <li>In your WordPress admin dashboard (http://<em><u>coolexample.com</u></em>/wp-admin), go to the <strong>Settings</strong> panel on the left, then to the <strong>Permalink Settings</strong>.<br /></li>
+      
+
+        <li>Choose your permalink type. A common option is the <strong>Post name</strong> option.<br />
+        <img src="images/00052/091715/wordpress-pretty-permalinks-page.png" alt="wordpress pretty permalinks page" /></li>
+
+        <li>Select <strong>Save changes</strong>.</li>
+</ol>
+
+<h2>Enable URL rewrites</h2>
+  
+<p>Modify your WordPress config file to enable permalinks.</p>
+
+<ol>
+<li>Open your WordPress <code>/etc/nginx/sites-available/wordpress</code> file to edit.
+<div class="hacker">sudo vim /etc/nginx/sites-available/wordpress</div></li>
+
+<li>In the default location context, find the try_files statement and modify the line so it looks like this.
+<div class="hacker">try_files $uri $uri/ /index.php?$args;</div>
+
+  So, the entire section may look like this (truncated in this example):
+  <div class="hacker"><pre>server {
+        listen 80 default_server;
+        listen [::]:80 default_server ipv6only=on;
+
+        root /var/www/html;
+        index index.php index.html index.htm;
+
+        # Make site accessible from http://localhost/
+        server_name localhost;
+
+        location / {
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                <em><u>try_files $uri $uri/ /index.php?$args;</u></em>
+                # Uncomment to enable naxsi on this location
+                # include /etc/nginx/naxsi.rules
+        }
+
+...</pre></div>
+
+Also, you should have made these two changes in your WordPress installation already, but double-check that:  <ul>
+<li><code>root</code> is pointed to your WordPress document root.</li>
+<li><code>index.php</code> is added to the beginning of the line of index file types.   </li></ul>
+
+<p>At this point, if you didn't need to make any changes to your config file, then you're done! You can test your pretty permalinks, if you'd like, by publishing a new post in your WordPress dashboard.</p>
+
+</li>
+
+<li>Otherwise, if you need to continue, save and close.</li>
+</ol>
+
+<h3>Create a symlink to activate the changes</h3>
+
+<ol>
+<li>Before creating a symlink from our sites-available to sites-enabled directory, we need to remove the existing wordpress file (which will be replaced with our new one).
+ <div class="hacker">sudo rm /etc/nginx/sites-enabled/wordpress</div></li>
+
+ <li>Now create the symlink. 
+ <div class="hacker"> sudo ln -s /etc/nginx/sites-available/wordpress /etc/nginx/sites-enabled/</div></li>
+
+<li>Restart Nginx.
+     <div class="hacker">sudo service nginx restart</div></li>
+
+ </ol>
+
+<p>That's it, you're done!</p>
+
+    <h2>Next steps</h2>
+    
+    <p>Congratulations! You have set up WordPress pretty permalinks on your Nginx server.</p>
+   
+</body>
+</html>

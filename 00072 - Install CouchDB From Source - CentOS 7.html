@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Use this template for articles that include steps for accomplishing a task or tasks (for example, installing). For articles that explain or describe something (such as an operating system), use the Informational template instead.  -->
+
+<title>Install CouchDB from Source - CentOS 7</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up CouchDB, Erlang, and Spider Monkey from source on CentOS 7.</p>
+    <h1>Install CouchDB from Source - CentOS 7</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>4</u></em><br />
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+    <p>CouchDB is a database that embraces web applications and stores your data with JSON documents. CouchDB is used in developing modern web and mobile applications. You can even serve web applications directly out of CouchDB.</p>
+
+<p>This article will walk you through installing CouchDB from source on CentOS 7 using Erlang and SpiderMonkey. Erlang is a programming language used in CouchDB to build massively scalable, real-time systems that require high availability.
+
+</p>
+
+<h2>Install build tools and dependencies</h2>
+<ol>
+    <li>Update all packages.
+    <div class="hacker">sudo yum -y  update</div>
+    </li>
+    <li>Install development tools.
+    <div class="hacker">sudo yum -y groupinstall "Development Tools"</div>
+    
+    CouchDB requires Mozilla's SpiderMonkey JavaScript Engine to compile successfully. 
+    <div class="hacker">sudo yum -y install libicu-devel curl-devel ncurses-devel libtool libxslt fop java-1.6.0-openjdk java-1.6.0-openjdk-devel unixODBC unixODBC-devel openssl-devel</div> </li>
+    
+    <li>Install the EPEL repository using the following commands:
+    <div class="hacker">sudo wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm</div>
+        <div class="hacker">sudo rpm -ivh epel-release-7-5.noarch.rpm</div>
+    </li>
+</ol>
+<h2>Install Erlang</h2>
+<ol>
+    <li>Create a CouchDB directory.
+        <div class="hacker">sudo mkdir Install_couchDB</div>
+    </li>
+    <li>Go to that directory and compile Erlang from source.
+        <div class="hacker">sudo wget http://www.erlang.org/download/otp_src_R14B01.tar.gz</div>
+		</li>
+		<li>Extract the Erlang package.
+        <div class="hacker">sudo tar -xvf otp_src_R14B01.tar.gz</div>
+		</li>
+		<li>Go to the Erlang package directory.
+        <div class="hacker">cd otp_src_R14B01</div>
+		</li>
+		<li>Compile and install the Erlang.
+        <div class="hacker">sudo ./configure</div>
+        <div class="hacker">sudo  make </div>
+        This will take a few minutes. 
+		<div class ="hacker">sudo make install</div>
+		</li>
+		<li>Go to CouchDB directory. Be sure to put in your own username for <em><u>logged_in_user</u></em> in this command.
+		<div class="hacker">cd /home/<em><u>logged_in_user</u></em>/Install_couchDB</div>
+            </li>
+</ol>
+<h2>Install Mozilla SpiderMonkey</h2>
+<ol>
+    <li>Download Mozilla SpiderMonkey from the source.
+        <div class="hacker">sudo wget   http://ftp.mozilla.org/pub/mozilla.org/js/mozjs17.0.0.tar.gz</div>
+    </li>
+    <li>Extract the Mozilla SpiderMonkey package.
+        <div class="hacker">sudo tar -xvf mozjs17.0.0.tar.gz</div>
+		</li>
+		<li>Go to Mozilla SpiderMonkey directory.
+        <div class="hacker">cd mozjs17.0.0/js/src/</div>
+		</li>
+		<li>Compile and install the Mozilla SpiderMonkey.
+        <div class="hacker">sudo ./configure</div>
+        <div class="hacker">sudo  make </div>
+		<div class ="hacker">sudo make install</div>
+		</li>
+		<li>Go to the CouchDB directory. Be sure to put in your username for <em><u>logged_in_user</u></em> in the command.
+		<div class="hacker">cd /home/<em><u>logged_in_user</u></em>/Install_couchDB</div>
+    </li>   
+</ol>
+<h2>Install CouchDB</h2>
+<ol>
+    <li>Download CouchDB package from source.
+    <div class="hacker">sudo wget   http://mirror.tcpdiag.net/apache/couchdb/source/1.6.1/apache-couchdb-1.6.1.tar.gz</div>
+	</li>
+	<li>Extract the Apache couchDB package.
+        <div class="hacker">sudo tar -xvf apache-couchdb-1.6.1.tar.gz</div>
+		</li>
+		<li>Go to Apache CouchDB directory.
+        <div class="hacker">cd apache-couchdb-1.6.1</div>
+    </li>
+    <li>Export the path of Erlang using the following commands:
+    <div class="hacker"> export ERL_TOP='pwd'</div>
+        <div class="hacker">export PATH=$ERL_TOP/bin:$PATH</div>
+    </li><li>Install all erlang  dependencies.
+    <div class ="hacker">sudo yum install erlang</div>
+    </li>
+    <li>Install <code>jsapi</code> header file which is required by spider Monkey.
+    <div class ="hacker">sudo yum install js-devel</div>
+    </li>
+    <li>Compile and install the Apache couchDB.
+    <div class="hacker"> sudo ./configure --with-erlang=/usr/lib64/erlang/erts-5.10.4/include</div>
+        <div class="hacker">sudo  make </div>
+        This will take a few minutes.
+
+		<div class ="hacker">sudo make install</div>
+    </li>
+</ol>
+<h2>Set up CouchDB</h2>
+<ol>
+    <li>Create a CouchDB user and give some permissions using following command:
+    <div class="hacker">sudo adduser --no-create-home couchdb</div>
+        <div class="hacker">sudo chown -R couchdb:couchdb /usr/local/var/lib/couchdb    /usr/local/var/log/couchdb /usr/local/var/run/couchdb</div>
+    </li>
+    <li>Create a link for the <code>couchdb init script</code> to <code>/etc/init.d</code>.
+    <div class="hacker"> sudo ln -sf /usr/local/etc/rc.d/couchdb /etc/init.d/couchdb</div>
+    </li>
+    <li>To start CouchDB automatically at boot, add and enable the init script using the <code>chkconfig</code> command:
+    <div class="hacker">sudo chkconfig --add couchdb</div>
+        <div class="hacker"> sudo chkconfig couchdb on</div>
+    </li>
+    <li>Open the CouchDB configuration file.
+    <div class="hacker">sudo vim /usr/local/etc/couchdb/local.ini</div>
+    </li>
+    <li>To access CouchDB from the web, go to the <code>httpd</code> section and find these lines. Uncomment them and make sure they are set to the following values.
+    <div class="hacker"><pre>   [httpd]
+    port = 5984
+    bind_address = 0.0.0.0
+</pre></div>
+    </li>
+    <li>Restart the CouchDB services.
+    <div class="hacker">sudo service couchdb restart</div>
+    </li>
+    <li>To test that CouchDB is running successfully, go to any browser, and type:
+    <strong>http://<em><u>your public IP</u></em>:5984</strong>.
+    </li>
+   <li>If it works, your output will be a single line of text that looks something like this:
+    <div class="hacker">{"couchdb":"Welcome","uuid":"8fcac646879a95a7ca0914ef14becbbd","version":"1.6.1","vendor":{"version":"1.6.1","name":"The Apache Software Foundation"}}</div></li>
+</ol>
+<h2>Conclusion</h2>
+<p>Congratulations! You have successfully installed CouchDB on CentOS 7.</p>
+</body>
+</html>

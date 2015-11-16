@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Set up a Firewall using IPtables - ALL DISTROS</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <h1>Set up a Firewall using IPtables </h1>
+    <!-- START: GD provided
+    Time value is the time it takes to complete with accommodation for reading article itself (appropriate options are 5, 10, 15, 20, 30, 45 minutes, or 1, 2, or 3 hours). Timeframes only need to include steps outlined in the article itself; do not include timeframes for articles linked to.
+
+    -->
+    <p>
+        <strong>Difficulty</strong>: 2
+        <br />
+        <strong>Time</strong>: 60 minutes
+    </p>
+    <!-- END: GD provided -->
+    <p>Setting up a good firewall is important to take in securing any modern operating system. The iptables comes as standard firewall software in most of the Linux distributions. You can set  rules inside which can filter the network traffic. It works by matching each packet that crosses the networking interface against the rules. This tutorial will walk you through setting up a firewall using iptables on various linux based platforms, which include Ubuntu, Debian, Fedora, CentOS, Arch Linux, and etc. </p>
+
+    <!-- Sections start with h2 -->
+    <h2>Basic iptables Commands</h2>
+    <p>The iptables rules are organized in groups (chains). If it matches some of the rules the corresponding actions is taken and no further check is made for that rule in the chain. By default there are three chains set inside iptables, Each chain has default policy which will take effect if the traffic does not match any of the rules inside the chain.</p>
+    <ul>
+        <li><strong>INPUT</strong> – handles the incoming traffic addressed to the server</li>
+        <li><strong>OUPUT</strong> – handles the outgoing traffic originated from the server</li>
+        <li><strong>FORWARD</strong> – routing the traffic</li>
+    </ul>
+
+    <ol>
+        <li>
+            Let's list the current rules that are configured for iptables using the following command:
+            <pre>
+<code>sudo iptables -L</code>
+</pre>
+        </li>
+
+        <li>
+            Take a look at the output. If you haven’t implemented any firewall rules yet, you should see an empty ruleset as below:
+            <pre>
+<code>
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination   
+              
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination      
+           
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination      
+</code>
+     </pre>
+        </li>
+        <li>
+            Now let's build our first firewall rule, which explicitly accepts your current SSH connection. We put this rule at the beginning because we want to make sure the connections we are already using are matched, accepted, and pulled out of the chain before reaching any DROP rules.
+<pre>
+<code>sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT </code>
+</pre>
+            <ul>
+                <li><strong>-A INPUT:</strong> The -A flag appends a rule to the end of a chain. This is the portion of the command that tells iptables that the chain we want to operate on is the INPUT chain and we want to add a new rule, which will be added to the end of the chain.</li>
+                <li><strong>-m conntrack:</strong> iptables has a set of core functionality as well as a set of extensions or modules that provide extra capabilities.In this command, we want to have access to the functionality provided by the conntrack module.</li>
+                <li><strong>--ctstate: </strong>This is one of the commands made available by using the conntrack module. This command allows us to match packets based on how they are related to packets we've seen before. Value of ESTABLISHED allows packets that are part of an existing connection and value of RELATED allows packets that are associated with an established connection. This is the rule that matches our current SSH session.</li>
+                <li><strong> -j ACCEPT: </strong>This specifies the target of matching packets. In this command packets that match the preceding criteria should be accepted.</li>
+            </ul>
+        </li>
+        <br />
+        <li>
+            Now let's see the changes:
+            <pre>
+<code>sudo iptables -L</code>
+</pre>
+            <pre><code>Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+ACCEPT     all  --  anywhere             anywhere             ctstate RELATED,ESTABLISHED
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+</code></pre>
+        </li>
+        <li>
+            we need to create some rules to accept other necessary connections, specifically We want to keep two ports open.
+<pre><code>sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT</code></pre>
+            <ul>
+                <li><strong> -p tcp:</strong> This option matches packets if the protocol being used is TCP.</li>
+                <li><strong>--dport:</strong> This option is available if the -p tcp flag is given. It requires to match the destination port for the matching packet. In the rules above, they match for TCP packets destined of port 22 and port 80 respectively.</li>
+            </ul>
+        </li>
+        <br />
+        <li>
+            Create some rule to allow loopback traffic. services on the computer communicate with each other by sending network packets to each other. The loopback device ( a pseudo network interface) is used to directs traffic back to itself rather than to other computers.
+            <pre><code>sudo iptables -I INPUT 1 -i lo -j ACCEPT</code></pre>
+            <ul>
+                <li><strong>-I INPUT 1:</strong> The -I flag inserts a rule into a chain at the given position. This is different than the -A flag which appends a rule to the end. We're adding this rule as the very first rule of the INPUT chain, which should not be affected by subsequent rules.</li>
+                <li><strong>-i lo:</strong>Any packet using the "lo" interface to communicate should be accepted. The "lo" interface is short for the loopback device. </li>
+            </ul>
+        </li>
+        <br />
+        <li>
+            To see our current rules, we should use the -S flag, because the -L flag doesn't include the interface that a rule is tied to.
+            <pre><code>sudo iptables -S</code></pre>
+            <pre><code>-P INPUT ACCEPT
+-P FORWARD ACCEPT
+-P OUTPUT ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+</code></pre>
+        </li>
+        <li>
+            Now let's create a drop rule and add it to the bottom of the chain, which will drop remaining packets.
+            <pre><code>sudo iptables -A INPUT -j DROP</code></pre>
+        </li>
+        <li>
+            If you want to add additional rules to the end of the chain, you need to add then before the drop rule. There are 2 ways to do it:
+            <ul>
+                <li>
+                    Temporarily removing the drop rule.
+<pre><code>sudo iptables -D INPUT -j DROP
+sudo iptables -A INPUT new_rule_here
+sudo iptables -A INPUT -j DROP
+</code></pre>
+                </li>
+                <li>
+                    Inserting rules at the end of the chain (but prior to the drop) by specifying the line number.
+                    <pre><code>sudo iptables -I INPUT 4 new_rule_here</code></pre>
+                </li>
+            </ul>
+        </li>
+    </ol>
+    <h2>Saving iptables Configuration </h2>
+    <p>
+        Your iptables rules would disappear if rebooting your machine right now. However, you can save the configuration, and have it start up automatically.
+    </p>
+    <ul>
+        <li>
+            To save the configuration, you can use this commamnd line  and the default location where the rules are being saved  depends on the Linux platform.
+            <pre><code>sudo iptables-save</code></pre>
+        </li>
+        <li>
+            You can also save the firewall rules in to the specific file with the following command.
+            <pre><code>sudo iptables-save &gt;&gt; /path/to/the/file</code></pre>
+        </li>
+        <li>
+            Finally you need to restore the saved rule using the following command:
+            <pre><code>sudo iptables-restore</code></pre>
+        </li>
+    </ul>
+    <h2>Conclusion</h2>
+    <p>You have set up a firewall using IPTables. There are many other firewall utilities you can use, and iptables is good starting point due to its presence in many systems. </p>
+    <!-- START: GD provided -->
+    <p>Have questions? Email us at <a href='mailto:clouddocs@godaddy.com'>clouddocs@godaddy.com</a> or leave a comment.</p>
+    <!-- END: GD provided -->
+</body>
+</html>

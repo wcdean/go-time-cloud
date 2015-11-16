@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+ <!--Article number 17514-->
+<head>
+    <title>Install Drush to manage your Drupal site by command line - Arch Linux</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+	
+    </style>
+</head>
+<body>
+<p>Setting up Drush, Drupal, PHP, Applications.</p>
+<h1>Install Drush to manage your Drupal site by command line - Arch Linux</h1>
+
+
+	<p><strong>Difficulty</strong>: <em>1</em></p>
+    <p><strong>Time</strong>: <em>1 hour</em></p>
+
+	<p>Drush is a command-line interface that manages a Drupal framework. When compared to the user interface (UI) of Drupal, Drush provides a much faster way to manage Drupal sites by eliminating various time-consuming tasks. </p>
+	<p>In this article, you will learn how to install Drush in Arch Linux.</p>
+	<p class ="note">You need access to sudo privileges to complete these steps.</p>
+	<p>Confirm that you have LAMP installed on your server. If needed, you can refer to this article: <a href ="17345">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux</a></p>
+   
+<h2>Install the server requirements for Drupal</h2>
+<ol>
+<li>Update the packages of the operating system.
+<div class ="hacker">sudo pacman -Syu</div>
+</li>
+<li>Install Unzip.
+<div class ="hacker">sudo pacman -Su unzip</div>
+</li>
+<li>Install the <code>php-gd</code> graphic library.
+<div class = "hacker">sudo pacman -Su php-gd tar</div>
+</li>
+<li>Open the <code>php.ini</code> file in a text editor.
+<div class= "hacker">sudo vim /etc/php/php.ini</div>
+</li>
+<li>Uncomment the following lines from <code>Dynamic Extensions</code> section by removing the semicolon at the begining of the lines.
+<div class ="hacker">
+extension=phar.so<br />
+extension=openssl.so<br />
+extension=pdo_mysql.so<br />
+extension=gd.so<br />
+</div>
+</li>
+<li>Locate <code>open_basedir</code>, and append <code>:/root/</code> to the line. The final updated line should look like this:
+<div class = "hacker">
+open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/:/root/
+</div>
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong>, typing <strong>:wq</strong>, and then pressing the <strong>Enter</strong> key.</li>
+<li>Download the <code>phpunit</code> package.
+<div class = "hacker">sudo wget https://phar.phpunit.de/phpunit.phar</div>
+</li>
+<li>Install the <code>phpunit</code> package.
+<div class ="hacker">php phpunit.phar</div>
+</li>
+<li>
+Open the <code>/etc/httpd/conf/httpd.conf</code> file in a text editor.
+<div class = "hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+</li>
+<li>
+Make the following corresponding changes to the <code>&lt;Directory "/srv/http"&gt;</code> block. 
+
+<div class = "hacker"><pre>
+&lt;Directory "/srv/http" &gt;
+		…
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride All
+		Order allow,deny
+		allow from all
+		…
+&lt;/Directory&gt;
+</pre>
+</div>
+</li>
+<li>Locate the following line, and uncomment it.	
+<div class = "hacker">LoadModule rewrite_module modules/mod_rewrite.so</div>
+</li>
+<li>Save and exit the file by pressing <strong>Esc</strong>, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+<li>Restart the Apache service to make the changes effective.
+<div class = "hacker">sudo systemctl restart httpd.service </div>
+</li>
+</ol>
+<h2>Download Drush files</h2>
+<ul>
+<li>Download Drush using the following command:
+<div class = "hacker">sudo wget https://github.com/drush-ops/drush/archive/master.zip</div>
+</li>
+</ul>
+<h2>Install Drush</h2>
+<ol>
+<li>Unzip Drush file archive.
+<div class = "hacker">sudo unzip -q master.zip</div>
+</li>
+<li>Rename <code>~/drush-master</code> directory for ease of use.
+<div class = "hacker">sudo mv ./drush-master ./drush</div>
+</li>
+<li>Add <code> alias drush='~/drush/drush'</code> into the <code>.bashrc</code> file using the following command, which will allow the bash executable to recognize the alias <code>drush</code>.
+	<div class ="hacker">echo "alias drush='~/drush/drush'" >> .bashrc</div>
+	</li>
+	</ol>
+	<h2>Install composer</h2>
+	<ol>
+	<li>Change the ownership of <code>drush</code> directory.
+	<div class = "hacker">sudo chown -R <em><u>user_name</u></em>:<em><u>user_name</u></em> drush/</div>
+	</li>
+	<li>Change the directory to <code>drush</code>.
+	<div class ="hacker">cd drush</div>
+	</li>
+	<li>Get the composer files and pipe them to PHP for execution.
+	<div class ="hacker">sudo curl -sS https://getcomposer.org/installer | php</div>
+	</li>
+	<li>Install Drush using the following command:
+	<div class = "hacker">sudo php composer.phar install</div>
+	</li>
+	</ol>
+<h2>Clean up the environment</h2>
+	<ol>
+	<li>Navigate to the document root directory.
+		<div class = "hacker">cd ~</div>
+		</li>
+	<li>Reset the bash settings.
+	<div class = "hacker">source .bashrc</div>
+	</li>
+	<li>Confirm the <code>drush</code> installation with following command:
+	<div class = "hacker">drush help</div>
+	<p>It will display the help options of <code>drush</code>.</p>
+	</li>
+	</ol>
+<h2>Create a MySQL database and user </h2>
+	<ol>
+	<li>Log into the MySQL.
+	<div class = "hacker">mysql -u root -p</div>
+	<p>It will prompt you for root password.</p>
+	</li>
+	<li>Create a database with the following command:
+	<div class = "hacker">CREATE DATABASE <em><u>drupal_db</u></em>;</div>
+	</li>
+	<li>Create a user to log in from the Drupal site.
+	<div class ="hacker">CREATE USER <em><u>drupal_user@localhost</u></em>;
+	</div>
+	</li>
+	<li>Set password for the new user.
+	<div class = "hacker">SET PASSWORD FOR <em><u>drupal_user@localhost</u></em>= PASSWORD("<em><u>password</u></em>");
+	</div>
+	</li>
+	<li>Grant privileges.
+	<div class = "hacker">GRANT ALL PRIVILEGES ON <em><u>drupal_db</u></em>.* TO <em><u>drupal_user@localhost</u></em> IDENTIFIED BY '<em><u>password</u></em>';
+	</div>
+	</li>
+	<li>Refresh MySQL.
+	<div class = "hacker">FLUSH PRIVILEGES;</div>
+	</li>
+	<li>Exit from the MySQL shell.
+	<div class = "hacker">exit</div>
+	</li>
+	</ol>
+	<h2>Download and configure Drupal</h2>
+	<ol>
+	<li>Change the ownership of the main <code>http</code> folder.
+	<div class = "hacker">sudo chown -R <em><u>user_name</u></em>:<em><u>user_name</u></em> /srv/http  </div>
+	</li>
+	<li>Navigate to the document root folder.
+	<div class = "hacker">cd /srv/http</div>
+	</li>
+	<li>Download Drupal. You can give any name to your Drupal project/site.
+	<div class ="hacker">drush dl drupal --drupal-project-rename=<em><u>drupal_site</u></em>
+	</div>
+	</li>
+	<li>Change the directory to your Drupal site.
+	<div class = "hacker">cd <em><u>drupal_site</u></em>
+	</div>
+	</li>
+	<li>Run the following command to configure Drupal, and to change the parameters as needed.
+	<div class="hacker">
+drush site-install standard --db-url=mysql://<em><u>drupal_user</u></em>:<em><u>password</u></em>@localhost/<em><u>drupal_db</u></em> --site-name=<em><u>your_site_name</u></em> --account-name=<em><u>admin</u></em> --account-pass=<em><u>your_password</u></em>
+   </div>	
+	<p>It will create a user with the username <code>account-name</code>, and the supplied password. </p>
+	</li>
+	<li>Assign the <code>sites/default/</code> group ownership to the www-data group.
+	<div class = "hacker">sudo chown -R http:http sites/default/files</div>
+	</li>
+	<li>Change the permissions for <code>sites/default/files</code> for www-data group.
+	<div class = "hacker">sudo chmod -R 775 sites/default/files</div>
+	</li>
+	<li>Access your Drupal installation, and provide the <em><u>admin</u></em> credential that you have created.
+	<div class = "hacker">http://<em><u>server_ip</u></em>/<em><u>drupal_site</u></em>/
+	</div>
+	</li>
+	</ol>
+	<h2>Conclusion </h2>
+	<p>In this article, you have learned to install Drush on your system. You can easily manage your site via the command line using Drush. To execute drush commands, you need to be on the document root of your Drupal site.</p>
+	</body>
+</html>

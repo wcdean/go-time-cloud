@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Deploy Rails Apps with Passenger and Apache - CentOS</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+
+    
+</head>
+
+<body>
+    <p>Setting up Rails Apps with Passenger and Apache in CentOS, Ruby, Rails, Apache</p>
+    <h1>Deploy Rails Apps with Passenger and Apache - CentOS</h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+    <p>This article guides you on how to deploy Rails Apps with Passenger and Apache in CentOS. You'll need at  least one GB of RAM in a virtual server to run the Passenger commands that  consume a lot of memory. This article assumes that the user has sudo privileges to access the virtual server.</p> 
+   
+    <p class='note'>This guide includes development library installation and ad hoc compilation on the machine, hence it is not recommended to use this tutorial in a production environment.</p>
+    <h2>Prerequisites</h2>
+    <p>To setup your Arch Linux server, refer to the article: <a href ="17323">Initial Server Setup - CentOS</a>. You need to ensure that the fully qualified domain name (FQDN) points to the server. After you have set up the CentOS server, you will need to <a href ="17536">install Ruby on Rails using RVM - CentOS</a>.You (Optionally) may also refer to the article: <a href ="17715">Deploy Rails Apps with Passenger and NGINX - CentOS</a>.</p>
+	<h2>Install Apache</h2>
+    <ol> 
+        <li>Update the system and install Apache.
+            <div class='hacker'>sudo yum -y update</div>
+            <div class='hacker'>sudo yum install httpd</div>
+            <div class='hacker'>sudo yum -y install curl curl-devel httpd-devel httpd mod_ssl</div>
+        </li>  
+        
+            <li>To display the version of Ruby installed, type:
+            <div class='hacker'>ruby -v</div>
+			</li>
+          </ol>
+    <h2>Install Rails and Passenger</h2>
+        
+        <ol>
+        <li>Install Rails and Passenger.
+            <div class='hacker'>sudo yum install gem</div>
+            <div class='hacker'>gem install rails passenger</div>
+        </li>
+        <li>Install Passenger for Apache. This installation may take some time.
+            <div class='hacker'>rvmsudo passenger-install-apache2-module</div>
+        </li>
+		<li>Select <code>Ruby</code> when you see the prompt to select the language. This installation takes  a while. After the installation is complete, it will generate it will generate the following block of code:
+		  	   
+		<div class = "hacker"><pre>
+LoadModule passenger_module /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/gems/passenger-5.0.20/buildout/apache2/mod_passenger.so
+   &lt;IfModule mod_passenger.c&gt;
+     PassengerRoot /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/gems/passenger-5.0.20
+     PassengerDefaultRuby /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/wrappers/ruby
+   &lt;IfModule&gt;
+
+</pre>
+</div>
+<p>Copy the above code.</p>
+</li>
+         <li>Create the following file and paste the above code that you've copied in the <code>passenger.conf</code> file. 
+            <div class='hacker'>sudo vim /etc/httpd/conf.d/passenger.conf</div>
+         </li>
+         
+         
+        <li>Save and exit by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>,followed by  the <strong>Enter</strong> key.
+		</li>
+        <li>
+        	Restart Apache service.
+			<div class='hacker'>sudo service httpd restart </div>
+        </li>        
+    </ol>
+    
+    <h2>Configure a test Rails app</h2>
+    <ol>
+		<li>Install the sqlite's development package to store data in the database.
+			<div class='hacker'>sudo yum install sqlite-devel</div>
+		</li>
+		
+		<li>Create a Rails App, and then go to application directory using following commands:
+		
+		<div class ="hacker">rails new <em><u>your_application</u></em></div> 
+			<div class='hacker'>cd <em><u>your_application</u></em> </div>
+		</li>
+		<li>By default, CentOS doesn’t have JavaScript execution environment installed. To manually install it, type: 
+			<div class='hacker'>sudo vim Gemfile</div>
+		</li>
+		<li>And add the following line in this file:
+			<div class='hacker'>gem 'therubyracer' </div>
+		</li>
+		 <li>Save and exit by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>,followed by  the <strong>Enter</strong> key.
+		</li>
+		<li>Install all the dependencies of <code>Gemfile</code> using the following command:
+    		<div class='hacker'>bundle install</div>
+		</li>
+		<li>You can also initiate the development database using the migration tool.
+			<div class='hacker'>rake db:migrate </div>
+  		</li>
+</ol>
+    
+    <h2>Connect the Apache server to the Rails app</h2>
+	<ol>
+    <li>Open the Apache configuration file.
+    	<div class='hacker'>sudo vim /etc/httpd/conf/httpd.conf</div>
+    </li>
+    
+    <li>Locate the following code and comment it by adding "#" before each line.
+<div class="hacker"><pre>&lt;Directory &gt;
+    AllowOverride none
+    Require all denied
+&lt;/Directory&gt;
+</pre>
+	</div>
+	<p>Locate the following code and update the highlighted sections:</p>
+	<div class ="hacker"><pre>Include conf.modules.d/*.conf
+
+User <em><u>Logged_in_user</em></u>
+Group <em><u>Logged_in_user</em></u>
+</pre>
+</div>
+<p>Add the following line below the code <code>ServerAdmin root@localhost</code>:
+
+    <div class='hacker'>
+<pre>&lt;VirtualHost *:80&gt;
+	#Replace www.coolexample.com with your FQDN or your_server_ip
+	RailsEnv development
+	ServerName <em><u>your_public_ip</em></u>
+	DocumentRoot <em><u>/home/username/your_application</u></em>/public 
+	&lt;Directory <em><u>/home/username/your_application</u></em>/public&gt;
+		AllowOverride all
+		Options -MultiViews
+	&lt;/Directory&gt;
+&lt;/VirtualHost&gt;</pre>
+       </div>
+           
+    </li>
+	 <li>Save and exit by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>,followed by  the <strong>Enter</strong> key.
+		</li>
+    <li>Restart the Apache server with this command:
+        <div class='hacker'>sudo service httpd restart</div>
+     </li>
+	</ol>
+
+    
+	<h2>Conclusion</h2> 
+		<p>In this article, we reviewed the steps involved in setting up your Rails app with Passenger and Apache, in order to make it more secure and reliable in Fedora distribution.</p>
+</body>
+
+</html>

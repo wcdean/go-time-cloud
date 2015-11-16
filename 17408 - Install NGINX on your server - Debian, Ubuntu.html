@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install NGINX on your server - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Brief description of what this article accomplishes. Include any keywords indicated in the spreadsheet. This blurb will not appear with the content.</p>
+    <h1>Install Nginx on Your Server - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>5 minutes</u></em></p>
+    <p>This article guides you through installing and starting Nginx on Debian or Ubuntu.</p>
+    <h2>Install and start Nginx</h2>
+
+     <ol>
+ <li>Install Nginx by doing one of the following:
+   <ul>
+     <li> <a href="http://nginx.org/en/linux_packages.html#stable">Download the Nginx software</a>, find your OS version, and follow the instructions. </li>
+     <li>If the Nginx installation package is not included with your OS (or if you don't know), run these commands:
+       <div class="hacker">sudo apt-get update</div>
+       <div class="hacker">sudo apt-get install nginx</div>
+     </li>
+   </ul></li>
+ <li>Start the Nginx service:
+      <div class="hacker">sudo service nginx start</div>
+Nginx is now running as a web server. To verify, you can use your browser to navigate to the IP address of your cloud server; for example, <code>http://<em><u>IP Address of your cloudserver</u></em></code> .
+</li></ol>
+  
+ <h2>Next steps</h2>
+    <p>You have just installed Nginx. Next, you may want to add any of the following: </p>
+        <ul>
+          <li><a href="http://17360%20-%20Configure%20NGINX%20Server%20Blocks%20-%20ALL%20DISTROS.html">Additional Nginx server blocks</a></li>
+        <li> <a href="http://17500%20-%20Configure%20NGINX%20as%20a%20reverse%20proxy%20-%20ALL%20DISTROS.html">More advanced Nginx functionality</a></li>
+        <li><a href="http://17932%20-%20Setup%20FastCGI%20Caching%20with%20NGINX%20on%20your%20server%20-%20Arch%20Linux.html">Enhanced php functionality</a></li>
+
+        </ul>  
+   
+</body>
+</html>

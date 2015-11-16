@@ -1,0 +1,656 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17416-->
+
+
+
+<title>Deploy Django with PostgreSQL, NGINX, and Gunicorn - Ubuntu</title>
+  <style type="text/css">
+    div.hacker
+    {
+      background-color: #666;
+      border: 1px solid #ccc;
+      color: #fff;
+      font-family: "Lucida Console","Courier New",Courier,fixed;
+      font-size: 95%;
+      line-height: 160%;
+      margin-bottom: 1.5em;
+      padding: 10px;
+    }
+
+    p.note
+    {
+      background-color: #ffffe6;
+      border: 1px solid #eee;
+      color: #666;
+      padding: .8em 1.6em;
+      margin: 15px 0;
+    }
+
+    .warning
+    {
+      border: 1px #d25100 solid;
+      padding: .5em 1em .5em 4em;
+      margin: 10px 20px 15px 20px;
+      background-image: url('@{help-img-path}/img_warning.gif');
+      background-repeat: no-repeat;
+      background-position: left top;
+      background-color: #ededed;
+      -moz-border-radius: 0.8em;
+      -webkit-border-radius: 0.8em;
+      /* -moz-border-bottom-radius: 0;9 */
+      -webkit-border-bottom-radius: 0;
+      padding-top: 14px;
+      padding-bottom: 15px;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <p>Django, Python, Gunicorn, NGINX</p>
+  <h1>Deploy Django with PostgreSQL, NGINX, and Gunicorn – Ubuntu</h1>
+
+  <p>
+    <strong>Difficulty</strong>: <em><u>3</u></em><br />
+    <strong>Time</strong>: <em><u>2 hours</u></em>
+  </p>
+
+  <p>
+    One of the biggest up-and-comers in the web development world today is the Python-based framework known as Django.
+    Maintained by the <a href="https://www.djangoproject.com/foundation/">Django Software Foundation</a>,
+    Django is an extremely powerful and flexible format that is known for its capability to scale at the
+    enterprise level while maintaining a relatively low resource footprint.
+    Major sites such as Pinterest, Instagram, Disqus, BitBucket, NASA, and The Onion are all built on top of a Django framework. GoDaddy also uses Django; Many of their internal tools and   even some of their products are built on top of Django.
+  </p>
+  <p>
+    This guide will cover how to deploy a software solution stack for deploying Django applications on your self-managed Ubuntu server. There are many different solutions that can be used for deploying a Django application, so please note that this guide will not cover all of them. After doing our research and speaking with many developers in the Django community, we decided to focus our guide around one of the more stable and most-popular solution stacks for Django:
+  </p>
+  <ul>
+    <li>Web server - NGINX</li>
+    <li>WSGI Application server - Gunicorn</li>
+    <li>Database - PostgreSQL</li>
+    <li>Python - Virtual Environment (virtualenv)</li>
+  </ul>
+  <p>
+    Lastly, this guide will be focused on deploying Django using Python 2.7. This is simply for the sake of ease. You may if you wish set up a separate installation of Python 3 - please do so at your own risk. If you do, please note that you may need to take additional steps other than what this guide entails.
+  </p>
+
+  <h2>Prerequisites</h2>
+  <p>Before you begin, let’s first make sure you have everything you need on your server:</p>
+  <ul>
+    <li>Make sure you can access the root user on your server via SSH.</li>
+    <li>
+      Make sure you have a domain that you can configure on NGINX so that you can test your application.
+      This domain will need to have its public DNS pointed to the server IP.
+      For our examples, we will be using <a href="http://godjango.com">godjango.com</a>.
+      So any time you see this domain in the guide, you can replace it with yours.
+    </li>
+    <li>Have a browser window open to the search engine of your choice. This guide may not cover all possibilities you can run into depending on what you're doing with your specific application. As a savvy admin, you already know that a search can be your best friend when it comes to troubleshooting. We will cover all possibilities on a new server setup, but if you're on a server that's already configured for other apps, you may run into some things that require custom troubleshooting.</li>
+  </ul>
+  <p>This task is time consuming, and will take some time to complete.</p>
+
+  <h2>Phase 1 - Prepare the environment and installing Postgresql</h2>
+  <p>
+    The first phase of this guide is focused on getting your environment ready to deploy a Django application.
+    This involves the installation and configuration of our different elements of the software stack.
+    This phase covers some configuration settings for Python, Gunicorn, NGINX, Virtualenv, Django itself, and a few additional Python tools.
+  </p>
+  <h3>Update APT</h3>
+  <p>Before you begin, let’s first make sure that your operating system has all of its APT packages updated.</p>
+  <ol>
+    <li>Log into your server through SSH.</li>
+    <li>Access the root user by running:<div class="hacker">sudo su -</div></li>
+    <li>
+      Run the following commands to update your <code><em>apt</em></code> cache and installed packages:
+      <div class="hacker">apt-get update</div>
+      <div class="hacker">apt-get -y upgrade</div>
+      <p>This will update the <code><em>apt</em></code> cache.</p>
+    </li>
+    <li>
+      Let's also make sure you have the proper GCC compiler installed before you go any further.
+      Don't skip this step, it will make things easier later.
+      <div class="hacker">apt-get -y install gcc</div>
+    </li>
+  </ol>
+
+  <h3>Install Postgresql</h3>
+  <p>
+    Since you're currently in root, there's a few things to handle with yum first before we start diving into our Python stuff. One of those is installing Postgresql.
+    You can, of course, choose to use other database systems such as MySQL, SQLite, or MongoDB - but PostgreSQL is becoming more and more popular in the realm of Django development, so we'll include this as part of our solution stack.
+  </p>
+  <ol>
+    <li>
+      As root, run the following command to install PostgreSQL and the appropriate packages:
+      <div class="hacker">apt-get -y install libpq-dev postgresql postgresql-contrib</div>
+    </li>
+    <li>
+      This command installs PostgreSQL and a few appropriate modules. Unlike our other Linux flavors, the PostgreSQL database will initialize upon install. You are now ready to start the postgresql service.
+      <div class="hacker">service postgresql start</div>
+      <p>Before you proceed further, you need to make some changes to the PostgreSQL configuration. This will make sure you can allow password authentication for database users and save you a step later.</p>
+    </li>
+    <li>
+      Open the PostgreSQL configuration file in the text editor of your choice. For our example, we will use vim:
+      <div class="hacker">vim /etc/postgresql/9.3/main/pg_hba.conf</div>
+    </li>
+    <li>
+      Scroll down and you will see lines for defining the local, IPv4, and IPv6 connection sockets. By default, you should see this:
+        <pre><code>
+        # Database administrative login by Unix domain socket
+        local   all             postgres                                peer
+        # TYPE  DATABASE        USER            ADDRESS                 METHOD
+        # "local" is for Unix domain socket connections only
+        local   all             all                                     peer
+        # IPv4 local connections:
+        host    all             all             127.0.0.1/32            md5
+        # IPv6 local connections:
+        host    all             all             ::1/128                 md5
+      </code></pre>
+    </li>
+    <li>
+      Using your text editor, change the <em>peer</em> and <em>ident</em> entries to trust, then save and close the file. Your file should look like the example below:
+        <pre>
+        <code>
+        # Database administrative login by Unix domain socket
+        local   all             postgres                                trust
+        # TYPE  DATABASE        USER            ADDRESS                 METHOD
+        # "local" is for Unix domain socket connections only
+        local   all             all                                     trust
+        # IPv4 local connections:
+        host    all             all             127.0.0.1/32            trust
+        # IPv6 local connections:
+        host    all             all             ::1/128                 trust
+      </code></pre>
+    </li>
+    <li>
+      Restart PostgreSQL so that these changes take:
+      <div class="hacker">service postgresql restart</div>
+    </li>
+  </ol>
+
+  <h3>Install NGINX</h3>
+  <p>
+    You are ready to install the lightweight NGINX web server.
+    This server will act as a reverse-proxy in front of the application server (Gunicorn), which you will install later in your virtual environment.
+  </p>
+  <h4>Why NGINX?</h4>
+  <p>
+    There are many reasons to configure Gunicorn to sit on top of NGINX. In theory you could set it up to use Gunicorn by itself, but you might run into problems that NGINX gets rid of.
+  </p>
+  <p>
+    Gunicorn can serve static files (e.g. javascript, css, images etc.) together with responses.
+    However, the better thing to do is to let a reverse-proxy server (in this case NGINX) handle the task of serving these files and managing connections.
+    This relieves a lot of the load from the application server, so you get a better performance overall, especially as you scale up to more and more traffic.
+  </p>
+  <p>
+    Long explanation aside, the install process for NGINX is very simple in Ubuntu;
+    the base Ubuntu repositories have everything you need to install NGINX.
+  </p>
+  <div class="hacker">apt-get -y install nginx</div>
+  <p>Don't start it yet - we'll get to that part later.</p>
+
+  <h3>Install Python development tools and modules</h3>
+  <p>If you have a brand new Ubuntu server, then you should be running Python 2.7.6 or later. You can confirm this in command line by running:</p>
+  <div class="hacker">python -V</div>
+  <p>You should see an output like the following:</p>
+  <div class="hacker">[root@server ~]# python -V</div>
+  <div class="hacker">Python 2.7.6</div>
+  <p>If you see a different flavor that should be fine - as long as its in the Python 2.7.x family.</p>
+  <p>Install the python-devel, pip, virtualenv, and setuptools modules through <code><em>apt</em></code>:</p>
+  <div class="hacker">apt-get -y install python-virtualenv python-setuptools python-pip python-dev</div>
+  <p>While you are doing this, now is a good time to run your PATH export that you will need to do for using <code><em>pip</em></code>.</p>
+  <div class="hacker">export PATH="/usr/local/bin:$PATH"</div>
+
+  <h3>Set up user and permissions</h3>
+  <p>Before moving forward, let's make sure you have a user that you will designate for the new virtual environment.</p>
+
+  <ol>
+    <li>Create the user you want to use. In this case, you will just make a user named <code><em>godjango</em></code>:<div class="hacker">useradd godjango</div></li>
+    <li>Give that user a password. Make sure you're following safe password practices:<div class="hacker">passwd godjango</div></li>
+    <li>
+      <b>(OPTIONAL BUT RECOMMENDED)</b> To save yourself a lot of headache later, run most of these commands as the godjango user.
+      However, since you will likely need root perms for lots of this, let's add this user to the sudoers file.
+      You can do this easily by running the following one-line command:
+      <div class="hacker">echo "USERNAME ALL= (ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers.d/USERNAME</div>
+      <p>Replace USERNAME with the username you added. So to use our example username of <code><em>godjango</em></code>, you would run:</p>
+      <div class="hacker">echo "godjango ALL= (ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers.d/godjango</div>
+    </li>
+    <li>
+      Run the following two commands so that sudo is updated.
+      <div class="hacker">sync</div>
+      <div class="hacker">service sudo restart</div>
+    </li>
+    <li>Your user now has full sudo permissions. Go ahead and switch to that user:<div class="hacker">su godjango -</div></li>
+  </ol>
+  <p class="note">
+    Moving forward, you will need to enter in the user's password for any commands that require <code>sudo</code> permissions.
+    This is a trivial annoyance that is necessary to avoid having to go and reassign user ownership and permissions after deployment.
+  </p>
+
+  <h3>VirtualEnv - Create environment</h3>
+  <p>
+    Now that <code><em>virtualenv</em></code> is installed, you are ready to create your new virtual environment.
+    You will set this up inside the default /var/www directory in order to maintain an easy naming convention but in reality, you can use whichever path you prefer.
+    Simply make sure that you are replacing our example paths with any paths you will be using.
+  </p>
+  <ol>
+    <li>Create your directory for the application:<div class="hacker">sudo mkdir /var/www/godjango</div></li>
+    <li>Let's make your new user the owner of this directory:<div class="hacker">sudo chown godjango:godjango /var/www/godjango</div></li>
+    <li>Move to the directory for your app:<div class="hacker">cd /var/www/godjango</div></li>
+    <li>
+      You are ready to create your virtual environment.
+      You may choose any name you wish for your virtual environment, for the sake of simplicity we are naming ours godjango_venv:
+      <div class="hacker">virtualenv godjango_venv</div>
+      <p>You should see a success message that the virtual environment has been created, an installed pip and setuptools.</p>
+    </li>
+    <li>
+      Let's also make a directory for static files. This will save you a step later:
+      <div class="hacker">sudo mkdir /var/www/godjango/godjango_venv/static/</div>
+    </li>
+    <li>
+      Lastly, you need to activate the interpreter inside the virtual environment so that it may be used.
+      <div class="hacker">source godjango_venv/bin/activate</div>
+    </li>
+    <li>
+      You should now be running commands inside your virtual environment.
+      You will know this when the name of your virtualenv is listed in parenthesis before your normal command prompt, like so:
+      <div class="hacker">(godjango_venv)godjango@server:/var/www/godjango$</div>
+    </li>
+  </ol>
+  <p>You now have the user set up, the virtual environment initialized, and a place to put your application.</p>
+
+  <h3>Install Gunicorn</h3>
+  <p>
+    Next, you need to install the Gunicorn WSGI app server.
+    Gunicorn is a stand-alone WSGI web application server which offers a lot of functionality and flexibility.
+    It natively supports various frameworks with its adapters, including Django, right out of the box.
+    The intention will be to use Gunicorn to actually serve the content to NGINX, which will act as a reverse-proxy server to serve the content to the rest of the internet.
+  </p>
+  <p>
+    Since to set up your virtual environment, you want to install Gunicorn in that environment specifically.
+    This is to make sure that all elements of the applications are contained and will not affect any other applications on the server that run outside the environment.
+  </p>
+  <p class="note">
+    Make sure that the name of your virtual environment is in parenthesis before your prompt before proceeding.
+    Otherwise, you will end up installing Gunicorn system-wide, which defeats the purpose of containing everything in the virtual environment.
+    You should be there if you're following the previous steps, but if you're not, simply run:
+  </p>
+  <div class="hacker">source godjango_venv/bin/activate</div>
+  <p>While inside your application directory, use pip to install Gunicorn: </p>
+  <div class="hacker">pip install gunicorn</div>
+
+  <h3>Install Django</h3>
+  <p>
+    Let us not forget why we are here - you want to install and deploy a Django application.
+    If you already have an existing Django project that you wish to deploy, go ahead and skip this part,
+    instead uploading your app to the <code>/var/www/godjango/app</code> directory.
+    This section will cover how to deploy a new Django install.
+  </p>
+  <ol>
+    <li>
+      Make sure you are still in your virtualenv and application directory:
+      <div class="hacker">(godjango_venv)[godjango@server godjango]$ pwd</div>
+      <div class="hacker">/var/www/godjango</div>
+      <p>Your's should look similar, using your own application and venv name.</p>
+    </li>
+    <li>
+      Use pip to install Django:
+      <div class="hacker">pip install django</div>
+      <p>This will install Django to the <code><em>/var/www/godjango/godjango_venv/bin</em></code> directory.</p>
+    </li>
+  </ol>
+
+  <h2>Phase 2 - Configuration</h2>
+  <p>Here's a rundown of what we've done so far:</p>
+  <ul>
+    <li>Installed your web server NGINX, and your database server PostgreSQL</li>
+    <li>Set up your Python virtual environment with pip, Gunicorn, and your Django app</li>
+  </ul>
+  <p>Now that you've got everything in place, it's time to start tying the pieces together. This will likely be the most difficult part, as the specific commands and config entries will be different than the examples, depending on what paths you use. Please make sure you are substituting any paths in our examples with your own.</p>
+
+  <h3>Configure PostgreSQL</h3>
+  <p>Let's go ahead and start by configuring your PostgreSQL database server, creating a database, and getting it ready to tie into Django. Make sure you are keeping track of any database usernames, database names, and passwords during this process so that you can use these for connection strings later.</p>
+  <ol>
+    <li>
+      First, let's change to your PostgreSQL user:
+      <div class="hacker">sudo su - postgres</div>
+      <p>This will change you to the <code><em>postgres</em></code> user.</p>
+    </li>
+    <li>
+      Run this command to create your database. You can give your database any name you wish; for our example we will be naming ours "godjangodb."
+      <div class="hacker">createdb godjangodb</div>
+    </li>
+    <li>
+      Create your database user.
+      <div class="hacker">createuser godjangouser -P</div>
+      <p>
+        You will be met with prompts for the username and the password.
+        We are setting up this user with the most basic of permissions.
+        These can be edited later - please refer to the
+        <a href="http://www.postgresql.org/docs/">official PostgreSQL documentation</a> for all options that can be given to a database users.
+      </p>
+    </li>
+    <li>
+      Next, you want to initiate the PostgreSQL command-line interface:
+      <div class="hacker">psql</div>
+      <p>You should see a prompt that looks like this:</p>
+      <div class="hacker">postgres=#</div>
+    </li>
+    <li>
+      Now that you are here, the last thing you need to do is grant full privileges for your user to your database. Using our example:
+      <div class="hacker">GRANT ALL PRIVILEGES ON DATABASE godjangodb TO godjangouser;</div>
+      <p>You now have a PostgreSQL database and a user to access that database with. Now you can configure Django to use this database.</p>
+    </li>
+    <li>
+      Exit out of the PostgreSQL command by typing:
+      <div class="hacker">\q</div>
+    </li>
+    <li>
+      Then exit back to your virtual environment by typing:
+      <div class="hacker">exit</div>
+    </li>
+  </ol>
+
+  <h3>Set up and configure Django</h3>
+  <p>
+    You are now going to go ahead and deploy a Django project that you can use to test the environment.
+    Make sure you are in your Python virtual environment that you set up previously.
+    You can get there again, no matter what directory you are in, by running:
+  </p>
+  <div class="hacker">source /var/www/godjango/godjango_venv/bin/activate</div>
+  <p>Replace this example path with your own, of course.</p>
+  <p>Once you are certain you are inside your virtual environment, go ahead and proceed with the next steps.</p>
+  <ol>
+    <li>
+      Change directories to the folder for your application. You can do this from wherever you are by typing:
+      <div class="hacker">cd /var/www/godjango</div>
+      <p>Again - use your own path in this case instead of our example.</p>
+    </li>
+    <li>
+      While we are here, you need to install the required Python package for PostgreSQL, known as <code><em>psycopg2</em></code>:
+      <div class="hacker">pip install psycopg2</div>
+    </li>
+    <li>
+      Start your new Django project by running the following command. Replace our example with the name of the project you wish to create - ours is named <code><em>godjango</em></code>:
+      <div class="hacker">django-admin.py startproject godjango</div>
+      <p>You should now see that a directory has been created in the virtual environment folder with the same name as the project. This is where the Django project files will live.</p>
+    </li>
+    <li>
+      Change directories (using the <code>cd</code> command) to move into the directory for your project,
+      and then the directory (with the same name) nested inside that one.
+      In our example, we would go into <code>godjango</code>, then into the <code>godjango</code>
+      folder that is nested in there. So, simply put in your command line:
+      <div class="hacker">cd godjango/godjango</div>
+      <p>You should see the following files when you list (using the ls command):</p>
+      <div class="hacker">(godjango_venv)[godjango@server godjango]$ ls</div>
+      <div class="hacker">__init__.py  settings.py  urls.py  wsgi.py</div>
+      <p>If you see these four files, then you know you are in the right place.</p>
+    </li>
+    <li>
+      Edit the settings.py file in the text editor of your choice, such as <code><em>nano</em></code>, <code><em>emacs</em></code>, or <code><em>vi/vim</em></code>.
+      In our example, we will be using <code><em>vim</em></code>.
+      <div class="hacker">vim settings.py</div>
+    </li>
+    <li>
+      This is the configuration file for your Django project. Scroll down until you see the dictionary for databases. The default one should look like the following:
+      <p>Example of default DATABASES dictionary:</p>
+        <pre>
+        <code>
+        DATABASES = {
+          'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+          }
+        }
+      </code></pre>
+    </li>
+    <li>
+      You are going to edit this dictionary to contain your connection strings for the PostgreSQL database that you set up previously. So you should edit yours to look similar to the example below:
+      <p>Example of new DATABASES dictionary:</p>
+        <pre>
+        <code>
+        DATABASES = {
+          'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'godjangodb',
+            'USER': 'godjangouser',
+            'PASSWORD': 'databasepassword123',
+            'HOST': 'localhost',
+            'PORT': '',
+            }
+        }
+      </code></pre>
+      <p>This way, it is set up to use the psycopg2 module you installed earlier.</p>
+    </li>
+    <li>
+      While you are in here, there is another variable you need to set. Remember that static folder you created earlier? You are going to edit the STATIC_URL variable to match this path. Using our example:
+      <div class="hacker">STATIC_URL = '/var/www/godjango/godjango_venv/static/'</div>
+    </li>
+    <li>
+      Once done with both steps 7 and 8, go ahead and save and close the file.
+    </li>
+    <li>
+      Move back up a single directory so that you are in the project folder. You can do so with the simple command:
+      <div class="hacker">cd ..</div>
+      <p>You will be in the right place if you see a manage.py file in your current working directory:</p>
+      <div class="hacker">(godjango_venv)[godjango@server godjango]$ ls</div>
+      <div class="hacker">godjango  manage.py</div>
+      <p>Before proceeding, you need to make sure that you're still inside your virtual environment. If it is not activated, do so by running:</p>
+      <div class="hacker">source /var/www/godjango/godjango_venv/bin/activate</div>
+      <p>Using your own paths instead of the example, of course.</p>
+    </li>
+    <li>
+      While your virtual environment is active, run the following command. This will tell Django to initialize the required database tables.
+      <div class="hacker">python manage.py syncdb</div>
+      <p>You should see some output regarding the operations performed. It will also prompt you to create a superuser - this is up to you, but we will proceed as though you are creating a superuser.</p>
+    </li>
+    <li>
+      Enter the username you wish to use as a superuser. If you wish to use your current user, simply press Enter and leave this part blank.
+    </li>
+    <li>
+      When prompted, enter the password and email for this superuser.
+    </li>
+  </ol>
+  <p>Django is now installed and configured to sync up with your PostgreSQL database. It should have also created the proper tables for your Django application.</p>
+
+  <h3>Configure Gunicorn</h3>
+  <p>
+    This configuration is likely going to be very specific according to your applications needs.
+    This guide is only going to cover the basic default configuration and getting the Django test page up and live - the rest is up to you as the developer.
+    Please take the time to review <a href="http://docs.gunicorn.org/en/latest/">Gunicorn's documentation page</a> for configuring Gunicorn to meet your application's needs.
+  </p>
+  <ol>
+    <li>
+      Run the following command to start the Gunicorn application server over port 8000.
+      <div class="hacker">gunicorn myproject.wsgi:application --bind domainoripaddress.tld:8000</div>
+    </li>
+    <li>
+      You can replace 'domainoripaddress' with either a domain name with public DNS pointed at the server, or simply the IP address of your server - whichever works for you right now. Also replace 'myproject' with the name of the Django project you created earlier. So to demonstrate the example, we are using:
+      <div class="hacker">gunicorn godjango.wsgi:application --bind godjango.com:8000</div>
+      <p>You should now be able to go to your IP address or domain with :8000 at the end of the address in any browser, and you will pull up a Django test page. </p>
+    </li>
+    <li>
+      Go ahead and close the server for now by pressing CTRL-C on your keyboard.
+      <p class="note">In Ubuntu, this will exit you completely out of the shell because ctrl-c will also kill the process for the su. Use the following two commands to reactivate the venv, and get to the right location to continue testing. There are no other workarounds we could find on this at this time - if someone knows a better one without having to manually kill the processes, let us know! We will add it! Otherwise, once you hit ctrl-c, use these commands to get back to the right place after logging back in:</p>
+      <p>Get back to root.</p>
+      <div class="hacker">sudo su -</div>
+      <p>Then to your user, using our godjango example.</p>
+      <div class="hacker">su godjango -</div>
+      <p>Navigate back to the django directory.</p>
+      <div class="hacker">cd /var/www/godjango</div>
+      <p>Reactivate the virtualenv.</p>
+      <div class="hacker">source godjango_venv/bin/activate</div>
+      <p>This will get you right back to where you were after logging in again. Please note that due to limitations in Ubuntu you may need to do this a few times during testing. That is fine - at the end we are going to show you how to run your server in the background.</p>
+    </li>
+    <li>
+      So here's the advantage - you'll notice that by default Gunicorn only spawns one worker process. If we wanted to improve this a bit and tell Gunicorn to spawn three worker processes instead of one, we could run:
+      <div class="hacker">gunicorn godjango.wsgi:application --workers=3 --bind godjango.com:8000</div>
+      <p>If you run this, you'll notice that three workers are spawned instead of one. This number can be adjusted to meet the needs of your application.</p>
+    </li>
+    <li>
+      This command is getting pretty big simply to start the server! If you're making this many specifications regarding Gunicorn, you probably want to make your life easier by making a configuration file. Do so by creating a configuration file directly in your virtual environment directory:
+      <div class="hacker">vim /var/www/godjango/godjango_venv/gunicorn_config.py</div>
+    </li>
+    <li>
+      To create a configuration file that exactly matches our example, this is what you would put into the file:
+      <div class="hacker">command = '/var/www/godjango/godjango_venv/bin/gunicorn'</div>
+      <div class="hacker">pythonpath = '/var/www/godjango/godjango_venv/godjango'</div>
+      <div class="hacker">bind = 'godjango.com:8000'</div>
+      <div class="hacker">user = 'godjango'</div>
+      <p>
+        Replace the domain and path with the domain and path you wish to use. Make sure that <code><em>pythonpath</em></code> is equal to the Django project directory,
+        and that <code><em>command</em></code> is equal to the Gunicorn binary in your virtual environment. Once done, save and close the file.
+      </p>
+    </li>
+    <li>
+      You are going to start your server again, this time with a different command:
+      <div class="hacker">bind = '127.0.0.1:8000'</div>
+    </li>
+    <li>
+      Last thing - since your're going to set this up as a reverse proxy later, you need to actually change that bind to localhost. We only showed you the previous example using the domain so you could see that it is working. Re-open the gunicorn_config.py file in your text editor and change your bind to be
+      <div class="hacker">sudo /var/www/godjango/godjango_venv/bin/gunicorn -c /var/www/godjango/godjango_venv/gunicorn_config.py godjango.wsgi</div>
+      <p>This specifies the path to gunicorn, the path to the config file, and the name of the Django project WSGI. The -c flag indicates that you are using a configuration file. This way, instead of having to edit the command to start the server each time, you can simply edit the configuration file itself.</p>
+    </li>
+    <li>
+      Once done, save and close the file.
+    </li>
+  </ol>
+  <p>
+    You now have the command you need to run your server.
+    If you prefer, you can edit your server <code><em>init</em></code>, telling the machine to run this script upon server boot.
+    This is up to you of course, and for that we will refer to the
+    <a href="https://help.ubuntu.com/community/UbuntuBootupHowto">official Ubuntu documentation about init</a>.
+    We aren't going to go much more into configuring Gunicorn at this point. Lets move on to NGINX.
+  </p>
+
+  <h3>Configure NGINX</h3>
+  <p>You're almost done with your stack. Last thing you need to do here is set up NGINX to act as a reverse-proxy server. Gunicorn will serve the Django application to NGINX, which will be then sent to the rest of the internet.</p>
+  <p>Before you begin, let's take care of a few administration tasks. You're done for now in the virtual environment, so get back to root by typing <code><em>exit</em></code>.</p>
+  <ol>
+    <li>
+      Once you're logged in as root, you need to shut Apache off to make room for your NGINX server:
+      <div class="hacker">service apache2 stop</div>
+    </li>
+    <li>
+      Since you’ll be using NGINX from here on out, you want to make sure to tell the server not to start Apache upon server reboot. Later, you’ll tell it to use NGINX instead.
+      <div class="hacker">update-rc.d -f apache2 remove</div>
+    </li>
+    <li>
+      Ubuntu requires you to configure NGINX to use IPv4 instead of IPv6. Open the following file in your text editor.
+      <div class="hacker">vim /etc/nginx/sites-available/default</div>
+    </li>
+    <li>
+      Then comment out the following line, and save and close the file:
+      <div class="hacker">#uncommented version</div>
+      <div class="hacker">listen [::]:80 default_server ipv6only=on;</div>
+      <div class="hacker">#commented version</div>
+      <div class="hacker">#listen [::]:80 default_server ipv6only=on;</div>
+    </li>
+    <li>
+      Then you can fire up NGINX, if you haven't already:
+      <div class="hacker">service nginx start</div>
+    </li>
+    <li>
+      Once done, confirm that it is running by typing:
+      <div class="hacker">service nginx status</div>
+      <p>You should see an output related to the NGINX server being active and running. We are now ready to start configuring NGINX.</p>
+    </li>
+    <li>
+      First, you need to configure NGINX to serve those static files. Create and open up a new NGINX config file with the following commands. Your new config file will simply use the name of the project. We are using vim, but you can use whichever text editor you prefer:
+      <div class="hacker">vim /etc/nginx/sites-available/godjango</div>
+    </li>
+    <li>
+      You will create a new NGINX server block. Our example will use the domain and folder paths we laid out in our working example:
+      <div class="hacker">vim /etc/nginx/sites-available/godjango</div>
+      <pre>
+      <code>
+        server {
+          server_name godjango.com www.godjango.com;
+          access_log off;
+          location /static/ {
+            alias /var/www/godjango/godjango_venv/static/;
+          }
+          location / {
+            proxy_pass http://127.0.0.1:8000;
+            proxy_set_header X-Forwarded-Host $server_name;
+            proxy_set_header X-Real-IP $remote_addr;
+            add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
+          }
+        }
+      </code></pre>
+      <p>
+        The above configuration has set NGINX to serve anything requested at <a href="http://godjango.com/static">godjango.com/static</a>
+        from the static directory you set for your Django project.
+        Anything requested at <a href="http://godjango.com">godjango.com</a> will proxy to localhost on port 8000, which is where you told Gunicorn to run.
+        The other lines ensure that the hostname and IP address of the request get passed on to Gunicorn. Without this,
+        the IP address of every request becomes 127.0.0.1 and the hostname is just your VPS/server hostname.
+        This way you have your reverse proxy server properly set up - Gunicorn delivers the data over port 8000,
+        and is then proxied to NGINX over port 80.
+      </p>
+    </li>
+    <li>
+      Let's set up your symbolic link so that NGINX knows that this site is enabled. Do so by running the following commands:
+      <div class="hacker">ln -s /etc/nginx/sites-available/godjango /etc/nginx/sites-enabled/godjango</div>
+    </li>
+    <li>
+      Now you need to configure NGINX to recognize your new configuration files. Open the NGINX configuration file in a text editor:
+      <div class="hacker">vim /etc/nginx/nginx.conf</div>
+    </li>
+    <li>
+      Remove the comment from this line, and then save the file. This lets you use hostnames with a size up to 64 characters.
+      It may come in handy, but is not necessary.
+      <div class="hacker">server_names_hash_bucket_size 64</div>
+    </li>
+    <li>
+      Finish it off by restarting NGINX so that it takes the new changes.
+      <div class="hacker">service nginx restart</div>
+    </li>
+  </ol>
+  <p>You now have NGINX setup as your reverse-proxy.</p>
+
+  <h2>Phase 3 - Tie it all together + cleanup</h2>
+  <p>You're almost done. Now you just need to get the Gunicorn server running, make sure that NGINX is running, and we'll be able to end this with a test page running on your domain or IP of choice.</p>
+  <ol>
+    <li>
+      Let’s get your Gunicorn server running in the background. Let's first move back to your godjango user, activate your virtual environment, and start a screen. You can do this by running the example commands in the following order:
+      <div class="hacker">su godjango -</div>
+      <div class="hacker">source /var/www/godjango/godjango_venv/bin/activate</div>
+      <div class="hacker">sudo screen</div>
+      <p>You should now have a new screen open.</p>
+    </li>
+    <li>
+      Navigate to the application directory:
+      <div class="hacker">cd /var/www/godjango/godjango</div>
+    </li>
+    <li>
+      Start your Gunicorn server:
+      <div class="hacker">sudo /var/www/godjango/godjango_venv/bin/gunicorn -c /var/www/godjango/godjango_venv/gunicorn_config.py godjango.wsgi</div>
+      <p>Your Gunicorn server should now be running with three worker processes under 127.0.0.1:8000.</p>
+    </li>
+    <li>
+      Close the screen and go back your main prompt by pressing CTRL-A, then D, on the keyboard.
+    </li>
+    <li>
+      Restart NGINX one last time.
+      <div class="hacker">sudo service nginx restart</div>
+    </li>
+  </ol>
+  <p><b>You did it!</b> Go check out your domain. Provided you followed the necessary steps, you should now see your domain serving the Django test page over a normal domain lookup over port 80.</p>
+
+  <h2>Conclusion</h2>
+  <p>If you followed all the steps to this fairly comprehensive tutorial, you should now have knowledge in doing the following:</p>
+  <ul>
+    <li>Installing and deploying a Django project in a virtual environment with Gunicorn</li>
+    <li>Installing and deploying PostgreSQL and NGINX</li>
+    <li>Configuring your Django application to serve through Gunicorn</li>
+    <li>Configuring Gunicorn to wrap your site through NGINX via reverse-proxy</li>
+  </ul>
+  <p>You're now ready to start development with your Django-based application, and get your site serving on a domain over port 80. Your Python/Django solution stack is complete.</p>
+  <p>As with any of our advanced server-admin tutorials, not all contingencies are covered, and this only really applies to brand new servers right out of the box. There may be additional steps you need to take to configure your specific application to work with NGINX and PostgreSQL. The ultimate authority for all configuration information regarding these elements will be the official documentation pages for PostgreSQL, Gunicorn, NGINX, and Django. So if you run into any snags that aren't explored here, review any errors you may have and review the docs at those respective elements of the stack.</p>
+</body>
+</html>

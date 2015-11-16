@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17600-->
+
+
+<title>17600 - Install and configure PostgreSQL - CentOS 7</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Installation and configuration of PostgreSQL in CentOS 7, Databases, and PostgreSQL.</p>
+<h1>Install and configure PostgreSQL - CentOS 7</h1>
+
+<p><strong>Difficulty</strong>: <em>1</em></p>
+<p><strong>Time</strong>: <em>15 minutes</em></p>
+
+<p>PostgreSQL is an open-source, relational database management system. PostgreSQL uses Structured Query Language (SQL) to manipulate data. To perform this task, we are assuming that the user has sudo privileges.</p>
+<p>This article provides information about installation and configuration of PostgreSQL on CentOS 7. </p>
+
+<h2>Install PostgreSQL</h2>
+<ol>
+<li>Update all the packages of the operating system.
+	<div class="hacker">sudo yum -y update</div>
+</li>    
+<li>Install the PostgreSQL package and its necessary dependencies.
+	<div class="hacker">sudo yum -y install postgresql postgresql-libs postgresql-plperl 	postgresql-plpython postgresql-server</div>
+</li>    
+<li>Initialize the database and data directories.
+	<div class="hacker">sudo service postgresql initdb</div>
+</li>    
+<li>Configure PostgreSQL to start up on server boot.
+	<div class="hacker">sudo chkconfig postgresql on</div>
+</li>    
+<li>Start the PostgreSQL service.
+	<div class="hacker">sudo service postgresql start</div>
+</li>    
+</ol>
+
+<h2>Connect to PostgreSQL</h2>
+<ol>
+<li><p>After PostgreSQL is installed completely, a <code>Postgres</code> system user and database will be automatically created.</p>
+</li>
+<li>Log in as <code>Postgres</code> user.
+    <div class="hacker">sudo su - postgres</div>
+</li>
+<li>Log in into database using the following command:
+	<div class="hacker">psql</div> <!--corrected the code here-->
+</li>
+<li>You will see the <code>Postgres=#</code> prompt. To exit from the prompt, type:
+	<div class="hacker">\q</div>
+</li>
+<li>Log out as the <code>Postgres</code> system user.
+	 <div class="hacker"> exit</div>
+</li>      
+</ol>
+
+<h2>Next Steps</h2>
+<p>This article covers the steps to install and configure PostgreSQL. You are ready to create your own database for your applications. For more details, see the article <a href="17526">Use PostgreSQL with your Ruby on Rails Application - CentOS </a>.   </p>
+
+</body>
+</html>

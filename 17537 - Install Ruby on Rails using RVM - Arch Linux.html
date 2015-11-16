@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17537 -->
+
+<title>Install Ruby on Rails using RVM - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+ <p>Setting up Ruby on Rails using RVM in Arch Linux, Ruby, Rails</p>
+    <h1>Install Ruby on Rails using RVM - Arch Linux</h1>
+
+<strong>Difficulty</strong>: <em><u>2 </u></em><br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em>
+
+<p>Ruby on Rails&trade; is a well-known framework for web application development. The Ruby Version Manager (RVM) allows developers to easily manage multiple Ruby application environments and switch between them in an efficient way. </p>
+
+<p>This article walks through how to install Ruby on Rails on Arch Linux using RVM, and assumes that you have <code>sudo</code> privileges. See <a href="17324 - Initial Server Setup - Arch Linux.html">Initial Server Setup - Arch Linux</a> for more on how to set up your server.</p>
+    <h2>Prepare your system</h2>
+Before you install Ruby on Rails, prepare your system with the required system software.    
+    <ol>
+        <li>Update pacman.
+          <div class='hacker'>sudo pacman -Syu</div>      
+      </li>
+        <li>Install curl.
+            <div class='hacker'>sudo pacman -S curl</div>
+        </li>
+		 <li>Install tar.
+            <div class='hacker'>sudo pacman -S tar</div>
+        </li>
+        </ol>
+	
+	
+	<h2>Install RVM</h2>
+   
+    <ol>
+        <li>Install GPG signatures
+			<div class='hacker'>gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3</div>
+		</li>
+		
+       <li>Install the RVM dependencies using the following commands:
+		<div class='hacker'>sudo curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -</div>
+		
+      </li>   
+
+	  <li>If your system doesn't have RVM already installed, type the following command to install RVM:
+         <div class='hacker'>sudo curl -L https://get.rvm.io | bash -s stable</div>
+    
+	  </li>
+		
+        <li>Open <code>.bashrc</code> file.
+            <div class='hacker'>sudo vim .bashrc</div>
+        </li>
+        <li>Add the following code at the end of the file:
+            <div class='hacker'> [[ -s "$HOME/.rvm/scripts/rvm" ]]  &amp;&amp;  source "$HOME/.rvm/scripts/rvm" </div>
+			
+        </li>
+		<li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.</li>
+		<li>Reload the source to enable <code>rvm</code> command.<div class='hacker'>source ~/.rvm/scripts/rvm </div></li>
+		
+        <li>Log back in to apply the changes, and then install the dependencies of RVM. 
+            <div class='hacker'>rvm requirements</div>
+      </li></ol>
+<h2>Install Ruby</h2>
+     <ol>
+        <li>Install the following dependencies of Ruby.
+            <div class='hacker'>sudo pacman -S libyaml</div>      
+        </li>
+    
+    <li>Install Ruby with RVM.
+     <div class='hacker'>rvm install ruby</div>
+	 To check ruby version, type:
+	 <div class = "hacker">ruby -v</div>
+    </li>
+       <li>The Asset Pipeline in Rails needs JavaScript runtime to compile code. We'll use the widely-accepted Node.js (a server-side JavaScript environment). Install it now.
+     <div class='hacker'>sudo pacman -S nodejs</div>
+    </li>
+</ol>
+  <h2>Install RubyGems</h2>
+    <ul><li>
+        Install gems using RVM.
+            <div class='hacker'>rvm rubygems current</div>      
+    </li>    
+    </ul>
+   <h2>Install Rails</h2>
+<ol>    
+        <li>Use gem to install the most recent stable release of Rails.
+          <div class='hacker'>gem install rails</div>
+    To check the version, type:
+      <div class='hacker'>rails -v</div>    
+	  </li>
+	  	  
+    </ol>
+
+  <h2>Next steps</h2>
+
+<p>Congratulations! You've set up Ruby on Rails using RVM for your web application. For more information on RVM, see <a href="17912 - Use RVM to manage Ruby installations and Environments - ALL DISTROS.html">Use RVM to manage Ruby installations.</a></p>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Connecting to your COMPANY_NAME cloud server with SSH - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <h1>Connect to Your Cloud Server with SSH - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+	<p>Once you create a COMPANY_NAME cloud server, you need to connect to it before you can manage it. In this article, you'll connect through SSH using OpenSSH  (which runs on Linux or Mac OS X) or PuTTy  (which runs on Windows). SSH, which stands for Secure Shell, is a protocol for secure access to a remote computer.    </p>
+<p> To connect to your cloud server using one of these tools, you need the following:</p>
+    
+    <ul>
+      <li><strong>User name:</strong> The server's user with privileges to connect remotely. This user name can be the same  name used in the Security Info section when creating the server.</li>
+      <li><strong>Password:</strong> Password entered when creating your user. The password helps to authenticate the user.</li>
+      <li><strong>Server IP address:</strong> This address is how you find your server on the Internet. This address is available in the Servers section of the COMPANY_NAME <a href="https://cloud.godaddy.com/servers">servers page</a>.</li>
+</ul>
+    <h2>Connect to your server with OpenSSH (Linux or Mac OS X)</h2>
+<p>OpenSSH  is a command line tool.
+</p>
+<ol>
+	<li>Open a terminal window.
+  </li>
+	<li>Start an OpenSSH connection:
+	  <div class="hacker">
+	    ssh <em><u>username</u></em>@<em><u>serverIPaddress</u></em>
+      </div>
+The first time you attempt to connect, a security warning displays. The server is not recognized because you haven't connected to it before.</li>
+	  <li>Type <strong>yes</strong> to continue to open the connection. The connection is added to the list of hosts in your computer. </li>
+	<li>
+	At the prompt, enter your credentials.
+     Once your user name and password are authenticated, you are connected.
+	</li>
+	</ol>
+	
+	<h2>Connect to your server with PuTTY (Windows)</h2>
+    <!--The user isn't running windows, is he? -->
+	<p>PuTTY is one of the most popular SSH clients for Windows. You can download it for free from the <a href="www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTy download page</a>.
+	</p>
+	<ol>
+	  <li>Double-click <strong>putty.exe</strong> to start it.  The configuration screen where you enter the server details displays.</li>
+	<li>
+	Enter the connection settings:
+	  <ul>
+		<li><strong>Host Name (or IP address)</strong>: The name (or the IP address) of the server you wish to connect to.</li>
+		<li><strong>Port: </strong>The port to use for the connection. The default is 22.</li>
+		<li><strong>Connection Type:</strong> The type of connection you want to use. SSH is the default.</li>
+	</ul>
+	</li>
+	<li>Open the connection: Click <strong>Open</strong> and accept the security alert. (This alert displays only  the first time you connect to the server) </li>
+	<li>At the authentication prompt, enter your user name and password.<br />
+	  Once the credentials are valididated, you are connected. </li>
+</ol>       
+    <h2>Next steps</h2>
+    <p>Once you are connected to your server, you can run commands and  modify some basic security settings to protect your server against security threats. For instructions, see one of the following articles on initial server setup:</p>
+	<ul>
+	<li><a href="17321 - Initial Server Setup - Ubuntu.html">Ubuntu</a></li>
+	<li><a href="17322 - Initial Server Setup - Fedora.html">Fedora</a></li>
+	<li><a href="17323 - Initial Server Setup - CentOS.html">CentOS</a></li>
+	<li><a href="17324 - Initial Server Setup - Arch Linux.html">Arch Linux</a></li>
+	<li><a href="17325 - Initial Server Setup - Debian.html">Debian</a></li>
+	</ul>
+   
+</body>
+</html>

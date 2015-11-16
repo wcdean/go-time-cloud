@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 18852 -->
+    <title>Install and configure Go and Revel - Fedora, CentOS 7</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+</head>
+
+<body>
+    <p>Install and configure Go and Revel - Fedora, CentOS</p>
+    <h1>Install and configure Go and Revel - Fedora, CentOS</h1>
+    <p><strong>Difficulty</strong>: <em><u>3</u></em>
+        <br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+    <p>Go (sometimes referred to as golang) is a C-like programming language, created by Google. Revel is a web development framework for Go. In this article, we will install Go, the Revel framework, and create a test application on CentOS 7 and Fedora 20, 21.</p>
+    <h2>Step 1: Install Dependency Packages and Tools</h2>
+    <ol>
+        <li>
+            Update the local package database
+            <br/>
+            <div class="hacker">sudo yum update</div>
+        </li>
+        <li>
+            Install git and mercurial
+            <br/>
+            <div class="hacker">sudo yum install -y git mercurial</div>
+        </li>
+    </ol>
+    
+    <h2>Step 2: Download and Install</h2>
+    <p>Go is installed via version-specific packages. At the time of this article, version 1.5.1 is the current stable version. Additional versions are available at the offical download page at <a href="https://golang.org/dl/">https://golang.org/dl/</a>. </p>
+    <ol>
+        <li>
+            Download the latest version
+            <div class="hacker">wget https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz</div>
+        </li>
+        <li>
+            Go, by default, assumes installation in the <code>/usr/local/go</code> folder. Extract the contents of the downloaded package to this location.
+            <div class="hacker">sudo tar -C /usr/local -xzf go1.5.1.linux-amd64.tar.gz</div>
+        </li>
+        <li>
+            Remove the downloaded package.
+            <br/>
+            <div class="hacker">rm go1.5.1.linux-amd64.tar.gz</div>
+        </li>
+        <li>
+            Update the <code>PATH</code> environment variable to include Go.
+            <br/>
+            <div class="hacker">sudo echo "PATH=$PATH:/usr/local/go/bin" >> ~/.profile</div>
+        </li>
+        <li>
+            Reload the profile
+            <br/>
+            <div class="hacker">source ~/.profile</div>
+        </li>
+        <li>
+            Verify <code>go</code> installation.
+            <br/>
+            <div class="hacker">go version</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+            <pre>go version go1.5.1 linux/amd64</pre>
+            </div>
+        </li>
+    </ol>
+
+    <h2>Step 3: Create Project Directory and Configure GOPATH</h2>
+    <ol>
+        <li>
+            Create a directory. In this example, we will store our code in a directory named "projectCode" 
+            <div class="hacker">mkdir ~/projectCode</div>
+        </li>
+        <li>
+            Set the GOPATH location
+            <div class="hacker">export GOPATH=$HOME/projectCode</div>
+        </li>
+        <li>
+            Add GOPATH to the profile
+            <div class="hacker">sudo echo "GOPATH=$GOPATH" >> ~/.profile</div>
+        </li>
+
+
+    </ol>
+
+    <h2>Step 4: Install Revel and Create Test Application</h2>
+    <ol>
+        <li>
+            Download the Revel framework. Go uses Git to clone the Revel repository and any applicable dependencies.
+            <div class="hacker">go get github.com/revel/revel</div>
+        </li>
+        <li>
+            Download Revel command line tools.
+            <div class="hacker">go get github.com/revel/cmd/revel</div>
+        </li>
+        <li>
+            Add GOPATH/bin location to the profile
+            <div class="hacker">export PATH=$PATH:$GOPATH/bin</div>
+        </li>
+        <li>
+            Create 'test' application
+            <div class="hacker">revel new testApp</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+                <pre>
+~ revel! http://robfig.github.com/revel
+~
+Your application is ready:
+   /projectCode/src/testApp
+
+You can run it with:
+   revel run testApp
+                </pre>
+            </div>
+        </li>
+        <li>
+            Run the Revel 'test' application
+            <div class="hacker">revel run testApp</div>
+        </li>
+        <li>
+          Once all processes start, verify the 'test' application installed by visiting the domain name or IP address of your server in a web browser, using port 9000.
+          <div class="hacker">http://<em><u>domain_or_IP_address</u></em>:9000</div><br/>
+          <img src="images/18852/102715/revel-test.png" alt="Screenshot of Revel test application"/>
+        </li>
+
+    </ol>
+
+    <h2>Conclusion</h2>
+    <p>In this article, you installed and configured Go and the Revel framework. In addition, you created a test Revel application. For more information about <code>Go</code>, check out the offical <code>Go</code> <a href="https://golang.org/">website</a>.</p>
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17561-->
+
+<title>Install and configure Drupal on your LAMP server - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+</head>
+
+<body>
+
+<p>Install and configure Drupal on your LAMP server - Apache, Debian, Drupal, LAMP, Ubuntu </p>
+
+<h1>Install and configure Drupal on your LAMP server - Debian, Ubuntu </h1>
+
+<p>Drupal is one of the most popular open-source dynamic Content Management System (CMS) for blogs and websites. Drupal is a free software package that allows you to easily organize, manage and publish your content with an endless variety of customization.</p>
+
+<p>Before starting, you will need to install LAMP on your Debian and Ubuntu server. For more details, see <a href ="17346">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Debian</a> and <a href = "17341">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu</a>.</p> 
+
+<h2>Set up environment for Drupal</h2>
+<ol>
+<li>Install the <code>php5-gd</code>, <code>libssh2-php</code> and <code>php5-curl</code> as these will be required by Drupal for future purposes.
+<div class="hacker">sudo apt-get update</div>
+<div class="hacker">sudo apt-get install php5-gd php5-curl libssh2-php php5-mysql</div>
+</li>
+<li>Enable <code>rewrite</code> mode for human and SEO friendly links.
+<div class="hacker">sudo a2enmod rewrite</div>
+</li>
+<li>Restart the <code>apache2</code> webserver to make the changes effective.
+<div class="hacker">sudo service apache2 restart</div>
+</li>
+<li>Create a database for Drupal to store basic settings and user data.
+<div class="hacker">mysql -uroot -p<em><u>password</u></em></div>
+<p class ="note">Here, you need to use <code>mysql</code> root password which you provided during <code>mysql</code> installation.</p>
+<div class="hacker">CREATE DATABASE <em><u>drupal</u></em>;</div>
+</li>
+<li>Add a new user for Drupal database.
+<div class="hacker">CREATE USER <em><u>drupaluser@localhost</u></em> IDENTIFIED BY <em><u>'drupalpassword'</u></em>;</div>
+</li>
+<li>Grant all privileges to the Drupal user.
+
+<div class="hacker">GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON drupal.* TO drupaluser@localhost;</div>
+</li>
+<li>Reload the MySQL database privileges to activate the new MySQL user.
+<div class="hacker">FLUSH PRIVILEGES;</div>
+<div class="hacker">exit</div>
+</li>
+</ol>
+
+<h2>Set up Drupal</h2>
+<ol>
+<li>Download the Drupal stable version from the official site, using the following command:
+<div class="hacker">cd /var/www/html</div>
+<p>For Debian.</p>
+<div class = "hacker">cd /var/www/</div>
+<div class="hacker">sudo wget http://ftp.drupal.org/files/projects/drupal-7.39.tar.gz</div>
+</li>
+<li>Extract Drupal compressed file using the following command:
+<div class="hacker">sudo tar zxvf drupal-7.39.tar.gz</div>
+</li>
+<li>Rename Drupal extracted folder to 'drupal' for easy access:
+<div class="hacker">sudo mv drupal-7.39 <em><u>drupal</u></em></div>
+</li>
+<li>Change permission to 755 to the Drupal directory:
+<div class="hacker">sudo chmod -R 755 /var/www/html/<em><u>drupal</u></em></div>
+<p>For Debian.</p>
+<div class="hacker">sudo chmod -R 755 /var/www/<em><u>drupal</u></em></div>
+
+<div class="hacker">sudo chown -R www-data:www-data /var/www/html/<em><u>drupal</u></em></div>
+<p>For Debian.</p>
+<div class="hacker">sudo chown -R www-data:www-data /var/www/<em><u>drupal</u></em></div>
+</li>
+</ol>
+
+<h2>Install Drupal</h2>
+<ol>
+<li>Open the browser and type FQDN or Public IP in browser to start the Drupal installation for your blog: http://<em><u>public_ip</u></em>/drupal/install.php.
+</li>
+<li>Select an installation type as per your requirement:
+ <p><img src="images/17561/091115/installation-type.png" alt="installation-type"  /></p>
+</li> 
+<li>Choose the language as per your need.
+ <p><img src="images/17561/091115/choose-language.png" alt="choose-language"  /></p>
+</li> 
+<li>Type the database information in the <strong>Database configuration page</strong>. Under <strong>Advanced Options</strong>, give the <strong>Database host</strong>, <strong>Database port</strong> and <strong>Table prefix</strong> and then click on <strong>Save and continue</strong>.
+ <p><img src="images/17561/091115/database-configuration.png" alt="database-configuration"  /></p>
+</li> 
+<li>Configure your blog and website information in the <strong>Configuration site</strong> page. Type the appropriate information and click on <strong>Save and continue</strong> 
+<p><img src="images/17561/091115/configuration-page.png" alt="configuration-page"  /></p>
+<p>This process may take some time.</p>
+</li>
+<li>On the <strong>Drupal installation complete</strong> page, click on <strong>Visit your new site</strong> to go to your Drupal website: 
+<p><img src="images/17561/091115/installation-complete-page.png" alt="installation-complete-page"  /></p>
+</li>
+<li>You will see a welcome page for Drupal Blog. You can start blogging here. 
+<p><img src="images/17561/091115/welcome-page.png" alt="welcome-page"  /></p>
+</li>
+</ol> 
+
+
+<h2>Conclusion</h2>
+<p>In this article, you learned to install and configure Drupal on your LAMP server with Debian, Ubuntu.</p>
+
+
+
+
+</body>
+</html>

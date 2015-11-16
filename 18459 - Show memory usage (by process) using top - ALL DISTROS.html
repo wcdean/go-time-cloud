@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 18459 -->
+    <title>Show memory usage (by process) using top - ALL DISTROS</title>
+    <style type='text/css'>
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+</head>
+
+<body>
+    <p>Using the top command to show memory usage by process, System tools</p>
+    <h1>Show Memory Usage (by Process) Using top - ALL DISTROS</h1>
+    <p><strong>Difficulty</strong>: <em><u>4</u></em>
+        <br/>
+        <strong>Time</strong>: <em><u>2 mins</u></em></p>
+    <p>The ability to display memory usage by process is an important element in server administration, especially when troubleshooting application and overall server performance issues. In this article, we'll display process memory usage from the shell using the <code>top</code> command.</p>
+    <h2>Basic Usage</h2>
+    <p><code>top</code> is a utility that displays information about memory, processes, and CPU activity. </p>
+    <ul>
+      <li>To start <code>top</code>:
+        <div class="hacker">top</div></li></ul>
+    <p><code>top</code>  displays a system summary similar to the following:
+      <br/>
+        <img src="images/18459/072914/top-output-display.png" alt="screenshot of top command results" />
+    </p>
+    <p><code>top</code> displays information for each process:</p>
+    <ul>
+        <li>PID: Process ID</li>
+        <li>USER: Specific user that owns the process</li>
+        <li>PR: Process priority</li>
+        <li>NI: Process NICE value</li>
+        <li>VIRT: Virtual memory used by the process</li>
+        <li>RES: Physical memory used by the process</li>
+        <li>SHR: Shared memory used by the process</li>
+        <li>S: Process status. Values include S (sleep), R (running), Z (zombie).</li>
+        <li>%CPU: Percentage of the CPU used by the process</li>
+        <li>%MEM: Percentage of RAM used by the process</li>
+        <li>TIME+: Total time process has been active</li>
+        <li>COMMAND: Name of process</li>
+    </ul>
+    <ul><li>To quit <code>top</code>:
+    <div class="hacker">q</div></li></ul>
+    <h2>Sorting, filtering, and highlighting process</h2>
+    <p><code>top</code> displays information in a field/column format. A number of command line options and interactive commands are available for <code>top</code> that adjust what and how information displays.</p>
+<h3>Sort processes by memory usage</h3>
+    <ol>
+        <li>Start <code>top.</code><br/>
+            <div class="hacker">top</div>
+      </li>
+      <li>Press <strong>SHIFT+M</strong> or with <strong>Caps Lock</strong> down, <strong>M</strong> on the keyboard.<br/>
+      </li>
+    </ol>
+    <h3>Sort processes by CPU usage</h3>
+    <ol>
+        <li>Start <code>top</code>.<br/>
+            <div class="hacker">top</div>
+      </li>
+        <li>Press <strong>SHIFT+P</strong> or with <strong>Caps Lock</strong> down, <strong>P</strong> on the keyboard. <br />
+      </li>
+    </ol>
+<h3>Display processes for specific user</h3>
+    <ul>
+        <li>Start <code>top</code> with the <code>-U</code> flag, followed by the specific username.<br/>
+            <div class="hacker">top -U <em><u>username</u></em></div>
+      </li>
+</ul>
+<h3>Kill processes by process ID (PID)</h3>
+    <ol>
+        <li>Start <code>top</code>.
+            <br/>
+            <div class="hacker">top</div>
+        </li>
+        <li>Press the <strong>K</strong>  key. <code>top</code>  asks for the PID to signal/kill.<br/>
+            <img src="images/18459/072914/top-kill-pid" alt="screenshot of top asking for pid to signal/kill" />
+      </li>
+        <li>Enter the PID of the process to kill. Press <strong>Enter</strong>.<br />
+        <code>top</code>  displays a message to verify the PID: "Send pid [xx] signal."
+            <br/></li>
+            <li>Press <strong>Enter</strong>.</li>
+    </ol>
+    <h2>Conclusion</h2>
+    <p>In this article, we used the <code>top</code> command to display memory usage by process, directly from the shell.</p>
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Configure your Rails application for MySQL - Debian, Ubuntu</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up Rails application for MySQL server on Debian or Ubuntu, MySQL, Ruby, Rails.</p>
+    <h1>Configure Your Rails application for MySQL – Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+
+    <p>This article will explain how to install MySQL&trade; and MySQL adaptor, create a Rails&reg; application, configure a database connection, and create an application database on a Debian or Ubuntu&trade; distribution. This article requires that you are logged in as a sudo user.</p>
+    
+	<p>Before you proceed, you need to install Ruby on Rails using RVM:</p> 
+	<ul>
+	<li><a href="17538 - Install Ruby on Rails using RVM - Debian.html">Install Ruby on Rails using RVM - Debian</a>.</li>
+	<li><a href ="17534 - Install Ruby on Rails using RVM - Ubuntu.html">Install Ruby on Rails using RVM - Ubuntu</a>.</li>
+	</ul>
+	
+ <h2>Install MySQL</h2>
+             <ol>
+			 <li>Update all the system packages.
+			   <div class='hacker'>sudo apt-get update</div>
+			 </li>
+			 <li>Install MySQL  and all its dependencies.
+               <div class='hacker'>sudo apt-get install mysql-server mysql-client libmysqlclient-dev</div>
+			 <p>During the installation, your server will prompt you to select and confirm a password for the MySQL <code>root</code> user.</p></li>
+			 <li>Tell MySQL to create a database directory structure to store its information.
+			 <div class='hacker'>sudo mysql_install_db</div>
+			 </li>
+			 <li>Run the MySQL installation process.
+			 <div class='hacker'>sudo mysql_secure_installation</div>
+			 After you complete the above command, you'll get a welcome screen.
+
+<!--CT: commenting out...
+displays as  follows:
+			 <div class='hacker'> 
+			   <pre>
+	NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MySQL
+	SERVERS IN PRODUCTION USE!  PLEASE READ EACH STEP CAREFULLY!
+
+
+	In order to log into MySQL to secure it, we'll need the current
+	password for the root user.  If you've just installed MySQL, and
+	you haven't set the root password yet, the password will be blank,
+	so you should just press enter here.
+	
+	Enter current password for root (enter for none): 
+			   </pre>
+			   </div>
+
+		   
+	 If you created a password earlier,  press <strong>Enter</strong>.</p>
+		...-->	
+			 </li>
+			 
+<li> At the prompt, enter in your password if you'd set one in the step before. If you didn't set it then, create one now.</li>
+			 
+<li>Answer the rest of the questions from the MySQL installer by entering <strong>Y</strong>:
+			   <div class='hacker'> <pre>
+	  Remove anonymous users?                --> Y
+	  Disallow root login remotely?          --> Y
+	  Remove test database and access to it? --> Y
+	  Reload privilege tables now?           --> Y
+</pre>
+</div>
+			 </li>
+			 </ol>
+			 
+			 
+			
+			 
+<h2>Install MySQL adapter</h2>
+             <ol>
+			 <li>Connect a Rails application with a MySQL database, and then install the MySQL adapter gem.
+			 <div class='hacker'>gem install mysql2</div>
+			 </li>
+			 <li>Update the gem version.
+			   <div class='hacker'>gem update --system</div>
+			 </li>
+			 </ol>
+			 
+			 
+			 <h2>Set up your Rails application</h2>
+             <ol>
+			 <li>Install Rails.
+			   <div class='hacker'>gem install rails</div>
+			 </li>
+			 <li>Create a Rails application, and use the <code>-d mysql</code> option to set MySQL as the database.
+			   <div class='hacker'>rails new <em><u>your_rails_app</u></em> -d mysql</div>
+				</li>
+				 <li>Go to the application directory.
+			 <div class='hacker'>cd <em><u>your_rails_app</u></em></div>
+				</li>
+			 </ol>
+			 
+			 <h2>Set up a database connection</h2>
+		<p>If you have a MySQL root user password, then use the MySQL root login  to create your application's test and development databases.</p>
+             <ol>
+			 <li>Open your application database configuration file. 
+			  <div class='hacker'>sudo vim config/database.yml</div>
+			 </li>
+			  <li>In the default section up top, find "password" and enter in the MySQL password you'd created (replace <em><u>mysql_root_password</u></em> with that password).
+			    <div class='hacker'>password: <em><u>mysql_root_password</u></em></div>
+			 </li>
+			  <li>Save and exit the file . 
+			 </li>
+			 <li>Connect to the database using the <code>MySQL</code> client.
+			 <div class='hacker'>mysql -u root -p</div>
+			 </li>
+			 <li>Enter your password.</li>
+			 </ol>	 
+			 
+ <h2>Create a new MySQL database</h2>
+             <ol>
+			 <li>Create a new database.
+			   <div class='hacker'>create database <em><u>MyDatabase_name</u></em>;</div>
+			 </li>
+			  <li>Revoke the privileges.
+			  <div class='hacker'>FLUSH PRIVILEGES;</div>
+			 </li>
+			 <li>Exit from the database.
+			 <div class='hacker'> exit</div>
+			 </li>
+			  </ol>	
+            
+    <h2>Conclusion</h2>
+  <p>In this article, you learned the steps to configure a MySQL server for your Rails application on a Debian or Ubuntu server. </p>
+   
+</body>
+</html>

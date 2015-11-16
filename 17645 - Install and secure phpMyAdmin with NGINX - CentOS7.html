@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Install and secure phpMyAdmin with NGINX - CentOS 7</title>
+    <style type='text/css'>
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    
+    .auto-style1 {
+        text-decoration: line-through;
+    }
+    </style>
+</head>
+
+<body>
+    <p> Installing and securing phpMyAdmin with Nginx - CentOS 7.</p>
+    <h1>Install and Secure phpMyAdmin with Nginx - CentOS 7</h1>
+    <p><strong>Difficulty</strong>: <em><u>2</u></em>
+        <br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+    <p>This article describes how to install phpMyAdmin and provide a baseline level of security for it in an Nginx environment. These tasks assume that you are installing on top of a <a href="http://17349%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20CentOS%207.html">CentOS7 LEMP stack</a>.</p>
+    <h2>Install phpMyAdmin</h2>
+    <ol>
+        <li>Run <code>epel-release</code> to get the phpMyAdmin software.
+            <div class="hacker">sudo yum install epel-release</div>
+        </li>
+        <li>Install phpMyAdmin.
+            <div class="hacker">sudo yum install phpmyadmin</div>
+        </li>
+        <li>Link the phpMyAdmin installed files to the Nginx document root.
+            <div class="hacker">sudo ln -s /usr/share/phpMyAdmin /usr/share/nginx/html</div>
+        </li>
+        <li>Open the php-fpm configuration to use <code>nginx</code> user by default.
+            <div class="hacker">sudo vi /etc/php-fpm.d/www.conf</div></li>
+            <li>Update the <code>user</code> and <code>group</code> values under 'Unix user/group' to <code>nginx</code>
+            <div class="hacker">
+            <pre>
+; Unix user/group of processes
+; Note: The user is mandatory. If the group is not set, the default user's group
+; will be used.
+; RPM: apache Choosed to be able to access some dir as httpd
+user = nginx
+; RPM: Keep a group allowed to write in log dir.
+group = nginx    
+            </pre>
+            </div>
+        </li>
+        <li>Change the owner of the Nginx sessions directory to Nginx.
+            <div class="hacker">sudo chown nginx:nginx /var/lib/php/session</div>
+        </li>
+        <li>Restart PHP.
+            <div class="hacker">sudo systemctl restart php-fpm </div>
+        </li>
+        <li>Restart Nginx.
+            <div class="hacker">sudo systemctl restart nginx</div>
+        </li>
+    </ol>
+    <h2>Verify installation</h2>
+    <ol>
+        <li>In your web browser, navigate to <code>http://<em><u>your server IP address</u></em>/phpMyAdmin</code>. If the phpMyAdmin UI page displays, phpMyAdmin installed successfully.</li>
+        <li>Optionally, log in using <code>root</code> for the user name and your MySql root password.</li>
+    </ol>
+    <p>You can now familiarize yourself with the phpMyAdmin UI, but be aware that your database is now exposed to the web. Next, you'll secure it. </p>
+    <h2>Secure your server</h2>
+    <p>There's no such thing as being too careful in securing your database server. Anyone with your web address can add &quot;phpmyadmin&quot; and get to the phpMyAdmin login screen. If they guess that your administrative user name is &quot;root&quot;, they are one correct guess away from administrative access to your database server.</p>
+    <h3>Rename  the phpMyAdmin page</h3>
+    <p>Right now, every hacker knows that the name of your phpMyAdmin page is http://your server or domain name/phpmyadmin. Let's make that name a bit more arcane.</p>
+    <ol>
+        <li>Navigate to your document root directory.
+            <div class="hacker">cd /usr/share/nginx/html</div>
+        </li>
+        <li>Change the name (actually, rename the symbolic link).
+            <div class="hacker">sudo mv phpMyAdmin nodbhere</div>
+        </li>
+        <li>Test the new name by navigating in your browser to <code>http://<em><u>your server or domain name</u></em>/nodbhere</code>.
+            <br /> Your browser displays the phpMyAdmin screen. (You can also go to the old <code>http://<em><u>your server or domain name</u></em>/phpmyadmin</code> address but, unless the page has been cached, you should get a "404 Not Found" error.)</li>
+    </ol>
+    <h3>Enable Nginx web authentication</h3>
+    <p>Your Nginx installation comes with OpenSSL, a tool that allows you to encrypt passwords.</p>
+    <ol>
+        <li>Create a password file, <code>/etc/nginx/mypasswordfile</code>, and open it for editing. </li>
+        <li>Add your web user name (make one up) followed by a colon(:).
+            <div class="hacker">MyWebUserName:</div>
+        </li>
+        <li>Save and close the file.</li>
+        <li>Encrypt a password.
+            <div class="hacker">openssl passwd</div>
+            Once you enter and confirm your password, OpenSSL returns the encrypted version of it.</li>
+        <li>Copy the encrypted version, and paste it into your paswword file, which now looks like this:
+            <div class="hacker">MyWebUserName:V.Cj1d1d1kew2</div>
+        </li>
+        <li>Open your nginx configuration file (typically at <code>/etc/nginx/conf.d</code>). The nginx configuration file will contain a <code>server</code> block with one or more <code>location</code> blocks. It will look similar to this:
+            <div class="hacker"># server context
+                <br /> server { . . .
+                <br /> # location context
+                <br /> location / {
+                <br /> &nbsp; try_files $uri $uri/ =404;
+                <br /> &nbsp; }
+                <br /> # end of server context &nbsp;
+                <br /> }
+            </div>
+        </li>
+        <li>Within the nginx configuration, create a new location context so that your file looks like this:
+            <div class="hacker">
+                # server context
+                <br /> server { . . .
+                <br /> # location context (existing)
+                <br /> location / {
+                <br /> &nbsp; try_files $uri $uri/ =404;
+                <br /> } }
+                <br /> # location context (new)
+                <br /> location /nodbhere
+                <br /> { auth_basic "MyWebLoginChallenge"; &nbsp;
+                <br /> auth_basic_user_file /etc/nginx/mypasswordfile;
+                <br /> &nbsp;&nbsp;}
+                <br />
+                <br /> # end of server context &nbsp;}
+            </div>
+        </li>
+        <li>Save and close the file.</li>
+        <li>Restart Nginx.
+            <div class="hacker">sudo systemctl restart nginx</div>
+        </li>
+        <li>Test the authentication by navigating in your browser to http://your server or domain name/nodbhere. Your browser will prompt you to enter a username and password. Enter the username and password chosen when creating the password file.</li>
+    </ol>
+    <h2>Next steps</h2>
+    <p>You have just installed and secured phpMyAdmin. Now you can take your time exploring the web UI. </p>
+</body>
+
+</html>

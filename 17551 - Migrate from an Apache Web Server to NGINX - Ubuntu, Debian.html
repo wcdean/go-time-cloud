@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __17551_ -->
+
+
+<title>Migrate from an Apache Web Server to Nginx - Ubuntu, Debian</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+ table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;} 
+td:nth-child(1) {font-weight:bold;}
+</style>
+
+
+</head>
+
+<body>
+<p>This article describes how to cutover from an Apache web server to an Nginx web server.</p>
+    <h1>Migrate from an Apache Webserver to Nginx - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+
+    <p>Nginx is a webserver technology that is rapidly gaining wider acceptance due to its ability to deliver extremely high volumes with very low resource loads.  
+        If you currently have an Apache webserver, this article will help you transition cleanly from Apache to Nginx.  
+        This article assumes that you have an existing LAMP stack and wish to change over to a LEMP stack. The process is fairly straightforward, because the "L" and the "M" parts of your configuration will not change.
+
+    </p>
+
+<h2>Apache and Nginx translation</h2>
+
+<p>Most of this article is concerned with translating your Apache configuration to Nginx, so we will start with a translation table.</p>
+
+ <table>
+    <tr>
+    <th>Apache</th>
+     <th>Nginx</th>
+    </tr>
+    <tr>
+    <td>VirtualHost</td>
+       <td>Server</td>
+               </tr>
+               <tr>
+    <td>[virtualHost] *:80</td>
+       <td>Listen 80;</td>
+             
+               </tr>
+               <tr>
+    <td>ServerName</td>
+       <td>server_name</td>
+               </tr>
+               <tr>
+    <td>DocumentRoot</td>
+       <td>root</td>
+               </tr>
+               <tr>
+    <td>DirectoryIndex</td>
+       <td>index</td>
+               </tr>
+               <tr>
+    <td>ErrorLog</td>
+       <td>error_log</td>
+               </tr>
+               <tr>
+    <td>CustomLog</td>
+       <td>access_log</td>
+               </tr>
+               <tr>
+    <td>Alias</td>
+       <td>location</td>
+               </tr>
+      </table>
+
+<h2>Install and configure PHP</h2>
+<h3>Install PHP</h3>
+<ul>
+<li>Run this command to install PHP:
+     <div class="hacker">sudo apt-get install php5-fpm</div></li>
+ </ul>
+
+<h3>Configure the php.ini file</h3>
+<ol>
+<li>Open <code>/etc/php5/fpm/php.ini</code>. 
+ <div class="hacker">sudo vim /etc/php5/fpm/php.ini</div>
+</li>
+<li>Find the <code>cgi.fix_pathinfo</code> directive. Most of the file is commented out. It will be about halfway through the file, under a section called <code>Paths and Directories</code>.</li>  
+<li>Uncomment the line, and set it as follows:
+         <div class="hacker">cgi.fix_pathinfo=0</div>
+       </li>
+       <li>Save and close.</li>
+      <li>Open the <code>/etc/php5/fpm/pool.d/www.conf</code> file.
+<div class="hacker">sudo vim /etc/php5/fpm/pool.d/www.conf</div>
+      </li> 
+      <li>Find the <code>listen</code> directives, and set it as follows:
+         <div class="hacker">listen = /var/run/php5-fpm.sock</div></li>
+          
+  
+    <li>Configure the <code>www.conf listen.owner</code>, <code>listen.group</code>, and <code>listen.mode</code> directives.<br />
+      Find the <code>listen.owner</code>, <code>listen.group</code>, and <code>listen.mode</code> directives, and confirm or modify them as follows:
+                     <div class="hacker">listen.owner = www-data<br />
+                         listen.group = www-data<br />
+                         listen.mode&nbsp; = 0660</div></li>
+  
+     <li>Configure <code>www.conf listen.owner</code>, <code>listen.group</code>, and <code>listen.mode</code> directives.<br />
+      Find the <code>owner</code> and <code>group</code> directives, and modify them as follows:
+                     <div class="hacker">user = www-data<br />
+                         group = www-data</div>
+                     </li>
+  
+     <li>Save and close.</li>      
+</ol> 
+
+<h2>Install and configure Nginx</h2>
+
+  <ol>
+  <li>Install Nginx.
+     <div class="hacker">sudo apt-get install nginx</div>
+
+  </li>           
+     
+        <li>Open <code>/etc/nginx/sites-available/default</code> for editing. 
+         <p>The server context will look something like this:</p>
+         <div class="hacker">
+<pre>server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index  index.html index.htm;
+    server_name localhost;</pre> </div></li>
+            <li>Because Apache is using port 80, for now we will configure using port 81. Edit the <code>index</code> and <code>server_name</code> parameters to look like this:
+                      <div class="hacker">
+<pre>server {
+    listen 81;
+    root /usr/share/nginx/html;
+             <br />
+    index  index.php index.html index.htm;
+    server_name [yourservername];
+
+             </pre></div></li>
+
+
+
+    <li>Edit the default <code>location</code> context and <code>error</code> directives to look like this:
+
+
+<div class="hacker">
+
+<pre>location / {
+    try_files $uri $uri/ =404;
+             }
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+
+
+            }</pre>
+
+                </div></li>
+
+  <li>If your Nginx package has installed a commented out <code>php location</code> context, you won't have to do much more than remove a few comments.
+      If not, you will have to make the edits manually. In either case, edit the location contexts to look like something like this:
+      <div class="hacker">
+<pre>  location / {
+       try_files $uri $uri/ /index.html;
+             }
+            error_page 404 /404.html;
+            error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+                     }
+# pass the PHP scripts to FastCGI server listening on the php-fpm socket
+location ~ \.php$ {
+                    try_files $uri =404;
+                    fastcgi_pass unix:/var/run/php5-fpm.sock;
+                    fastcgi_index index.php;
+                    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                    include fastcgi_params;
+                    }</pre></div></li>
+
+<li>Save and close.</li>
+
+
+      <li>Run this command to restart PHP:
+         <div class="hacker">sudo service php5-fpm restart</div>
+     </li>
+      <li>Restart Nginx.
+    <div class="hacker">sudo service nginx restart</div>  </li>
+    </ol>  
+      <p class="note">If Nginx fails to restart, check your edits. Make sure that all of your braces ({}) are closed and that each directive ends with a semi-colon (;). </p>
+            
+<h2>Verify Nginx/PHP is running</h2>
+            <ol>
+    <li>Create a test file,<code> /usr/share/nginx/html/info.php</code>, with the following contents:
+ <div class="hacker">&lt;?php<br />
+phpinfo();<br /> 
+?&gt;  </div>
+   
+</li>
+     <li>Open a browser and type:
+            <strong>http://<em><u>IP address or domain name of your server:81</u></em>/info.php</strong>.
+     A page full of statistics with a PHP logo in the upper right hand corner will be displayed. </li> 
+                </ol>
+    
+<h2>Cutover</h2>
+<p>After you copy your site content over to the Nginx root folder, <strong>test that everything works</strong> (using the :81 suffix). Once you are satisfied: </p>
+  <ol>
+               <li>Stop Nginx.
+                   <div class="hacker">sudo service nginx stop</div>
+               </li>
+               <li>Verify Nginx has stopped by navigating to your "81" webpage.  You will get a <strong>connection refused</strong> error message.
+                   <div class="hacker">http://<u><em>IP address or domain name of your server</em></u>:81</div>
+               </li>
+       <li>Update your Nginx configuration to listen on port 80:  Open <code>/etc/nginx/sites-available/default</code> for editing. 
+       <div class="hacker">sudo vim /etc/nginx/sites-available/default</div> 
+       </li>
+      <li> Update the <code>listen</code> directive. 
+      <div class="hacker"><pre>server {
+&nbsp; listen 80;
+          server_name ... 
+          </pre></div>
+          </li>
+               <li>Stop Apache.
+                   <div class="hacker">sudo service apache2 stop</div>
+               </li>
+               <li>Start Nginx.
+                   <div class="hacker">sudo service nginx restart</div>
+               </li>
+                                
+            </ol>
+   <p class="warning">If you want to continue to use Apache for some requests and Nginx for others, you <strong>must</strong> make sure they are listening on different ports. </p> 
+                  
+    <h2>Next steps</h2>
+    <p>Your configuration is probably a bit more complex than the example on shown above.  Depending on your needs and interests, you can configure your virtual hosts (<a href="http://17360%20-%20Configure%20NGINX%20Server%20Blocks%20-%20ALL%20DISTROS.html">server blocks</a>), <a href="http://17500%20-%20Configure%20NGINX%20as%20a%20reverse%20proxy%20-%20ALL%20DISTROS.html">set up Nginx as a proxy server</a>, and <a href="http://19224%20-%20Understanding%20Nginx%20configuration%20files%20-%20ALL%20DISTROS.html">explore Nginx</a> further.</p>
+   
+</body>
+</html>

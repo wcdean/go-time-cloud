@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17504 -->
+
+
+<title>Configure two-factor SSH Authentication with PAM - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Configure two-factor SSH Authentication with PAM - Arch Linux, SSH, Security</p>
+<h1>Configure two-factor SSH authentication with PAM - Arch Linux </h1>
+<p><strong>Difficulty</strong>: <em>1</em></p>
+<p><strong>Time</strong>: <em>10 minutes</em></p>
+
+<p>In this article, you will use Google authenticator Pluggable Authentication Module (PAM) to protect your secure shell (SSH) server through a two-factor authentication. You will use your smartphone as an authentication medium. To connect to your server, you will need to enter the code that you receive on your phone.</p>
+
+<p class="note"> If you configure this feature for any user other than root, you need to login as that user, and then switch to root user. In this case, direct root login is not possible.</p>
+
+<h2>Prerequisites</h2>
+<p>You need to install Google authenticator application in your smartphone. You can download this on your device from Google Play, or download it from the <a href="https://support.google.com/accounts/answer/1066447?hl=en">Google Authenticator</a> site. </p>
+
+<h2>Install dependencies</h2>
+<ol>
+<li>Install the required dependencies.
+<div class="hacker">sudo pacman -Sy</div>
+<div class="hacker">sudo pacman -S qrencode</div>
+<div class="hacker">sudo pacman -S pam</div>
+<div class="hacker">sudo pacman -S ntp</div>
+</li>
+<li>Download the Google Authenticator package from Arch User Repository (AUR) repository, and then install it using the following commands:
+<div class="hacker">sudo pacman -S --needed base-devel</div>
+<div class="hacker">mkdir build</div>
+<div class="hacker">cd build</div>
+<div class="hacker">wget https://aur.archlinux.org/cgit/aur.git/snapshot/libpam-google-authenticator.tar.gz</div>
+<div class="hacker">tar -xvzf libpam-google-authenticator.tar.gz</div>
+<div class="hacker">cd libpam-google-authenticator</div>
+<div class="hacker">makepkg -s</div>
+<div class="hacker">sudo pacman -U libpam-google-authenticator-1.0-1-x86_64.pkg.tar.xz</div>
+</li>
+</ol>
+
+<h2>Configure Google authenticator</h2>
+<ol>
+<li>Start the <code>ntp</code> service.
+<div class="hacker">sudo systemctl enable ntpd.service</div>
+<div class="hacker">sudo systemctl start ntpd.service</div>
+</li>
+<li>Open the <code>sshd</code> configuration file for editing.
+<div class="hacker">sudo vim /etc/pam.d/sshd</div>
+</li>
+<li>Add the following line to the top of the file:
+<div class="hacker">auth required pam_google_authenticator.so</div>
+</li>
+<li>Open the <code>sshd_config</code> file for editing.
+<div class="hacker">sudo vim /etc/ssh/sshd_config</div>
+</li>
+<li>Update the following line as shown below:
+<div class="hacker">ChallengeResponseAuthentication yes</div>
+</li>
+</ol>
+
+<h2>Activate the two-factor authentication for a user</h2>
+<ol>
+<li>Switch to the desired user, for whom two-factor Google authentication needs to be activated.
+<div class="hacker">su <em><u>Username</u></em> </div>
+</li>
+<li>Activate two-factor Google authentication for the user by executing the following command:
+<div class="hacker">google-authenticator</div>
+</li>
+<li>You will be presented with several questions. Answer <strong>y</strong> to first two questions:
+<div class="hacker">Do you want authentication tokens to be time-based (y/n) y</div>
+<div class="hacker">Do you want me to update your "/home/user/.google_authenticator" file (y/n) y</div>
+</li>
+<li><p>Answer the remaining questions.</p></li>
+<li><p>After answering the questions, you will get the QR code. Scan this QR code using the Google Authenticator application on your smartphone. You can also add this account using a secret key and a verification code, depending on your requirements.</p></li>
+<li>Now restart the SSH service in the server. 
+<div class="hacker">sudo systemctl restart sshd.service</div>
+</li>
+<li><p>Next time when you login into the system, you will have to type the verification code from Google Authenticator app on your smart-phone along with your password.</p></li>
+</ol>
+
+<h2>Conclusion</h2>
+<p>By following this article, you have installed and configured SSH server with Google two-factor authentication. This configuration adds an additional layer of security for your Linux systems.</p>
+
+</body>
+</html>

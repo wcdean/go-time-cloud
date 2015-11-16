@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Use SSH Keys with your Cloud Server (Linux and Mac OS X) - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Setting up SSH Keys to enhance security on your VPS for Linux or Mac OS.</p>
+    <h1>Use SSH Keys with Your Cloud Server (Linux or Mac OS X) - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>SSH, or Secure Shell, keys provide a highly secure way to connect into a server. While password authentication is generally weak, SSH keys are virtually impossible to crack. Setting up SSH keys involves setting up a pair of keys: one public, one private, and both of which are two long strings of characters. You put the public key on your server and the private key on the client, which is your local/home computer. Only when the two keys are matched does the system unlock the server.</p>
+    
+<p>This method helps stop a terminal brute-force password attack (programs that try every possible password combination until they decrypt a file) on your server. </p>
+<p>And the added bonus is no passwords to remember! That is, there are no passwords unless you choose to add one to your keys for an extra layer of security.</p>
+
+
+<p>This article walks you through manually setting up an SSH key pair on an existing server. Follow this article if you'd like to add keys without having to recreate your server or undergo server downtime.</p>
+
+<p class="note">If your cloud server is on COMPANY_NAME, you can add SSH keys on the COMPANY_NAME platform by following the instructions in <a href="/article/19055?prog_id=PROG_ID">Add an SSH key to a server</a>.
+<br />
+<br />
+If you still need to set up a cloud server, you can create it with your key pair at the same time on the COMPANY_NAME platform. See <a href="/article/19054?prog_id=PROG_ID">Create an SSH key</a> for more information.</p>
+
+    <h2>Create the key pair</h2>
+<ol>
+<li>Generate a key pair on your machine using the <code>keygen</code> command:
+ <div class="hacker">ssh-keygen -t rsa</div></li>
+<li>Answer the  file prompt. For this article, the user is named &quot;example_user&quot;.
+  <div class="hacker">Enter file in which to save the key (/<em><u>example_user</u></em>/.ssh/id_rsa):</div>
+Press <strong>Return</strong> on your keyboard. The file saves  to the user home. 
+</li>
+
+<li>Answer the passphrase prompt.
+
+  <div class="hacker">Enter passphrase (empty for no passphrase):</div>
+
+<p>If you choose to use a passphrase, you must enter it every time you  use the key pair. This can  make the process tedious. However, a passphrase-secured private key  adds an extra layer of security by deterring would-be hackers or buying you time to avert a hack during an attempt.</p>
+
+<p>Once you answer the passphrase prompt, the key generates. Here's an example of the output:</p>
+
+<div class="hacker">ssh-keygen -t rsa  <br />
+Generating public/private rsa key pair.   <br />
+Enter file in which to save the key (/<em><u>example_user</u></em> /.ssh/id_rsa):  <br />
+Enter passphrase (empty for no passphrase):   <br />
+Enter same passphrase again:          <br />
+Your identification has been saved in / <em><u>example_user</u></em> /.ssh/id_rsa.    <br />
+Your public key has been saved in /<em><u>example_user</u></em>/.ssh/id_rsa.pub. <br />
+
+
+The key fingerprint is:     <br />
+88:dd:0a:c6:27:3e:3f:ef:27:38:8c:74:76:4d:92:a5 <em><u>example_user</u></em>@a   <br />
+The key's randomart image is: <br />
++--[ RSA 2048]----+     <br />
+|          .oo.   |   <br />
+|         .  o.E  |      <br />
+|        + .  o   |      <br />
+|     . = = .     |       <br />
+|      = eF = .    |      <br />
+|     o + = +     |       <br />
+|      . o + o .  |         <br />
+|           . o   |        <br />
+|                 |         <br />
++-----------------+         </div>
+</li>
+</ol>
+<p class="note">What’s randomart? Like a visual fingerprint, randomart makes it easy to compare keys side by side. Since validation traditionally involves long, meaningless text strings, these visual art patterns are infinitely more human readable.</p>
+
+The public key is in <code>/<em><u>example_user</u></em>/.ssh/id_rsa.pub</code>, and the private key (identification) is now located in <code>/<em><u>example_user</u></em> /.ssh/id_rsa</code>.
+ 
+
+
+<h2>Copy the SSH keys</h2>
+
+<p>Now that your keys are created, install the public key on your server/VPS.</p>
+
+<p>There are two ways to install the public key:</p> 
+<ul>
+<li>Use the <code>ssh-copy-id</code> command, and replace the example username and IP address with your information.
+  <div class="hacker">ssh-copy-id <em><u>user</u></em>@<em><u>123.45.56.78</u></em></div></li>
+
+<li>Paste  the keys using SSH.
+  <div class="hacker">cat ~/.ssh/id_rsa.pub | <em><u>user</u></em>@<em><u>123.45.56.78</u></em> "mkdir -p ~/.ssh &amp;&amp; cat >>  ~/.ssh/authorized_keys"</div>
+<p>The output  looks similar to this:</p>
+
+<div class="hacker">The authenticity of host '12.34.56.78 (12.34.56.78)' can't be established.<br />
+RSA key fingerprint is b1:2d:33:67:ce:35:4d:5f:f3:a8:cd:c0:c4:48:86:12.                            <br />
+Are you sure you want to continue connecting (yes/no)? yes            <br />
+Warning: Permanently added '12.34.56.78' (RSA) to the list of known hosts.    <br />
+user@12.34.56.78's password:       <br />
+Now try logging into the machine, with "ssh 'user@12.34.56.78'", and check in: <br />
+
+<p>  ~/.ssh/authorized_keys</p>
+
+to make sure we haven't added extra keys that you weren't expecting.</div>
+
+<p>Now you can log into <code>user@12.34.56.78</code>. If you assigned a passphrase to the key, you are prompted to enter it.</p> </li>
+                                                                     </ul>
+
+  <h2>(Optional) Disable the password for root login</h2>
+  
+  <p> Now that you’ve confirmed that you can log in as root, you can restrict password entry so that entry is by SSH key only. This is an entirely optional added layer of security. If you go this route, be sure to keep your SSH key files in a safe place &#8212; ideally in two separate safe places. Once your password login is disabled, you can log in only with the keys.</p> 
+
+<p>To disable password root entry, you’ll edit your SSH config file.</p> 
+<ol>
+<li>Open the SSH config file.
+  <div class="hacker">sudo vim /etc/ssh/sshd_config</div></li>
+<li>Search for <code>PermitRootLogin</code>, and update it to  the following:
+  <div class="hacker">PermitRootLogin without-password</div>
+This changes entry access to require an SSH key.      </li>
+<li>Reload to activate the changes.
+  <div class="hacker">sudo service ssh reload</div></li>
+<li>Optionally, test the permissions by trying to log in as the root user from a different system. You are promptly kicked out without being asked for a password.  </li>
+</ol>
+<h2>Next steps</h2>
+    <p>Congratulations! You have taken an important step to securing your cloud server with your shiny new SSH keys.
+You can use your key pair  on more than one VPS or server.</p>
+
+   
+</body>
+</html>

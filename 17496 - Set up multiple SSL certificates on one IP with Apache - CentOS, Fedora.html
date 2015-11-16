@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Set up multiple SSL certificates on one IP with Apache - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+  <p>Set up two SSL certificates on a single IP address with Apache on a server using CentOS or Fedora.</p>
+ <h1>Set Up Multiple SSL Certificates on One IP with Apache - CentOS, Fedora</h1>
+ <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+    <p> This article walks you through the installation of multiple SSL certificates on a single IP address on a CentOS or Fedora server running Apache. This installation can be accomplished through Server Name Indication (SNI). This protocol extension allows a web server to provide separate SSL certificates for corresponding sites using virtual hosts.  </p>
+  <p>If you don't have Apache installed on your server, install Apache as part of a LAMP stack on your <a href="/article/17342?prog_id =PROG_ID">Fedora, CentOS 6 server</a> or on your 
+   <a href="/article/17344?prog_id =PROG_ID">CentOS 7 server</a>. You can ignore the instructions for MySQL and PHP, as you do not need it for this article.</p>   
+
+<h2>Activate the SSL module</h2>
+    <p>If you already have Apache running on a CentOS or Fedora server, SSL support is already a part of it. You need only  to activate it to get started.</p>  
+<ol>
+    <li>Create a directory for each of the domain names. You will later store the certificate and the key in this directory.
+      <div class="hacker"> sudo mkdir -p /etc/httpd/ssl/yourdomainname1.com</div>
+        <div class="hacker"> sudo mkdir -p /etc/httpd/ssl/yourdomainname2.com</div>
+    </li>
+    <li>Make sure that the OpenSSL client is in place. 
+    <div class="hacker">sudo yum install mod_ssl openssl</div>
+    </li>
+    <li>Restart Apache.
+    <div class="hacker">sudo service httpd restart</div>
+    </li>
+</ol>
+    
+<h2>Obtain the certificates</h2>    
+    <ol>
+      <li>
+        Download the certificates. For help, refer to <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17452 - Install an SSL Certificate on Apache - CentOS, Fedora"> Install an SSL Certificate on Apache - CentOS, Fedora.</a> </li>
+      <li>Move each certificate and  key to its corresponding directory. For example, if <em><u>gdcert1</u></em> is the certificate and the <em><u>certkey1</u></em> is the key for <em><u>yourdomainname1.com</u></em>,  move them to  <code>/etc/httpd/ssl/yourdomainname1.com</code>.
+        
+      </li>
+    </ol>
+<h2>Create virtual host files</h2>
+<p>Now that you have obtained the certificates, you are ready to create and edit two virtual host files to store configuration information. </p>
+<ol>
+    <li> Create and open the first file for editing.
+          <div class="hacker">sudo vim /etc/httpd/conf.d/yourdomainname1.com.conf</div>
+        </li>
+        <li>
+            Add the following code with the right domain name in the appropriate places.
+            <div class="hacker">
+                <pre>
+&lt;VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    ServerName <em>yourdomainname1.com</em>
+    DocumentRoot /var/www/html
+&lt;/VirtualHost>
+
+&lt;IfModule mod_ssl.c>
+&lt;VirtualHost *:443>
+    ServerAdmin webmaster@localhost
+    ServerName <em>yourdomainname1.com</em>
+    DocumentRoot /var/www/html
+
+    #   SSL Engine Switch:
+    #   Enable/Disable SSL for this virtual host.
+    SSLEngine on
+
+    #   A self-signed (snakeoil) certificate can be created by installing
+    #   the ssl-cert package. See
+    #   /usr/share/doc/apache2.2-common/README.Debian.gz for more info.
+    #   If both key and certificate are stored in the same file, only the
+    #   SSLCertificateFile directive is needed.
+    SSLCertificateFile /etc/httpd/ssl/yourdomainname1.com/gdcert1.crt
+    SSLCertificateKeyFile /etc/httpd/ssl/yourdomainname1.com/certkey1.key
+&lt;/VirtualHost>
+&lt;/IfModule>
+</pre>
+            </div>
+        </li>
+        <li>Repeat for the other configuration file. </li>
+    <li>Open the <code>.conf</code> file. You need to make changes in the existing configuration file to include the newly created virtual host files. 
+      <div class="hacker">sudo vim  /etc/httpd/conf/httpd.conf</div>
+        </li>
+        <li>
+            Add the <code>Include</code> directives under the <code>Dynamic Shared Object (DSO) Support</code> Section for the <code>.conf</code> files.
+<div class="hacker">
+Include conf.d/yourdomainname1.com.conf<br />
+Include conf.d/yourdomainname2.com.conf
+</div>
+        </li>
+        </ol>
+    
+  
+<h2>Conclusion</h2> 
+ You have now successfully installed the two SSL certificates on your web server.
+</body>
+</html>

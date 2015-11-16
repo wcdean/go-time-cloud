@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18228 -->
+
+
+
+<title>Build a LAMP stack for Python - Debian, Ubuntu</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+        <p>Describes how to install Apache, MySQL, PHP (LAMP) stack on Debian and Ubuntu</p>
+    <h1>Build a LAMP stack for Python -  Debian, Ubuntu</h1>
+    
+        <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+
+        <p>The LAMP (Linux, Apache, MySQL, and PHP) stack is a group of open source software used to get web servers up and running. Debian, Linux, and Ubuntu use the apt-get installer, which can update the system and install all of the required packages for each part of the LAMP stack. The steps in this article are for a sudo user with root privileges.</p>
+      <p>If you have not installed Debian or Ubuntu, these articles go over server setup:</p>     <ul>
+        <li><a href="17325 - Initial Server Setup - Debian.html">Initial Server Setup for Debian</a></li>
+        <li><a href="17321 - Initial Server Setup - Ubuntu.html">Initial Server Setup for Ubuntu</a></li>
+        </ul>
+   
+
+<h2>Install Apache</h2>
+<ol>
+        <li>Before installing any of the LAMP programs, update the package manager: 
+
+        <div class="hacker">
+sudo apt-get update
+</div> </li>
+
+        <li>After the update is complete, install Apache.
+        <div class="hacker">sudo apt-get install apache2</div> 
+
+<!--CT... Don't need an image of the test scren 9/28... <br/>
+<img src="images/18228/09102015/apache-successfully-installed.png" alt="Apache successfuly installed screen" />...-->
+</li>
+
+<li>To check if Apache is installed, type your public IP address into a browser, http://<em><u>server-IP-address</u></em>.
+ If Apache is installed, the Apache Test Page displays. </li>
+ </ol>
+
+
+<h2>Check your version of Python</h2>
+
+<p>Python comes preinstalled on most popular Linux distributions and is integrated into the system/environment from the start. Later Debian-based systems (Ubuntu and Debian) come with Python 2.7 out of the box.</p> 
+
+<ol>
+<li>Confirm you have Python by checking your version. 
+<div class="hacker">python --version</div></li>
+
+<p class="note">Most modern Python development requires version 2.6 or later. </p>
+
+<li><p>You don't need to install or configure anything else to use Python. However, you may want to install some tools and libraries if you're planning on building Python applications.</p>
+
+<p>The most important of these tools are  <code>pip</code> and <code>setuptools</code>.</p>
+
+Check to see if you have pip.
+<div class="hacker">command -v pip</div>
+
+If it doesn't return any output, you do not have <code>pip</code>.</li>
+
+<p class="note">Python 2.7.9 and later versions include <code>pip</code> by default.</p>
+
+<li>If you need to, install <code>pip</code> and <code>setuptools</code>.
+<div class="hacker">sudo apt-get -y install python-pip python-setuptools</div>
+</li>
+
+<li>Confirm you now have <code>pip</code> by checking the version. 
+    <div class="hacker">pip --version</div></li>
+</ol>
+
+
+<h2>Install MySQL</h2>
+
+       <ol>
+        <li>To install MySQL, in the same terminal type in these commands:
+        <div class="hacker">sudo apt-get install mysql-server libapache2-mod-auth-mysql php5-mysql</div></li>
+
+        <li>During the installation, MySQL will ask you to set a root password.
+        After you install MySQL, you need to activate it:
+        <div class="hacker">sudo mysql_install_db</div>   </li>
+
+        <li>Run the MySQL setup script.
+        <div class="hacker">sudo /usr/bin/mysql_secure_installation</div></li>
+
+        <li>During this process, you will be asked for your current MySQL root password (not to be confused with your server password) and, since it has not yet been set, simply press <strong>Enter</strong>.</li>
+
+        <li>When asked <code>Set root password</code>, type <strong>Y</strong>, and then enter in your new MySQL root password. </li>
+        <li>After the root password is set, <!--CT...select <strong>Y</strong> to the remaining options as seen in the following section:
+
+        <div class="hacker">Enter current password for root (enter for none): <br /> <br />  OK, successfully used password, moving on... </div>  </li>
+
+
+        <li>...-->
+        the prompt will ask you if you want to change the root password. Go ahead and type <strong>n</strong>, and then it's best practices to respond <strong>Y</strong> to the remaining options. <!--CT: This huge table is overkill considering the action 9/29...as seen below:
+
+
+        <table style="width: 100%">
+                    <tr style ='font-weight: bold;'>
+                <td width='60%'>Prompt</td>
+                <td style="text-align:center;">Action</td>
+                <td>Success Message</td>
+            </tr>
+                <tr>
+                    <td><div class='hacker'>Remove anonymous users? [Y/n]</div></td>
+
+                    <td style="vertical-align: top; text-align:center;"><strong>y</strong></td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Disallow root login remotely? [Y/n]</div></td>
+
+                    <td style="vertical-align: top; text-align:center;">y</td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'> Remove test database and access to it? [Y/n]</div></td>
+
+                    <td style="vertical-align: top; text-align:center;">y</td>
+                    <td style="vertical-align: top;">Dropping test database... ... Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Removing privileges on test database</div></td>
+                
+                    <td style="vertical-align: top; text-align:center;"></td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Reload privilege tables now? [Y/n]</div></td>
+                    <td style="vertical-align: top; text-align:center;">y</td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Cleaning up...</div></td>
+                    <td style="vertical-align: top; text-align:center;"></td>
+                    <td style="vertical-align: top;"></td>
+                </tr>
+
+           </table> ...-->
+            </li>
+</ol>
+        <p>All done!  If you've completed all of the above steps, your MariaDB installation should now be secure.</p>
+
+        <p>After you've installed MySQL, finish the LAMP stack by installing PHP.</p>
+
+    <h2>Install PHP</h2>
+
+        <p>PHP is an open-source web scripting language that is widely used to build dynamic webpages.</p>
+        <ol>
+        <li>Install PHP:
+        <div class="hacker">sudo apt-get install php5 libapache2-mod-php5 php5-mcrypt</div></li>
+        <li>After you answer <strong>yes</strong> to the prompt twice, PHP will install itself. </li>
+        <li>It may also be useful to add PHP to the directory index, to serve the relevant php index files:
+        <div class="hacker">sudo vim /etc/apache2/mods-enabled/dir.conf</div></li>
+        <li>Add <code>index.php</code> to the beginning of the <code>DirectoryIndex</code> file line. The page should now look like this:
+
+
+        <div class="hacker">IfModule mod_dir.c>"<br />&nbsp;&nbsp;&nbsp;&nbsp;DirectoryIndex index.php index.html index.cgi index.pl index.php index.xhtml index.htm<br />/IfModule</div> </li>
+
+   </ol>
+
+        <h2>Next steps</h2>
+        <p>Congratulations! You now have a LAMP stack on your Debian or Ubuntu server, you can now Install phpMyadmin for <a href="17638 - Install and secure phpMyAdmin with Apache - Ubuntu.html">Ubuntu</a> or <a href="17642 - Install and secure phpMyAdmin with Apache - Debian.html">Debian</a> or install WordPress for  <a href="17382 - Install WordPress on your LAMP server - Ubuntu.html">Ubuntu</a> or <a href="19191 - Install WordPress on your LAMP server - Debian.html">Debian</a></p>.
+    
+        
+
+
+
+</body>
+</html>

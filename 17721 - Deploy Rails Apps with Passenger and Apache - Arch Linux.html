@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17721-->
+
+
+
+<title>Deploy Rails Apps with Passenger and Apache - Arch Linux</title>
+<style type ="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+.red-text{
+                                color:#FF8080 ;
+                }
+		.command{
+                                font-family: 'Courier New',
+								 Courier, 'Lucida Sans Typewriter',
+								  'Lucida Typewriter', monospace;
+                }
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up Rails Apps with Passenger and Apache in Arch Linux, Ruby, Rails, Apache</p>
+    <h1>Deploy Rails Apps with Passenger and Apache - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+    <p>This article guides you on how to deploy Rails Apps with Passenger and Apache&trade; in Arch Linux. You will need at least one GB of RAM in a virtual server to run the Passenger commands, which consumes a lot of memory. This article assumes that the user has <code>sudo</code> privileges to access the virtual server.</p>
+	<p class="note">This guide includes development library installation and ad hoc compilation on the machine, hence it is not recommended to use this tutorial in a production environment.</p>
+    <h2>Prerequisites</h2>
+    <p>To setup your Arch Linux server, refer to the article: <a href ="17324 - Initial Server Setup - Arch Linux">initial Server Setup - Arch Linux</a>. You need to ensure that the fully qualified domain name (FQDN) points to the server. After you have setup the Arch Linux server, you will need to <a href ="17537 - Install Ruby on Rails using RVM - Arch Linux">install Ruby on Rails using RVM - Arch Linux</a>. You may also refer to <a href ="17716 - Deploy Rails Apps with Passenger and NGINX - Arch Linux">deploy Rails Apps with Passenger and NGINX - Arch Linux</a>.</p>
+    
+	<h2>Install Apache</h2>
+  <ul>
+	<li>Update the system, and then install Apache.
+    <div class="hacker">sudo pacman -Syu</div>
+	<div class="hacker">sudo pacman -S apache</div></li>
+  </ul>
+	
+	<h2>Install Rails and Passenger</h2>
+	<ol>
+		<li>Install Rails and Passenger with the following command:
+		<div class="hacker">gem install passenger</div>
+		</li>
+		<li>Install the Passenger package for Apache.  
+		<div class="hacker">passenger-install-apache2-module</div>
+		</li>
+		<li>After executing the previous command, you will see something like this at the end: 
+		<div class="hacker"><pre>
+LoadModule passenger_module /home/<em><u>Logged_in_User</u></em>/.rvm/gems/<em><u>Installed_ruby_Version</u></em>/gems/passenger-5.0.15/buildout/apache2/mod_passenger.so
+&lt;IfModule mod_passenger.c&gt;
+PassengerRoot /home/<em><u>Logged_in_User</u></em>/.rvm/gems/<em><u>Installed_ruby_Version</u></em>/gems/passenger-5.0.15
+PassengerDefaultRuby /home/<em><u>Logged_in_User</u></em>/.rvm/gems/<em>><u>Installed_ruby_Version</u></em>/wrappers/ruby
+&lt;/IfModule&gt;
+	</pre></div>
+		</li>
+		<li>Open the configuration file of the Apache server. Copy the lines in the preceding step, paste it in the configuration file of the Apache server, and replace the variables with your information.
+		<div class="hacker">sudo vim /etc/httpd/conf/httpd.conf </div>
+		</li>
+		<li>Save and exit.
+		<div class ="hacker">wq!</div>
+		</li>
+		<li>Restart Apache service.
+		<div class="hacker">sudo  systemctl restart httpd </div>
+		</li>
+	</ol>
+  
+	<h2>Configure a test Rails application</h2>
+	<ol>
+		<li>Install the sqlite's  development package.
+		<div class ="hacker">sudo pacman -S sqlite</div>
+		</li>
+		
+		<li>In this folder, test application code is generated under the <code>HelloWorld</code> folder.
+		<div class ="hacker">rails new <em><u>~/Your_application</u></em></div>
+		<div class ="hacker">cd <em><u>Your_application</u></em></div>
+
+		</li>
+		<li>You can also initiate the development database using the migration tool.
+		<div class ="hacker">rake db:migrate</div>
+		</li>
+	</ol>
+	<h2>Connect the Apache server to the Rails App</h2>
+	<ol>
+		<li>Create a new virtual host for your application. 
+		<div class ="hacker">sudo vim /etc/httpd/conf/http.conf</div>
+		</li>
+		<li>In this file, uncomment the following line:
+		<div class ="hacker"><pre>
+ServerName www.example.com:80 
+Include conf/extra/httpd-vhosts.conf
+		</pre>
+		</div>
+		</li>
+		<li>At the end of this file, add the virtual host.
+		<div class ="hacker"><pre>
+&lt;VirtualHost *:80&gt;
+       ServerName <em><u>www.coolexample.com</u></em>
+	 DocumentRoot <em><u>/home/Logged_in_User/Your_application</u></em>/public 
+   &lt;Directory <em><u>/home/Logged_in_User/Your_application</u></em>/public&gt;
+      AllowOverride all
+      Options -MultiViews
+   &lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+		</pre>
+		</div>
+		</li>
+		<li>Save and exit.
+		<div class ="hacker">wq!</div>
+		</li>
+		<li>Restart the Apache service.
+			<div class ="hacker">sudo  systemctl restart httpd  </div>
+		</li>
+	</ol>
+	<h2>Conclusion</h2>
+	<p>In this article, we reviewed the steps involved in setting up your Rails application with Passenger and Apache to make it more secure and reliable in a Arch Linux distribution.  </p>
+    
+</body>
+</html>

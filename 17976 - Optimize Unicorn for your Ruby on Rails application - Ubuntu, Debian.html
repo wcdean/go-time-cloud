@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head><!--article number 17976-->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Optimize Unicorn for your Ruby on Rails application - Ubuntu, Debian</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    
+    table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+
+    </style>
+    
+</head>
+<body>	
+<p>Optimize Unicorn for your Ruby on Rails application on Linux Debian and Ubuntu platform Ruby, Rails, Optimization</p>
+<h1>Optimize Unicorn for your Ruby on Rails application - Debian, Ubuntu </h1>
+<p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+<strong>Time</strong>: <em><u>1.5 hours</u></em></p>
+
+<p>Rails is a nice web framework, but over past few years, it has grown into a complex system. Particularly when using Unicorn, Rails apps tend to consume a lot of memory. Understanding its operational details and optimizing its performance can be a critical factor for success of any Rails developer. 
+</p>
+<p>This article will assist you with few simple things that can enhance the performance of Unicorn for your Rails applications on a Debian or Ubuntu platform.</p>
+
+<p class="note">This article assumes that user is logged in with sudo user privileges.</p>
+		
+<h2>Set Unicorn as a default option</h2>
+<p>By default, Rails uses the <strong>Webrick</strong> server to run applications. It is fast, but unfortunately, it can not handle concurrent connection requests. For optimized performance, Unicorn must be set as the default server for Rails. Unicorn is a multi-threaded web server, capable of handling multiple requests simultaneously, thus optimizing the performance considerably. </p>
+
+<p>For details about setting up Rails app with Unicorn and Nginx, refer to the appropriate article:</p>
+<ul>
+	<li><a href="17518">Deploy a Rails App with Unicorn and Nginx - Debian</a></li>
+	<li><a href="17514">Deploy a Rails App with Unicorn and Nginx - Ubuntu</a></li>
+</ul>
+
+<h2>Upgrade to Ruby 2.x</h2>
+<p>If you are using Ruby 1.9 or earlier, it is recommended to upgrade to Ruby 2.x. Ruby 1.x, and earlier versions, do not support automated garbage collection, and thus are unable to take advantage of the benefits of the Copy-on-Write (CoW) feature. </p>
+<ol>
+
+	<li>Verify the Ruby version.
+	<div class="hacker">ruby -v
+	</div>
+	</li> 
+	<li>If not already the latest version, upgrade Ruby from 1.9 to 2.x. In this article Ruby version 2.2.3 is used for example.
+		<div class="hacker">rbenv install <em><u>2.2.3</u></em> -k</div>
+	</li>
+</ol>
+
+<h2>Fine-tune the configuration settings</h2>
+<p>To boost the performance of Unicorn, some configuration settings can be checked. These are available in the Unicorn basic configuration file <code>config/unicorn.rb</code>.
+
+</p>
+<ol>
+	<li>Move to the application directory.
+	<div class="hacker">cd <em><u>/var/www/Your_application</u></em></div>
+	</li>
+	<li>Open the <code>unicorn.rb</code> in your favorite editor.
+	<div class="hacker">sudo vim config/unicorn.rb</div>
+	</li>
+	<li>Update the desired configuration variables based on requirements.
+	<div class="hacker">
+	<pre>
+app_path = <em><u>File.expand_path(File.dirname(__FILE__) + '/..')</u></em>
+...
+worker_processes <em><u>2</u></em>
+preload_app <em><u>true</u></em>
+timeout <em><u>30</u></em>
+</pre>
+	</div>
+	</li>
+	<li>To save and exit the file, press the <strong>Esc</strong> key, type <code>:wq</code>, and then press the <strong>Enter</strong> key. </li>
+</ol>
+<h3>Setting variables</h3>
+<p>Below is the explanation of the setting variables:</p>
+<ul>
+<li><code>app_path</code>
+<p>Defines the current app's path for later reference. <code>Rails.root</code> isn't available at this point, so point up a directory.</p>
+</li>
+
+<li><code>worker_process</code>
+<p>Defines the total number of concurrent worker to be launched. This number ideally depends upon the memory available to the processes to execute. So depending upon your application and the availability of memory, you can set the number of concurrent worker process to run. For example, to allow five concurrent connections, you can set the value to five workers.</p>
+</li>
+<li><code>preload_app</code>
+<p>Defines the ability to preload the Rails application using CoW, before forking the worker processes.
+This setting affects startup time when running Unicorn worker processes. This should be set to <strong>true</strong>. Although, when using this option, special care is to be taken when opening and closing any sockets.
+When workers are forked, any associated connection (like database connections or others, which require sockets) must be closed and reopened. 
+</p>
+</li>
+<li><code>timeout</code>
+<p>
+Defines the time duration to wait before the worker times out. It is usually preferred to keep a lower base value for the timeout, to avoid holding back a long queue. So ideally, <strong>15 </strong>to <strong>30</strong> is considered as a rational value, but depending upon the nature of applications, this can be changed accordingly.
+</p>
+</li>
+</ul>
+
+<h2>Deploy unicorn-worker-killer</h2>
+<p>When using Unicorn, all the forked or child processes of Ruby application consume memory. Therefore, if there were a memory leak in the Ruby application, use of Unicorn would increase the problem multi-fold times. Over a period of time, situations may arise when all the memory is used and no additional memory is left. This ultimately can cause the system to halt or crash.
+</p>
+<p>
+Although Unicorn may not be cause this problem, it can be resolved using <code>unicorn-worker-killer</code>. 
+</p>
+
+<h3>Set up unicorn-worker-killer</h3>
+<p>unicorn-worker-killer is a gem that helps perform self-checks of memory consumed by unicorn workers. In case the memory consumption of the unicorn workers exceeds the pre-defined  maximum requests due to any memory leakage, unicorn-worker-killer provides an automatic restart of workers without affecting any requests. 
+</p><p>
+Here are the steps for using unicorn-worker-killer:
+</p>
+
+<ol>
+	<li> Install unicorn-worker-killer.
+		<div class="hacker">cd <em><u>/var/www/Your_application</u></em></div>
+		<div class="hacker">gem install 'unicorn-worker-killer'</div>
+		<div class="hacker">bundle install</div>
+	</li>	
+	<li> Open file <code>config.ru</code> located in the default project directory.
+		<div class="hacker">sudo vim config.ru</div>
+	</li>
+	<li>If not already there, add the following code to the configuration file, just before the code <code>require ::File.expand_path('../config/environment', __FILE__)</code>. You will need to update the variables <strong>max_requests_min</strong> and <strong>max_requests_max</strong> to the desired values.
+		<div class="hacker">
+		<pre>	
+  # --- Start of unicorn worker killer code ---
+
+  require 'unicorn/worker_killer'
+
+  <em><u>max_request_min = 500</u></em>
+  <em><u>max_request_max = 600</u></em>
+
+  # Max requests per worker
+  use Unicorn::WorkerKiller::MaxRequests, max_request_min, max_request_max
+
+  oom_min = (240) * (1024**2)
+  oom_max = (260) * (1024**2)
+
+  # Max memory size (RSS) per worker
+  use Unicorn::WorkerKiller::Oom, oom_min, oom_max, ,versbose=true
+
+  # --- End of unicorn worker killer code ---</pre>
+		</div> 
+		The variables <strong>max_requests_min</strong> and <strong>max_requests_max</strong> defines the minimum and the maximum number of requests per worker. A random number between <strong>max_requests_min</strong> and <strong>max_requests_max</strong> is defined as the actual limit. This randomness prevents all workers being killed simultaneously. 
+		<p>With this module, the workers are automatically killed and restarted when the number of requests handled by the worker exceeds the limit.</p>  
+	</li>
+<li>To save and exit the file, press the <strong>Esc</strong> key, type <strong>:wq</strong>, and then press the <strong>Enter</strong> key. </li>
+<li>Start the unicorn application
+<div class="hacker">sudo service <em><u>Your_unicorn_application</u></em> start</div>
+</li>
+	</ol>
+<h2>Conclusion</h2>
+<p>Unicorn is a painless way to achieve concurrency and performance in your Rails apps, whether used with thread-safe or not. It provides essential stability to Rails Apps. unicorn-worker-killer gracefully restarts your application and resolves memory leaks.</p>
+</body>
+</html>

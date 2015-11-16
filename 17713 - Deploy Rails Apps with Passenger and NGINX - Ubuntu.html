@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17713-->
+
+
+<title>Deploy Rails Apps with Passenger and NGINX - Ubuntu</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+ <p>Setting up Rails Apps with Passenger and NGINX in Ubuntu, Ruby, Rails, NGINX</p>
+    <h1>Deploy Rails Apps  with Passenger and NGINX - Ubuntu </h1>
+
+<p><strong>Difficulty: </strong> <em>2</em></p>
+<p><strong>Time: </strong> <em>30 minutes</em></p>
+
+ <p>Rails enables web developers to  rapidly build quality applications, while NGINX is a lightweight, high-performance web server. In this article you will learn to deploy a Rails application on an NGINX web server using simple and powerful features of Phusion Passenger. This task  assumes that you have <em>sudo</em> privileges. </p>
+ <h2>Prerequisites</h2>
+ <ol>
+	<li><a href ="17321">Initial Server Setup - Ubuntu</a></li>
+	<li><a href="17534">Install Ruby on Rails using RVM</a></li>
+	<li>Fully Qualified Domain Name (FQDN) should point to the server. If you are using COMPANY_NAME server, see how to <a href="https://www.godaddy.com/help/point-your-domain-name-to-a-server-19116">point your domain name to a server</a>.</li>
+ </ol>
+ 
+    <h2>Install NGINX and Passenger</h2>
+<ol>
+<li>Update and install repositories, dependencies required for Ruby and NGINX.
+  <div class="hacker"> sudo apt-get update </div>
+<div class="hacker">
+sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev</div>
+</li>
+<li>Add the <code>gpg</code> key, and install Phusion Passenger.
+  <div class="hacker"> gpg --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7 </div>
+<div class="hacker"> gpg --armor --export 561F9B9CAC40B2F7 | sudo apt-key add - </div>
+<div class="hacker"> sudo apt-get install apt-transport-https </div>
+</li>
+<li>Add the Passenger repository in the source list.
+  <div class="hacker">
+
+sudo sh -c "echo 'deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main' >> /etc/apt/sources.list.d/passenger.list"</div>
+</li>
+
+<li>Add the following permissions to the Passenger repositories:
+
+  <div class="hacker"> sudo chown root: /etc/apt/sources.list.d/passenger.list </div>
+
+<div class="hacker"> sudo chmod 600 /etc/apt/sources.list.d/passenger.list </div>
+</li>
+ <li>      Run the update command.
+
+   <div class="hacker"> sudo apt-get update </div>
+</li>
+
+<li>Install NGINX and Passenger.
+<div class="hacker"> sudo apt-get install nginx-full passenger </div>
+</li>
+</ol>
+		<h2>Configure a Test Rails Application</h2>
+		<ol>
+  <li>Change directory to the <code>home</code>  directory, and create a Rails application.
+    <div class="hacker">  cd  ~</div>
+    <div class="hacker">rails new <em><u>your_application</u></em></div>
+	  <div class="hacker">  cd <em><u>your_application</u></em></div>
+	</li>
+  <li>Create sample resources.
+  <div class="hacker"> rails generate scaffold Task title:string note:text </div>
+  <div class="hacker">rake db:migrate RAILS_ENV=development</div></li>
+  <li>Test <em><u>Your_application</u></em> application by running the following command in the application directory:
+  <div class='hacker'>rails s --bind=<em><u>your-public-IP</u></em></div>
+  To test Rails application open the browser and type <strong>http://your_server_ip:3000</strong>
+</li>
+</ol>
+<h2>Configure NGINX</h2><ol>
+<li>Open the configuration file <code>nginx.conf</code>.
+  <div class="hacker"> sudo vim /etc/nginx/nginx.conf </div>
+<li>
+Uncomment or Insert the following line in the <code>http {</code> section:
+<div class="hacker">passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;</div></li>
+<li>To save and exit, press <strong> ESC</strong> and type <strong>:wq!</strong></li>
+<li> Restart the NGINX service.
+  <div class="hacker"> sudo service nginx restart </div>
+</li>
+<li>Open NGINX configuration file <code>/etc/nginx/sites-enabled/default</code> to configure the host.
+  <div class="hacker">sudo vim /etc/nginx/sites-enabled/default</div>
+  </li>
+  <li>Find the <code>location / {</code> and comment code.
+	<div class="hacker">
+	 #location / {<br/>
+                # First attempt to serve request as file, then<br/>
+                # as directory, then fall back to displaying a 404.<br/>
+        #       try_files $uri $uri/ =404;<br/>
+        #}<br/>
+	</div>
+  <li>Make corresponding changes as shown in the code:
+  <div class="hacker">
+<pre>server {
+        listen 80 default_server;
+        
+
+	root        <em><u>/home/username/your_application</u></em>/public; # Your rails application's path
+        passenger_enabled on;
+        rails_env    development;
+	server_name <em><u>www.coolexample.com</u></em>; # Replace coolexample.com with FQDN or Your-Public-IP
+
+        # redirect server error pages to the static page /50x.html
+        error_page   500 502 503 504  /50x.html;
+	location = /50x.html {
+            root   html;
+        }
+}
+	</pre></div></li>
+<li>To save and exit, press <strong> ESC</strong> and type <strong>:wq!</strong> 
+</li>
+
+<li>Restart the NGINX server:
+  <div class="hacker"> sudo service nginx restart </div>
+  To test Rails application open the browser and type <strong>http://your_server_ip</strong>
+</li>
+</ol>
+<h2>Conclusion</h2>
+<p>In this article, you reviewed the steps to deploy a Rails application using NGINX and Passenger.</p>
+
+</body>
+</html>

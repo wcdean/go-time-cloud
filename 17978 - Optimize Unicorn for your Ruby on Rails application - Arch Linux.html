@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17978-->
+
+
+
+<title>Optimize Unicorn for your Ruby on Rails application - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+</style>
+
+
+</head>
+
+<body>
+<p>Optimize Unicorn for your Ruby on Rails application - Arch Linux, Ruby, Rails, Optimization</p>
+<h1>Optimize Unicorn for your Ruby on Rails application - Arch Linux</h1>
+    
+<p><strong>Difficulty</strong>: <em><u>3</u></em><br />
+<strong>Time</strong>: <em><u>1.5 hours</u></em></p>
+
+<p>Rails is a nice web framework, but over past few years, it has grown into a complex system. Particularly when using Unicorn, Rails apps tend to consume a lot of memory. Understanding its operational details and optimizing its performance can be a critical factor for success of any Rails developer. </p>
+
+<p>This article will assist you with few simple things that can be done to enhance the performance of Unicorn for your Rails applications on Arch Linux platform.</p>
+
+
+<p>This article requires that Ruby on Rails be installed. If it is not installed, refer to the article: <a href="17522">Install Ruby on Rails with rbenv - Arch Linux</a>.</p>
+<p class="note">This article assumes that user is logged in with sudo user privileges.</p>
+
+
+<h2>Set Unicorn as a default option</h2>
+<p>	By default, Rails uses the <strong>Webrick</strong> server to run applications. It is fast, but unfortunately, it can not handle concurrent connection requests. For optimized performance, Unicorn must be set as the default server for Rails. Unicorn is a multi-threaded web server, capable of handling multiple requests simultaneously, thus optimizing the performance considerably. 
+</p>  
+<p>For details about setting up Rails app with Unicorn and Nginx, refer to the article: <a href="17517">Deploy a Rails App with Unicorn and Nginx - Arch Linux</a>.</p>
+<h2>Install RVM</h2>
+   
+    <ol>
+       <li>Update the system software and access root by running the following command:
+          <div class='hacker'>sudo pacman -Syu</div>      
+      </li>
+        <li>If your system doesn't have RVM already installed, type the following command to install RVM:
+            <div class='hacker'>sudo curl -L get.rvm.io | bash -s stable </div>
+        </li>
+		<li>After you have run the above command, there is one more dependency that needs to be fixed, so type the following command:
+            <div class='hacker'>sudo curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - </div>
+			 <div class='hacker'>sudo curl -L https://get.rvm.io | bash -s stable </div>
+        </li>
+		
+        <li>Open <code>.bashrc</code> file by typing:
+            <div class='hacker'>sudo vim .bashrc</div>
+        </li>
+        <li>Add the lines in this example at the end of the file.
+            <div class='hacker'> [[ -s "$HOME/.rvm/scripts/rvm" ]]  &amp;&amp;  source "$HOME/.rvm/scripts/rvm" </div>
+        </li>
+		<li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.</li>
+        <li>Log in back to apply the changes, and then install the dependencies of RVM. 
+            <div class='hacker'>rvm requirements</div>
+      </li></ol>
+<h2>Upgrade to Ruby 2.x</h2>
+    <p>If you are using Ruby 1.9 or earlier, it is recommended to upgrade to Ruby 2.x. Ruby 1.x and earlier versions do not support automated garbage collection, and thus are unable to take benefits of Copy-on-Write (CoW) feature. </p>
+	<ol>
+		<li>Upgrade Ruby from 1.9 to Ruby 2.x.
+			<div class="hacker">rvm install ruby</div>
+		</li>
+		<li>Verify the Ruby version.
+		<div class="hacker">ruby -v<br />
+		#ruby 2.2.3p173 (2015-08-18 revision 51636) [x86_64-linux]</div></li>
+	</ol>
+
+<h2>Fine-tune the configuration settings</h2>
+<p>To boost the performance of Unicorn, some configuration settings can be checked. These are available in the Unicorn's basic configuration file <code>config/unicorn.rb</code> in application directory. 
+</p>
+<ol>
+	<li>Open the <code>unicorn.rb</code> in your favorite editor.
+	<div class="hacker">vim config/unicorn.rb</div></li>
+	<li>Update the desired configuration variables based on requirements.
+	<div class="hacker">
+	<pre>
+app_path = <em><u>File.expand_path(File.dirname(__FILE__) + '/..')</u></em>
+worker_processes <em><u>2</u></em>
+preload_app <em><u>true</u></em>
+timeout <em><u>30</u></em>	
+</pre>
+	</div>
+	</li>
+	<li>To save and exit the file, press the <strong>Esc</strong> key, type <code>:wq</code>, and then press the <strong>Enter</strong> key. </li>
+</ol>
+
+<h3>Setting variables</h3>
+<p>Below is the explanation of the setting variables:</p>
+
+<table>
+<tr>
+<th> Variable</th>
+<th>Description</th>
+</tr>
+<tr>
+<td> app_path </td>
+<td>   Defines the current app's path for later reference. <code>Rails.root</code> isn't available at this point, so point up a directory.    </td>
+</tr>
+    <tr>
+<td> worker_process </td>
+<td> Defines the total number of concurrent worker to be launched. This number ideally depends upon the memory available to the processes to execute. So depending upon your application and the availability of memory, you can set the number of concurrent worker process to run. For example, to allow five concurrent connections, you can set the value to five workers. </td>
+</tr>
+<ul>
+<tr>
+<td>preload_app</td>
+<td>Defines the ability to preload the Rails application using CoW, before forking the worker processes.
+This setting affects startup time when running Unicorn worker processes. This should be set to <strong>true</strong>. Although, when using this option, special care is to be taken when opening and closing any sockets.
+When workers are forked, any associated connection (like database connections or others, which require sockets) must be closed and reopened. </td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>Defines the time duration to wait before the worker times out. It is usually preferred to keep a lower base value for the timeout, to avoid holding back a long queue. So ideally, <strong>15 </strong>to <strong>30</strong> is considered as a rational value, but depending upon the nature of applications, this can be changed accordingly.</td>
+</tr>
+
+
+
+<h2>Deploy unicorn-worker-killer</h2>
+<p>When using Unicorn, all the forked or child processes of Ruby application consume memory. Therefore, if there were a memory leak in the Ruby application, use of Unicorn would increase the problem multi-fold times. Over a period of time, situations may arise when all the memory is used and no additional memory is left. This ultimately can cause the system to halt or crash.
+</p>
+<p>
+Although Unicorn may not be cause this problem, it can be resolved using <code>unicorn-worker-killer</code>. 
+</p>
+
+<h3>Set up unicorn-worker-killer</h3>
+<p>unicorn-worker-killer is a gem that helps perform self-checks of memory consumed by unicorn workers. In case the memory consumption of the unicorn workers exceeds the pre-defined  maximum requests due to any memory leakage, unicorn-worker-killer provides an automatic restart of workers without affecting any requests. 
+</p>
+<p>Here are the steps for using unicorn-worker-killer:
+</p>
+
+<ol>
+	<li>Install unicorn-worker-killer.
+		<div class="hacker">gem install 'unicorn-worker-killer'</div>
+		<div class="hacker">sudo bundle install</div>
+	</li>
+		<li> Create a file with name <code>config.rb</code> project directory.
+		<div class="hacker">sudo vim config.rb</div>
+	</li>
+	<li>	
+		Update the variables <strong>max_requests_min</strong> and <strong>max_requests_max</strong> to the desired values.
+		<div class="hacker">
+		<pre>
+# --- Starting Unicorn-worker-killer code ---
+
+  require 'unicorn/worker_killer'
+
+  <em><u>max_request_min = 500</u></em>
+  <em><u>max_request_max = 600</u></em>
+
+  # Maximum requests per worker
+  use Unicorn::WorkerKiller::MaxRequests, max_request_min, max_request_max
+
+  oom_min = (240) * (1024**2)
+  oom_max = (260) * (1024**2)
+
+  # Maximum memory size (RSS) per worker
+  use Unicorn::WorkerKiller::Oom, oom_min, oom_max, ,versbose=true
+
+# --- End of unicorn worker killer code ---
+
+require ::File.expand_path('../config/environment',  __FILE__)
+run YourApp::Application
+
+</pre>
+	</div>
+	The variables <strong>max_requests_min</strong> and <strong>max_requests_max</strong> defines the minimum and the maximum number of requests per worker. A random number between <strong>max_requests_min</strong> and <strong>max_requests_max</strong> is defined as the actual limit. This randomness prevents all workers being killed simultaneously. When the number of requests handled by the worker exceeds the limit, the workers are automatically killed and restarted. 
+	</li>
+<li>To save and exit the file, press the <strong>Esc</strong> key, type <code>:wq</code>, and then press the <strong>Enter</strong> key. </li>
+</ol>
+	
+<h2>Conclusion</h2>
+<p>Unicorn is a painless way to achieve concurrency and performance in your Rails apps, whether used with thread-safe or not. It provide essential stability to Rails Apps. Unicorn worker killer gracefully restarts your application and resolves memory leaks.</p>
+   
+</body>
+</html>
+
+

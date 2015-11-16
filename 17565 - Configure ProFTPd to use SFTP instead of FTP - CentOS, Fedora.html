@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Configure ProFTPd to use SFTP instead of FTP - CentOS, Fedora</title>
+
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Configure ProFTPd to use SFTP instead of FTP on CentOS, Fedora, Security, Linux basics.</p>
+    <h1>Configure ProFTPd to Use SFTP Instead of FTP - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>20 minutes</em></p>
+    
+   <p>ProFTPd is a File Transfer Protocol (FTP) server and  open source software compatible with Linux/Unix systems and Microsoft Windows. SFTP (which stands for SSH File Transfer Protocol or Secure File Transfer Protocol) is a separate protocol packaged with SSH that works in a similar way over a secure connection.</p>
+    
+    <p>In this article, you will learn to configure ProFTPd to use SFTP on CentOS 6, 7 and Fedora 20, 21 using FileZilla as your FTP client. FileZilla is free and available on all major operating systems. You can download it from 
+<a href="https://filezilla-project.org/">http://filezilla-project.org</a>.</p>
+
+  <h2>Install ProFTPd</h2>
+  <ol>
+   <li>Install ProFTPd.
+     <div class="hacker">sudo yum -y install proftpd</div>
+   </li>
+
+   <li>Open the ProFTPd configuration file.
+   <div class="hacker">sudo vim /etc/proftpd.conf</div>
+  </li>
+   <li>Change the <code>ServerName</code> to your FQDN or your public IP.
+   <div class="hacker">ServerName		"<em><u>your_Domain_Or_IP_Address</u></em>" </div>
+   </li>
+   <li>
+      <p>Add the following code below the <code>DefaultServer</code> variable label: </p>
+   <div class="hacker">Port		9011</div>
+   </li>
+   <li>
+		Save and close the file by pressing the <strong>Esc</strong> key, then  typing <code>:wq!</code> and then pressing  the <strong>Enter</strong> key.
+</li>
+<li>Restart the Proftpd services using following command:
+<div class ="hacker">sudo systemctl restart proftpd.service
+</div></li>
+<li>Check the status of ProFTPd service using following command:
+<div class ="hacker">sudo systemctl status proftpd.service</div>
+</li>
+
+</ol>
+
+
+<h2>Create your FTP user</h2>
+
+<p>If you don't already have an FTP user, create one now in your command line.</p>
+
+<ol>
+<li>Create your user.
+<div class="hacker">sudo useradd <em><u>yourFTPuser</u></em></div></li>
+
+<li>Set a password for your user.
+<div class="hacker">sudo passwd <em><u>yourFTPuser</u></em></div>
+Choose a password and confirm it at the prompts.</li>
+</ol>
+  <h2>Set up firewall rules</h2>
+  <p>Setting up the firewall rules is optional step for those who didn’t configure firewall in CentOS or Fedora Server.</p>
+<ol> 
+<li>Use the following command to enable incoming request.
+   <div class="hacker">firewall-cmd --add-port=9011/tcp -permanent</div>
+  </li>
+   <li>Reload the firewall using the below command, to have the added rules effect.
+   <div class="hacker">firewall-cmd -reload</div>
+   </li>
+   <li>Verify the rule added successful using the following command:
+   <div class="hacker">firewall-cmd --list-ports</div>
+   </li>
+   <li>Change the <code>SELINUX</code> to allow read/write the files.
+   <div class="hacker">setsebool -P allow_ftpd_full_access=1</div>
+   </li>
+   <li>Restart the ProFTPd using the following command:
+   <div class="hacker">systemctl restart proftpd.service</div>
+   </li>
+</ol>
+  
+
+
+  <h2>Test ProFTPd</h2>
+<ol> 
+<li>Open FileZilla or another SFTP or FTP client such as WinSCP. 
+<p><img src="images/17565/091615/filezilla-login-top-nav-quickconnect.png" alt="filezilla quickconnect login"/></p>
+</li>
+<li>Enter Host (or IP address), ftpusername, password and Port number, and click Quickconnect. FileZilla connects automatically using your SSH keys.</li>
+</ol>
+  
+<h2>Conclusion</h2>
+    <p>In this article, you have learned to install and configure ProFTPd in CentOS or Fedora. </p>
+   
+</body>
+</html>

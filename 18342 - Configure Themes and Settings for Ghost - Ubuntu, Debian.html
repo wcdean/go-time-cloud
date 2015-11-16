@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18342 (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Configure Themes and Settings for Ghost - Ubuntu, Debian</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Configuring themes and settings for Ghost on Debian or Ubuntu, Ghost</p>
+<h1>Configure Themes and Settings for Ghost - Debian, Ubuntu </h1>
+
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>30 minutes</em></p>
+
+<p>Ghost is an open-source project for bloggers. It provides a simple blogging platform, is fast and easy to set up, and provides good customization options. This article helps you set up a Ghost blogging platform using NGINX on Debian or Ubuntu. The theme used is available as freeware from the Ghost Marketplace.</p>
+<h2>Prerequisites</h2>
+<ul>
+	<li><a href="18132 - Install and configure Ghost with NGINX - Ubuntu">Install and configure Ghost with NGINX - Ubuntu</a></li>
+	<li><a href="30 - Install and configure Ghost with NGINX - Debian">Install and configure Ghost with NGINX - Debian</a></li>
+</ul>
+<h2>Change the Ghost Theme</h2>
+<ol>
+<li>If already not running, start the Ghost server.
+	<div class="hacker">cd /home/ghost</div>
+	<div class="hacker">sudo NODE_ENV=production forever start index.js</div>
+</li>
+<li>Log in and then move to the <code>themes</code> directory of Ghost.
+	<div class="hacker">cd /home/ghost/content/themes/</div>
+</li>
+<li>Install <code>Git</code> and <code>git-core</code> unless they are already installed.
+	<div class="hacker">sudo apt-get update &amp;&amp; sudo apt-get install git-core -y</div>
+</li>
+<li>Clone the <code>N-Coded</code> theme (as an example) from the GitHub project.
+	<div class="hacker">sudo git clone https://github.com/polygonix/N-Coded.git</div>
+</li>
+</ol>
+
+<h2>Change the Ghost settings</h2>
+<ol>
+<li>Launch the Ghost setup page on your browser, by typing following URL: <code>http://<em><u>your_IP_address</u></em>/ghost/setup</code>
+</li>
+<li>Click on the <code>CREATE YOUR ACCOUNT</code> button to start with Ghost setup<br/>
+<img src="images/18342/091715/18342-01-WelcomeToGhost.png" alt="18342-01-WelcomeToGhost.png" /></li>
+
+<li>Provide information about email address, name, password and blog title. 
+<br/><img src="images/18342/091715/18342-02-CreateYourAccount.png" alt="18342-02-CreateYourAccount.png" />
+</li> 
+<li>Provide names of your team members to invite them on Ghost platform, or skip this step by selecting <code>I'll do this later</code> option.   
+	<br/><img src="images/18342/091715/18342-03-InviteYourTeam.png" alt="18342-03-InviteYourTeam.png" /><br/>
+ <p>Once setup is complete, Ghost CMS Content tab will be displayed. </p>
+	<br/><img src="images/18342/091715/18342-04-GhostCMS.png" alt="18342-04-GhostCMS.png" />
+	<br/>
+</li>
+<li>Go to the general settings page, select the theme from the <strong>Theme</strong> dropdown list, and click Save.
+	<br/><img src="images/18342/091715/18342-05-ThemeSettings.png" alt="18342-05-ThemeSettings.png" />
+</li>
+</ol>
+<h2>Conclusion</h2>
+<p>In this article, we reviewed the steps to configure themes and settings for Ghost on Debian or Ubuntu.</p>
+</body>
+</html>

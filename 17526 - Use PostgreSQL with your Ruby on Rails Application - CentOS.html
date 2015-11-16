@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>17526-Use PostgreSQL with your Ruby on Rails Application - CentOS 7</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up a Rails Application with PostgreSQL in CentOS 7, PostgreSQL, Ruby, Rails.</p>
+<h1>Use PostgreSQL with Ruby on Rails Application - CentOS 7</h1>
+
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>30 mins</em></p>
+<!--Text updated-->
+<p>This article will assist you to create a PostgreSQL server that will be used as a database layer for scaling Ruby on Rails (RoR) application. It describes how you can use PostgreSQL for Rails application.  These tasks assume that you have <code>sudo</code> privileges and that <a href="17521"> Ruby on Rails is installed</a>.</p>
+
+
+
+
+
+<h2>Set up a PostgreSQL database</h2>
+<ol>
+<li>Download the latest EPEL repositories.
+	<div class="hacker">sudo wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm</div>
+	<div class="hacker">sudo rpm -ivh epel-release-7-5.noarch.rpm</div>
+</li>
+<li>Set up a PostgreSQL server, and add its development-related libraries.
+	<div class="hacker">sudo yum install postgresql-server postgresql-contrib postgresql-devel</div>
+</li>
+<li>Initialize a new PostgreSQL database. 
+	<div class="hacker">sudo postgresql-setup initdb</div>
+
+</li>
+<li>Open the <code>pg_hba.conf</code> file, so that you can modify the host-based authentication of PostgreSQL. It does not allow for password authentication by default.
+<div class="hacker">sudo vim /var/lib/pgsql/data/pg_hba.conf</div>
+</li><li>Search for the following lines at the end of the file:
+<div class="hacker"><pre>host    all             all             127.0.0.1/32            ident
+host    all             all             ::1/128                 ident</pre></div>
+
+</li>
+<li>Change <code>ident</code> to <code>md5</code> so that it looks like this:
+<div class="hacker"><pre>host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5</pre></div>
+Save and exit the file.</li>
+<li>Run and enable the PostgreSQL service.
+	<div class="hacker">sudo systemctl start postgresql</div>
+	<div class="hacker">sudo systemctl enable postgresql</div>
+</li>
+</ol>
+
+<h2>Create a database user</h2>
+<ol>
+<li>Log in as <code>postgres</code> system user.
+	<div class="hacker">sudo su - postgres</div>
+</li>        
+<li>Create a PostgreSQL super user. 
+	<div class="hacker">createuser -s <em><u>username</u></em></div>
+</li>
+<li>Set a password for the database user.
+	<div class="hacker">\password <em><u>username</u></em></div></li>
+<li>Enter the new password.</li>
+<li>Close the session.
+	<div class="hacker">\q</div>
+</li>
+<li>Logout form <code>postgres</code> user.
+<div class= "hacker">logout</div>
+</li>
+</ol>
+
+<h2>Set up a Rails application</h2>
+<ol>
+<li>Move to the home directory to create a new Rails application, and  set PostgreSQL as the database.
+  <div class="hacker">cd ~</div>
+<div class="hacker">rails new <em><u>your_application</u></em> -d postgresql</div>
+</li>
+<li>Move to the application directory.
+  <div class="hacker">cd <em><u>your_application</u></em><u></u></div>
+ </li>
+<li>Open the following file:
+<div class="hacker">sudo vim config/database.yml</div>
+ </li>
+<li>Look for <code>pool: 5</code> in the file, and add the following lines beneath it. Enter the username and password for the <code>postgres</code> user.
+  <div class='hacker'> <pre>      <!--adding pre here instead of line breaks to show the indentation -->
+  pool: 5  
+  host: localhost
+  username: <em><u>username</u></em>
+  password: <em><u>username_password</u></em> </pre></div>
+<p class ="note">When adding this code, you need to ensure proper alignment with the code "<code>pool: 5</code>". Also  spacing  with in the code added must be maintained as shown above.</p> 
+        </li>
+<li>Save and exit the file.</li>
+</ol>
+
+<h2>Create a database for the application</h2>
+<ul>
+<li>Create the application's databases in the application directory.
+  <div class="hacker">rake db:create</div>
+
+Two databases in the PostgreSQL server are created. For example, if the application's name is <code>HelloWorld</code>, the command creates databases named <code>HelloWorld _development</code> and <code>HelloWorld _test</code>. </li></ul>
+
+
+<h2>Test the configuration</h2>
+<ul>
+<li>Test the Rails application.
+  <div class="hacker">rails server</div>
+You can run the Rails application on your localhost on port 3000. You can also access the application from a web browser, if it is located on a remote server, by assigning a public IP address.
+<div class="hacker">rails server --binding=<em><u>server_public_IP</u></em></div>
+On your web browser navigate to <strong>http://<em><u>server_public_IP</u></em>:3000</strong> and you will see a page with <strong>"Welcome aboard. You’re riding Ruby on Rails!" </strong> on it.
+</li>
+</ul>
+
+<h2>Next steps</h2>
+<p>In this article, you  configured a PostgreSQL with a Rails application in Fedora. For further exploration,  visit <a href="17516">Deploy a Rails App with Unicorn and NGINX - CentOS</a></p>
+
+</body>
+</html>

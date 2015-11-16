@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+<title>Scale Ruby on Rails Applications Across Multiple Servers - Fedora</title>
+  
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+    
+</head>
+
+<body>
+
+<!--SEPT 17: A lot of the wording in this article still does not make sense. The introduction is confusing and rambling. Please revise. cj -->
+
+
+<!--cj Please address the following problems:
+- The numbered outline in the introduction is not needed.
+Make sure that the text makes sense and that words are not left out.
+- Don't leave out articles (a, an, the).
+- Use code tags <code></code> for file names, directory names, and inline code snippets.
+- A numbered step should begin with a command statement, not with an introductory phrase. Similarly, the step should not be simply a noun phrase such as "Public IP" or "Installing Nginx." Use command statements.
+- Don't bury steps in the introduction to a procedure. For example, The "Preparing server build" section has two steps hidden in the introduction. They should be steps 1 and 2.
+- All steps should be numbered. For example, the first step in "Creating a Sample Rails Application" ("Create a sample application . . . ") should be number 1, not just a paragraph.
+- Headers should not include "Step #"
+- Headers for tasks should use a command statement. For example, "Prepare the server build," not "Preparing server build"
+- "Which" clauses should be surrounded by commas. Otherwise, use "that." -->
+
+<!-- Addressed the above issues. VS -->
+
+
+<p>Scale Ruby on Rails applications across Multiple Servers - Fedora, Ruby on Rails, Scaling</p>
+<h1>Scale Ruby on Rails applications across Multiple Servers - Fedora </h1>
+
+<p><strong>Difficulty</strong>: <em>3</em><br />
+        <strong>Time</strong>: <em>30 minutes</em></p>
+
+<p>When it comes to building a scalable application server, two key elements are required:</p>
+<ul>
+    <li>Application servers - Unicorn or Rails</li>
+    <li>Webserver - NGINX</li>
+</ul>
+<p>Unicorn is often the preferred choice for the ease-of-debugging, process management and load balancing capabilities. NGINX is popular because of its light weight web server that will be used as a load-balancer with Unicorn based application for the following example. In this article, you will see ways to scale the Rails application that is configured with database servers like PostgreSQL and MySQL, and enable the app to distribute the load across multiple Fedora servers using Unicorn to handle multiple incoming requests.</p> 
+
+<h2>Prerequisites</h2>
+<ul>
+<li>For this article, you need to install Ruby on Rails using RVM. For detailed steps, see <a href="17535 - Install Ruby on Rails using RVM - Fedora.html">Install Ruby on Rails using RVM - Fedora</a>.
+
+</li>
+</ul>
+
+<h2>Prepare Sever Build</h2>
+	<ol>
+	<li>Update your server.
+		<div class='hacker'>
+			sudo yum -y update --skip-broken
+		</div>
+	</li>
+	<li>Install development tools. This might take a few minutes.
+		<div class='hacker'>
+			sudo yum groupinstall -y 'development tools'
+		</div>
+	</li>
+	<li>Install the additional packages.
+		<div class='hacker'>
+			sudo su -c 'rpm -Uvh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm'
+		</div>
+		<div class='hacker'>
+			sudo su -c 'rpm -Uvh http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm'
+		</div>
+		<div class='hacker'>
+			sudo yum install -y curl-devel sqlite-devel libyaml-devel
+		</div>
+		<div class='hacker'>
+			sudo yum -y update --skip-broken
+		</div>
+	</li>
+	</ol>
+
+<h2>Setup Application Servers</h2>
+<ul>
+<li>Install the Unicorn web application.
+<div class='hacker'>gem install unicorn</div>
+</li>
+</ul>
+<h2>Create a Sample Rails Application</h2>
+
+<!--CT:...
+<p class="note">For this article, the current directory of user is taken as web root.</p>
+...-->
+<ol>
+<li>Create a new directory for sample application.
+<div class='hacker'>mkdir <em><u>/tmp/rails_application</u></em></div>
+</li>
+<li>Move to the new directory.
+<div class='hacker'>cd <em><u>/tmp/rails_application</u></em></div>
+</li>
+<li>Create a new rails app.
+<div class='hacker'>rails new <em><u>HelloRails</u></em></div>
+</li>
+<li>Move to the application directory.
+<div class='hacker'>cd <em><u>HelloRails</u></em></div>
+</li>
+<li>Create a sample resource.
+<div class='hacker'>
+rails generate scaffold Task title:string note:text
+</div></li>
+<li>Create a sample database.
+<div class='hacker'>RAILS_ENV=development rake db:migrate</div>
+<div class='hacker'>RAILS_ENV=production  rake db:migrate</div></li>
+<li>Create a directory to hold the <code>PID</code> files.
+<div class='hacker'>mkdir pids</div></li>
+</ol>
+
+<h2>Test the application</h2>
+<ol>
+<li>Bind the application with your public IP to enable access via internet.
+	<div class='hacker'>rails server --binding=<em><u>your public IP</u></em> </div>
+
+<p>This will boot up the default server on your machine. 
+
+    <!--CT:...For this sample environment, <strong>WEBrick</strong> is the default server, that gets started as shown below:</p>
+
+<img src='images/17953-1.png' alt='17953-1.png'/> 
+...-->
+</li>
+<li>The application should now be accessible via web browser. 
+<div class='hacker'>http://<em><u>your public IP</u></em>:3000/tasks</div>
+</li>
+<li>To stop the server, press <strong>CTRL+C</strong>. 
+Once the server is stopped, it would not be accessible via web browser.</li>
+</ol>
+
+<h2>Install web-application (Unicorn) and NGINX </h2>
+
+<p>To start using Unicorn, configure it with the environment. There are multiple ways to configure Unicorn servers. Below are the steps for configuring the Unicorn server using the <code>vim</code> editor.</p>
+<ol>
+<li>Create and open a new configuration file <code>unicorn.rb</code> for storing all configuration settings.
+<div class='hacker'>vim config/unicorn.rb</div>
+</li>
+<li>Place below code in the file.
+<div class='hacker'>
+<pre># Set the working application directory
+# working_directory "/tmp/rails_application/HelloRails"
+working_directory "<em><u>/tmp/rails_application/HelloRails</u></em>"
+
+# Unicorn PID file location
+# pid "/tmp/pids/unicorn.pid"
+pid "<em><u>/tmp/rails_application/HelloRails/pids/unicorn.pid</u></em>"
+
+# Path to logs
+# stderr_path "/tmp/rails_application/HelloRails/log/unicorn.log"
+# stdout_path "/tmp/rails_application/HelloRails/log/unicorn.log"
+stderr_path "<em><u>/tmp/rails_application/HelloRails/log/unicorn.log</u></em>"
+stdout_path "<em><u>/tmp/rails_application/HelloRails/log/unicorn.log</u></em>"
+
+# Number of processes
+# Rule of thumb: 2x per CPU core available
+# worker_processes 4
+worker_processes 5
+
+# Time-out
+timeout 20</pre></div>
+</li>
+
+<li>Save and exit.</li>
+<li>Start Unicorn in daemon mode using the configuration file.
+
+<div class='hacker'>unicorn_rails -c /tmp/rails_application/HelloRails/config/unicorn.rb -D</div>
+</li>
+</ol>
+
+
+<h2>Set up NGINX as Reverse-Proxy and Load-Balancer</h2>
+<ol>
+<li>Install NGINX.
+<div class='hacker'>sudo yum install -y nginx</div>
+
+</li>
+
+<li>Open the NGINX configuration file for editing.
+<div class='hacker'>sudo vim /etc/nginx/nginx.conf</div>
+</li>
+
+<li>Locate this line below about inclusion of all <code>.conf files</code> inside the block <code>http { . . . }</code>, and comment out that line by adding a <strong>#</strong> at beginning.
+
+<div class='hacker'>include /etc/nginx/conf.d/*.conf;</div></li>
+
+<li>In the same <code>http { . . . }</code> block, insert the following code at the end of the block, remembering to replace your actual IP for <em><u>Public_IP_Address_Of_Your_Server</u></em>.
+<div class='hacker'>
+<pre># Set your server 
+# server_name www.example.com;
+
+upstream unicorn_servers {
+    # Add a list of your application servers
+    # Each server defined on its own line
+    # Example:
+    # server IP.ADDR:PORT fail_timeout=0;
+    server <em><u>Public_IP_Address_Of_Your_Server</u></em>:8080 fail_timeout=0;
+}
+
+server {
+    # Port to listen on
+    listen 80;
+    location / {
+        # Set proxy headers        
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://unicorn_servers;
+    }
+}</pre></div>
+</li>
+<li>Save and exit your file.</li>
+</ol>
+<h2> Start NGINX </h2>
+<ol>
+<li>Start the NGINX daemon by typing the below command:
+<div class='hacker'>sudo service nginx start</div>
+</li>
+<li>Check your IP in a web browser to make sure you get the Nginx test page. This indicates Nginx is running.</li>
+ </ol>
+<h2>Conclusion</h2>
+<p>Using the above procedure, you can build a scalable application server using Unicorn or Rails applications server and NGINX webserver. This would enable any critical app (like PostgreSQL and MySQL) to distribute the load across multiple servers to handle multiple incoming requests.</p>
+
+
+</body>
+</html>

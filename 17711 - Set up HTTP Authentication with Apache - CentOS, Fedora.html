@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __17711 (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Set up HTTP Authentication with Apache - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+
+td:nth-child(1) {font-weight:bold;} 
+
+</style>
+
+
+</head>
+
+<body>
+  <p>This article walks thorugh setting up basic http authentication in Apache using .htaccess</p>
+    <h1>Set up HTTP Authentication with Apache - CentOS, Fedora</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>10</u></em>
+    </p>
+    <p>In this guide you will learn to protect your directories or websites using HTTP authentication. You will accomplish this with the use of .htaccess file. For the below example we will consider requiring user authentication in order to view the Apache test page.</p>
+    <h2>Prerequisite</h2>
+    <p>
+        You must have <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17323 - Initial Server Setup - CentOS.html">Initial Server Setup for Centos </a> or <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17322 - Initial Server Setup - Fedora.html">Initial Server Setup for Fedora </a>done on your server and installed Apache. If you haven't installed it yet, do the following to install it.</p>
+        <div class="hacker">sudo yum update</div>
+        <div class="hacker">sudo yum install httpd</div>
+
+    <h2>Create .htaccess File</h2>
+    <p>.htaccess stands for <strong>Hypertext Access</strong>. This file contains the authentication details.</p>
+    <ol>
+        <li>
+            Create the .htaccess file under document root directory to apply the authentication to the entire site or a particular directory.
+            <div class="hacker">sudo vim /var/www/html/.htaccess</div>
+        </li>
+        <li>
+            Type in the following block of text:
+            <div class="hacker">
+                <pre>
+AuthType Basic
+AuthName "Restricted. Only authorized users."
+AuthUserFile "/etc/httpd/.htpasswd"
+Require valid-user
+</pre>
+            </div>
+
+            Below is an explanation of what each of these mean :
+
+            <table>
+                <tr>
+                    <th>Directive</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><strong> AuthType Basic</strong></td>
+                    <td>This  specifies the kind of authentication that is being implemented. "Basic" implies that it uses a password file to implement the password authentication.</td>
+
+                </tr>
+                <tr>
+                    <td> <strong>AuthName</strong></td>
+                    <td> You can set it to anything you want. This is the message that is displayed at the password prompt.</td>
+                </tr>
+                <tr><td> <strong>AuthUserFile</strong></td><td> This is the location where you would store the password file.</td> </tr>
+                <tr><td><strong> Require valid-user</strong></td><td> This indicates that only users who are stored in the password file will be granted access to the resource.</td> </tr>
+            </table>
+        </li>
+        <li> Save and exit the file.</li>
+    </ol>
+    <h2>Create users</h2>
+    <ol>
+        
+        <li>
+            Create the .htpasswd file in the path mentioned in the previous section along with the user name. You will be prompted to set and confirm a password for the user.
+            <div class="hacker">sudo htpasswd -c /etc/httpd/.htpasswd <em><u>newuser1</u></em></div>
+        </li>
+    </ol>
+    <h2>Update Apache Configuration file</h2>
+    <ol>
+        <li>
+            Open the Apache configuration file.
+            <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+        </li>
+        <li>
+            You need to replace the <strong>AllowOverride None</strong> directive with the <strong>AllowOverride Authconfig</strong> directive in the Apache configuration file under the document root directory. In this case it is <code>/var/www/html</code>. The &lt;Directory> section looks something like:
+            <div class="hacker">
+                <pre>
+&lt;Directory /var/www/html>
+    Options Indexes FollowSymLinks
+    AllowOverride AuthConfig
+    Order allow,deny
+    Allow from all
+&lt;/Directory>
+</pre>
+            </div>
+            Save and exit the file.
+        </li>
+        <li>
+            Restart Apache.
+            <div class="hacker">sudo service httpd restart</div>
+        </li>
+        <li>If you navigate to <strong>http://your server address or domain name/</strong> on your web browser. You will be challenged by a prompt asking for a valid username and password. Enter the newly created user <em><u>newuser1</u></em> and the password you set. After authentication you should see the Apache test page.</li>
+    </ol>
+
+
+
+    <h2>Conclusion</h2>
+    <p>You have successfully secured your website using HTTP authentication.  </p>   
+</body>
+</html>

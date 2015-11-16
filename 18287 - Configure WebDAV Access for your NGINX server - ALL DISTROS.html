@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Configure WebDAV Access for Your Nginx server - Ubuntu, Debian</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install Nginx from source with WebDAV support.</p>
+<h1>Configure WebDAV Access for Your Nginx Server - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>4</u></em><br/>
+        <strong>Time</strong>: <em><u>1 hour</u></em></p>
+
+    <p>Web Distributed Authoring and Versioning (WebDAV) is a protocol that lets you create, change, and move documents on a server. Because Nginx does not come with a complete set of the WebDAV directives, we'll build Nginx from source and add  the missing pieces when we compile the source code. </p>
+    <p>The tasks in this article assume that you have a C compiler, Zlib Compression Library, PCRE, libexpat-dev, and OpenSSL installed on a clean Linux system.</p>
+<h2>Preparation</h2>
+    
+     <ol>
+               <li>Create a directory for the Nginx source files.
+                   <div class="hacker">sudo mkdir -p /source/nginx</div>
+                </li>
+               <li>Navigate to <code>source/nginx.</code>
+                 <div class="hacker">cd /source/nginx</div>
+               </li>
+               
+                <li>Get Nginx source from nginx.org.
+                   <div class="hacker">sudo wget http://nginx.org/download/nginx-1.8.0.tar.gz</div>
+               </li>
+               <li>Extract  Nginx source.
+                   <div class="hacker">sudo tar xfz nginx-1.8.0.tar.gz</div>
+               </li>
+               <li>Get the WebDAV extension module from Github.
+                   <div class="hacker">sudo wget -c https://github.com/arut/nginx-dav-ext-module/archive/v0.0.2.zip -O nginx-dav-ext-module-v0.0.2.zip</div>
+               </li>
+               <li>Unzip the module.
+                   <div class="hacker">sudo unzip nginx-dav-ext-module-v0.0.2.zip</div>
+               </li>
+               <li>Extract the WebDAV extension module.
+                   <div class="hacker">tar xfz nginx-dav-ext-module-v0.0.2.zip</div>
+               </li>
+         </ol>
+<h2>Compile Nginx </h2>
+    <ol>
+               <li>Navigate to your newly created Nginx directory. 
+                   <div class="hacker">cd nginx-1.8.0</div>
+               </li>
+               <li>Create a <code>make.conf</code> file.
+                   <div class="hacker">sudo ./configure --user=nginx --group=nginx --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --with-http_ssl_module --with-pcre --with-http_dav_module --add-module=/source/nginx/nginx-dav-ext-module-0.0.2</div>
+               </li>
+                <li>Create a makefile.
+                   <div class="hacker">sudo make</div>
+                   <div class="hacker">sudo make install</div>
+               </li>
+   
+        </ol>
+<h2>Start Nginx</h2>
+    <ol>
+                <li>Change the permissions on the error log so that Nginx can write to it. 
+                   <div class="hacker">sudo chmod 666 /var/log/nginx/error.log </div>
+               </li>
+               <li>Change the permissions on the Nginx directory so that Nginx can write to it. 
+                   <div class="hacker">sudo chmod 666 /etc/nginx </div>
+               </li>
+          <li>Create an Nginx user.
+                   <div class="hacker">sudo useradd nginx</div>
+               </li>
+        
+             <li>Change the permissions on the Nginx directory so that Nginx can get to the Nginx configuration file. 
+                   <div class="hacker">sudo chmod a+x /etc/nginx </div>
+      </li>
+         <li>Start Nginx.
+                   <div class="hacker">sudo /usr/sbin/nginx</div>
+               </li>
+        </ol>
+<h2>Configure Nginx </h2>
+           <p>Nginx supports <code>dav_access</code>,<code> dav_methods</code>, and <code>dav_ext_methods</code> in the http, server, and location contexts.  The following excerpts illustrate some of the possibilities:</p>
+    <ul>      
+    <li>Global WebDAV access to all with all methods enabled: 
+         <div class="hacker"><pre># http context
+http {
+...
+dav_access group:rw all:r; 
+dav_methods on;
+dav_ext_methods PROPFIND OPTIONS;
+...
+server {
+        listen 80 default_server;
+...
+
+location / {
+             }
+    }
+server {
+        listen 443 ssl;
+...
+
+location / {
+             }
+    }
+}
+                             </pre></div>
+    </li>
+<li>WebDAV access limited to a server block with selected methods (PUT, DELETE, MKCOL, COPY) enabled (MOVE is excluded): 
+         <div class="hacker"><pre># server context
+server {
+        listen 80;
+...
+dav_access group:rw all:r; 
+dav_methods PUT DELETE MKCOL COPY;
+dav_ext_methods PROPFIND OPTIONS;
+...
+location / {
+             }
+    }
+                             </pre></div>
+    </li>
+<li>WebDAV access limited to a server block with selected methods enabled (PROPFIND OPTIONS are excluded by the lack of a <code>dav_ext_methods</code> directive):
+         <div class="hacker"><pre># location context
+
+location / {
+...
+dav_access group:rw all:r; 
+dav_methods on;
+...
+             }
+                             </pre></div>
+    </li>
+
+               </ul>
+             
+    <h2>Next steps</h2>
+    <p>You have just installed Nginx from source with DAV and DAV extension modules added.  Next you can <a href="http://17689%20-%20NGINX%20Configuration%20and%20Context%20Guide%20-%20ALL%20DISTROS.html">configure Nginx</a> to suit your needs. </p>
+   
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and secure phpMyAdmin with Apache - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 ;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+</style>
+
+
+</head>
+
+<body>
+    <p>This article walks through installing and securing phpMyAdmin on your server.</p>
+    <h1>Install and secure phpMyAdmin with Apache - Arch Linux</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 mins</u></em>
+    </p>
+
+    <p>phpMyAdmin is an open source tool that enables users to perform MySQL database operations like create, delete or modify MySQL databases or execute SQL statements, by providing a user interface.</p>
+
+    <h2>Prerequisites</h2>
+  
+    Make sure that you have LAMP( Linux, Apache, MySQL and PHP) installed. In case you haven't , here's how you can <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17345 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux.html">Install LAMP</a>
+    
+
+    <h2>Install phpMyAdmin</h2>
+    <ol>
+        <li>
+            As is best practice run update to make sure that the list of available packages are up-to-date.
+            <div class="hacker">sudo pacman -Syu</div>
+        </li>
+        <li>
+            Install phpMyAdmin.
+            <div class="hacker">sudo pacman -S phpmyadmin php-mcrypt</div>
+        </li>
+
+        <li>
+            Enable the <code>mysqli</code> and <code>mcrypt</code> extensions. Open the <code>php.ini</code> file.
+            <div class="hacker">sudo vim /etc/php/php.ini</div>
+            Uncomment the follow lines:
+            <div class="hacker">
+                <pre>
+extension=mysqli.so
+extension=mcrypt.so
+</pre>
+            </div>
+        </li>
+        <li>
+            For PHP to access to access <code>/etc/webapps</code>, append it to the <code>open_basedir</code> line in the same <code>php.ini</code> file.
+            <div class="hacker"><pre>open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/:/etc/webapps/</pre></div>
+            Save and exit the file.
+        </li>
+        <li>
+            Restart apache.
+            <div class="hacker">sudo systemctl restart httpd</div>
+        </li>
+    </ol>
+    <h3>Apache Configuration</h3>
+    <ol>
+        <li>
+            Create a new configuration file for the application.
+            <div class="hacker">sudo vim /etc/httpd/conf/extra/phpmyadmin.conf</div>
+        </li>
+        <li>
+            Add the below code in the opened file.
+            <div class="hacker">
+                <pre>
+Alias /phpmyadmin "/usr/share/webapps/phpMyAdmin"
+&lt;Directory "/usr/share/webapps/phpMyAdmin">
+    DirectoryIndex index.php
+    AllowOverride All
+    Options FollowSymlinks
+    Require all granted
+&lt;/Directory>
+</pre>
+            </div>
+        </li>
+
+        <li>
+            Open the Apache configuration file.
+            <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+        </li>
+        <li>
+            Add the below code  under the <code>Supplemental configuration </code>section.
+            <div class="hacker">
+                <pre>
+# phpMyAdmin configuration
+Include conf/extra/phpmyadmin.conf</pre>
+            </div>
+            Save and close the file.
+        </li>
+        <li>
+            On your browser navigate to <strong>http://<em><u>your server address or domain name</u></em>/phpmyadmin</strong> to see the web interface. You will see a "Welcome to phpMyAdmin" page.
+            <img src='/images/17641/090915/Welcome-to-phpMyAdmin.png' alt='Welcome to phpMyAdmin' />
+        </li>
+        <li>
+            Log into the user interface using the username "root" and the MySQL root password. You will see the phpMyAdmin user interface.
+            <img src='/images/17641/090915/phpMyAdmin-user-interface.png' alt='phpMyAdmin user interface' />
+        </li>
+    </ol>
+    <h2>Configure phpMyAdmin to be secure</h2>
+    Although your phpMyAdmin interface is up and running, you need to secure it further by adding another layer of authorization to prevent unauthorized users. You will do this in two steps.
+    <ul>
+        <li>
+            Change the default directory.
+        </li>
+        <li>
+            Apache authorization.
+        </li>
+    </ul>
+    <h3>Change the default phpMyAdmin directory.</h3>
+    The default installation of phpMyAdmin creates an alias to <code>/usr/share/webapps/phpMyAdmin</code>. You can change the alias on the configuration file from <code>/phpmyadmin</code> to something else, in this case <code>/mysqllogin</code> . This way you  fend off any automated attacks that are likely to go after the default directory on the web server.
+    <ol>
+        <li>
+            Open the configuration file.
+            <div class="hacker">sudo vim /etc/httpd/conf/extra/phpmyadmin.conf</div>
+        </li>
+        <li>
+            Comment out the line(s) that start with <code>Alias</code> and replace with the new alias.
+            <div class="hacker">
+                <pre>
+
+# Alias /phpmyadmin "/usr/share/webapps/phpMyAdmin"
+Alias /<em><u>mysqllogin</u></em> /usr/share/webapps/phpMyAdmin"
+</pre>
+            </div>
+            Save and exit the file.
+        </li>
+        <li>
+            Restart Apache for the change to take effect.
+            <div class="hacker">sudo systemctl restart httpd</div>
+        </li>
+        <li>You will now find the application at <strong>http://<em><u>your server address or domain name</u></em>/<em><u>mysqllogin</u></em></strong> instead of <strong>http://<em><u>your server address or domain name</u></em>/phpmyadmin</strong> </li>
+    </ol>
+    <h3>Apache authorization</h3>
+    We will also add Apache authorization to the <code>phpMyAdmin</code> directory with an .htaccess and .htpasswd file. 
+    <ol>  
+        <li>Create the .htaccess file. This file will be inside the application directory.
+            <div class="hacker"> sudo vim  /usr/share/webapps/phpMyAdmin/.htaccess</div>
+        </li>
+        <li>
+            Enter the below block of text into the file.
+            <div class="hacker">
+                <pre>
+AuthType Basic
+AuthName "Restricted. Only authorized users permitted."
+AuthUserFile /etc/webapps/phpmyadmin/.htpasswd
+Require valid-user
+</pre>
+            </div>        
+      
+<<<<<<< HEAD
+        Below is an explanation of what each of these directives mean:
+
+        <table>
+            <tr>
+                <th>Directive</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td> AuthType Basic</td>
+                <td>Specifies the kind of authentication that is being implemented. "Basic" implies that it uses a password file to implement the password authentication.</td>
+
+            </tr>
+            <tr>
+                <td> AuthName</td>
+                <td>Set it to anything you want. This is the message that is displayed at the password prompt.</td>
+            </tr>
+            <tr><td> AuthUserFile</td><td>The location where you would store the password file.</td> </tr>
+            <tr><td>Require valid-user</td><td>Indicates that only users who are stored in the password file will be granted access to the phpMyAdmin login screen.</td> </tr>
+        </table>
+        
+         Save and close the file.
+        </li>
+        <li>
+            Create a first user to be stored in the password file.
+            <div class="hacker">sudo htpasswd -c /etc/webapps/phpmyadmin/.htpasswd <em>newuser1</em></div>
+
+            Set and confirm password.
+        </li>
+       
+        <li>Now when you navigate to the browser and type <strong>http://<em><u>your server address or domain name</u></em>/mysqllogin</strong> you will be presented with the username / password prompt. Enter the <em>newuser1</em> credentials that you included in the htpasswd file.</li>
+    </ol>
+    <h2>Next steps</h2>
+    Now that you have succesfully installed phpMyAdmin along with providing additional security while accessing it, you can <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17650 - Set up SSL Certificate with phpMyAdmin and Apache - Debian, Ubuntu.html">Set up SSL Certificate with phpMyAdmin</a>
+    
+
+=======
+              <br />
+          These lines mean the following:
+          <ul>
+<li><strong> <code>AuthType Basic</code></strong>: Specifies the kind of authentication that is being implemented. "Basic" implies that it uses a password file to implement the password authentication.</li>
+                <li>
+                    <strong><code>AuthName</code></strong>: Can be set  to anything you want. This message displays at the password prompt.
+                </li>
+                <li> <strong><code>AuthUserFile</code></strong>: Is the location where you would store the password file. </li>
+                <li><strong> <code>Require valid-user</code></strong>: Indicates that only usernames <!--Does "user names" work? Otherwise, it sounds as though people are living in the file. cj-->that are stored in the password file are granted access to the phpMyAdmin login screen. </li>
+          </ul>
+        </li>
+
+
+
+           <li>   Create a first user to be stored in the password file.
+            <div class="hacker">sudo htpasswd -c /etc/webapps/phpmyadmin/.htpasswd <em><u>your_username<!--I wonder if there is a more descriptive name we could use to better satisfy GD requirements regarding variables. Also, please format it correctly. Thanks. cj --></u></em></div></li>
+<li>Set and confirm the password.
+ 
+              <br />
+      Now when you enter <strong>http://<em><u>your server address or domain name</em></u>/<em><u>mysqllogin</em></u></strong> in the browser, you receive the username/password prompt. Enter the <em><u>newuser1</u></em> credentials that you included in the htpasswd file.   </li></ol>
+<h2>Next steps</h2>
+    Now that you have  installed phpMyAdmin along with providing additional security while accessing it, you can <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17650 - Set up SSL Certificate with phpMyAdmin and Apache - Debian, Ubuntu.html">set up an SSL certificate with phpMyAdmin</a>.
+>>>>>>> origin/master
+</body>
+</html>

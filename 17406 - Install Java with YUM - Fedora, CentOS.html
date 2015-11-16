@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __17406_-->
+
+
+
+<title>Install Java with YUM - Fedora, CentOS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+
+</head>
+
+<body>
+<p>Install Java</p>
+    <h1>Install Java with yum - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+   <p>Java is used by many applications, so it behooves many administrators to have Java already installed.  This article contains instructions for installing the Java runtime SDK and Open JDK.</p>
+
+    <h2>Install Java</h2>
+    <ol>
+<li>Update your repository.
+ <div class="hacker">sudo yum update </div>
+</li>
+
+<li>Find the latest versions of Java in your package manager.
+   <div class="hacker">yum search jdk</div>
+Note the version you want.</li>
+
+<li>Download Java runtime using this format for your command. 
+
+ <div class="hacker">sudo yum install java-<em><u>version number</u></em>-openjdk</div>
+  Replace the version number with the version you want. For example, we'll download version <em><u>1.7.0</u></em>. 
+ <div class="hacker">sudo yum install java-<em><u>1.7.0</u></em>-openjdk</div>
+   Enter <strong>y</strong> at the prompt to continue installation.</li>
+
+<li>Download Java OPEN JDK 7.
+  Do the same for the SDK. 
+   <div class="hacker">sudo yum install java-<em><u>version number</u></em>-openjdk-devel </div>
+
+   Again, we'll download version <em><u>1.7.0</u></em>. 
+ <div class="hacker">sudo yum install java-<em><u>1.7.0</u></em>-openjdk-devel </div>
+Enter <strong>y</strong> at the prompt to continue installation.
+</li>
+<li>You can also get the latest version number and tar.gz archive from the <a href="http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html">Oracle downloads</a> page. This site requires a license agreement.</li>
+ 
+       </ol>
+
+<h2>Check your Java version</h2>
+   <ul>
+            <li>Check the versions of Java installed on your server.
+<div class="hacker">java -version</div>
+ If your output shows  just one version of Java installed, as in this example,  you are all finished!
+<div class="hacker">java version "1.7.0_79"<br/>
+                        OpenJDK Runtime Environment (fedora-2.5.5.0.fc20-x86_64 u79-b14)<br/>
+                        OpenJDK 64-Bit Server VM (build 24.79-b02, mixed mode)</div>
+     
+If you have more than one Java version installed, continue on to select and verify the default version.</li>
+ </ul>
+<h2>(Optional) Select and verify the default Java version</h2>
+ 
+ <p>If you have multiple versions of Java on the same server, choose your default version. Then set your environment.</p>
+ <h3>Select the default version of Java</h3>
+
+ <ol>
+     <li>If you have more than one version of Java installed, you can use the following command to select it.  
+         Unless you installed an Oracle version above, this command will only return one row.
+ <div class="hacker">sudo update-alternatives --config java</div>
+    You will see this:
+    <div class="hacker"><pre>Selection   Command
+-----------------------------------------------
+*+ 1      /usr/lib/jvm/java-1.7.0-openjdk-<em><u>1.7.0.79-2.5.5.0.fc20.x86_64</u></em>jre/bin/java
+
+Enter to keep the current selection[+], or type selection number:</pre></div>
+ 
+</li>
+        <li>Create a <code>/etc/environment</code> file.
+      <div class="hacker">sudo vim /etc/environment</div>
+</li>
+ <li>To select your preferred version, use the <code>JAVA_HOME</code> command and the path of your preferred alternative with the <code>jre/bin/java</code> part of the path removed. Enter this path into the file.  
+ <div class="hacker">JAVA_HOME="/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.79-2.5.5.0.fc20.x86_64&quot;
+</div>
+</li>
+<li>Save and close.
+ </li>
+ <li>Load the environment file.
+ <div class="hacker">source /etc/environment
+</div>
+</li>
+<li>Test it.
+ <div class="hacker">echo $JAVA_HOME
+</div>
+</li>
+</ol>
+    <h2>Conclusion</h2>
+       <p>Congratulations! You have succesfully installed Java on your server. </p>
+
+</body>
+</html>

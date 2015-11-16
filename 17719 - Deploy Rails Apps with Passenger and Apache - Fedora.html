@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17719-->
+<!-- CLS - edit -->
+
+
+
+
+<title>Deploy Rails Apps with Passenger and Apache - Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <p>Setting up Rails Apps with Passenger and Apache in Fedora, Ruby, Rails, Apache.</p>
+    <h1>Deploy Rails Apps with Passenger and Apache - Fedora</h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+    <p>This article guides you on how to deploy Rails Apps with Passenger and Apache in Fedora. Phusion Passenger is one of the fastest app servers. It handles traffic smoothly with low maintenance. Passenger commands consume a lot of memory. You will need at least 1 GB of RAM in a virtual server. It is assumed that the user has sudo privileges to access the virtual server.</p>
+    <p class='note'>This guide includes development library installation and ad hoc compilation on the machine; therefore, it is recommended that you do not use this tutorial in a production environment.</p>
+    
+ <h2>Prerequisites</h2>
+	<ul>
+		<li><a href ="17322">Initial Server Setup - Fedora</a>.</li>
+		<li><a href ="17535">Install Ruby on Rails using RVM - Fedora</a></li>
+		<li>Fully Qualified Domain Name - FQDN (Optional) </li> 
+	</ul>
+     
+  <h2>Install Apache</h2>
+	<ul>
+	<li>
+	Update the system and install Apache using the yum utility.
+            <div class='hacker'>sudo yum -y update</div>
+            <div class='hacker'>sudo yum -y install curl curl-devel httpd-devel httpd mod_ssl</div>
+        </li>
+			</ul>
+      <h2>Install Rails and Passenger</h2>
+	  <ol>
+        <li>Install dependencies.
+          <div class='hacker'>sudo yum install gem</div> </li>
+		  <li>Install Rails and Passenger.
+            <div class='hacker'>gem install rails passenger</div>
+        </li>
+		<li>Change the permission which recommended by <code>Ruby</code>.<div class="hacker"> sudo chmod o+x <em><u>"/home/username"</u></em></div></li>
+        <li>Install Passenger package for Apache.
+            <div class='hacker'>rvmsudo passenger-install-apache2-module</div>
+            <p>This will take some time, so you will need to wait.</p>
+        </li>
+        <li>Open a new <code>passenger.conf</code> file.
+          <div class='hacker'>sudo vim /etc/httpd/conf.d/passenger.conf</div>
+        </li>
+	    <li>Add the following lines at end of the file: 
+		<p class="note">Replace the <code>ruby-2.2.1</code> to installed <code>Ruby</code> in your machine.</p>
+            <div class='hacker'>
+				 LoadModule passenger_module <em><u>/home/username</u></em>/.rvm/gems/ruby-2.2.1/gems/passenger-5.0.18/buildout/apache2/mod_passenger.so<br/>
+   &lt;IfModule mod_passenger.c&gt;<br/>
+     PassengerRoot <em><u>/home/username</u></em>/.rvm/gems/ruby-2.2.1/gems/passenger-5.0.18<br/>
+     PassengerDefaultRuby <em><u>/home/username</u></em>/.rvm/gems/ruby-2.2.1/wrappers/ruby<br/>
+   &lt;/IfModule&gt;<br/>
+			</div>
+        </li>
+		<li>Save and exit.
+		<div class ="hacker">:wq!</div></li>
+        <li>Restart Apache service.
+            <div class='hacker'>sudo service httpd restart </div>
+        </li></ol>
+		
+		  <h2>Set up a Rails application</h2>
+	  <ol>
+        <li>Install the SQLite development package to store data in database.
+            <div class='hacker'>sudo yum install sqlite-devel</div></li>
+		
+		<li>Create a Rails application and go to the application directory.
+            <div class='hacker'>rails new <em><u>~/your-application</u></em></div>
+			<div class='hacker'>cd <em><u>your-application</u></em> </div>
+		</li>
+		<li>By default, Fedora doesn't have a JavaScript execution environment installed. So, to install it manually, open <code>Gemfile</code> in your favorite editor.
+            <div class='hacker'>sudo vim Gemfile</div>
+        </li>
+		
+		<li>Add the following line at the end of the file:
+            <div class='hacker'>gem 'therubyracer'</div>
+        </li>
+		<li>Save and exit.
+		<div class ="hacker">wq!</div> </li>
+		<li>Install all the dependencies of <code>Gemfile</code> using the following command:
+            <div class='hacker'>bundle install</div>
+		</li>
+		<li>To initialize the database, use the migration tool.
+            <div class='hacker'>rake db:migrate</div>
+        </li>
+</ol>
+		<h2> Connect Apache server to the Rails app</h2>
+		<ol>
+        <li>Open the configuration file of Apache.
+            <div class='hacker'>sudo vim /etc/httpd/conf/httpd.conf</div>
+         </li>
+		 
+		  <li>At the end of this file, add this block of text:
+            <div class='hacker'><pre>
+&lt;VirtualHost *:80&gt;
+	#Replace www.coolexample.com to your FQDN or Your-server-IP
+	ServerName <em><u>www.coolexample.com</u></em> 
+	#Your rail application path
+	DocumentRoot /home/username/<em><u>your_application</u></em>/public 
+	&lt;Directory /home/username/<em><u>your_application</u></em>/public&gt;
+		AllowOverride all
+		Options -MultiViews
+	&lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+</pre>
+            </div>		
+		</li>
+		<li>To save and exit the file by pressing the <strong>Esc</strong> key and then type the following character.
+		<div class ="hacker">:wq!</div>
+		</li>
+		
+        <li>Restart the Apache server.
+            <div class='hacker'>sudo service httpd restart</div>
+			<p class="note">			To test Rails application open the browser and type <strong>http://your_server_ip</strong></p>
+        </li>
+    </ol>
+	<h2>Conclusion</h2>
+		In this article, you learned the steps involved in setting up your Rails application with Passenger and Apache, which will make it more secure and reliable in a Fedora distribution.
+</body>
+</html>

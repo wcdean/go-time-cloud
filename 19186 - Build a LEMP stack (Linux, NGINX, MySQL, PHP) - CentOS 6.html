@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __00008________ (fill in blank)-->
+
+<!--Use this template for articles that include steps for accomplishing a task or tasks (for example, installing). For articles that explain or describe something (such as an operating system), use the Informational template instead.  -->
+
+<title>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 6</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    .auto-style1 {
+        width: 192px;
+    }
+</style>
+
+
+</head>
+
+<body>
+<p>Building a LEMP stack for CentOS 6</p>
+    <h1>Build a LEMP stack (Linux, Nginx , MySQL, PHP) - CentOS 6</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p><em>LEMP</em> is an unsual acronym because it really should be <em>LNMP</em> (Linux, Nginx, MySQL, PHP). The E stands for Nginx (pronounced &quot;Engine X&quot;) and is used because of the wide acceptance of <em>LAMP</em> to refer to a collection of software (stack) built with the Apache web server.</p>
+    <p> Installing a LEMP stack creates a platform for your cloud server that includes an operating system (Linux), a web server (Nginx), a database (MySQL), and an application server (PHP). You can build a fully functioning website, use it as a platform for other applications, or both. </p>
+
+<h2>Install MySQL</h2>
+
+                 <ol>
+               <li>Run a <code>yum</code> update to ensure that your server is up to date on  its packages.
+                 <div class="hacker">sudo yum install epel-release</div>
+   </li>  <li>Install MySQL.
+     <div class="hacker">sudo yum install mysql-server</div></li>
+                   <li>Activate MySQL.        
+              
+                     <div class="hacker">sudo service mysqld restart</div></li> 
+                     <li>Secure your database server.
+              
+                       <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>
+                   </li>
+                     <li>At the prompt &quot;Enter current password for root (enter for none)&quot;, press <strong>Enter</strong>.</li>
+                     <li>Respond to the onscreen questions.<br />
+                       <p>The following table lists the questions and recommended responses.</p> 
+                       <table>
+                         <tr>
+                           <th>Question</th>
+                           <th>Recommended Response</th>
+                           <th>Notes</th>
+                         </tr>
+                         
+                         <tr>
+                           <td class="auto-style1">Do you want to change or set the root password?</td>
+                           <td>y</td>
+                           <td>Think of a secure password, and re-enter it when prompted.</td>
+                         </tr>
+                         <tr>
+                           <td class="auto-style1">Remove anonymous users?</td>
+                           <td>y</td>
+                           <td>The anonymous user allows anyone to log in without requiring an account created by an administrator. A hacker attempting to compromise your database server will surely try logging in as this user. </td>
+                         </tr>
+                         <tr>
+                           <td class="auto-style1"> Disallow root login remotely?</td>
+                           <td>y</td>
+                           <td>Answering &quot;no&quot; gives you more flexibility in managing your database server, but it's safer to create a non-root user and grant them admin permissions.</td>
+                           
+                         </tr>
+                         <tr>
+                           <td>Remove test database and access to it?</td>
+                           <td>y</td>
+                           <td>You can answer &quot;no&quot; if you have a use for this database and want to keep it.</td>
+                         </tr>
+                         <tr>
+                           <td>Reload privilege tables now?</td>
+                           <td>y</td>
+                           <td>&nbsp;</td>
+                         </tr>
+                       </table>                  
+                     </li>                      
+                     
+   <li> Activate MySQL.
+              
+     <div class="hacker">sudo service mysqld restart</div></li>  
+                     </ol>   
+                     
+<h2>Install Nginx </h2>
+
+                 <ol>
+               <li>Install Nginx.
+                       <div class="hacker">sudo yum install nginx</div></li>
+                       <li>Start the Nginx service.
+                         <div class="hacker">sudo service nginx start</div>
+
+<p>Nginx is now running as a web server. You can verify by using your browser to navigate to the IP address of your cloudserver,  <code>http://<em><u>IP Address of your cloudserver</u></em></code> .</p>
+  </li>  
+                     </ol>
+        
+        <h2>Install and configure PHP</h2>
+
+           <ol>      
+               <li>Install PHP.
+                 <div class="hacker">sudo yum install php php-fpm php-mysql</div></li>
+                     
+      <li>Open the <code>php.ini</code> file for editing.
+<div class="hacker">sudo vim /etc/php.ini </div>
+          </li>
+      <li>Find the <code>cgi.fix_pathinfo </code>directive, and set it as follows:
+        <div class="hacker">cgi.fix_pathinfo=0 </div>
+      </li>  
+<li>Save and close the file.</li>              
+                   
+ <li>Open the <code>www.conf</code> file for editing.
+ <div class="hacker">/etc/php-fpm.d/www.conf </div>  
+ </li>                    
+ <li>Find the <code>listen</code> directive (It should be  first), and verify that it is set to listen for php traffic using a unix socket instead of port 9000: 
+   <div class="hacker">listen = /var/run/php-fpm/php-fpm.sock </div></li>
+ <li>Many systems pre-install with apache defaullts.  Find the <code>Unix user / group of processes</code> section, and edit it so that the user and group are set to <code>nginx</code> instead of <code>apache</code>.
+<div class="hacker">listen.owner = nginx
+    <br />
+    listen.group = nginx
+</div></li>
+     <li>Save and close the file.</li>
+     <li>Start PHP.
+   
+       <div class="hacker"> sudo service php-fpm start </div>
+     </li>  
+ 
+  </ol>
+                     
+                     
+                     
+<h2>Configure Nginx </h2>
+<p>All of your LEMP stack components are now installed. You need only to make Nginx aware that a FastCGI server exists to process PHP requests.</p>
+        <ol> 
+        <li>You may want to make a copy of the <code>default.conf</code>  file before editing it.
+ <div class="hacker"> sudo cp  /etc/nginx/conf.d/default.conf  /etc/nginx/conf.d/default.safety</div>
+</li> 
+ <li>Open the <code>default.conf</code> file for editing.  
+ <div class="hacker"> sudo vim /etc/nginx/conf.d/default.conf </div>
+</li>
+            <li>
+          <p>The <code>server</code> context  resembles this:</p>
+         <div class="hacker">server {
+             <br />
+&nbsp; listen 80; 
+             <br />
+             root /usr/share/nginx/html;
+             <br />&nbsp; server_name _;<br />
+          </div></li>
+
+            <li>Edit the <code>index</code> and <code>server_name</code> parameters to look like this:
+<div class="hacker">server {
+      <br />
+&nbsp; listen 80 default_server; 
+                         <br />
+&nbsp; root /usr/share/nginx/html;
+                         <br />
+&nbsp; index index.php index.html index.htm;<br />
+&nbsp;
+&nbsp; server_name <em><u>yourdomain_or_IP</u></em>;<br />
+    ...</div>
+            The <code>location</code> context resembles this:
+              <div class="hacker">
+     
+     &nbsp; location / {
+     <br />
+&nbsp;&nbsp;&nbsp;&nbsp; root /usr/share/nginx/html;
+     <br />
+&nbsp;&nbsp;&nbsp;&nbsp; index index.html index.htm;
+             <br />
+          </div></li>
+
+  <li>Add a new <code>location</code> context below the default location to look like this:
+    <div class="hacker"><pre>location / {
+    try_files $uri $uri/ /index.html; 
+     } 
+  location = /50x.html { 
+             root /usr/share/nginx/html; 
+   } 
+
+# pass the PHP scripts to FastCGI server listening on the php-fpm socket 
+
+location ~ \.php$ { 
+                   fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock; 
+                   fastcgi_index index.php; 
+                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; 
+                   include fastcgi_params; 
+                   }</pre></div>
+
+
+If your Nginx package has included a commented-out <code>php location</code> context, you don't have to do much more than remove the comments. Otherwise, you have to make the edits manually. </li> 
+      <li>Save and close the file.</li>
+            <li>Restart PHP.
+              <div class="hacker">sudo service php-fpm restart</div></li>
+      <li>Restart Nginx.
+        <div class="hacker">sudo service nginx restart</div>  </li> </ol>
+   <p class="note"> If Nginx fails to restart, check your edits to make sure that all of your braces ({}) are closed and that each directive ends with a semi-colon (;).</p>     
+           
+<h2>Verify that PHP is running</h2>
+            <ol>
+ <li>Create a php test file, <code>info.php</code>:
+<div class="hacker"> sudo vim /usr/share/nginx/html/info.php</div> 
+</li>    
+ <li>Insert the following contents:
+<div class="hacker">       &lt;?php
+     <br />
+     phpinfo();
+     <br />
+     ?&gt;</div> 
+</li>
+   
+       <li>In a browser,  type <strong>http://<em><u>IP address or domain name of your server</u></em>/info.php.</strong><br />
+     A page  of statistics with a PHP logo in the upper righthand corner displays.</li> 
+            </ol>
+
+    <h2>Next steps</h2>
+    <p>You have just installed a LEMP stack. You may want to add any of the following: </p>
+    <ul>
+    <li><a href="http://17360%20-%20Configure%20NGINX%20Server%20Blocks%20-%20ALL%20DISTROS.html">Additional Nginx server blocks</a></li>
+        <li> <a href="http://17500%20-%20Configure%20NGINX%20as%20a%20reverse%20proxy%20-%20ALL%20DISTROS.html">More advanced Nginx functionality</a></li>
+        <li><a href="http://17932%20-%20Setup%20FastCGI%20Caching%20with%20NGINX%20on%20your%20server%20-%20Arch%20Linux.html">Enhanced PHP functionality</a></li>
+
+        </ul> 
+
+  
+   
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17715-->
+
+<title>Deploy Rails Apps with Passenger and NGINX - CentOS</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+ <p>Setting up Rails Apps with Passenger and NGINX in CentOS, Ruby, Rails, NGINX</p>
+    <h1>Deploy Rails Apps  with Passenger and NGINX - CentOS </h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+    <p>Rails enables rapid application development, while NGINX is a lightweight and high performance web server. In this article, you will learn to deploy Rails application on NGINX web server using the simple and powerful features of Phusion Passenger. To perform this task, we are assuming that the user has <em>sudo</em> privileges.</p>
+    <h2>Prerequisites</h2>
+	 <p>To set up your CentOS server, refer to the article: <a href ="17323">Initial Server Setup - CentOS</a>. You need to ensure that the fully qualified domain name (FQDN) points to the server. After you have set up the CentOS server, you will need to <a href ="17535">install Ruby on Rails using RVM</a>. You may also refer to the article: <a href ="17721">Deploy Rails Apps with Passenger and Apache - CentOS</a>.</p>
+  
+ 
+   <h2>Install NGINX and Passenger</h2>
+    <ol>
+	<li>Go to home directory.
+	<div class ="hacker">cd ~ </div>
+	</li>
+        <li>Install Passenger  and update all packages of the operating system.
+            <div class='hacker'>gem  install passenger            </div>
+			<div class ="hacker">sudo yum -y update</div>
+        </li>
+        <li>Install a dependency and provide the required permission to the <code>home</code> directory.
+            
+            <div class='hacker'>sudo yum install libcurl-devel</div>
+      <div class='hacker'>sudo chmod o+x "/home/<em><u>UserName</u></em>"</div>
+	  </li>
+	  <li>Install NGINX passenger.
+      <div class='hacker'>rvmsudo  passenger-install-nginx-module</div>
+        </li>
+        <li>For language, select <code>Ruby</code>, and then press the <strong>Enter</strong> key.
+          <div class='hacker'>Use &lt;space&gt; to select. If the menu doesn't display correctly, ensure that your terminal supports UTF-8.
+      <ul>
+        <li>Ruby</li>
+          <li>Python</li>
+            <li>Node.js</li>
+          <li>Meteor</li>
+        </ul>
+</div>
+           </li>
+        <li>Select  <code>1</code> and press the <strong>Enter</strong> key to continue. This action downloads, compiles, and installs the NGINX files with Passenger support.
+          <div class='hacker'>1. Yes: download, compile and install Nginx for me.(recommended)</div>
+      <!--CT: <br /> 
+       The easiest way to get started. A stock NGINX 1.4.4 with Passenger support, but with no other additional third party modules, will be installed for you to a directory of your choice.
+       ...-->
+        </li>
+
+<li>Press <strong>Enter</strong> to agree to the defaults. The installation of Nginx will take a few minutes.</li>
+
+    </ol>
+    <h2>Set up a test Rails application</h2>
+
+       <ol>
+       
+		  <li>Create a Rails application, and then go to <code>application</code> directory.
+      <div class='hacker'>rails new <em><u>~/your_ruby_app</u></em></div>
+
+        </li>                                               
+    <li>Create a sample database, and then generate a scaffold controller to manage the production database.
+	<div class='hacker'>rails generate scaffold Task title:string note:text</div>
+            <div class='hacker'>  RAILS_ENV=development rake db:migrate</div>
+		<div class ="hacker">RAILS_ENV=production  rake db:migrate</div>
+			
+        </li>
+    <li>Test your application by running the following command in the application directory:
+        <div class='hacker'>rails server --binding=<em><u>Your-server-ip</u></em></div>
+        </li>
+    </ol>
+     <h2>Configure NGINX</h2>
+    <ol>
+        <li>Open the  following configuration file of NGINX.
+            <div class='hacker'>sudo vim /opt/nginx/conf/nginx.conf</div>
+        </li>
+    
+    <li>Find the <code>passenger_root</code> and <code>passenger_ruby</code> lines are exist. If not exist, add to configuration file in <code>http {</code> section.:
+		
+		<div class='hacker'>passenger_root <em><u>/home/UserName</u></em>.rvm/gems/ruby-2.2.1/gems/passenger-5.0.18;<br/>
+		passenger_ruby <em><u>/home/UserName</u></em>/.rvm/gems/ruby-2.2.1/wrappers/ruby;</div>
+
+    </li>
+	<li>Find the <code>location / {</code> and comment code.
+	<div class="hacker">
+	#location / {<br/>
+#   root   html;<br/>
+#   index  index.html index.htm;<br/>
+#}
+	</div>
+	
+	</li>
+    
+        <li>Add the following line in this file:
+            <div class='hacker'>
+      server {
+       <br /> listen 80 default_server;
+        <br />#listen [::]:80 default_server ipv6only=on;
+    
+        <br />server_name <em><u>www.coolexample.com</u></em>;
+        <br />passenger_enabled on;
+       <br /> rails_env    development;
+
+        <br />root /home/<em><u>UserName/your_rails_app</u></em>/public;  #Rails applicastion's absolute path
+<br />
+       <br /> # redirect server error pages to the static page /50x.html
+        <br />error_page   500 502 503 504  /50x.html;
+       <br /> location = /50x.html
+     <br /> {
+         <br />   root   html;
+       <br /> }
+<br />}
+</div>
+      </li> 
+
+      <li>Save and close the file.</li>
+
+        <li>To start the Nginx web service.
+            <div class='hacker'> sudo /opt/nginx/sbin/nginx </div>
+			<p class="note">			To test your Rails app, open the browser and type <strong>http://your_server_ip</strong></p>
+        </li>
+		<li>To stop the Nginx web service.
+            <div class='hacker'> ps wax | grep nginx </div>
+			Above command will show you output as below.
+			<div class="hacker">
+				11862 ?        Ss     0:00 nginx: master process sbin/nginx<br/>
+				11863 ?        S      0:00 nginx: worker process<br/>
+				12131 pts/1    S+     0:00 grep --color=auto nginx<br/>
+			</div>
+			Kill nginx process using the following command.
+			<div class="hacker">sudo kill -9 <em><u> 11862 11863</u></em></div>
+			<p class="note">Process ID is different then shown in example.</p>
+        </li></ol>
+    <h2>Conclusion</h2>
+    <p>In this article, we reviewed the steps involved in installing Ruby on Rails using RVM, installed NGINX and Passenger, and finally compiled and configured it to deploy our Rails app on NGINX.    </p>
+</body>
+</html>

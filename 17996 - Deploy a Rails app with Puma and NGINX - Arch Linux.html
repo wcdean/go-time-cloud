@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17996-->
+
+
+
+<title>Deploy Rails app with Puma and NGINX - Arch Linux</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Configuring a Rails application with Puma and NgINX on Arch Linux, PostgreSQL, Deployment, Ruby, Rails, NGINX</p>
+<h1>Deploy Rails app with Puma and NGINX – Arch Linux</h1>
+<p><strong>Difficulty</strong>: <em>3</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+<p>Puma is a simple, fast, and highly concurrent HTTP 1.1 server for Ruby web applications. It is designed for running Rack apps. This article will help you to deploy a Rails application with default database PostgreSQL, using Puma and NGINX on Arch Linux .</p> 
+
+
+<h2>Prerequisites</h2>
+	<p>Please refer to the following links to prepare your deployment environment:</p>
+	<ul>
+
+	<li><a href="17522 - Install Ruby on Rails with rbenv - Arch Linux.html">Install Ruby on Rails with rbenv - Arch Linux</a></li>
+	<li><a href="17527 - Use PostgreSQL with your Ruby on Rails Application - Arch Linux.html">Use PostgreSQL with your Ruby on Rails Application - Arch Linux</a>
+	</li>
+	</ul>
+  
+	<h2>Create a Rails application</h2>
+<ol>
+<li>Create a Rails application. 
+<div class="hacker">cd ~</div>
+<div class="hacker">rails new <em><u>your_rails_app</u></em> -d postgresql
+</div>
+</li>
+<li>Move to the application directory.
+<div class="hacker">cd <em><u>your_rails_app</u></em></div>
+</li>
+</ol>
+
+<h2>Create a database user for production</h2>
+<ol>
+<li>When creating a database user, we suggest that you keep the production username the same as your application name, so it will be easier to use and remember. 
+<div class="hacker">sudo -i -u postgres</div> 
+<div class="hacker">createuser -s your_rails_app</div>
+</li>
+<li>Start psql.
+<div class="hacker">psql</div>
+</li>
+<li>Type the following command in the PostgreSQL prompt: 
+<div class="hacker">\password your_rails_app</div>
+</li>
+<li>When prompted for the password, enter a desired password and exit.
+  <div class="hacker">\q </div>
+  <div class="hacker">logout </div></li>
+<li>Make sure that you are in Rails application’s root directory. If not, then change the directory.
+<div class="hacker">cd <em><u>/path/to/your_rails_app</u></em></div>
+</li>
+<li>Open the database configuration file: <code>database.yml.</code>
+<div class="hacker">sudo vim config/database.yml</div>
+</li>
+<li>Find <strong>pool: 5 </strong>in the default section of <code>database.yml</code> file. Just below the <strong>pool: 5</strong> line, add the database connection string to connect.
+<div class="hacker">
+<pre>
+pool: 5
+host: localhost
+</pre>
+</div>
+</li>
+<li>Move to the <code>Production</code> section where you will find the following lines:
+<div class="hacker">
+<pre>
+production:
+  &lt;&lt;: *default
+  database: <em><u>your_rails_app_production</u></em>
+  username: <em><u>your_rails_app</u></em>
+  password: &lt;%= ENV['<em><u>YOUR_RAILS_APP_DATABASE_PASSWORD</u></em>'] %&gt;
+
+&lt;&lt;: *default this line will add configuration from default section
+database section, type your database name here</pre></div>
+
+<p>Note that you should leave the password field as is (the production database password value is a variable).</p>
+</li>
+<li>In the <code>username</code> section, make sure that the username is same as the database user you created earlier. If not, then change it to match.
+
+</li>
+</ol>
+
+
+<h2>Install plug-in for rbenv-vars</h2>
+<p>You should set a secret key and database password by using environment variable, before you deploy Rails application in production. Here we are describing a way to manage environment variables by using the rbenv-vars plug-in that loads password and secret key at the runtime. Next, we are going to install and configure rbenv-vars for our application.</p>
+<ol>
+<li>Set up the <code>rbenv-vars</code> by changing directory to <code>.rbenv/plugins</code> using the following command and clone the repository of <code>rbenv-var</code> from GitHub.
+<div class="hacker">cd ~/.rbenv/plugins </div>
+<div class="hacker">git clone https://github.com/sstephenson/rbenv-vars.git</div>
+<p class="note">Ensure that you’ve configured or installed rbenv in your machine correctly.</p>
+</li>
+<li>Set environment variable by changing your directory to application directory and generate the secret key.
+<div class="hacker">cd <em><u>~/your_rails_app</u></em></div>
+<div class="hacker">rake secret</div>
+</li>
+<li>The secret key will generate. This is a long string of text that appears. Copy the text and paste it into a local notepad for later use. Then, open the <code>.rbenv-vars</code> file.
+
+<div class="hacker">sudo vim .rbenv-vars</div>
+<div class="hacker">SECRET_KEY_BASE=<em><u>your_generated_secret</u></em> </div>
+<p class="note">The environment variable that you set in this file will be read by your Rails application.</p>
+</li>
+<li>Set the database password for connection.
+<div class="hacker">YOUR_RAILS_APP_DATABASE_PASSWORD=<em><u>production_database_password</u></em></div>
+</li>
+<li>Set your database environment variable the same as the one that is defined in the database configuration file i.e <code>database.yml.</code></li>
+<li>Save and exit. </li>
+<li>Check the environment variables list that you have set in file by using the following command:
+<div class="hacker">rbenv vars</div>
+</li>
+</ol>
+
+<h2>Set up production database</h2>
+<ol>
+<li>When your application is able to communicate with the <strong>PostgreSQL</strong> database, you can create the <strong>Production</strong> database.
+<div class="hacker">RAILS_ENV=production rake db:create</div>
+</li>
+<li>Generate the controller and database migration using the following command:
+<div class="hacker">rails generate scaffold Task title:string note:text</div>
+</li>
+<li>Migrate to the production database using the following command:
+<div class="hacker">RAILS_ENV=production rake db:migrate</div>
+</li>
+<li>Pre-compile the assets.
+<div class="hacker">RAILS_ENV=production rake assets:precompile</div>
+</li>
+<li>Test the application environments, where you can bind your public IP too.
+<div class="hacker">RAILS_ENV=production rails server --binding=<em><u>server_public_IP</u></em></div>
+</li>
+<li>Now open the browser and type below mentioned in the address bar.
+<strong>http://<em><u>server_public_IP</u></em>:3000/tasks</strong></li>
+<li>You will see the following output on the browser:<br />
+<img src="images/17996 - 1.png" alt="Listing Tasks"/></li> 
+<li>To terminate the server, and return to command prompt, press <strong>CTRL+C</strong>.</li>
+
+</ol>
+ <h2>Install Puma</h2>
+ <ol>
+<li>Move to the application's root directory
+  <div class="hacker">cd ~<em><u>/your_rails_app</u></em></div>
+</li>
+<li>Open the <code>Gemfile.</code>
+<div class="hacker">vim Gemfile</div>
+</li>
+<li>Add the following lines to the end of the file. 
+<div class="hacker">gem 'puma'<br/>
+gem 'foreman'</div>
+</li>
+<li>Save and exit from the editor.
+</li>
+<li>To install Puma and its dependencies, use the <code>bundler</code> command.
+<div class="hacker">bundle install</div>
+This will take some time for installation.
+</li>
+</ol>
+
+<h2>Configure Puma</h2>
+<ol>
+<li>Check the CPU cores before you proceed to configure the Puma server. This will help you to set workers and other process assignments.
+<div class="hacker">grep -c processor /proc/cpuinfo</div>
+</li>
+<li>Open the Puma configuration file into any of your favorite text editor.
+<div class="hacker">vim config/puma.rb</div>
+</li>
+<li>Copy and paste below configuration in the Puma file.
+
+<div class="hacker">
+<pre>
+#!/usr/bin/env puma
+
+# app do |env|
+#   puts env
+#
+#   body = 'Hello, World!'
+#
+#   [200, { 'Content-Type' => 'text/plain', 'Content-Length' => body.length.to_s }, [body]]
+# end
+
+environment 'production'
+daemonize false
+
+pidfile '<em><u>/home/imuser/your_rails_app/tmp/pids/puma.pid</u></em>'
+state_path '<em><u>/home/imuser/your_rails_app/tmp/pids/puma.state</u></em>'
+
+# stdout_redirect 'log/puma.log', 'log/puma_err.log'
+
+# quiet
+threads 0, 16
+bind 'unix:///<em><u>home/imuser/your_rails_app/tmp/sockets/</u></em>puma.sock'
+
+# ssl_bind '127.0.0.1', '9292', { key: path_to_key, cert: path_to_cert }
+
+# on_restart do
+#   puts 'On restart...'
+# end
+
+# restart_command '/u/app/lolcat/bin/restart_puma'
+
+
+# === Cluster mode ===
+
+workers 2 #change workers as per your cpu core
+
+
+# on_worker_boot do
+#   puts 'On worker boot...'
+# end
+
+# === Puma control rack application ===
+
+activate_control_app 'unix:///<em><u>home/imuser/your_rails_app/tmp/sockets</u></em>/pumactl.sock'
+</pre>
+</div>
+</li>
+<li>After you paste the configuration lines, change the workers as per your CPU cores.</li> 
+<li>Save your changes and exit. </li>
+</ol>
+
+<h2>Start Puma</h2>
+ 
+<p>Below are the commands to start, stop and restart the Puma services.</p>
+<ul>
+<li>Move to the application directory.
+<div class="hacker">cd <em><u>~/your_rails_app</u></em></div>
+<div class="hacker">mkdir tmp/sockets tmp/pids</div>
+</li>
+<li>To start the Puma services, type:
+<div class="hacker">
+bundle exec puma -C config/puma.rb -d --pidfile=tmp/pids/puma.pid
+</div>
+<p class="note"><code>-d</code> is for daemonizing the proccess.</p>
+</li>
+</ul>
+
+
+<h2>Install and set up NGINX</h2>
+ <ol>
+<li>Install NGINX using pacman.
+<div class="hacker">sudo pacman -S nginx</div>
+</li>
+<li>Open the default server block with a text editor.
+<div class="hacker">cd /etc/nginx/</div>
+<div class="hacker">sudo vim nginx.conf</div>
+</li>
+<li>At the top of the file locate and uncomment the following command replacing highlight section with appropriate value.<div class="hacker">user <em><u>imuser</u></em>;</div></li>
+<li>Find the line <code>HTTPS server</code> in the configuration file, and add the following code at the bottom of this block.  
+<div class="hacker">
+<pre>
+upstream <em><u>your_rails_app</u></em> {
+server unix:///home/<em><u>imuser/your_rails_app</u></em>/tmp/sockets/puma.sock fail_timeout=0;
+}
+server {
+  #listen 80 deferred;
+  server_name <em><u>domain name or public IP address of server</u></em>;
+  root <em><u>/home/imuser/your_rails_app/</u></em>public;
+  try_files $uri/index.html $uri <em><u>@your_rails_app</u></em>;
+  location @<em><u>your_rails_app</u></em> {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://<em><u>your_rails_app</u></em>;
+  }
+  error_log <em><u>/home/imuser/your_rails_app/log/error.log</u></em>;
+  error_page 500 504 /500.html;
+  error_page 502 /502.html;
+  error_page 503 /503.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
+}
+</pre>
+</div>
+</li>
+<li>Save and exit. This configures NGINX as a reverse proxy, so HTTP requests get forwarded to the Puma application server via a UNIX socket. Feel free to make any changes as required.</li>
+<li>Restart NGINX service to put the changes into effect.
+<div class="hacker">sudo systemctl restart nginx</div>
+</li>
+<li>You can now access the production environment of your Rails application using the public IP address or fully qualified domain name (FQDN) of the server. Visit the application server in a web browser to access the tasks controller: <strong>http://<em><u>server_public_IP</u></em>/tasks</strong>
+</li>
+</ol>
+<h2>Conclusion</h2>
+    <p>In this article, we reviewed the steps involved in deploying your Rails application using NGINX and Puma on Arch Linux server.</p>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Deploy Rails Apps with Passenger and Nginx - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up Rails Apps with Passenger and Nginx in CentOS, Ruby, Rails, NGINX</p>
+    <h1>Deploy Rails Apps  with Passenger and Nginx - Arch Linux </h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em> </p>
+    <p>Rails enables web developers to  rapidly build quality applications, while Nginx is a lightweight, high-performance web server. In this article, you will learn to deploy a Rails application on an Nginx web server using the simple and powerful features of Phusion Passenger. This task assumes that you have <code>sudo</code> privileges.</p>
+    
+<h2>Prerequisites</h2>
+	 <p>To set up your Arch Linux server, refer to the article: <a href ="17324">Initial Server Setup - Arch Linux</a>. You need to ensure that the fully qualified domain name (FQDN) points to the server. </p> 
+<p>After you have set up the Arch Linux server, you will need to <a href ="17537">install Ruby on Rails using RVM - Arch Linux</a>. You may also refer to the article: <a href ="17721">Deploy Rails Apps with Passenger and Apache - Arch Linux</a> link.</p>
+  
+    <h2>Install Nginx and Passenger</h2>
+    <ol>
+        <li>Install Passenger and Nginx packages, and update all of the packages of the operating system.
+            <div class='hacker'>sudo pacman -S nginx</div>
+      <div class='hacker'>gem install passenger</div>
+	  <div class ="hacker">sudo pacman -Sy</div>
+        </li>
+        <li>Provide the following permission to the home directory, and then install Nginx passenger.
+            
+            <div class='hacker'>sudo chmod o+x "/home/<em><u>Logged_in_user</u></em>"</div>
+      <div class='hacker'>rvmsudo  passenger-install-nginx-module</div>
+	  <p>Press <strong>Enter</strong> to continue.</p>
+       </li>
+        <li>For the language, select <strong>Ruby</strong>, and then press the <strong>Enter</strong> key.
+          <div class='hacker'>Use &lt;space&gt; to select. If the menu doesn't display correctly, ensure that your terminal supports UTF-8.
+      <ul>
+        <li>Ruby</li>
+          <li>Python</li>
+            <li>Node.js</li>
+          <li>Meteor</li>
+        </ul>
+</div>
+</li>
+        <li>Select  <strong>1</strong> and press <strong>Enter</strong> to continue. This action  downloads, compiles, and installs the Nginx files with Passenger support.
+          <div class='hacker'><pre>1. Yes: download, compile and install Nginx for me. (recommended)<br/>
+   The easiest way to get started. A stock Nginx 1.4.4 with Passenger support, but with no other additional third party modules, 
+will be installed for you to a directory of your choice.</pre>
+          </div>
+		  <p>Press <strong>Enter</strong> to choose the default location.</p>
+
+        </li></ol>
+<h2>Configure a test Rails application</h2>
+       <ol> 
+		  <li>Create a Rail application and go to the application directory.
+      <div class='hacker'>rails  new <em><u>~/Your_application</u></em></div>
+      <div class='hacker'>cd <em><u>Your_application</u></em></div>
+        </li>
+    <li>Create a sample database and generate a scaffold controller to manage the development database.
+		<div class='hacker'>rails generate scaffold Task title:string note:text</div>
+            <div class='hacker'>  RAILS_ENV=development rake db:migrate</div>
+		<div class ="hacker">RAILS_ENV=development  rake db:migrate
+		</div>
+			
+        </li>
+    <li>Test your application by running the following command in the application directory:
+        <div class='hacker'>rails s --binding=<em><u>Your_server_ip</u></em></div>
+		<p>You can now access it on any browser by visiting <strong>http://your server's IP:3000</strong>. To terminate press <strong>CTRL+C</strong>.
+        </li>
+    </ol>
+    
+    <h2>Configure Nginx</h2>
+       <ol> <li>Open the configuration file of Nginx.
+           <div class='hacker'>sudo vim /opt/nginx/conf/nginx.conf</div>
+        </li>
+        <li>Find the <code>passenger_root</code> and <code>passenger_ruby</code> lines are exist. If not exist, add to configuration file in <code>http {</code> section.:
+		<div class='hacker'>passenger_root <em><u>/home/UserName</u></em>.rvm/gems/ruby-2.2.1/gems/passenger-5.0.18;<br/>
+		passenger_ruby <em><u>/home/UserName</u></em>/.rvm/gems/ruby-2.2.1/wrappers/ruby;</div>
+
+    </li>
+ <li>Find the <code>location / {</code> and comment code.
+	<div class="hacker">
+	#location / {<br/>
+#   root   html;<br/>
+#   index  index.html index.htm;<br/>
+#}
+	</div>
+	
+	</li>
+        <li>Make corresponding changes in the file as shown in code.
+          <div class='hacker'><pre> server { <br /> listen 80 default_server; <br /> server_name <em><u>www.coolexample.com</u></em>;  #Replace with your FQDN or Server IP <br />passenger_enabled on;
+       <br />rails_env    development; <br />root      <em><u>/home/UserName/Your_application</u></em>/public;#Rails application path
+
+ # redirect server error pages to the static page /50x.html
+ error_page   500 502 503 504  /50x.html;
+ location = /50x.html <br /> {
+         <br />   root   html;
+       <br /> }
+<br />}
+</pre>
+</div>
+      </li>
+<li>To save and exit the file by pressing the <strong>Esc</strong> key and then type the following character.
+<div class = "hacker">:wq!</div>
+</li>	  
+        <li>To start the Nginx web service.
+            <div class='hacker'>sudo /opt/nginx/sbin/nginx </div>
+			<p class="note">To test Rails application open the browser and type <strong>http://your_server_ip</strong></p>
+        </li>
+		<li>To stop the Nginx web service.
+            <div class='hacker'> ps wax | grep nginx </div>
+			Above command will show you output as below.
+			<div class="hacker">
+				11862 ?        Ss     0:00 nginx: master process sbin/nginx<br/>
+				11863 ?        S      0:00 nginx: worker process<br/>
+				12131 pts/1    S+     0:00 grep --color=auto nginx<br/>
+			</div>
+			Kill nginx process using the following command.
+			<div class="hacker">sudo kill -9 <em><u>11862 11863</u></em></div>
+			<p class="note">Process ID is different then shown in example.</p>
+        </li>
+		</ol>
+    <h2>Conclusion</h2>
+    In this article, we  installed Nginx and Passenger, and deployed our Rails application on an Nginx server.
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17451-->
+
+
+
+<title>Install an SSL Certificate on Apache - Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+ <h1>Install an SSL Certificate on Apache – Ubuntu</h1>
+ <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+    <p> This article walks you through the installation of an SSL certificate on a Ubuntu&reg; server running Apache&trade;. A web server with SSL certificates installed on it allows secure sessions with its clients. Installing an SSL certificate activates the HTTPS protocol.</p> 
+  <p class="note">You can use SSL certificates from any company who sells them. However, these instructions assume you're using a GoDaddy SSL certificate.</p>
+  
+<h2>Prerequisite</h2>   
+  <p>If you don't have Apache installed on your server, install Apache as part of a LAMP stack on your <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17341%20-%20Build%20a%20LAMP%20stack%20(Linux%2C%20Apache%2C%20MySQL%2C%20PHP)%20-%20Ubuntu.html">Ubuntu server</a>. You can ignore the instructions for MySQL and PHP, as you do not need it for this article.</p>   
+
+<h2>Activate the SSL module</h2>
+    <p>If you already have Apache running on a Ubuntu server, SSL support is already a part of it. You only need to activate it to get started.</p>  
+<ol>
+    <li>Activate SSL support. 
+    <div class="hacker">sudo a2enmod ssl</div>
+    </li>
+    <li>Restart Apache.
+    <div class="hacker">sudo service apache2 restart</div>
+    </li>
+</ol>
+    
+<h2>Generate CSR and key</h2>
+    A certificate signing request (CSR) contains information such as organization, country, state, common name, and email that will be included in the certificate. It also includes a public key. You will also generate a private key, which will be stored on your server.
+    
+    <ol>
+        <li>
+            Create the following directory to store your certificate and key.
+            <div class="hacker">sudo mkdir /etc/apache2/ssl</div>
+           
+        </li>
+        <li>Generate CSR and private key.
+            <div class="hacker">sudo openssl req -out CSR.csr -new -newkey rsa:2048 -nodes -keyout /etc/apache2/ssl/<em><u>certkey</u></em>.key</div>
+        In order to see the newly generated CSR, use the following command:
+        <div class="hacker">cat CSR.csr</div>
+        Input the CSR into the certificate authority's web site when you generate the certificate. 
+        </li>
+        <li>
+            Enter information that will be included in your certificate request, such as country, state, common name, and email. The common name field is the Fully Qualified Domain Name (FQDN) of the server for which you are trying to obtain a certificate.<br />
+                       
+        </li>
+        <li>Point your domain name to your server's IP address.</li>
+    </ol>
+    <h2>Obtain and install a certificate</h2>
+    <ol>
+        <li>
+            After you generate the CSR and the key, log into <a href="https://mya.godaddy.com/default.aspx">GoDaddy account manager.</a> 
+        </li>
+        <li>    
+            Go to the <strong>SSL CERTIFICATES </strong> section and set up the certificate. Your certificate appears in your account after a few minutes.  
+         </li>
+        <li>
+            After you have obtained the certificate, click <strong> Manage</strong>, and then in the <strong>Action</strong> column, click <strong>Set-up</strong>.
+            
+        </li>
+        <li>
+            You will be asked to provide the CSR. Copy and paste the CSR that you generated as described in the previous section.
+          </li>
+        <li>
+            This starts the Certificate Verification Process. Your certificate will be generated after the GoDaddy site checks your domain ownership. 
+        </li>
+        <li>
+            You can now download your certificate to your local machine, which will be a zip file containing the certificate and the bundle. 
+        </li>
+        <li>After the zip files are downloaded, extract/unzip the two files.</li>
+        </ol>
+       <h3>Unzip and create the certificate file</h3>
+       <ol>
+         
+        <li>Open the certificate in a text editor (such as Notepad) and copy the contents.</li> 
+        <li>Go back to your console and create a new file.
+          <div class=" hacker">sudo vim /etc/apache2/ssl/gdcert.crt</div>
+        </li>
+        <li>Paste the copied contents to this file.</li> 
+        <li>Save and exit.</li>
+        </ol>
+<h3>Create the bundle file</h3>
+        <ol><li>Open the bundle file in a text editor (such as Notepad) and copy the contents.</li>            
+        <li>Go back to your console, and then open a new file.
+           <div class="hacker">sudo vim /etc/apache2/ssl/gdBundle.crt</div></li>
+            <li>Paste the copied contents to this file.</li> 
+            <li>Save and exit. </li>
+        </ol>
+    <p class="note">You can also move the certificate files from your local machine to your server via FTP</p>
+    <h2>Configure Apache to use SSL</h2>
+    <p>We need to edit our configuration file to make sure that the SSL entries there are pointing to the right artifacts.</p>
+    <ol>
+        <li>
+            Open the <code>default-ssl.conf</code> file. 
+            <div class="hacker" >sudo vim /etc/apache2/sites-available/default-ssl.conf</div>  
+        </li>
+        <li>
+            Make the following changes in the <code>Virtual host</code> section: 
+          
+<div class="hacker">
+    <pre>
+ServerName <em><u>yourdomainname.com</u></em>
+ServerAlias <em><u>www.yourdomainname.com</u></em>
+SSLEngine on
+SSLCertificateFile  /etc/apache2/ssl/gdcert.crt
+SSLCertificateKeyFile /etc/apache2/ssl/certkey.key
+SSLCertificateChainFile /etc/apache2/ssl/gdBundle.crt
+</pre>
+        </div>
+        </li>
+        <li>    
+            Save and exit the file.
+        </li>
+        <li>
+            Enable the SSL-enable virtual host.
+            <div class="hacker">sudo a2ensite default-ssl.conf</div>
+        </li>
+        <li>
+            Restart Apache to load the new virtual host file.
+            <div class="hacker">sudo service apache2 restart</div>
+        </li>
+        <li>
+            You can test your setup by typing <strong>https://<em><u>yourdomainname</u></em>.com</strong> in your web browser. You can also use your server's public IP address, instead of the domain name. 
+           
+        </li>
+    </ol>
+<h2>Conclusion</h2> 
+ You have successfully installed SSL certificate on your web server. The certificate installed will ensure the privacy and integrity of the data between your web server and the client. 
+</body>
+</html>

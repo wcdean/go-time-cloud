@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Additional Recommendations for New Servers - CentOS 6</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Getting started with adding security features after configuring your CentOS 6 server. </p>
+    <h1>Additional Recommendations for New Servers - CentOS 6</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+   <p> After installing CentOS 6, you can configure some additional components. These steps are optional but recommended as they increase security and make your operating system work better.  </p>
+  
+<p>This article guides you through setting up a firewall and synchronizing Network Time Protocol (NTP).</p>
+
+<p>If you haven't already set up your server, see <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17323%20-%20Initial%20Server%20Setup%20-%20CentOS.html">Initial Server Setup - CentOS</a> for instructions, including setting up user accounts. Make sure to set up a user account with <code>sudo</code> privileges.
+   </p>                 
+
+ <h2>Set up a basic firewall</h2> 
+
+<p>Like most other Linux&trade; systems, the default firewall on CentOS 6 is iptables. iptables is the full suite of commands used to manage netfilter, the Linux packet-filtering framework. 
+We'll configure a basic iptables setup from the command line. </p>
+<h3>Check iptables installation</h3>
+ 
+<ol>
+<li> Make sure that iptables is installed:
+  <div class="hacker">rpm -q iptables</div>
+iptables is installed by default on CentOS 6 systems. If it's installed, the output shows which version you have. For example:
+<div class="hacker">iptables-1.4.7-14.el6.x86_64</div>
+   </li>
+
+<li>Check the status of your firewall to see if it's running: 
+<div class="hacker">sudo service iptables status</div>
+
+The output looks similar to this: 
+
+<!--Editor: This is one code output block-->
+<div class="hacker">
+Chain INPUT (policy ACCEPT) <br/>
+target     prot opt source               destination  <br/>
+                         <br/>
+Chain FORWARD (policy ACCEPT)      <br/>
+target     prot opt source               destination   <br/>
+                                             <br/>
+Chain OUTPUT (policy ACCEPT)       <br/>
+target     prot opt source               destination    <br/>
+                          </div>
+                          
+The rules are blank because they haven't been set up yet. That's our next step. 
+
+<li>But first, let's start iptables.
+<div class="hacker">sudo service iptables start</div>
+</li>
+
+</ol>
+                                                         
+<h3>Create firewall rules</h3>
+
+<p>Define exceptions to your firewall policy so that you can activate your firewall.</p>
+
+<ol>
+<li>Flush, or clear, the existing rules:
+	<div class="hacker">sudo iptables -F </div>    </li>
+  
+<li>	Allow secure shell (SSH) connections. By default, the SSH daemon runs on port 22. 
+So allow inbound and outbound traffic from that port: 
+  <div class="hacker">sudo iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT </div>
+<div class="hacker">sudo iptables -A OUTPUT -p tcp -m tcp --dport 22 -j ACCEPT    </div>
+
+</li>
+       
+<li>Open the firewall as needed.<br />
+  Here are the commands to add some common services and open their respective ports:
+    <ul>
+<li>To run a standard HTTP web server, allow incoming http traffic:
+
+<div class="hacker">sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT  </div>
+<div class="hacker">sudo iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT      </div>
+</li>
+
+<li>To run an SSL/TLS-enabled web server, allow for https traffic:
+  
+<div class="hacker">sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT</div>
+<div class="hacker">sudo iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT </div>
+</li> 
+
+<li>To enable your SMTP email connection, enable the smtp service:
+  
+<div class="hacker">sudo iptables -A INPUT -p tcp --sport 25 -j ACCEPT</div>
+<div class="hacker">sudo iptables -A OUTPUT -p tcp --sport 25 -j ACCEPT</div>
+</li> 
+</ul> 
+</li>
+ </ol>
+
+<h3>Save and restart your firewall</h3>
+
+ <ol>
+<li>Review your exceptions by doing one of the following:
+
+<ul>
+  <li>Run this command with the <code>-L</code> switch to see the domain names of the sources and destinations:
+  
+    <div class="hacker">sudo iptables -L</div> </li>
+  <li>
+    Run the command with an added <code>-n</code> switch to see the IP addresses instead of domains:
+    <div class="hacker">sudo iptables -L -n</div> 
+</li></ul></li>
+
+<li>If all the rules look correct, save your firewall configuration:
+  <div class="hacker">sudo iptables-save | sudo tee /etc/sysconfig/iptables</div>
+</li>
+
+<li>Restart your firewall: 
+<div class="hacker">sudo service iptables restart</div>
+    
+
+This applies your exceptions, blocks all other traffic, and configures your firewall to start automatically at startup.</li> 
+
+</ol>
+  
+
+<p>If you configure additional services later, make sure to open those respective ports.  </p>
+
+
+<p>For even more indepth instructions on configuring iptables, see <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17402%20-%20Set%20Up%20a%20Firewall%20Using iptables%20-%20CentOS.html">Set Up a Firewall Using iptables - CentOS</a>.
+</p>
+
+<h2>Configure your system's time zone and NTP</h2> 
+
+<p>
+Localize your server by configuring the time.
+</p>
+
+<p>
+When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This jumping can result in undesirable effects such as email replies appearing to arrive before the original message is sent.</p>
+
+<p>To resolve this issue, set your correct time zone, and then synchronize the system clock to the standard time maintained by a global network of NTP servers. 
+   </p>
+   
+<h3>Check your time zone</h3>
+
+<p>With your server  newly installed, the time zone is from <code>/etc/localtime</code>, 
+<code>usr/share/zoneinfo/</code> and likely needs to be updated.</p> 
+
+ <ol>
+<li>	Check the date and time of your system :
+<div class="hacker">date</div>
+<div class="hacker">ls -l /etc/localtime</div>
+    </li>
+
+<li>Optionally, check the time zone from your system's hardware clock:
+  <div class="hacker">sudo vim /etc/sysconfig/clock</div></li>
+<li>
+Close the file to return to the command line.</li> 
+                                                          </ol>
+
+<h3>Update your time zone</h3>
+
+<ol>
+<li>Identify your time zone by listing the time zones and then finding yours in the list:
+  <div class="hacker">sudo ls /usr/share/zoneinfo/  </div>
+</li>  
+
+<li>Drill down by adding your zone to the directory:
+<div class="hacker">sudo ls /usr/share/zoneinfo/America</div>
+</li><li>Find the city/area that applies best to you. For this example, we'll set our time to Los Angeles, CA (US).
+</li>
+
+<li>	Open the <code>sysconfig</code> file again:
+  <div class="hacker">sudo vim /etc/sysconfig/clock</div>
+</li>
+
+<li>		Change the ZONE in the file:
+  <div class="hacker">ZONE="America/Los_Angeles"</div>
+</li>
+
+<li>	Save and close. 
+  </li>
+
+<li>Set the time zone to our local time:
+  <div class="hacker">sudo cp /etc/localtime /root/old.timezone</div>
+<div class="hacker">sudo rm /etc/localtime                        </div>
+<div class="hacker">sudo ln -s /usr/share/zoneinfo/America/Los_Angeles /etc/localtime</div>
+</li>
+
+<li>Verify your settings:
+<div class="hacker">date</div>
+<div class="hacker">ls -l /etc/localtime</div>
+    </li>
+  </ol>
+
+
+<h3>Configure NTP synchronization</h3>
+
+<p>Next, configure your Network Time Protocol (NTP). NTP is an Internet protocol that synchronizes time of computer clocks across the Internet and helps to determine when events happened between systems. A client requests the current time from an NTP server and then uses the server's response to set its own clock. Afterward, your computer is accurately synced with networked time servers.</p>
+
+<ol>
+<li>
+Install the NTP daemon: 
+<div class="hacker">sudo yum install ntp</div>  </li>
+
+<li>Enable NTP:
+
+<div class="hacker">sudo chkconfig ntpd on</div></li>
+
+<li>	Synchronize the system clock:
+  <div class="hacker">sudo ntpdate pool.ntp.org</div>
+</li>
+
+<li>Start NTP: 
+<div class="hacker">sudo /etc/init.d/ntpd start  </div>
+</li>
+</ol>
+
+<p>NTP synchronization is now active on your server. Your system  adjusts the time throughout the day to match up with global NTP servers.
+   </p>
+   
+<h2>Next steps</h2>
+ 
+<p>Your setup is complete! Remember that you can always add on to your configuration as you add more services. </p> 
+
+<p>If you like this configuration, you can take a server snapshot to use as a guide for setting up future installations. See <a href="/article/19042?prog_id=PROG_ID">Take a Snapshot of Your Server</a> for instructions.</p>
+  
+<p>Also, consider <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17328%20-%20Add%20Memory%20Swap%20-%20CentOS,%20Fedora.html">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system.</p>
+
+</body>
+</html>

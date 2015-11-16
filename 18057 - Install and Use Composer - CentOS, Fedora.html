@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Install and Use Composer - CentOS, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+<p>Install and use Composer</p>
+    <h1>Install and Use Composer - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+
+    <p>Composer is a tool used to manage PHP program dependencies. You will learn how to install Composer on CentOS 6 or 7 and Fedora 20 or 21</p>
+ 
+<h2>Install dependencies</h2>
+              <ol>
+          <li>Install PHP and other required tools.
+       <div class="hacker">sudo yum install -y php-curl y php-fpm php-cli php-mcrypt php-pdo git</div>
+          </li>
+             
+              </ol>
+
+<h2>Install Composer</h2>
+              <ol>
+       <!--CT...        <li>Make a directory for whatever project that Composer will manage.
+                   <div class="hacker">sudo mkdir /project1</div>
+               </li>
+                  <li>Navigate to the directory.
+                    <div class="hacker">cd /project1</div>
+                      </li>
+...-->
+
+                <li>Run the Composer installation script.
+                   <div class="hacker">cd ~</div>
+                   <div class="hacker">sudo curl -sS https://getcomposer.org/installer | php</div> <p>The script creates a file, <code>composer.phar</code>, which is a php archive file, in your project directory.</p>
+               </li>
+               <li>Optionally, change the name of the newly created <code>composer.phar file</code> to <code>composer</code>.
+<div class="hacker">sudo mv composer.phar /usr/local/bin/composer</div>
+               </li>   
+               <li>Edit <code>/etc/profile</code> to change your path so that Composer will execute.
+Open the file to edit. 
+<div class="hacker">sudo vim /etc/profile</div></li>
+
+<li>Add this code to the end of the file. 
+                   <div class="hacker"><pre>PATH=$PATH:/usr/local/bin/composer
+export PATH</pre></div>
+               </li> 
+                       </ol>
+    <h2>Using Composer</h2>
+
+ <p>   There are two ways you can use Composer: Create a file to manage your project or use the <code>create-project</code> command.</p> 
+<h3>Create a <code>composer.json</code> file to manage your project</h3> 
+    <ol>
+        <li>Run this command:
+
+<div class="hacker">sudo vim composer.json</div>
+       </li>
+       <li>Add the following contents to your file:
+<div class="hacker"><pre>{
+    "require": {
+        "<em><u>vendorname</u></em>/<em><u>projectname</u></em>": "<em><u>version [wildcards are supported]</u></em>"
+    }
+}</pre></div>
+       For example, use Laravel:
+       <div class="hacker"><pre>{
+    "require": {
+        "laravel/laravel": "4.2.*"
+    }
+}</pre>
+</div>
+       </li>
+ <li>Run Composer to install dependencies for your Laravel project:
+   <div class="hacker">composer install</div>
+       This may take a few minutes.</li>
+    </ol>    
+
+   <h3>Use the <code>create-project</code> command</h3> 
+    <p>Because the ultimate goal when using Composer is to create a project, it may make sense to simply create the project using Composer's <code>create-project</code> command rather than configure dependencies.</p>
+    
+   This is the create-project syntax:
+
+<div class="hacker">composer create-project <em><u>[vendor]</u></em>/<em><u>[project]</u></em> <em><u>{target directory}</u></em> <em><u>[version]</u></em></div>
+
+
+For example, you can use the following to create a Laravel project:
+<div class="hacker">composer create-project laravel/laravel my/project/dir 4.2</div>
+              
+         
+<h2>Next steps</h2>
+    <p>You have just learned how to use Composer to manage project dependencies.  Go create a project! </p>
+   
+</body>
+</html>

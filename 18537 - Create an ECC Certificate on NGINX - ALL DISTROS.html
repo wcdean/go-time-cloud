@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is ___18537_-->
+
+
+<title>Create an ECC Certificate on NGINX - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Installing an ECC certificate on a server running NGINX.</p>
+    <h1>Install ECC Certificates on NGINX - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>3 hours</u></em></p>
+
+
+<p>Installing an
+    Elliptic Curve Cryptography (ECC) certificate on your server can improve the security of your website, use fewer resources, and allow mobile devices to connect faster.
+    ECC algorithms offer higher levels of security with a smaller key size because they are based on a discrete logarithm of a random elliptic curve instead of using a large integer like RSA keys do. From the user's perspective, the principles remain the same.
+</p>
+<p>Using a combination of the certificate and a key pair, a third-party certificate authority (CA) validates the identity of both parties in a transaction. A website that is protected by an ECC certificate is identified by a URL that starts with <strong>https</strong>.</p>
+        
+<p>This article walks you through installing an ECC certificate on any server running NGINX. It assumes you have NGINX and openssl installed.  Although a LEMP stack is not required, the following list will direct you to an installlation document specific to your distribution of Linux where you can install the entire stack or just use the NGINX installation instructions contained therein. </p>
+
+    <ul>
+               <li><a href="http://17350%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Arch%20Linux.html">Arch Linux</a></li> 
+               <li><a href="http://19186%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20CentOS%206.html">Centos 6</a></li>
+               <li><a href="http://17349%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20CentOS%207.html">Centos 7</a></li>
+               <li><a href="http://17351%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Debian.html">Debian</a></li>
+               <li><a href="http://19187%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Fedora%2020.html">Fedora 20</a></li>
+               <li><a href="http://17348%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Fedora%2021.html">Fedora 21</a></li>
+               <li><a href="http://17347%20-%20Build%20a%20LEMP%20stack%20(Linux,%20NGINX,%20MySQL,%20PHP)%20-%20Ubuntu.html">Ubuntu</a></li>
+               </ul>
+
+    <h2>Use a self-signed certificate</h2>
+<p>Most websites are capable of generating self-signed certificates. These are not particularly useful from a security perspective, but generating and then using one illustrates some of the steps required to install a commercial certificate.</p>    
+    <ol>
+
+   <li>Navigate to the NGINX directory.
+        <div class="hacker">cd /etc/nginx</div>
+   </li>
+   <li>Generate your private key.    
+        <div class="hacker">sudo openssl ecparam -out server.key -name prime256v1 -genkey</div>
+    </li>
+    <li>Set the appropriate permissions on the key file, so that it is read-only.
+     <div class="hacker">sudo chmod 600 server.key</div></li>
+      <li>Enter the metadata for the certificate.  
+     <div class="hacker">sudo openssl req -new -key server.key -out csr.pem</div>
+     Follow the instructions that will appear on the screen. 
+          Do not supply a challenge password.&nbsp; For the <em>Common Name</em> question, enter the Fully Qualified Domain Name (FQDN) of your server. After completing the form, you will be returned to a command prompt.</li>
+     <li>Sign the key, and give it a shelf life of 365 days.
+     <div class="hacker">sudo openssl req -x509 -days 365 -key server.key -in csr.pem -out certificate.pem</div>
+        
+</li> 
+        </ol> 
+    
+    <h2>Use a commercial certificate</h2>
+    Using a <a href="https://ca.godaddy.com/web-security/ssl-certificate">commercial certificate</a> is similar. The main difference is that you will follow the directions from your certificate provider to acquire your certificate and key, and then move them into the <code>/etc/nginx</code> directory. 
+
+<h2>Set up NGINX</h2>
+
+   <ol> 
+    <li>Depending on your distribution, the <code>ssl server</code> context may be in the NGINX configuration file or an include file. In any event, modify or create the <code>ssl server</code> context so it looks like this example:
+    <div class="hacker"><pre>#HTTPS server
+#
+server {
+    listen 443;
+    server_name YourServerName or IP;
+    index index.html index.htm;
+
+    ssl on;
+    ssl_certificate /etc/nginx/certificate.pem;
+    ssl_certificate_key /etc/nginx/server.key;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers HIGH+kEECDH+AESGCM:HIGH+kEECDH:HIGH+kEDH:HIGH:!aNULL;
+    ssl_prefer_server_ciphers on;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}</pre></div></li>
+    <li>For a commercial certificate, edit the <code>default.conf</code> file as above, but with the name of your certificate instead of <code>server</code>.
+    <div class="hacker"><pre>server { ...
+        ssl_certificate /etc/nginx/yourcertname.pem; 
+        ssl_certificate_key /etc/nginx/yourcertname.key;
+         ...</pre></div>
+      </li>
+       </ol>  
+        
+    <h2>Set up multiples certificates on one IP</h2>
+    
+    <p>If you have multiple server blocks set up on a single IP, you can generate as many certificates as you need by following the previous steps, and editing each server block individually.</p>
+    <div class="hacker"><pre>server { listen 443 ssl;
+        server_name yourfirstserverblockname.com;
+      
+        ssl_certificate /etc/nginx/yourfirstserverblockcertname.crt;
+        ssl_certificate_key /etc/nginx/yourfirstserverblockcertname.key;
+        ...}
+
+server_name yoursecondserverblockname.com;
+      
+        ssl_certificate /etc/nginx/yoursecondserverblockcertname.crt;
+        ssl_certificate_key /etc/nginx/yoursecondserverblockcertname.key;
+        ...}</pre></div>
+
+    <h2>Next steps</h2>
+    <p>You have just set up your NGINX server for https. You might want to explore <a href="http://">other security considerations</a>.</p>
+   
+</body>
+</html>

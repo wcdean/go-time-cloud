@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18319-->
+
+
+<title>Serve multiple Ghost Blogs on one server using NGINX - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Serve multiple Ghost blogs on one server using Nginx - Debian, Ubuntu, CMS, Ghost, NGINX, Node.js</p>
+
+<h1>Serve multiple Ghost blogs on one server using Nginx - Debian, Ubuntu</h1>
+
+<p><strong>Difficulty</strong>: <em>2</em></p>
+<p><strong>Time</strong>: <em>1 hour</em></p>
+
+<p>A single virtual private server (VPS) machine can be used to host multiple Ghost&trade; Blog websites. This option enables organizations to optimally utilize their infrastructure, while providing users with the flexibility to host content independently. This article will provide the steps to set up multiple Ghost blogs on a single platform with Nginx&reg; on Debian or Ubuntu platform. </p>
+
+<p class="note">It is assumed that you are logged in as a sudo user.</p>
+
+<h2>Prerequisites</h2>
+<ul>
+<li>This article assumes that the host machine has a Ghost blogging platform deployed and running. For detailed steps, see the articles: <a href="18132 - Install and configure Ghost with NGINX - Ubuntu">Install and configure Ghost with Nginx - Ubuntu </a> or <a href="00030 Install and configure Ghost with NGINX - Debian">Install and configure Ghost with Nginx - Debian</a>.
+</li>
+<li>There must be multiple separate domain names available to use with each of the blogs. All domain names must be pointing to the VPS instance having the Ghost blog. To point your domain name to a cloud server, see <a href="https://www.godaddy.com/help/point-your-domain-name-to-a-server-19116">Point your domain name to a server</a>. For this article, following two domain names will be used:
+<ul>
+<li>blog1.coolexample.com</li>
+<li>blog2.coolexample.com </li>
+</ul>
+</li>
+</ul>
+
+<h2>Stop the Ghost and Nginx services</h2>
+<ol>
+<li>If the Ghost service is running, stop it to avoid any issues. 
+<div class="hacker">service ghost stop</div>
+</li>
+<li>Shut down the Nginx service.
+<div class="hacker">service nginx stop</div>
+</li>
+</ol>
+
+<h2>Update Nginx Configuration</h2>
+<ol>
+<li>Prepare the Nginx configuration file for the new blogs using the existing configuration file.
+<div class="hacker">cd /etc/nginx/sites-enabled</div>
+<div class="hacker">cat /etc/nginx/sites-available/ghost > blog1.conf</div>
+<div class="hacker">cp blog1.conf blog2.conf </div>
+</li>
+<li>Open the <code>blog1</code> configuration file.
+<div class="hacker">vim blog1.conf</div>
+</li>
+<li>Update the value for the <code>server_name</code> parameter by adding the first domain name.
+<div class="hacker"><pre>server {
+    listen 0.0.0.0:80;
+    server_name http://blog1.coolexample.com;
+	
+    access_log /var/log/nginx/blog1.log;
+
+    location / {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header HOST $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        proxy_pass http://127.0.0.1:2368;
+        proxy_redirect off;
+    }
+}</pre></div>
+</li>
+<li>Save and close by pressing <strong>ESC</strong> key, and then typing <code>:wq</code>.</li>
+</ol>
+<h3>Update the Nginx configuration for the second file</h3>
+<ol>
+<li>Open the second configuration file.
+<div class="hacker">vim blog2.conf</div>
+</li>
+<li>Update the <code>server_name</code> parameter by adding the second domain name. For this configuration file, also update the value for <code>proxy_pass</code> parameter to <strong>2777</strong> (or simply replace the entire contents of the file with following content):
+<div class="hacker"><pre>server {
+    listen 0.0.0.0:80;
+    server_name <em><u>http://blog2.coolexample.com;</u></em>
+	
+    access_log <em><u>/var/log/nginx/blog1.log;</u></em>
+
+    location / {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header HOST $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        proxy_pass http://127.0.0.1:2777;
+        proxy_redirect off;
+    }
+}</pre></div></li>
+
+<li>Save and close by pressing <strong>ESC</strong> key, and then typing <code>:wq</code>.</li>
+
+<li>Restart Nginx service.
+<div class="hacker">service nginx restart</div>
+</li>
+</ol>
+
+<h2>Change the Ghost configuration</h2>
+<ol>
+<li>Change the directory to move to the web root directory.
+<div class="hacker">cd /var/www</div>
+</li>
+<li>Create two new directories, one for each Ghost Blog site.
+<div class="hacker">mkdir blog1.coolexample.com</div>
+<div class="hacker">mkdir blog2.coolexample.com</div>
+</li>
+<li>Leverage the existing Ghost directory structure to create the folder structures and configurations for new blogs.
+<div class="hacker">cp -r ghost blog1.coolexample.com</div>
+<div class="hacker">mv ghost blog2.coolexample.com</div>
+</li>
+<li>Open the configuration file for the first site for editing.
+<div class="hacker">vim /var/www/blog1.coolexample.com/ghost/config.js</div>
+</li>
+<li>Locate the string <code>product: {</code>, and then update the parameter URL.
+<div class="hacker"><pre>production: {
+     url: 'http://blog1.coolexample.com'
+...</pre></div>
+</li>
+<li>Save and close by pressing <strong>ESC</strong> key, and then typing <code>:wq</code>.</li>
+</ol>
+<h3>Change the Ghost configuration for the second site</h3>
+<ol>
+<li>Open the configuration file for the second site.
+<div class="hacker">vim /var/www/blog2.coolexample.com/ghost/config.js</div>
+</li>
+<li>Again, locate the string <code>product: {</code>, and update the parameter URL, as well as the value for the port parameter.
+<div class="hacker"><pre>production: {
+        url: '<em><u>http://blog2.coolexample.com</u></em>',
+        mail: {},
+        database: {
+            client: 'sqlite3',
+            connection: {
+                filename: path.join(__dirname, '/content/data/ghost.db')
+            },
+            debug: false
+        },
+
+        server: {
+            // Host to be passed to node's `net.Server#listen()`
+            host: '<em><u>Your IP Address</u></em>',
+            // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
+            port: '2777'
+        }
+    },</pre></div>
+</li>
+<li>Save and close by pressing <strong>ESC</strong> key, and then typing <code>:wq</code>.</li>
+</ol>
+
+<h2>Prepare the Upstart scripts</h2>
+<p>Upstart scripts help start, stop, restart, or check the status of Ghost sites.</p>
+<ol>
+<li>Change current directory to <code>init</code>, where all Upstart scripts are kept.
+<div class="hacker">cd /etc/init.d</div>
+</li>
+<li>Create a new configuration file for the first site.
+<div class="hacker">vim ghost-blog1.conf</div>
+</li>
+<li>Put the following content in this file.
+<div class="hacker"><pre># ghost-blog1
+start on startup
+script
+    cd /var/www/<em><u>blog1.coolexample.com</u></em>/ghost
+    npm start --production
+end script</pre></div> </li>
+
+<li>Save and close by pressing <strong>ESC</strong> key, and then typing <code>:wq</code>.</li>
+</ol>
+<h3>Prepare the Upstart scripts for the second site</h3>
+<ol>
+<li>Create the configuration file for the second site.
+<div class="hacker">vim ghost-blog2.conf</div>
+</li>
+<li>Put the following content in the file:
+<div class="hacker"><pre># ghost-blog2
+start on startup
+script
+    cd /var/www/<em><u>blog2.coolexample.com</u></em>/ghost
+    npm start --production
+end script</pre></div>
+ </li>
+<li>Save and close by pressing <strong>ESC</strong> key, and then typing <code>:wq</code>.</li>
+</ol>
+
+<h2>Start your blog sites</h2>
+<ul>
+
+<li>Start both the blog sites using the following commands:
+<div class="hacker">service ghost-blog1 start</div>
+<div class="hacker">service ghost-blog2 start</div>
+</li>
+</ul>
+
+<p>The Ghost Blogging landing page will be available on the domain names used.</p>
+ 
+
+<h2>Conclusion</h2>
+<p>Hosting multiple Ghost Blogging platforms on a single VPS machine can save organizations from redundant maintenance efforts, and enables optimal management of their blogging infrastructure.</p>
+
+</body>
+</html>

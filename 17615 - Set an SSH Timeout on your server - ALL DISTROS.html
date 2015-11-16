@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+
+<title>Set an SSH Timeout on your server</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+
+td:nth-child(1) {font-weight:bold;}
+  
+
+</style>
+
+</head>
+
+<body>   
+<p>Setting a distinct timeout period for SSH connections  </p>
+    <h1>Set an SSH Timeout onYour Server - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>10 mins</u></em></p>
+
+    <p> Setting a distinct timeout period for SSH connections on your server is an important and simple step to maintaining both server stability and security. The common SSH daemon tool found on most Linux distributions makes this process easy to handle, and additional shell settings even offer the ability to disconnect idle users if necessary. To easily handle disconnected or even idle clients connected via SSH to your server, you'll want to look at the problem from two angles: <strong>ClientAlive</strong> and shell <strong>TMOUT</strong>.</p>
+
+    <h2>Configuring SSH ClientAlive settings</h2>
+    <p>When a client remotely connects via SSH to your (properly configured) Linux-based server, the server will execute a series of KeepAlive requests to connected clients at designated intervals. Upon each execution, the server sends a packet to the client to verify that the client connection is still valid and functional. Should this KeepAlive packet exchange ever fail, the server can automatically sever that connection.</p>
+    
+    <ol>
+   <li>To ensure that your server terminates any SSH clients that do not respond properly, you must edit your <code>sshd_config</code> file. For most distributions, the <code>sshd_config</code> file is located in the <code>/etc/ssh</code> directory, but if necessary you can always locate it with a quick <code>find</code>:
+     <div class="hacker">sudo find / -name sshd_config</div>
+       </li>
+        <li>Open the <code>sshd_config</code> file.
+        <div class="hacker">sudo vim /etc/ssh/sshd_config</div>
+        </li>
+        <li>
+            Locate and uncomment (or add if necessary) these three settings in your <code>sshd_config</code> file:
+            <table>
+                <tr>
+                    <th>Setting</th>
+                    <th>Description</th>
+                    <th>Default value</th>
+                </tr>
+                <tr>
+                    <td>ClientAliveCountMax</td>
+                    <td>Determines how frequently an encrypted <code>TCPKeepAlive</code> packet is transmitted to the client (in seconds).</td>
+                    <td>3</td>
+                    
+                </tr>
+                <tr><td>ClientAliveInterval</td>
+                    
+                    <td>Determines how many <code>KeepAlive</code> packets will be transmitted to the client with no response before the connection is terminated.</td>
+                    <td>0</td>
+                    
+                </tr>
+                <tr>
+                    <td>TCPKeepAlive</td>
+                    <td>TCP Packet that gets sent to determine if the connection is still valid. </td>
+                    <td>yes</td>
+                </tr>
+            </table>
+          You can easily enable <code>ClientAlive</code> packet transmission by altering or changing these settings in your <code>sshd_config</code> file. For example, to send a maximum of 4 packets at an interval of 15 seconds apart, add these lines to the <code> sshd_config</code> file:
+            <div class="hacker">
+          ClientAliveCountMax 4 <br />
+          ClientAliveInterval 15</div>
+            Enabling <code>TCPKeepAlive</code> ensures that there will be no "ghost" client connections to your server that may consume resources. If there are any temporary Internet hiccups that may sever the connection between an SSH-connected client and your server, the <code>TCPKeepAlive</code> protocol may disconnect that user. To enable (or disable) <code>TCPKeepAlive</code>, set the value in the <code>sshd_config</code> file to either <code>yes</code> or <code>no</code>:
+<div class="hacker">
+
+          TCPKeepAlive yes</div>
+        </li>
+        <li>Save and exit the file. </li>
+        <li>Restart SSH. (The Restart command might differ based on your distribution.)
+          <div class="hacker">sudo service ssh restart</div>
+        </li>
+    </ol>
+        
+<h2>Disconnecting idle SSH clients</h2>
+    <p>While the <code>ClientAlive</code> and <code>TCPKeepAlive</code> settings in your <code>sshd_config</code> will handle any connections that were improperly severed, that has no impact on SSH client connections that are simply idle for a lengthy period of time. If security is paramount, you may wish to sever idle SSH connections to your server.</p>
+    <p>For most Linux distributions, disconnecting an idle client can be easily handled using the TMOUT bash setting within your <code>bashrc</code> file. The TMOUT setting is the number of seconds a client can be connected and idle before a timeout is detected and the connection is dropped by the server.</p>
+    <ol>
+        <li>Because you'll likely want to specify settings that apply to all users, you should edit the <code>/etc/bash.bashrc</code>file.
+          <div class="hacker">sudo vim /etc/bash.bashrc</div>
+        </li>
+        <li> You can use a fairly small value at first to test your settings, but a reasonable value should be used in production. To add an idle client disconnection, simply add the following to the end of the <code>bash.bashrc</code> file:
+          <div class="hacker">
+TMOUT=300<br />
+readonly TMOUT<br />
+export TMOUT <br /></div>
+        </li>
+        <li>Save and exit the file. <br />
+        You may now open a new SSH connection with your server and wait. After your set TMOUT period has elapsed, your connection will be severed.</li>
+        
+    </ol>         
+
+<h2>Conclusion</h2>
+    Following these basic practices will ensure increased security and stability for all SSH connections to your server.
+</body>
+</html>

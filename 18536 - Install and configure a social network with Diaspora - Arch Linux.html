@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Install and configure a social network with Diaspora - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up a social network with Diaspora, Ruby, Rails, Applications, MariaDB, Nginx</p>
+
+    <h1>Install and Configure a Social Network with Diaspora - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em>3</em><br/>
+        <strong>Time</strong>: <em>20 minutes</em></p>
+
+<p>Diaspora is an open-source social network that is used in a distributed network. In this article, you'll learn how to install and configure a social network using Diaspora on an Arch Linux server. For security reasons, you should always prefer to use <code>sudo</code> user login.</p>		
+
+<p>Before you start, make sure that the server has at least 1 GB of RAM and that the domain name points to the server. In addition, you'll need to install an SSL certificate on your Nginx web server via SSH on the Arch Linux server. To do this, please follow the steps for <strong>Install SSL certificate in Nginx</strong> only given in the link: <a href ="17380">Install an SSL Certificate on Your Web Server via SSH - Arch Linux</a>. If you need to create a swap file,  visit <a href="17329">Add Memory Swap on Arch Linux</a>.</p>
+      
+<h2>Install the dependencies</h2>
+<p class = "note">Diaspora needs both <code>ruby2.1</code> and <code>ruby2.1-bundler</code>  for installation purposes.</p>
+
+<ol> 
+<li>Synchronize to the package repository, and install the basic packages.
+   <div class="hacker">sudo pacman -Sy</div>
+    <div class="hacker">sudo pacman -S --needed base-devel</div>
+   </li>
+   <li>Install <code>ruby2.1</code>  from Arch User Repository (AUR). 
+   <div class="hacker">mkdir <em><u>build</u></em></div>
+   <div class="hacker">cd <em><u>build</u></em></div>
+    <div class="hacker">wget https://aur.archlinux.org/cgit/aur.git/snapshot/ruby2.1.tar.gz</div>
+	<div class="hacker">tar -xvzf ruby2.1.tar.gz</div>
+    <div class="hacker">cd ruby2.1</div>
+	<div class="hacker">makepkg -s</div>
+    <div class="hacker">sudo pacman -U ruby2.1-2.1.7-1-x86_64.pkg.tar.xz</div>
+</li>
+   <li>Install <code>ruby2.1-bundler</code> from Arch User Repository (AUR).
+   <div class="hacker">cd <em><u>/home/user/build</u></em></div>
+   <div class="hacker">wget https://aur.archlinux.org/cgit/aur.git/snapshot/ruby2.1-bundler.tar.gz</div>
+   <div class="hacker">tar -xvzf ruby2.1-bundler.tar.gz</div>
+   <div class="hacker">cd ruby2.1-bundler</div>
+   <div class="hacker">makepkg -s</div>
+   <div class="hacker">sudo pacman -U ruby2.1-bundler-1.10.6-1-any.pkg.tar.xz</div>
+   </li>
+  </ol>
+
+<h2>Set up and secure the database for Diaspora</h2>
+<p>The following steps will install MariaDB on Arch Linux.</p>
+<ol> 
+<li>Download the source code from AUR, and install the same.
+   <div class="hacker">cd <em><u>/home/user/build</u></em></div>
+   <div class="hacker">wget https://aur.archlinux.org/cgit/aur.git/snapshot/diaspora.tar.gz</div>
+   <div class="hacker">tar -xzvf diaspora.tar.gz</div>
+   <div class="hacker">cd diaspora</div>
+   <div class="hacker">makepkg -s</div>
+   <div class="hacker">sudo pacman -U diaspora-mysql-0.5.3.1-1-x86_64.pkg.tar.xz</div>
+   </li>
+   <li>Initialize and start the MySQL service.
+   <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div>
+   <div class="hacker">sudo systemctl enable mysqld.service</div>
+   <div class="hacker">sudo systemctl start mysqld.service </div>
+   </li>
+   <li>Secure the MariaDB installation.
+     <div class="hacker">sudo mysql_secure_installation</div>
+	 The above command will prompt you to enter a password. Enter a password of your choice.
+   </li>
+  </ol>
+
+<h2>Create a new user and database for Diaspora</h2>
+
+<ol> 
+	<li>After MariaDB is installed, create a database for Diaspora by logging into MariaDB.
+      <div class="hacker">mysql -u root –p</div>
+	  If the above command prompts for a password, then enter the password you sent while securing the MariaDB installation.
+   </li>
+   <li>Run the following queries in the MariaDB:
+     <div class="hacker">CREATE USER '<em><u>diaspora</u></em>'@'<em><u>localhost</u></em>' IDENTIFIED BY '<em><u>password</u></em>';</div>
+   <div class="hacker">CREATE DATABASE IF NOT EXISTS `<em><u>diaspora_production</u></em>` DEFAULT CHARACTER SET `utf8mb4` COLLATE `utf8mb4_bin`;</div>
+   <div class="hacker">GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON `<em><u>diaspora_production</u></em>`.* TO '<em><u>diaspora</u></em>'@'<em><u>localhost</u></em>';</div>
+   <div class="hacker">\q</div>
+   </li>
+   <li>Log in as a database user in Diaspora.
+   <div class="hacker">mysql -u diaspora -p -D <em><u>diaspora_production</u></em></div>
+   <div class="hacker">\q</div>
+   </li>
+</ol>
+
+<h2>Specify the Diaspora settings
+</h2>
+<ol> 
+<li>Switch to the Diaspora user, and configure the basic settings. 
+  <div class="hacker">sudo su diaspora</div>
+   <div class="hacker">cd</div>
+   </li>
+   <li>Edit the <code>database.yml</code>file, and give proper entries with respect to the PostgreSQL database.
+     <div class="hacker">vim /etc/webapps/diaspora/database.yml</div>
+   </li>
+   <li>Make the following changes in the <code>config/diaspora.yml</code> file:
+     <div class="hacker">vim /etc/webapps/diaspora/diaspora.yml</div>
+   <ul>
+   <li>Uncomment  line 39, and add a proper <strong>https</strong> URL.
+   </li>
+   <li>Uncomment  line 47, and choose <code>certificate_authorities</code>.
+   </li>
+  <li>Uncomment  line 177, and edit it as follows:
+    <div class="hacker">rails_environment: '<em><u>production</u></em>'</div>
+  </li>
+   </ul>
+   </li>
+  <li>Save and close the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key.
+   </li>
+   
+   <li>Initialize the schema.
+   <div class="hacker">bin/bundle exec rake db:create db:schema:load</div>
+   </li>
+   <li>Switch back to the regular user, and start the Diaspora service in server.
+     <div class="hacker">su - user</div>
+   <div class="hacker">sudo systemctl enable diaspora.service</div>
+   <div class="hacker">sudo systemctl start diaspora.service</div>
+   </li>
+  </ol>
+	         
+    <h2>Conclusion</h2>
+    <p>In this article, you have learned  to install and configure a social network using Diaspora on an Arch Linux server.</p> 
+</body>
+</html>

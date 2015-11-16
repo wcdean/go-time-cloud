@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Install and configure a social network with Diaspora - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up a social network with Diaspora, Ruby, Rails, Applications, MariaDB, Nginx</p>
+<h1>Install and Configure a Social Network with Diaspora - CentOS, Fedora</h1>
+<p><strong>Difficulty</strong>: <em>3</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+<p>Diaspora is an open-source social network that is used in a distributed network. In this article, you'll learn how to install and configure a social network using Diaspora on a CentOS or Fedora server. For security reasons, you should always prefer to use <code>sudo</code> user login.</p>		
+
+<p>Before you start, make sure that the server has at least 1 GB of RAM and that the domain name points to the server. In addition, you'll need to <a href ="17379">install an SSL certificate on your web server via SSH</a> on the CentOS or Fedora server. If you need to create a swap file,  visit <a href="17328">Add Memory Swap on CentOS</a> or <a href="17327">Add Memory Swap on Fedora</a>.</p>
+
+<h2>Install the utility packages and dependencies</h2>
+<ol> 
+<li>Install the utility packages, and update them to make them readily available.
+   <div class="hacker">sudo yum install deltarpm yum-cron vim</div>
+    <div class="hacker">sudo yum update</div>
+  </li>
+   <li>Install the packages for Ruby and C libraries.
+     <div class="hacker">sudo yum install git ruby ruby-devel libxslt-devel libxml2-devel gcc gcc-c++ automake net-tools libcurl-devel libffi-devel make redis nodejs ImageMagick-devel</div>
+  </li>
+   <li>Enable and start the Redis package, which is an open-source key value datastore used as a database by Diaspora.
+     <div class="hacker">sudo systemctl enable redis</div>
+   <div class="hacker">sudo systemctl start redis</div>
+   </li>
+</ol>
+
+<h2>Set up and secure MariaDB</h2>
+<ol> 
+<li>Install the database for Diaspora. You can use either  MariaDB or PostgreSQL as the database. We'll use MariaDB.
+   <div class="hacker">sudo yum install mariadb-server mariadb-devel</div>
+  </li>
+   <li>Enable and start MariaDB.
+   <div class="hacker">sudo systemctl start mariadb</div>
+   <div class="hacker">sudo systemctl enable mariadb</div>
+   </li>
+   <li>Secure the MariaDB installation.
+     <div class="hacker">sudo mysql_secure_installation</div>
+	  The above command will prompt you to enter a password. Enter a password of your choice.
+   </li>
+</ol>
+
+
+
+<h2>Create a new user and database for  Diaspora</h2>
+<ol> 
+<li>Log into MySQL user.
+   <div class="hacker">mysql -u root –p</div>
+   If the above command prompts for a password, then enter the password you sent while securing the MariaDB installation.
+  </li>
+   <li>Run the following queries after you  log in:
+     <div class="hacker">CREATE USER <em><u>'diaspora'@'localhost'</u></em> IDENTIFIED BY '<em><u>password</u></em>';</div>
+   <div class="hacker">CREATE DATABASE IF NOT EXISTS <em><u>`diaspora_production`</u></em> DEFAULT CHARACTER SET `utf8mb4` COLLATE `utf8mb4_bin`;</div>
+   <div class="hacker">GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON <em><u>`diaspora_production`</u></em>.* TO <em><u>'diaspora'@'localhost'</u></em>;</div>
+   <div class="hacker">\q</div>
+   </li>
+   <li>To log into the database, type:
+     <div class="hacker">mysql -u diaspora -p -D <em><u>diaspora_production</u></em></div>
+   <div class="hacker">\q</div>
+   </li>
+</ol>
+
+
+
+<h2>Configure the bundler</h2>
+<ol> 
+<li>Install the bundler. Bundler is the most common package manager used for RubyGems.
+   <div class="hacker">sudo gem install bundler</div>
+  </li>
+   <li>Since the <code>bundle</code> is installed in <code>/usr/bin/bundle</code>, make a symbolic link to include it in the <code>PATH</code> of the user.
+     <div class="hacker">sudo ln -sf /usr/local/bin/bundle /usr/bin/bundle</div>
+   </li>
+</ol>
+ 
+ <h2>Create a dedicated  Diaspora user and fetch source code</h2>
+ <ol>
+   <li>Create a user to run Diaspora. We'll use the user name  <em><u>diaspora</u></em>.
+     <div class="hacker">sudo useradd <em><u>diaspora</u></em></div>
+   </li>
+   <li>Switch to the <em><u>diaspora</u></em> user.
+   <div class="hacker">sudo su - <em><u>diaspora</u></em></div>
+   <div class="hacker">git clone -b master https://github.com/diaspora/diaspora.git</div>
+   </li>
+</ol>
+
+
+
+<h2>Set up the Diaspora database</h2>
+<ol> 
+<li>Change to the working directory.
+   <div class="hacker">cd ~/diaspora/</div>
+  </li>
+   <li>Copy the database configuration file.
+   <div class="hacker">cp config/database.yml.example config/database.yml</div>
+   <div class="hacker">vim config/database.yml</div>
+   </li>
+   <li>Replace the user root with the <em><u>diaspora</u></em> user, and enter the <em><u>password</u></em> configured earlier.
+     <div class="hacker">
+<pre>
+mysql: &amp;mysql
+adapter: mysql2
+host: "<em><u>localhost</u></em>"
+port: 3306
+username: "<em><u>diaspora</u></em>"
+password: "<em><u>password</u></em>"
+encoding: utf8mb4
+collation: utf8mb4_bin
+</pre>
+   </div>
+   </li>
+   <li>Save and close the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key.
+   </li>
+   
+</ol>
+
+
+
+<h2>Set up the basic settings of Diaspora</h2>
+<ol> 
+<li>Copy the configuration file.
+   <div class="hacker">cp config/diaspora.yml.example config/diaspora.yml</div>
+   <div class="hacker">vim config/diaspora.yml</div>
+  </li>
+   <li>Make the following changes in the <code> config/diaspora.yml</code> file:
+   <ul>
+   <li>Uncomment  line 39, and add a proper <strong>https</strong> URL.
+   </li>
+   <li>Uncomment  line 47, and choose <code>certificate_authorities</code> for CentOS.
+   </li>
+  <li>Uncomment  line 177, and edit as follows:
+    <div class="hacker">rails_environment: '<em><u>production</u></em>'</div>
+  </li>
+  </ul>
+   </li>
+   <li>Save and close the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key. 
+   </li>
+   
+</ol>
+
+
+
+<h2>Set up Gems and configure the database</h2>
+<ol> 
+<li>Change to the Diaspora directory.
+   <div class="hacker">cd /home/diaspora/diaspora/</div>
+  </li>
+   <li>Align the <code>nokogiri</code> gem so that it uses the system <code>libxm2</code> library.
+   <div class="hacker">bundle config build.nokogiri --use-system-libraries</div>
+   </li>
+   <li>Install Gems.
+   <div class="hacker">RAILS_ENV=production bin/bundle install --without test development --deployment</div>
+   </li>
+   <li>Configure the database.
+   <div class="hacker">RAILS_ENV=production bin/rake db:create db:schema:load</div>
+   </li>
+   <li>Precompile the assets.
+   <div class="hacker">RAILS_ENV=production bin/rake assets:precompile</div>
+   </li>
+   <li>Exit from the diaspora user account, after you  successfully complete these tasks.
+     <div class="hacker">exit</div>
+   </li>
+   
+</ol>
+
+
+
+<h2>Set up the  Diaspora services</h2>
+<p>Diaspora has two main services: <strong>unicorn</strong> and <strong>sidekiq</strong>. In this section, you'll configure both of the services.</p>
+<ol> 
+<li>Create the <code>tmpfiles</code> directory to hold <strong>unicorn</strong> sockets.
+   <div class="hacker">sudo mkdir /run/diaspora</div>
+  </li>
+   <li>Grant proper ownership.
+   <div class="hacker">sudo chown diaspora:diaspora /run/diaspora</div>
+   <div class="hacker">sudo chmod 750 /run/diaspora</div>
+   </li>
+   <li>Open the configuration file at <code>/etc/tmpfiles.d/diaspora.conf</code>.
+   <div class="hacker">sudo vim /etc/tmpfiles.d/diaspora.conf</div>
+   </li>
+   <li>Add the following line anywhere in the <code>/etc/tmpfiles.d/diaspora.conf</code> file:
+   <div class="hacker">d /run/diaspora 0750 diaspora diaspora - -</div>
+   </li>
+</ol>
+
+
+
+<h3>Unicorn</h3>
+<ol> 
+<li>Edit the <code>diaspora.yml</code> and make the following changes:
+   <div class="hacker">sudo su - diaspora</div>
+   <div class="hacker">vim /home/diaspora/diaspora/config/diaspora.yml</div>
+  </li>
+   <li>Uncomment the following line:
+   <div class="hacker">listen: 'unix:/run/diaspora/diaspora.sock' </div>
+   </li>
+   <li>Save and close the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key.
+   </li>
+   <li>Log in as <code>sudo</code> user and exit from the current user.
+   <div class="hacker">exit</div></li>
+   <li>Create a <code>unicorn.service</code> file.
+     <div class="hacker">sudo vim /etc/systemd/system/diaspora-unicorn.service</div>
+   </li>
+   <li>Add the following entries:
+   <div class="hacker">
+<pre>
+[Unit]
+Description=Diaspora Unicorn Server
+Requires=redis.service
+After=redis.service network.target
+[Service]
+User=diaspora
+Group=diaspora
+SyslogIdentifier=diaspora-unicorn
+WorkingDirectory=/home/diaspora/diaspora
+Environment=RAILS_ENV=production
+## Uncomment if postgres is installed
+#Environment=DB=postgres
+PIDFile=/run/diaspora/unicorn.pid
+Restart=always
+CPUAccounting=true
+emoryAccounting=true
+BlockIOAccounting=true
+CapabilityBoundingSet=
+PrivateTmp=true
+NoNewPrivileges=true
+ExecStart=/usr/bin/bundle exec "unicorn_rails -c config/unicorn.rb -E production"
+[Install]
+WantedBy=multi-user.target
+</pre>
+</div>
+   </li>
+   <li>Save and close the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key.
+   </li>
+   <li>Enable and start the <strong>unicorn</strong> service.
+   <div class="hacker">sudo systemctl enable diaspora-unicorn</div>
+   <div class="hacker">sudo systemctl start diaspora-unicorn</div>
+   </li>
+</ol>
+
+
+<h3>Sidekiq</h3>
+<ol> 
+<li>Create a <code>sidekiq.service</code> file.
+   <div class="hacker">sudo vim /etc/systemd/system/diaspora-sidekiq.service</div>
+  </li>
+   <li>Add the following line:
+   <div class="hacker">
+<pre>
+[Unit]
+Description=Diaspora Sidekiq Worker
+Requires=redis.service
+After=redis.service network.target
+[Service]
+User=diaspora
+Group=diaspora
+SyslogIdentifier=diaspora-sidekiq
+WorkingDirectory=/home/diaspora/diaspora
+Environment=RAILS_ENV=production
+## Uncomment if postgres is installed
+#Environment=DB=postgres
+Restart=always
+CPUAccounting=true
+emoryAccounting=true
+BlockIOAccounting=true
+CapabilityBoundingSet=
+PrivateTmp=true
+ExecStart=/usr/bin/bundle exec "sidekiq -e production -L log/sidekiq.log >> log/sidekiq.log 2>&amp;1"
+[Install]
+WantedBy=multi-user.target
+</pre>
+   </div>
+   </li>
+   <li>Save and close the file by pressing the <strong>Esc</strong> key and then typing <strong>:wq</strong>, followed by pressing the <strong>Enter</strong> key.
+   </li>
+   <li>Enable and start the <strong>sidekiq</strong> service.
+   <div class="hacker">sudo systemctl enable diaspora-sidekiq</div>
+   <div class="hacker">sudo systemctl start diaspora-sidekiq</div>
+   </li>
+</ol>
+
+
+
+<h2>Set up Nginx and grant permission</h2>
+<ol> 
+<li>Install Nginx.
+   <div class="hacker">sudo yum install nginx</div>
+  </li>
+   <li>Enable and start the Nginx service.
+   <div class="hacker">sudo systemctl enable nginx</div>
+   <div class="hacker">sudo systemctl start nginx</div>
+   </li>
+   <li>Grant proper permissions.
+   <div class="hacker">sudo usermod -a -G diaspora nginx</div>
+      <div class="hacker">sudo chmod 750 /home/diaspora/</div>
+   </li>
+</ol>
+
+
+
+<h2>Set up the SSL certificates </h2>
+<ol> 
+<li>Create a directory at <code><em><u>/etc/ssl/diaspora</u></em></code>, and move your certificates to this directory.
+   <div class="hacker">sudo mkdir <em><u>/etc/ssl/diaspora</u></em></div>
+  </li>
+   <li>Switch to the root user.
+   <div class="hacker">sudo su -</div>
+   </li>
+   <li>Create the <code>dhparam.pem</code> file.
+   <div class="hacker">openssl dhparam 2048 > /etc/ssl/dhparam.pem</div>
+  This will take some time. After completing this task, switch back to your <code>sudo</code> user.
+   <div class="hacker">su – <em><u>username</u></em></div>
+   </li>
+  
+</ol>
+
+
+<h2>Deactivate the default site</h2>
+<ol> 
+<li>Deactivate the default Nginx site.
+   <div class="hacker">sudo vim /etc/nginx/nginx.conf</div>
+   </li>
+   <li>Remove the <code>default_server</code> entries in the server section. 
+   <div class="hacker">
+<pre>
+server {
+listen 80;
+listen [::]:80;
+server_name localhost;
+root /usr/share/nginx/html;
+</pre>
+   </div>
+   </li>
+  </ol>
+
+
+
+<h2>Create the Nginx configuration of Diaspora</h2>
+<ol> 
+<li>Create a new configuration file.
+   <div class="hacker">sudo vim /etc/nginx/conf.d/diaspora.conf</div>
+   </li>
+   <li>Add the following lines:
+     <div class="hacker">
+<pre>
+upstream diaspora {
+  server unix:/run/diaspora/diaspora.sock fail_timeout=0;
+}
+server {
+  listen [::]:80;
+  listen 80;
+  server_name _;
+  return 301 https://<em><u>coolexample.com</u></em>$request_uri;
+}
+server {
+  listen [::]:443 ssl spdy;
+  listen 443 ssl spdy;
+  server_name <em><u>coolexample.com</u></em>;
+  root /home/diaspora/diaspora/public;
+  server_tokens off;
+  error_log /var/log/nginx/diaspora_error.log;
+  client_max_body_size 4M;
+
+  ## SSL settings
+  ssl_certificate <em><u>/etc/ssl/diaspora/ssl.crt</u></em>;
+  ssl_certificate_key <em><u>/etc/ssl/diaspora/ssl.key</u></em>;
+  ssl_dhparam /etc/ssl/dhparam.pem;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128:AES256:AES:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK';
+  ssl_session_timeout 5m;
+  ssl_prefer_server_ciphers on;
+  ssl_session_cache shared:SSL:50m;
+  add_header Strict-Transport-Security "max-age=31536000";
+  location / {
+    # Proxy if requested file not found
+    try_files $uri $uri/index.html $uri.html @diaspora;
+  }
+  location @diaspora {
+    gzip off;
+    proxy_set_header  X-Forwarded-Ssl   on;
+    proxy_set_header  X-Real-IP         $remote_addr;
+    proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header  X-Forwarded-Proto https;
+    proxy_set_header  Host              $http_host;
+    proxy_set_header  X-Frame-Options   SAMEORIGIN;
+    proxy_redirect                      off;
+    proxy_pass http://diaspora;
+  }
+}
+</pre>
+   </div>
+   </li>
+   <li>Check the configuration file.
+   <div class="hacker">sudo nginx –t</div>
+   </li>
+   <li>Restart Nginx to apply the changes.
+   <div class="hacker">sudo systemctl restart nginx</div>
+   After completing the above steps, you can  access Diaspora by simply accessing it on your browser at <em><u>https://coolexample.com</u></em>.   </li>
+  </ol>
+
+
+
+<h2>Conclusion</h2>
+    <p>In this article, you learned to install and configure Diaspora in your CentOS or Fedora server.</p>
+   
+</body>
+</html>

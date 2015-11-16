@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17588  -->
+
+
+<title>Install and configure Moodle on your LAMP server - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure Moodle on your LAMP server - CentOS, Fedora, PHP, Applications </p>
+    <h1>Install and configure Moodle on your LAMP server - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+
+    <p>Moodle is an acronym for Modular Object Oriented Dynamic Learning Environment. It is an open source Course Management System that enables the creation of online learning site. Moodle has default features such as, as easy to use interface, personalized dashboard, track progress and many others.  Moodle offers customizable site design and layout, secure authentication and mass enrollment, bulk course creation, and easy backup.</p>
+
+    <p>It is assumed that you have sudo priviliges to perform the below mentioned steps. In addition, you need to install and configure LAMP for CentOS and Fedora, refer to the following articles:</p>
+	 <ul>
+	<li><a href="17343">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6</a></li>
+	<li><a href="17344">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7</a></li>
+	<li><a href="17342">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Fedora</a></li>
+	</ul> 
+	
+	<h2>Install the required dependencies</h2>
+<ol> 
+<li>Install curl and GD extensions.
+   <div class="hacker">sudo yum install php-gd php-curl php-xml php-mbstring  php-intl php-xmlrpc</div>
+   </li>
+   <li>Moodle uses <code>mysqli</code> extension for database manipulation. Install <code>mysqli</code> using the following command:
+   <div class="hacker">sudo yum install php-pdo php-mysqli</div>
+   </li>
+   <li>Restart the Apache services to make the changes effective.
+   <div class="hacker">sudo service httpd restart</div>
+   </li>
+  </ol>
+  
+  <h2>Basic configuration</h2>
+<ol> 
+<li>Download the Moodle source from the official site using the following command:
+   <div class="hacker">cd /var/www/html</div>
+   <div class="hacker">sudo wget <em><u>http://download.moodle.org/download.php/direct/stable25/moodle-latest-25.tgz</u></em></div>
+   </li>
+   <li>Extract the downloaded source.
+   <div class="hacker">sudo tar xzvf moodle-latest-25.tgz</div>
+   </li>
+   <li>A new directory was added in the folder named <code>moodle</code>.
+   </li>
+   <li>To secure <code>moodle</code> from being written from bring writeable from the outside, change the owner to <code>root</code>, and then change the permissions.
+   <div class="hacker">sudo chown -R apache:apache /var/www/html/</div>
+  
+   </li>
+   <li>Moodle needs a folder for its temporary operations, and it shouldn’t be accessed from web. Move it to a location outside the server web root. To create it in home directory, use the following command:
+   <div class="hacker">sudo mkdir <em><u>/moodledata</u></em></div>
+   </li>
+   <li>Make it writeable by the machine.
+       <div class="hacker">sudo chown apache:apache <em><u>/moodledata</u></em></div>
+   </li>
+  </ol>
+  
+  <h2>Create a database</h2>
+<ol> 
+<li>Create a blank database for the backend operation.
+   <div class="hacker">mysql -u root -p</div>
+   <div class="hacker">CREATE DATABASE <em><u>moodle</u></em>;</div>
+   </li>
+   <li>Exit from the <code>MySQL</code> console by typing <strong>exit</strong> or press <strong>CTRL+C</strong>.
+   <!--Tester, what is the exit command?-->
+   </li>
+   </ol>
+  
+  <h2>Install Moodle</h2>
+  <ol>
+   <li>Open the browser and type public IP or URL of moodle server as <strong>http://<em><u>public_ip</u></em>/moodle</strong>.
+   </li>
+   <li>After pressing <strong>Enter</strong>, you will find first step of moodle installation process.
+   </li>
+   <li>Choose the language you want to use, and then click <strong>Next</strong>.
+	<br/><img src="images/17588/091515/Choose-language.png" alt="Choose-language.png"/>
+   </li>
+   <li>Set the <strong>Data directory</strong> that you created earlier, and then click <strong>Next</strong>.
+  <br/><img src="images/17588/091515/data-directory.png" alt="data-directory.png"/>
+   </li>
+   <li>Select the <strong>Type</strong> of database driver to connect with the database, and then click <strong>Next</strong>.
+      <br/><img src="images/17588/091515/Choose-database-driver.png" alt="Choose database driver page"/>
+	   <p class="note">To avoid errors, use the driver that the database engine has installed.</p>
+   </li>
+   <li>Enter the database credentials to connect with the database (you can enter "root" and the MySQL password since you haven't created a database user), and then click <strong>Next</strong>.
+  <br/><img src="images/17588/091515/Database-settings.png" alt="Database settings page"/>
+   </li>
+   <li>If the configuration fails, you will be asked to copy a certain block of text to the config file. This happens mostly because of the lack of ownership to the moodle directory. Make sure you have provided that and you can avoid making changes in the <code>config.php</code> file.</li>
+   
+   </li>
+   <li>After the configuration is complete you will see <strong>Server Checks</strong> and <strong>Installation</strong> page click on <strong>Continue</strong> button on both page. </li>
+  </ol>
+  
+  <h2>Update the site profile</h2>
+<ol> 
+<li>Update the profile for your site and fill the mandatory information fields,
+   <br/><img src="images/17588/091515/Site-profile.png" alt="Site-profile.png"/>
+   </li>
+   <li>Click <strong>Update profile</strong>. You will be redirected to the site settings. Enter your <strong>Full site name</strong>. The other information is optional. 
+    <br/><img src="images/17588/091515/Front-page-settings.png" alt="Front-page-settings.png"/>
+   </li>
+   <li>Click <strong>Save changes</strong> You will be redirected to the home page of Moodle where you can manage your courses and site.
+   </li>
+  </ol>
+  
+  <h2>Conclusion</h2>
+    <p>In this article, you learned to install and configure Moodle on your LAMP server with CentOS and Fedora. </p>
+   
+</body>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Install and configure MoinMoin with NGINX - CentOS, Fedora</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setup a MoinMoin Wiki on NGINX</p>
+    <h1>Install and configure MoinMoin with NGINX - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>This artcile describes how to install the MoinMoin Wiki software on an NGINX platform.  It assumes NGINX is already installed.</p>
+
+    <h2>Preparation</h2>
+      <ol>
+               <li>Update your local repository list
+                   <div class="hacker">sudo yum update</div>
+               </li>
+           <li>Install a C++ compiler
+                    <div class="hacker"> sudo yum install gcc-c++ autoconf automake</div>
+               </li>
+               <li>Install pip to facilitate the MoinMoin installation
+                    <div class="hacker">sudo yum install python-pip python-devel</div>
+               </li>              
+                <li>Install tar
+                    <div class="hacker">sudo yum install tar</div>
+               </li>
+               <li>Install uWSGI
+                    <div class="hacker">sudo pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz </div>
+               </li>
+           <li>Install mod_wsgi
+                    <div class="hacker">sudo yum install mod_wsgi </div>
+               </li>
+
+
+         </ol>
+<h2>Install and Configure MoinMoin</h2>
+  
+<h3>Installation</h3>
+       <ol>
+                <li>Navigate to the <a href="https://moinmo.in/MoinMoinDownload">MoinMoin Download</a> page to check for the latest release number.  At the time of this writing, the latest release was 1.9.8
+                </li>
+                <li>Retrieve the archived installation files
+                    <div class="hacker">wget http://static.moinmo.in/files/moin-1.9.8.tar.gz </div>
+               </li>
+                <li>Extract them
+                    <div class="hacker">tar zxvf moin-1.9.8.tar.gz</div>
+               </li>
+                <li>Navigate to the directory created by tar
+                    <div class="hacker">cd moin-1.9.8</div>
+               </li>
+                <li>Build the MoinMoin Python app in <code>/usr/local</code>
+                    <div class="hacker">sudo python setup.py install --prefix=/usr/local</div>
+               </li>
+                <li>Copy the moin configuration file to <code>/usr/local/share/moin</code>
+                    <div class="hacker">sudo cp /usr/local/share/moin/server/moin.wsgi /usr/local/share/moin/</div>
+               </li>
+        </ol>
+<h3>Edit moin.wsgi</h3>
+     <ol>
+                <li>Edit the config file
+                    <div class="hacker">sudo vim /usr/local/share/moin/moin.wsgi</div>
+               </li>
+               <li>Edit the  <code>WSGIScriptAlias</code> ,<code>WSGIDaemonProcess</code>, and<code>WSGIProcessGroup</code> directives to look like this:
+                    <div class="hacker"><pre> # you will invoke your moin wiki at the root url, like http://servername/FrontPage:
+    WSGIScriptAlias / /usr/local/share/nginx/html/moin.wsgi
+
+    # create some wsgi daemons - use someuser.somegroup same as your data_dir:
+    WSGIDaemonProcess moin user=nginx group=nginx processes=5 threads=10 maximum-requests=1000 umask=0007
+
+    # use the daemons we defined above to process requests!
+    WSGIProcessGroup moin
+</pre></div>
+               </li>
+                <li>Below the <code>import sys, os</code> line uncomment the two lines&nbsp;<code>#sys.path.insert</code> lines and modify them as follows:
+                    <div class="hacker"><pre>sys.path.insert(0, '/usr/local/lib/python2.7/dist-packages/')
+sys.path.insert(0, '/usr/local/share/moin/')</pre></div>
+               </li>
+                <li>Save and close
+                </li>
+         </ol>
+<h3>Create uwsgi.ini</h3>
+    <ol>
+                <li>Create and open the uwsgi initialization file
+                    <div class="hacker">sudo vim /usr/local/share/moin/uwsgi.ini</div>
+               </li>
+                <li>Insert the following contents
+                    <div class="hacker"><pre>[uwsgi]
+uid = nginx
+gid = www-data
+socket = /usr/local/share/moin/moin.sock
+chmod-socket = 660
+logto = /var/log/uwsgi/uwsgi.log
+
+chdir = /usr/local/share/moin/
+wsgi-file = moin.wsgi
+
+master
+workers = 3
+max-requests = 200
+harakiri = 30
+die-on-term
+</pre></div>
+               </li>
+                <li>Save and close
+               </li>
+        <li>Create the log directory as per the location in the uwsgi.ini file... 
+                    <div class="hacker">sudo mkdir -p /var/log/uwsgi</div>
+               </li>
+        <li>...and change the owner to be the same as the Nginx owner
+                    <div class="hacker" style="font-family: 'Lucida Console'; ">sudo chown nginx /var/log/uwsgi
+</div>
+               </li>
+       </ol>
+<h3>Create moin.conf</h3>
+     <ol>
+         <li>Create directory for the moin initctl script 
+                    <div class="hacker">sudo mkdir /etc/init</div>
+               </li>
+                <li>Create and open the moin initctl script 
+                    <div class="hacker">sudo vim /etc/init/moin.conf</div>
+               </li>
+                <li>Insert the following contents
+                    <div class="hacker"><pre>description "moin uwsgi service"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+chdir /usr/local/share/moin
+exec /usr/bin/uwsgi /usr/local/share/moin/uwsgi.ini
+respawn</pre></div>
+               </li>
+                <li>Save and close
+                </li>
+        </ol>
+<h3>Configure the Wiki</h3>
+     <ol>
+                <li>Copy the wikiconfig python file to your moin directory
+                    <div class="hacker">sudo cp /usr/local/share/moin/config/wikiconfig.py /usr/local/share/moin/</div>
+               </li>
+                <li>Open the copied file for editing
+                    <div class="hacker">sudo vim /usr/local/share/moin/wikiconfig.py</div>
+               </li>
+                <li>Change the following directives to suit your requirements (you may need to uncomment them):
+                    <div class="hacker"><pre>sitename = u'<em><u>Name of your Wiki</u></em>'
+page_front_page = u"FrontPage"
+superuser = [u"<em><u>WikiAdmin</u></em>", ]
+                                        </pre></div>
+               </li>
+                <li>Save and close
+                </li>
+       </ol>
+<h3>Start</h3>
+      <ol>
+   <li>Change ownership of the MoinMoin directories...
+                    <div class="hacker" style="font-family: 'Lucida Console'">sudo chown -R nginx: /usr/local/share/moin</div>
+               </li>
+        <li>...and their permisions
+                    <div class="hacker">sudo chmod -R o-rwx /usr/local/share/moin</div>
+               </li>
+          <li>edit the moin executable
+                    <div class="hacker">sudo vim /usr/local/bin/moin</div>
+               </li>
+         <li>Uncomment the first two lines as below:
+                    <div class="hacker"><pre>#! /usr/bin/python
+#Fix and uncomment those 2 lines if your moin command doesn't find the MoinMoin
+package:
+import sys
+sys.path.iimport sys
+sys.path.insert(0, '/usr/local/lib/python2.7/site-packages/')
+from MoinMoin.script.moin import run
+               </li> 
+
+          <li>Start MoinMoin
+                    <div class="hacker">sudo start moin</div>
+               </li>
+        </ol>
+<h2>Configure NGINX</h2>
+     <ol>            
+    <li>Create and open a server block configuration file
+           <div class="hacker">sudo vim /etc/nginx/conf.d/moin.conf</div>
+               </li>
+                <li>Insert the following contents:
+                    <div class="hacker"><pre>server {
+    server_name <em><u>your server name or IP</u></em>;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    location /moin {
+        include uwsgi_params;
+        uwsgi_pass unix:///usr/local/share/moin/moin.sock;
+        uwsgi_modifier1 30;
+    }
+}</pre></div>
+               </li>
+            <li>Restart Nginx
+                    <div class="hacker">sudo service nginx restart</div>
+               </li>
+          </ol>
+<h2>Set up MoinMoin Wiki Admin</h2>
+     <ol>            
+    <li>Using a browser, navigate to your Nginx webserver.  The MoinMoin Wiki will display</li>
+    <li>Click <strong>Login</strong></li>
+    <li>At the login page, you don't have an account so click <strong>create one now</strong></li>
+    <li>At the Create Account page, enter "WikiAdmin" (the value from the wikiconfig.py file, above)</li>
+    <li>Enter a password and email as directed by the UI</li>
+      </ol>
+    <h2>Next steps</h2>
+    <p>Your wiki is now ready for use.  There is an extensive and amusing discussion on what MoinMoin means on the<a href="https://moinmo.in/MoinMoinEtymology"> MoinMoin Wiki</a>.   </p>
+   
+</body>
+</html>

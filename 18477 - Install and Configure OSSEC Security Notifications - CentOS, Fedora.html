@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Install and Configure OSSEC Security Notifications - CentOS, Fedora</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+	.red-text{
+		color:#FF8080;
+	}
+	.command{
+		font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace;
+	}
+    </style>
+</head>
+<body>
+	<p>Setting up OSSEC security notifications, Security, Monitoring</p>
+	<h1>Install and Configure OSSEC Security Notifications - CentOS, Fedora</h1>
+	<p><strong>Difficulty: </strong> <em>2</em><br />
+	<strong>Time: </strong> <em>45 Minutes</em></p>
+	<p>OSSEC is an open-source, host-based intrusion detection system. It performs log integrity checking, analysis, rootkit detection, Windows registry monitoring, active response, and time based alerting. It can monitor one or more servers and  be configured to give real time alerts. This article explains installation of OSSEC security notifications on CentOS or Fedora.</p>
+	
+	
+	<p>Optionally if you want to send email alerts from a local server, you  need to install Postfix. See <a href="17425 - Install and Configure Postfix - CentOS">Install and Configure Postfix - CentOS</a> or <a href="17427">Install and Configure Postfix - Fedora</a>.</p>
+	<p class="note">
+		You  need access to <code>sudo</code> privileges to complete all steps.
+	</p>
+	<h2>Prepare the system</h2>
+	<ol>
+		
+		<li>
+			Update the server.
+		<div class="hacker">sudo yum update</div>
+		</li>
+		<li>
+		Install the packages.
+		<div class="hacker">
+				sudo yum groupinstall 'Development Tools' <br/>
+				sudo yum install inotify-tools tar
+		</div>
+		</li>
+	</ol>
+<h2>Download OSSEC and verify the package</h2>
+	<p>You  need to download the OSSEC tarball and a file with its cryptographic checksum to verify that you are installing valid software. We'll generate a MD5 checksum and SHA1 checksum to compare with those in the checksum file.</p>
+	
+	<ol>
+	
+		
+		<li>
+			Download OSSEC.
+			<div class="hacker">sudo wget -U ossec http://www.ossec.net/files/ossec-hids-<em><u>x.x.x</em></u>.tar.gz</div>
+			To determine the current stable version of OSSEC, refer to <a href="http://www.ossec.net/?page_id=19" target="_blank">OSSEC Download</a>.
+		</li>
+		 <li>Download the checksum file.
+			<div class="hacker">sudo wget -U ossec http://www.ossec.net/files/ossec-hids-<em><u>x.x.x</em></u>-checksum.txt</div>
+		</li>
+		<li>
+			Verify the checksum.
+			<div class="hacker">cat ossec-hids-<em><u>x.x.x</em></u>-checksum.txt</div>
+			The following displays:
+			<div class="hacker">
+				<p>MD5(ossec-hids-<em><u>x.x.x</em></u>.tar.gz)= c2ffd25180f760e366ab16eeb82ae382</p>
+				<p>SHA1(ossec-hids-<em><u>x.x.x</em></u>.tar.gz)= 0ecf1df09558dc8bb4b6f65e1fb2ca7a7df9817c</p>
+			</div>
+		</li>
+		<li>
+			Generate a MD5 hash of the tarball using <code>md5sum</code>. <code>md5sum</code> is a computer program that calculates and verifies 128-bit MD5 hashes. The MD5 hash (or checksum) functions as a compact digital fingerprint of a file.
+			  <div class="hacker">md5sum ossec-hids-<em><u>x.x.x</em></u>.tar.gz</div>
+			  The output is as follows:
+		  <div class="hacker">c2ffd25180f760e366ab16eeb82ae382  ossec-hids-<em><u>x.x.x</em></u>.tar.gz</div>
+			This should match  the MD5 checksum in the file.</li>
+		<li>
+			Generate a SHA-1 hash of the tarball using <code>sha1sum</code>. <code>sha1sum</code> produces a 160-bit output called a message digest. Message digest can be input to a signature algorithm that generates or verifies the signature for the message. US Secure Hash Algorithm 1 is used by SHA1.
+<div class="hacker">sha1sum  ossec-hids-<em><u>x.x.x</em></u>.tar.gz</div>
+			  The output is as follows:
+			  <div class="hacker">0ecf1df09558dc8bb4b6f65e1fb2ca7a7df9817c  ossec-hids-<em><u>x.x.x</em></u>.tar.gz</div>
+			This should match  the SHA1 checksum in the file. 
+		</li>
+	</ol>
+<h2>Install OSSEC</h2>
+	<p>You can install OSSEC in many modes including server, agent, local, or hybrid mode. We'll install it in local mode. </p>
+	<ol>
+		<li>Expand the file.
+			<div class="hacker">sudo tar -zxf ossec-hids-<em><u>x.x.x</em></u>.tar.gz</div>
+		</li>
+			<li> Change the directory to the expanded one.
+			<div class="hacker">cd ossec-hids-<em><u>x.x.x</em></u></div>
+			</li>
+		<li> Initiate the installation.
+			<div class="hacker">sudo ./install.sh</div>
+		</li>
+		
+			<li>When prompted, choose a language or use the default by pressing <strong>Enter</strong>.
+			
+			 <p>The following displays:</p>
+			<div class="hacker">
+				<pre>
+						OSSEC HIDS v2.8 Installation Script - http://www.ossec.net
+						
+						 You are about to start the installation process of the OSSEC HIDS.
+						 You must have a C compiler pre-installed in your system.
+						 If you have any questions or comments, please send an e-mail
+						 to dcid@ossec.net (or daniel.cid@gmail.com).
+
+						  - System: Linux ubuntu 3.13.0-55-generic
+						  - User: root
+						  - Host: ubuntu
+
+
+						  -- Press ENTER to continue or Ctrl-C to abort. -
+
+				</pre>
+			</div>
+		</li>
+		<li>When prompted for the kind of installation, type <strong>local</strong> and press <strong>Enter</strong>.</li>
+		<li>
+			For the following prompts, press <strong>Enter</strong>. <br />
+			<div class="hacker">
+				Choose where to install the OSSEC HIDS [/var/ossec]:
+			</div>
+			<div class="hacker">
+				Do you want e-mail notification? (y/n) [y]:
+			</div>
+		</li>
+		<li>For the  prompt regarding where to receive notifications, type your email address.
+			<div class="hacker">
+				What's your e-mail address? 
+			</div>
+			The following displays:		
+			<div class="hacker">
+				
+	      We found your SMTP server as: <em><u>smtp.coolexample.com</u></em>.<br/>
+				- Do you want to use it? (y/n) [y]:
+				
+			</div>
+			</li>
+				<li>Press <strong>Enter</strong> unless you want to use a different SMTP server.
+				</li>
+		
+			<li>For the following prompts, press <strong>Enter</strong>.
+					<div class="hacker">
+					Do you want to run the integrity check daemon? (y/n) [y]:<br />
+						- Running syscheck (integrity check daemon).
+				</div>
+				<div class="hacker">
+					Do you want to run the rootkit detection engine? (y/n) [y]:<br />
+					- Running rootcheck (rootkit detection).
+				</div>
+				<div class="hacker">
+					Active response allows you to execute a specific command based on the events received.<br/>  
+					Do you want to enable active response? (y/n) [y]:
+				</div>
+				<div class="hacker">
+					Do you want to enable the firewall-drop response? (y/n) [y]:<br/>
+					- firewall-drop enabled (local) for levels >= 6
+				</div>
+			</li>
+		
+		<li>
+			When prompted for more IP addresses, press <strong>Enter</strong>. Files to be monitored by OSSEC will be displayed, You can add more files after installation. Installation may take a few minutes.
+				<p>A successful installation displays the following:</p>
+		
+			<div class="hacker">
+				<pre>
+					- System is Redhat Linux.
+					- Init script modified to start OSSEC HIDS during boot.
+
+					- Configuration finished properly.
+
+					- To start OSSEC HIDS:
+							/var/ossec/bin/ossec-control start
+
+					- To stop OSSEC HIDS:
+							/var/ossec/bin/ossec-control stop
+
+					- The configuration can be viewed or modified at /var/ossec/etc/ossec.conf
+
+
+					Thanks for using the OSSEC HIDS.
+					If you have any question, suggestion or if you find any bug,
+					contact us at contact@ossec.net or using our public maillist at
+					ossec-list@ossec.net
+					( http://www.ossec.net/main/support/ ).
+
+					More information can be found at http://www.ossec.net
+
+					---  Press ENTER to finish (maybe more information below). ---
+
+				</pre>
+			</div>
+	  </li>
+	</ol>
+	<h2>Start OSSEC</h2>
+	<p>OSSEC is configured to start at startup, but the first time you need to initiate it manually.</p>
+	<ol>
+		<li>
+			
+			Check the current status.
+			<div class="hacker">sudo /var/ossec/bin/ossec-control status</div>
+			The following displays:
+			<div class="hacker">
+				
+				ossec-monitord not running...<br />
+				ossec-logcollector not running...<br />
+				ossec-syscheckd not running...<br />
+				ossec-analysisd not running...<br />
+				ossec-maild not running...<br />
+				ossec-execd not running...<br />
+				
+			</div>
+		</li>
+		<li>
+			Start  OSSEC.
+			<div class="hacker">
+			sudo /var/ossec/bin/ossec-control start
+		  </div>
+			The following displays:
+			<div class="hacker">
+				Starting OSSEC HIDS v2.8 (by Trend Micro Inc.)...
+				Started ossec-maild...<br/>
+				Started ossec-execd...<br/>
+				Started ossec-analysisd...<br/>
+				Started ossec-logcollector...<br/>
+				Started ossec-syscheckd...<br/>
+				Started ossec-monitord...<br/>
+				Completed.
+			</div>
+		
+			Also, you'll receive an email message.
+			<div class="hacker">
+			
+			OSSEC HIDS Notification.<br />
+			2015 Aug 17 02:16:34<br />
+<br />
+			Received From: ubuntu->ossec-monitord<br />
+			Rule: 502 fired (level 3) -> "Ossec server started."<br />
+			Portion of the log(s):<br />
+
+			ossec: Ossec started.<br />
+			
+			</div>
+			<p>You'll receive such messages whenever a monitored event occurs.</p>
+		</li>
+	</ol>
+	
+
+<h2>(Optional) Update the main configuration file</h2>
+Use the main OSSEC configuration file, <code>/var/ossec/etc/ossec.conf</code>, to configure OSSEC for additional alerts, number of emails, directories to be monitored, and so on. 
+
+<ol>
+	<li>
+		 Open <code>/var/ossec/etc/ossec.conf</code> in a text editor.
+		 <div class="hacker">
+			sudo vim /var/ossec/etc/ossec.conf
+		 </div>
+	</li>
+	<li> Add the following line in the <code>&lt;global></code> tag:
+		<div class="hacker">&lt;email_maxperhour><em><u>N</u></em>&lt;/email_maxperhour></div>
+		The final code block  looks like this:
+		<div class="hacker">
+&lt;global><br/>
+	&lt;email_notification>yes&lt;/email_notification><br/>
+	&lt;email_to>email@coolexample.com&lt;/email_to><br/>
+	&lt;smtp_server>mail.coolexample.com.&lt;/smtp_server><br/>
+	&lt;email_from>ossec@ossec_server&lt;/email_from><br/>
+	<em><u>&lt;email_maxperhour>N&lt;/email_maxperhour></u></em><br/>
+&lt;/global><br/>
+		</div>
+	</li>
+	<li>
+		Locate the <code>&lt;syscheck></code> tag in the same file. You can update the frequency of the system check by updating the <code>&lt;frequency></code> tag here. Time duration is in seconds.
+		<div class="hacker">
+				&lt;syscheck><br/>
+				&lt;!-- Frequency that syscheck is executed - default to every 22 hours --><br/>
+				&lt;frequency><em><u>79200</u></em>&lt;/frequency><br/>
+		</div>
+	</li>
+	<li>
+		Add the following line under the <code>&lt;syscheck></code> tag to add an alert for new files:
+		<div class="hacker">
+				
+&lt;syscheck><br/>
+&lt;!-- Frequency that syscheck is executed - default to every 22 hours --><br/>
+&lt;frequency>79200&lt;/frequency><br/>
+<em><u>&lt;alert_new_files>yes&lt;/alert_new_files></u></em><br/>
+				
+		</div>
+		
+	</li>
+	<li>
+		To enable real-time monitoring, locate the <code>&lt;directories></code> tag after the <code>&lt;syscheck></code> tag, and add <code>report_changes="yes" realtime="yes"</code> to each line:
+		<div class="hacker">
+				&lt;!-- Directories to check  (perform all possible verifications) --><br/>
+				&lt;directories <em><u>report_changes="yes" realtime="yes" check_all="yes"</u></em>>/etc,/usr/bin,/usr/sbin&lt;/directories><br/>
+				&lt;directories <em><u>report_changes="yes" realtime="yes" check_all="yes"</u></em>>/bin,/sbin&lt;/directories><br/>
+		</div>
+	</li>
+	<li>
+		Add the following line to add <code>/home/<em><u>user_name</u></em> </code> and <code>/var/www to </code> directories monitored.
+		<div class="hacker">
+			&lt;directories report_changes="yes" realtime="yes" restrict=".php|.js|.py|.sh|.html" check_all="yes">/home/<em><u>user_name</u></em>,/var/www&lt;/directories>
+		</div>
+		The <code>restrict </code>setting specifies which formats to monitor.
+	</li>
+	<li>
+		Save and close the file by pressing the <strong>Esc</strong> key, then  typing <code>:wq!</code> and then pressing  the <strong>Enter</strong> key.
+</li>
+	</ol>
+		
+<h2>(Optional) Add local rules</h2>
+There are several files in the <code>/var/ossec/rules</code> directory to manage custom and default rules. The file <code>ossec_rules.xml</code> contains OSSEC's default rule definitions. Custom rules are defined in the <code>local_rules.xml</code> file.
+To create custom rules, you can copy and paste rules from the <code>ossec_rules.xml</code> file to the <code>local_rules.xml</code> file and modify them as desired.
+		
+<ol>   
+			<li>
+				Open <code>/var/ossec/rules/ossec_rules.xml</code> for editing. 
+				<div class="hacker">
+				 sudo vim /var/ossec/rules/ossec_rules.xml
+				</div>
+			</li>
+			<li>
+				Locate rule <strong>554</strong> and copy it.<br />
+				Rule <strong>554</strong> looks like this:
+				<div class="hacker">
+						&lt;rule id="554" level="0" overwrite="yes"><br/>
+						&lt;category>ossec&lt;/category><br/>
+						&lt;decoded_as>syscheck_new_entry&lt;/decoded_as><br/>
+						&lt;description>File added to the system.&lt;/description><br/>
+						&lt;group>syscheck,&lt;/group><br/>
+						&lt;/rule><br/>
+					
+				</div>
+			</li>
+			<li>
+				
+			Close the file by pressing <strong>Esc</strong>, and typing <strong>:q!</strong> followed by pressing  <strong>Enter</strong>. </li>
+			<li>
+				Open <code>/var/ossec/rules/local_rules.xml</code>for editing.
+				<div class="hacker">
+					sudo vim /var/ossec/rules/local_rules.xml
+				</div>
+			</li>
+			<li>Add the rule 554 you copied from <code>ossec_rules.xml</code>, and change the level to equal <strong>7</strong> as shown.
+				<div class="hacker">
+						&lt;rule id="554" level="<em><u>7</u></em>" overwrite="yes"><br/>
+						&lt;category>ossec&lt;/category><br/>
+						&lt;decoded_as>syscheck_new_entry&lt;/decoded_as><br/>
+						&lt;description>File added to the system.&lt;/description><br/>
+						&lt;group>syscheck,&lt;/group><br/>
+						&lt;/rule><br/>
+					
+				</div>
+			</li>
+				<li>Save and close the file by pressing <strong>Esc</strong> and typing <strong>:wq!</strong> followed by pressing<strong> Enter</strong>. </li>
+				<li>Restart OSSEC.
+                  <div class="hacker">
+					sudo /var/ossec/bin/ossec-control restart
+				</div>
+				  <p>You'll receive an email when OSSEC restarts.</p>
+			  </li>
+</ol>
+<h2>Alerts for  file changes</h2>
+<p> You'll receive alerts whenever you add, update, or delete any file in the directories monitored by OSSEC. Keep in mind that real-time notifications are  sent only for file modifications and  deletions  and not for the addition of files. Alerts for file addition are sent based on every full system check. The frequency of the full system check is defined in the <code>ossec.conf</code> file.
+</p>	
+<h2>Next steps</h2>
+	This article provides  an overview of OSSEC security notifications. You can configure OSSEC  to monitor one or more servers, called agents. See <a href="19003 - Monitor OSSEC Agents Using an OSSEC Server - CentOS, Fedora">Monitor OSSEC Agents Using an OSSEC Server - CentOS, Fedora</a>
+	</body>
+</html>

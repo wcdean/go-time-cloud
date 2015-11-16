@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 19228 )-->
+
+    <title>Use SSH Keys with PuTTY - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+    <p>Configure a COMPANY_NAME server to use SSH authentication, create public and private keys with PuTTYGen, and configure PuTTY to connect to a COMPANY_NAME server</p>
+    <h1>Use SSH Keys with PuTTY</h1>
+    <p><strong>Difficulty</strong>: 2
+        <br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+    <p class="note">This article is for Windows users.</p>
+    <p>Using SSH keys for server logins is more secure and saves time. In this article, you'll do the following:</p>
+<ul>
+<li>Generate public and private SSH key pairs with PuTTY</li>
+<li>Load the public SSH keys into the COMPANY_NAME portal</li>
+<li>Create a new server</li>
+<li>Create a PuTTY profile</li>
+<li>Connect to the new server using PuTTY</li></ul>
+
+<p>This article assumes that you have downloaded <a href='http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html'>putty.exe</a> and <a href='http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html'>puttygen.exe</a>.</p>
+    <h2>Generate public and private SSH key pair</h2>
+    <ol>
+        <li>Start PuTTYgen. <br/>
+      <img src='images/19228/072815/puttygen-screen.png' alt='Screenshot of the puttygen.exe' /></li>
+        <li>Click <strong>Generate</strong>.</li>
+        <li>Move the mouse within the blank area under <strong>Key</strong> to generate some randomness until the progress bar is full. <br />
+        Once your key is generated, it'll appear in top the field under <strong>Public key for pasting into OpenSSH authorized_keys file</strong>. This is your <em>public key</em>. A properly formatted public key starts with <code>ssh-rss AAAA</code>.</li>
+        <li>Enter a passphrase in <strong>Key passphrase</strong>.</li>
+        <li>Re-enter the passphrase in <strong>Confirm passphrase</strong>.</li>
+        <li>Click <strong>Save private key</strong>, and then choose a name and location to save your private key file.</li>
+        <li>Right-click in the field under <strong>Public key for pasting into OpenSSH authorized_keys file</strong>, and choose <strong>Select All</strong>.</li>
+        <li>Right-click again in the field, and choose <strong>Copy</strong>.</li>
+</ol>
+    <h2>Load the public SSH key</h2>
+    <p>In this example, we'll get the key from the COMPANY_NAME panel.</p>
+    <ol>
+        <li>Go to the SSH key page in the COMPANY_NAME panel - <a href='https://cloud.godaddy.com/keys'>https://cloud.godaddy.com/keys</a>.</li>
+        <li>Click <strong>Create Key</strong>. The <strong>Create SSH Key</strong> window  opens.<br/>
+      <img src='images/19228/072815/server-panel-create-ssh.png' alt='Screenshot of the create ssh panel' /></li>
+        <li>Enter a unique name that identifies the SSH key you created in the previous step.</li>
+        <li>Paste the contents (copied in the previous section) in the <strong>Key</strong> field.</li>
+        <li>Click <strong>OK</strong>. A Success message  displays.</li>
+    </ol>
+<h2>Create a new server</h2>
+    <ol>
+        <li>In the COMPANY_NAME panel, click <strong>Servers</strong>.</li>
+        <li>Click <strong>Create Server</strong>.</li>
+        <li>Give a unique name to your server, and choose a size and base image.</li>
+        <li>Enter a username. This username should be different from your main COMPANY_NAME account name.</li>
+        <li>In the <strong>Password</strong> field, choose <strong>Connect through SSH instead</strong>.</li>
+        <li>From the drop-down list, select the SSH key created in the previous step.</li>
+        <li>Click <strong>Finish</strong>.</li>
+    </ol>
+    <h2>Create a new PuTTY profile</h2>
+    <ol>
+        <li>Start PuTTY.</li>
+        <li>In the <strong>Host Name (or IP Address)</strong> field, enter the Public IP Address of the server created in the COMPANY_NAME Cloud Servers panel.<br/>
+            <img src='images/19228/072815/server-panel-servers.png' alt='Screenshot of the create servers panel' /></li>
+        <li>In the <strong>Port</strong> field, enter "22".</li>
+        <li>On the left, select the <strong>Data</strong> subcategory under <strong>Connection</strong>.</li>
+        <li>Under <strong>Login details</strong>, in the <strong>Auto-login username</strong> field, enter the username created in the previous section.</li>
+        <li>On the left, under the <strong>Connection</strong> category, expand <strong>SSH</strong>, then click <strong>Auth</strong>.</li>
+        <li>Make sure that <strong>Bypass authetication entirely</strong> (the first option) is NOT checked.</li>
+        <li>On the right, click <strong>Browse</strong> under <strong>Private key file for authentication</strong>.</li>
+        <li>Browse for the private key file created in the previous step and select it.</li>
+        <li>On the left, click  the <strong>Session</strong> category (at the top).</li>
+        <li>Enter a name for the session profile under <strong>Saved Sessions</strong>, such as <em>My Ubuntu Server</em>.</li>
+        <li>Click <strong>Save</strong>.</li>
+    </ol>
+    
+    <h2>Connect using your PuTTY profile</h2>
+    <ol>
+        <li>Start PuTTY.</li>
+        <li>Under <strong>Saved Sessions</strong>, select the profile you'd created in the last section.</li>
+        <li>Click <strong>Load</strong>.</li>
+        <li>Click <strong>Open</strong>.</li>
+        <li>In the <strong>PuTTY Security Aler</strong>t dialog box, click <strong>Yes</strong>.
+            <br/>
+      <img src='images/19228/072815/putty-connect-alert.png' alt='screenshot of a PuTTY connect alert' /></li>
+      <li>When prompted, enter the passphrase used when generating your SSH key.</li>
+    </ol>
+    <p>You are now connected to your server.</p>
+    
+<h2>Conclusion</h2>
+    <p>Congratulations! In this article, you generated public and private SSH key pairs with PuTTY, loaded your public SSH key into the COMPANY_NAME portal, created a new server, created a new PuTTY profile, and connected to your new server using PuTTY.</p>
+</body>
+
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<!--Article # 17722-->
+<head>
+    <title>Deploy Rails Apps with Passenger and Apache – Debian</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url(New folder (2)/@{help-img-path}/img_warning.gif);
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+
+    
+</head>
+
+<body>
+    <p>Setting up Rails Apps with Passenger and Apache in Debian, Ruby, Rails, Apache</p>
+    <h1>Deploy Rails Apps with Passenger and Apache – Debian</h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+    <p>This article guides you through the steps to deploy Rails Apps with Passenger and Apache in Debian. You will need at least one GB of RAM in a virtual server to run the Passenger commands, which consume a lot of memory. It is assumed that the user has <code>sudo</code> privileges to access the virtual server.</p>
+    <p>It assume that you have gone through the article: <a href="17538">Install Ruby on Rails using RVM - Debian</a>.</p>
+	<p class='note'>This guide includes development library installation and ad hoc compilation on the machine; therefore, we do not recommend that you use this tutorial in a production environment.</p>
+   <!--<h2>Prerequisites</h2>    --> <!-- removing this heading as per guidelines and suggestions by Carla Johnshon.     -->
+  
+   <h2>Install Apache</h2>
+	<ol>
+        <li>Install Apache and Apache passenger dependenciesss.
+
+			 <div class='hacker'>sudo apt-get -y install  libcurl4-openssl-dev  libapr1-dev  libaprutil1-dev
+
+</div>
+<div class="hacker"> sudo apt-get install libcurl4-openssl-dev</div>
+<div class= "hacker"> sudo  apt-get install apache2-threaded-dev</div>
+            <div class='hacker'>sudo apt-get install apache2</div>
+           
+        </li>
+        <li>To check the version of Ruby installed, type:
+            <div class='hacker'>ruby -v</div>
+        </li>
+        </ol>
+        
+        <h2>Install Rails and Passenger</h2>
+        <ol>
+        <li>To install Passenger, type:
+            <div class='hacker'>sudo apt-get install gem</div>
+            <div class='hacker'>gem install rails passenger</div>
+        </li>
+        <li>Install the Passenger package for Apache.
+            <div class='hacker'>rvmsudo passenger-install-apache2-module</div>
+            <p>This installation takes a while. After the installation is complete, it will generate the following block of code:</p>
+        </li>
+		<li>
+		<div class = "hacker"><pre>
+LoadModule passenger_module /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/gems/passenger-5.0.20/buildout/apache2/mod_passenger.so
+   &lt;IfModule mod_passenger.c&gt;
+     PassengerRoot /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/gems/passenger-5.0.20
+     PassengerDefaultRuby /home/<em><u>Logged_in_user</u></em>/.rvm/gems/<u><em>Installed_ruby_version</em></u>@global/wrappers/ruby
+   &lt;IfModule&gt;
+
+</pre>
+</div>
+<p>Copy the above code.</p>
+</li>
+	
+        <li>Create the following file and paste the code that you've copied.
+            <div class='hacker'>sudo vim /etc/apache2/conf.d/passenger.conf</div>
+         </li>
+       
+        
+        <li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.		
+		</li>
+		<li> Restart the Apache service with one of these commands:
+			<div class='hacker'>sudo /etc/init.d/apache2 restart</div>
+			 - OR - 
+			<div class='hacker'>sudo service apache2 restart</div>
+		</li>       
+    </ol>
+    
+    <h2> Configure a test Rails application </h2>
+    <ol>
+<li>Install the sqlite's development package to store data in the database.
+	<div class='hacker'>sudo apt-get install sqlite</div>
+</li>
+<li>Go to the Apache web document root folder:
+	<div class='hacker'>cd /var/www/ </div>
+</li>
+<li>Give the requried permission for this directory.
+<div class ="hacker">sudo chmod -R 0777 /var/www/</div>
+</li>
+<li>Create a Rails application.
+	<div class='hacker'>rails new <em><u>Your_application</u></em> </div>
+	<div class='hacker'>cd <em><u>Your_application</u></em> </div>
+</li>
+<li>By default, CentOS doesn’t have a JavaScript execution environment installed. To manually install it, type: 
+
+	<div class='hacker'>sudo vim Gemfile</div>
+</li>
+<li>uncomment the following line in this file:
+
+	<div class='hacker'>gem ‘therubyracer’ </div>
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.		
+		</li>
+<li>Install all the dependencies of <code>Gemfile</code> using the following command: 
+
+	<div class='hacker'>bundle install</div>
+</li>
+<li>You can also initiate the <strong>development</strong> database using the migration tool.
+
+  <div class='hacker'>rake db:migrate </div>
+  </li>
+</ol>
+
+<h2>Connect the Apache Server to the Rails App</h2>
+<ol>
+<li>Create a new virtual host for your application. 
+	<div class='hacker'>sudo vim /etc/apache2/sites-available/default</div>
+</li>
+
+<li>Replace all the content with following code in this file:
+<div class='hacker'>
+    	<pre>
+&lt;VirtualHost *:80>
+       ServerName <em><u>Your_ip_address</u></em>
+	 DocumentRoot /var/www/<em><u>Your_application</u></em>/public 
+   &lt;Directory /var/www/<em><u>Your_application</u></em>/public>
+      AllowOverride all
+      Options -MultiViews
+   &lt;/Directory>
+&lt;/VirtualHost>
+ </pre>
+       </div>
+</li>
+<li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key.		</li>
+<li>Restart the Apache service with one of these commands:
+	<div class='hacker'>sudo /etc/init.d/apache2 restart</div>
+	<p>- OR -</p>
+	<div class='hacker'>sudo service apache2 restart</div>
+    </li>
+	<li>Bind your ip address with rails server using following command:
+	<div class = "hacker">rails server --binding=<em><u>Your_ip_address</u></em>
+	</div>
+	<p>Test your application, go to <strong>http://Your_ip_address:3000</strong>  on any web browser.</p>
+	</li>
+	
+</ol>
+
+
+	<h2>Conclusion</h2>
+		In this article, we reviewed the steps involved in setting up your Rails application with Passenger and Apache to make it more secure and reliable in Debian distribution. 
+</body>
+
+</html>

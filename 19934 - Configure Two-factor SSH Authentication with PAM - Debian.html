@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 19934-->
+
+
+<title>Configure two-factor SSH authentication with PAM - Debian </title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Configure two-factor SSH authentication with PAM - Debian, SSH, Security</p>
+<h1>Configure two-factor SSH authentication with PAM - Debian</h1>
+
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p> 
+
+<p>In this article, you will use Google Authenticator Pluggable Authentication Module (PAM) to protect your secure shell (SSH) server through a two-factor authentication. You will use your smartphone as an authentication medium. To connect to your server, you will need to enter the code that you receive on your phone.</p>
+
+<p>Make sure you log in to your server as the same user you configured the authentication.</p>
+
+<h2>Prerequisites</h2>
+<p>You need to install Google authenticator application in your smartphone. You can download this on your device from Google Play, or download it from the <a href="https://support.google.com/accounts/answer/1066447?hl=en">Google Authenticator</a> site. </p>
+
+<h2>Install dependencies</h2>
+<ol>
+<li>Install the required dependencies.
+<div class="hacker">sudo apt-get install libpam0g-dev</div>
+</li>
+<li>Download the source code of the Google Authenticator PAM library module.
+<div class="hacker">sudo wget http://google-authenticator.googlecode.com/files/libpam-google-authenticator-1.0-source.tar.bz2</div>
+</li>
+<li>Extract the tarball.
+<div class="hacker">sudo tar -xvf libpam-google-authenticator-1.0-source.tar.bz2</div>
+</li>
+<li>Change directory to the extracted folder.
+<div class="hacker">cd libpam-google-authenticator-1.0/</div>
+</li>
+</ol>
+<h2>Compile and install the Google Authenticator PAM module</h2>
+<ol>
+<li>Compile the source codes that has been downloaded earlier.
+<div class="hacker">sudo make</div>
+</li>
+<li>Install the Google Authenticator PAM module:
+<div class="hacker">sudo make install</div>
+</li>
+</ol>
+<h2>Set up SSH </h2>
+<ol>
+<li>Open the <code>sshd</code> configuration file for editing.
+<div class="hacker">sudo vim /etc/pam.d/sshd</div>
+</li>
+<li>Add the following line to the top of the file:
+<div class="hacker">auth required pam_google_authenticator.so</div>
+</li>
+<li>Save and exit.
+</li>
+<li>Open the <code>sshd_config</code> file for editing.
+<div class="hacker">sudo vim /etc/ssh/sshd_config</div>
+</li>
+<li>Update the following line as shown below:
+<div class="hacker">ChallengeResponseAuthentication yes</div>
+</li>
+<li>Save and exit the file.</li>
+<li>To make the changes effective, restart the SSH service.
+<div class="hacker">sudo service ssh restart</div>
+</li>
+</ol>
+<h2>Configure Google authenticator</h2>
+<ol>
+<li>Activate two-factor Google authentication for the user by executing the following command:
+<div class="hacker">google-authenticator</div>
+</li>
+<li>Answer the questions presented. Answer <strong>y</strong> to the first two questions:
+<pre>Do you want authentication tokens to be time-based (y/n) <strong>y</strong></pre>
+<pre>Do you want me to update your "/home/user/.google_authenticator" file (y/n) <strong>y</strong></pre>
+</li>
+
+<li>Answer the remaining questions.</li>
+<li><p>After answering the questions, you will get a URL that contains the QR code. The URL is a long one beginning with <code>https://www.google.com</code> and will look something like this:<br/>
+<strong>https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp...</strong></p>
+
+<p>Put this link into a web browser and a QR code will display.</p>
+
+	<p>Scan this QR code using the Google Authenticator app on your smartphone. </p>
+
+	<p>You can also add this account using a secret key and verification code if you're having trouble scanning the QR code.</p>
+</li>
+
+<li>Open a new session of the same server IP address and login with your existing username. Next, it will prompt for verification code. Enter the verification code from the Google Authenticator app on your smartphone. On the next prompt for password enter your own password for the server that you had set previously.</li>
+
+</ol>
+
+<p>Next time when you log in into the system, you will have to type the verification code from the Google Authenticator app on your smartphone along with your system password. </p>
+
+
+
+<h2>Next Steps</h2>
+<p>Congratulations! You have installed and configured your SSH server with Google two-factor authentication. This configuration adds an additional layer of security for your Linux system.</p>
+
+</body>
+</html>

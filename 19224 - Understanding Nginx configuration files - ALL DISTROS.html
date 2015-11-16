@@ -1,0 +1,437 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __00001 -->
+
+<title>Understanding Nginx configuration files - ALL DISTROS</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+
+<body>
+<p>Describes the NGINX configuration file and its parts.</p>
+    <h1>Understanding NGINX configuration files</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>This article provides a high-level view of the structure the NGINX configuration file and the purpose of each of its component parts. </p>
+
+    <h2>Reducing a sample NGINX Configuration file</h2>
+    <p>The following is an nginx.conf file prior to any user configurations being added.&nbsp; </p>
+
+      <div class="hacker">user www-data;
+          <br />
+          worker_processes 4;
+          <br />
+          pid /run/nginx.pid;
+
+          <br />
+          events {
+        worker_connections 768;
+          <br />
+          # multi_accept on;
+          <br />
+          }
+
+          <br />
+          <br />
+          http {
+          <br />
+          ##
+          <br />
+          # Basic Settings
+          <br />
+          ##
+
+          <br />
+          sendfile on;
+          <br />
+          tcp_nopush on;
+          <br />
+          tcp_nodelay on;
+          <br />
+          keepalive_timeout 65;
+          <br />
+          types_hash_max_size 2048;
+          <br />
+          # server_tokens off;
+
+          <br />
+          # server_names_hash_bucket_size 64;
+          <br />
+          # server_name_in_redirect off;
+
+          <br />
+          <br />
+          include /etc/nginx/mime.types;
+          <br />
+          default_type application/octet-stream;
+
+          <br />
+          <br />
+          ##
+          <br />
+          # Logging Settings
+          <br />
+          ##
+
+          <br />
+          <br />
+          access_log /var/log/nginx/access.log;
+          <br />
+          error_log /var/log/nginx/error.log;<br />
+          ##
+          <br />
+          # Gzip Settings
+          <br />
+          ##
+
+          <br />
+          gzip on;
+        g<br />
+          zip_disable "msie6";
+
+          <br />
+          <br />
+          # gzip_vary on;
+          <br />
+          # gzip_proxied any;
+          <br />
+          # gzip_comp_level 6;
+          <br />
+          # gzip_buffers 16 8k;
+          <br />
+          # gzip_http_version 1.1;
+          <br />
+          # gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+          <br />
+          <br />
+          ##
+          <br />
+          # nginx-naxsi config
+          <br />
+          ##
+          <br />
+          # Uncomment it if you installed nginx-naxsi
+          <br />
+          ##
+
+        #include /etc/nginx/naxsi_core.rules;
+
+          <br />
+          <br />
+          ##
+          <br />
+          # nginx-passenger config
+          <br />
+          ##
+          <br />
+          # Uncomment it if you installed nginx-passenger
+          <br />
+          ##
+
+          <br />
+          #passenger_root /usr;
+          <br />
+          #passenger_ruby /usr/bin/ruby;
+
+              <br />
+          <br />
+          ##
+          <br />
+          # Virtual Host Configs
+          <br />
+          ##
+
+          <br />
+          <br />
+          include /etc/nginx/conf.d/*.conf;
+          <br />
+          include /etc/nginx/sites-enabled/*;
+          <br />
+          }
+
+
+          <br />
+          <br />
+          #mail {
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # See sample authentication script at:
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # <a href="http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript">http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript</a>
+          <br />
+          #
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # auth_http localhost/auth.php;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # pop3_capabilities "TOP" "USER";
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # imap_capabilities "IMAP4rev1" "UIDPLUS";
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #       server {
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;               listen     localhost:110;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protocol   pop3;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy      on;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+          <br />
+          #
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; server {
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; listen     localhost:143;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protocol   imap;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy      on;
+          <br />
+          #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+          <br />
+          #}
+   </div>An ampersand (#) denotes a comment. Removing comments simplifies the file considerably.
+    <div class="hacker">user www-data;
+        <br />
+        worker_processes 4;
+        <br />
+        pid /run/nginx.pid;
+
+        <br />
+        events {
+        worker_connections 768;
+        <br />
+        # multi_accept on;
+        <br />
+        }
+
+        <br />
+        <br />
+        http {
+        <br />
+        ##
+        <br />
+        # Basic Settings
+        <br />
+        ##
+
+        <br />
+        sendfile on;
+        <br />
+        tcp_nopush on;
+        <br />
+        tcp_nodelay on;
+        <br />
+        keepalive_timeout 65;
+        <br />
+        types_hash_max_size 2048;
+        <br />
+        <br />
+        include /etc/nginx/mime.types;
+        <br />
+        default_type application/octet-stream;
+
+        <br />
+        <br />
+        ##
+        <br />
+        # Logging Settings
+        <br />
+        ##
+
+        <br />
+        <br />
+        access_log /var/log/nginx/access.log;
+        <br />
+        error_log /var/log/nginx/error.log;<br />
+        ##
+        <br />
+        # Gzip Settings
+        <br />
+        ##
+
+        <br />
+        gzip on;
+        g<br />
+        zip_disable "msie6";
+
+        <br />
+        <br />
+        ##
+        <br />
+        # Virtual Host Configs
+        <br />
+        ##
+
+        <br />
+        <br />
+        include /etc/nginx/conf.d/*.conf;
+        <br />
+        include /etc/nginx/sites-enabled/*;
+        <br />
+        }
+
+
+   </div>
+   <h2>The NGINX Configuration file structure</h2>
+    <p>The NGINX configuration file is divided into <em>contexts.</em> Everything outside of {} braces is considered part of the <code>main</code> context.
+    The main context is the parent of the <code>events</code> and <code>http</code> contexts.  The http context is the parent of the <code>server</code> context and the server context is the parent of the <code>location</code> context. </p> 
+<p>Each context contains <em>directives</em> that take the form of a name and parameter(s) followed by a semi-colon. Contexts below the main context are sometimes referred to as <em>blocks</em>. Many directives are valid at multiple levels allowing subordiante levels to inherit or override functionality defined at a higher level.  </p>
+    <p>NGINX configuration files support <code>include</code> statements that allow blocks of code to be referenced from a file. This allows you to keep your configuration file tidy.
+    When we add the contents of the included file /etc/nginx/sites-enabled/default file and strip out all directives and comments, the "structure-only" view of the file is revealed.</p>
+    <div class="hacker">events {
+        }
+
+        <br />
+        <br />
+        http {<br />
+        &nbsp;&nbsp;
+        server { 
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location { }
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+        }
+
+
+   </div>
+    <p>
+        In the examples below, the intent is to describe structure rather than functionality, so each example will contain minimal comments for each block rather than try to explain directives with any detail.</p>
+      <h3>Main context</h3>
+    <p>This example shows three directives in the main context that describe or define the NGINX user, server capacity allocated to NGINX, and the ID under which NGINX will run.</p>
+    <div class="hacker"># main context<br />
+        user www-data;
+          <br />
+          worker_processes 4;
+          <br />
+          pid /run/nginx.pid;
+
+          <br />
+
+          <br />
+        events {
+        }
+
+        <br />
+        <br />
+        http {<br />
+        &nbsp;&nbsp;
+        server { 
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location { }
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+        }
+
+
+   </div>
+        
+         <h3>Event context</h3>
+    <p>The <em>event context</em> controls connection-related settings.</p>        
+    <div class="hacker"># event context<br />
+        events {worker_connections 2048
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        }
+
+        <br />
+        <br />
+        http {<br />
+        &nbsp;&nbsp;
+        server { 
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location { }
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+        }
+
+
+   </div>
+        
+         <h3>Http context</h3>
+    <p>The <em>http context</em> controls almost every directive through its ability to affect server and location-related directives across all servers. By itself, http-related settings only affect the size of the hashed server name.</p>        
+    <div class="hacker"># http context<br />
+        http {<br />
+        server_names_hash_bucket_size 128;<br />
+        server_names_hash_max_size 512<br />
+        &nbsp;&nbsp;
+        server { 
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location { }
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+        }
+
+
+   </div>
+        
+         <h3>Server context</h3>
+<p>The <em>server context</em> is where most of the configuration work gets done, and for this reason each server is often defined with individual include file, as in the example at the beginning of this article. Note that the example below is neutral; it might be part of an include file or part of the nginx.conf file.</p> 
+    
+<p>Either way, the important thing to remember is the directives being defined exist in a server context. This example tells NGINX what the server name is, and to listen on port 80.</p>        
+    <div class="hacker"># server context<br />
+        &nbsp;
+        server {
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; listen 80:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; server_name localhost;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location { }
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</div>
+        
+         <h3>Location context</h3>
+    <p>The <em>location context</em> is where the details of a given location are specified.&nbsp; Again, the example below might be part of an include file.&nbsp; This example defines where the web server will look for files, and what the default (index) page is named.</p>        
+    <div class="hacker"># location context<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location&nbsp; / {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root /usr/share/nginx/html;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index index.html
+        <br />
+&nbsp;}
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+   </div>
+    <h2>Next steps</h2>
+    <p>We have just taken a high level view of the NGINX configuration file structure. <a href="17371%20-%20Understanding%20Nginx%20HTTP%20Proxying,%20Load%20Balancing,%20Buffering,%20and%20Caching%20-%20ALL%20DISTROS.html">Understanding NGINX HTTP Proxying, Load Balancing, Buffering, and Caching </a>contains more information about how to use some of the features of NGINX.</p>
+   
+
+</body>
+</html>

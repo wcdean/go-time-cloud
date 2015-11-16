@@ -1,0 +1,192 @@
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+  <head>
+  <!--article # 17339 -->
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+<title>Configure Apache Virtual Hosts - Arch Linux</title>
+</head>
+  <body>
+  
+
+   <p>Configure Apache Virtual Hosts Setup on Arch Linux.</p>
+
+    <h1>Configure Apache virtual hosts - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+    
+    <p>To run multiple sites on a single IP address, you'll need to set up the virtual hosts in your web browser. Apache is the most commonly used web server, and can run a multitude of content based on IP address or hostname.</p>
+
+    <p>This guide will walk you through how to set up an Apache virtual host on an Arch Linux virtual private server (VPS) as a non-root user with <code>sudo</code> privileges.</p>
+    
+    <p class="note">If you need the full LAMP stack (Linux, Apache, MySQL, and PHP), see the article <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17345%20-Build%20a%20LAMP%20stack%20(Linux,%20Apache,%20MySQL,%20PHP)%20-%20Arch Linux.html">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux</a> for instructions.    </p>
+
+    <p>Also, make sure your hostname has a valid DNS record, so that the www version of your domain works. See the article <a href="/article/19116?prog_id=PROG_ID">Point your domain to a GoDaddy Cloud Server</a> for instructions on setting up your domain.</p>
+    
+
+
+    <h2>Install the Apache web server</h2>
+    <ul>
+   <li>Install Apache using <code>pacman</code>.
+      <div class="hacker">sudo pacman -Syu apache</div></li>
+      </ul>
+    
+
+       <h2>Set up the virtual host</h2>
+   <ul>
+  <li>Create the virtual directory for the domains/sites that you'll be serving from your VPS.
+    For this article, we will use the example domain name <em><u>coolexample.com</u></em>.
+    <div class="hacker">
+    sudo mkdir -p /srv/http/<em><u>coolexample.com</u></em></div> </li>
+    </ul>
+    
+        
+    <h2>Create a sample page for your virtual host</h2>
+    
+    <ol>
+    <li>Create a sample page for your virtual host. 
+    <div class="hacker">sudo vim /srv/http/<em><u>coolexample.com</u></em>/index.html</div>
+    </li>
+    <li>
+    It will be a blank file. Add some content: 
+        <div class="hacker"><pre>&lt;html&gt; 
+    &lt;head&gt; 
+    &lt;title&gt;Welcome to <em><u>coolexample.com</u></em>!&lt;/title&gt; 
+    &lt;/head&gt; 
+    &lt;body&gt; 
+    &lt;h1&gt;Hooray! Your <em><u>coolexample.com</u></em> virtual host is working!&lt;/h1&gt; 
+    &lt;/body&gt; 
+&lt;/html&gt;</pre></div></li>
+    <li>Save and close the file.</li>
+</ol>
+
+<h2>Enable virtual hosts</h2>
+
+<p>Enable virtual hosts by making a quick change in the Apache config file.</p>
+
+<ol>
+  <li>Open the <code>httpd.conf</code> file to edit.
+     <div class="hacker">  sudo vim /etc/httpd/conf/httpd.conf</div>
+</li>
+
+   <li>Find this line and uncomment it. 
+        <div class="hacker">Include conf/extra/httpd-vhosts.conf</div></li>
+    
+    <li>Save and close.</li>
+</ol>
+
+
+<h2>Configure your virtual host</h2>
+ 
+<ol>
+
+  <li>Open the virtual hosts file.
+     <div class="hacker">sudo vim /etc/httpd/conf/extra/httpd-vhosts.conf</div>
+  </li>
+  
+<li>In the file, replace the first virtual host example with your own domain information. <code>DocumentRoot</code>, <code>ServerName</code>, and <code>ServerAlias</code> are the lines that must be updated.
+
+ <div class="hacker"><pre>&lt;VirtualHost *:80&gt;
+    ServerAdmin <em><u>youremail@coolexample.com</u></em>
+    DocumentRoot "<em><u>/srv/http/coolexample.com</u></em>" 
+    ServerName <em><u>www.coolexample.com</u></em>     
+    ServerAlias <em><u>coolexample.com</u></em> 
+    ErrorLog "<em><u>/srv/http/coolexample.com/error.log</u></em>" 
+    CustomLog "<em><u>/srv/http/coolexample.com/requests.log</u></em>" common
+
+&lt;/VirtualHost&gt;
+  </pre></div>
+
+
+
+Updating the other lines <code>ServerAdmin</code>, <code>ErrorLog</code>, and <code>CustomLog</code> are not required to set up your virtual host, but you can go ahead and update <code>ErrorLog</code> and <code>CustomLog</code> to your domain and <code>ServerAdmin</code> to your email. </li>
+
+ <li>Save and close.</li>
+
+<li>Run a config test to check your changes.
+  <div class="hacker">apachectl configtest</div>
+You're looking for a <code>Syntax OK</code> message. If you got an error, go back to your config file and check your changes. Make sure your <code>DocumentRoot</code> entry is in quotes.
+</li>
+
+</ol>
+
+
+<h2>Put your domain name in the hosts file</h2>
+
+If you're using fully qualified domain names (FQDNs), define your domain name in the <code>/etc/hosts</code> file. 
+
+<ol>
+<li>Open the file. 
+ <div class="hacker">sudo vim /etc/hosts</div></li>
+
+ <li>Fill in your domain information for the first IP. Your changes might look something like this:
+
+<div class="hacker"><pre>#&lt;ip-address&gt;  &lt;hostname.domain.org&gt;   &lt;hostname&gt; 
+127.0.0.1         <em><u>coolexample.com</u></em>      <em><u>your host name (this is optional)</u></em>
+::1             localhost.localdomain   localhost
+</pre></div>
+ </li>
+
+<li>Restart Apache.
+ <div class="hacker">sudo systemctl restart httpd</div></li>
+
+</ol>
+ 
+ <h2>Test your setup</h2>
+
+ <p>See your virtual host in action by typing in your domain or IP address into your browser, such as <em><u>coolexample.com</u></em>. You should see the test page you created earlier.</p>
+
+<p class="note">You can test your virtual host locally by setting up local hosts on your computer alone. This is a good option if you have not yet pointed your domain name to the IP address of your VPS. See <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/00003 - Set up Local Hosts to Test Virtual Host Setup - ALL DISTROS.html"> Set up Local Hosts to Test Virtual Host Setup - ALL DISTROS</a> for more on how to do this.</p> 
+      
+
+<h2>Adding additional virtual hosts</h2>
+
+<p>Repeat the above steps to create more virtual hosts. Be sure to create new config files for each new virtual host. You can copy the <em><u>coolexample.com</u></em> config file to create new hosts.</p>
+
+
+<h2>Next steps</h2>
+<p>Congratulations! You now have a single server handling a site with its own domain. Again, remember that you can add additional virtual hosts since there is no limit on the number of domain names that Apache can handle.</p>
+
+  </body>
+</html>

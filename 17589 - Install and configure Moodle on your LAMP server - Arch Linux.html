@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17589-->
+
+
+<title>Install and configure Moodle on your LAMP server - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install and configure Moodle on your LAMP server - Arch Linux, PHP, Applications </p>
+    <h1>Install and configure Moodle on your LAMP server - Arch Linux </h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+
+    <p>Moodle is an acronym for Modular Object Oriented Dynamic Learning Environment. It is an open-source Course Management System that enables the creation of an online learning site. Moodle has default features such as an easy to use interface, a personalized dashboard, progress tracking, and many others. In administration, Moodle offers customizable site design and layout, secure authentication, mass enrollment, bulk course creation, and easy backup.</p>
+
+    <p>It is assumed that you have sudo privileges to perform the following steps. In addition, you need to install and configure LAMP for Arch Linux. If needed, refer to the article: <a href="17345">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux</a></p> 
+	
+	<h2>Install the required dependencies</h2>
+<ol> 
+<li>Install curl and GD extensions for Moodle use.
+   <div class="hacker">sudo pacman –S curl php-gd php-intl</div>
+   </li>
+   <li>Open <code>/etc/php/php.ini</code> and uncomment the following lines in the configuration file:
+   <div class="hacker">sudo vim /etc/php/php.ini</div>
+   <div class="hacker">
+<pre>
+extension=curl.so
+extension=gd.so
+extension=gettext.so
+extension=iconv.so
+extension=intl.so
+extension=mysqli.so
+extension=openssl.so
+extension=soap.so
+extension=xmlrpc.so
+extension=zip.so
+</pre>
+   </div>
+   </li>
+   <li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <strong>:wq</strong>, and then pressing the <strong>Enter</strong> key.
+   </li>
+   <li>Restart the Apache services to make the changes effective.
+   <div class="hacker">sudo systemctl restart httpd</div>
+   </li>
+  </ol>
+  
+  <h2>Basic configuration</h2>
+<ol> 
+<li>Download the Moodle source from the official site.
+   <div class="hacker">cd /srv/http </div>
+   <div class="hacker">sudo wget http://download.moodle.org/download.php/direct/<em><u>stable25/moodle-latest-25.tgz</u></em></div>
+   </li>
+   <li>Extract the downloaded source.
+   <div class="hacker">sudo tar xzvf<em><u> moodle-latest-25.tgz</u></em></div>
+   You will find the new directory added in the folder named <code>moodle</code>.
+   </li>
+   <li>To secure Moodle from being accessed with outside writable permission, change the owner to <code>root</code>, and then change permissions.
+   <div class="hacker">sudo chown -R http:http /srv/http/moodle</div>
+    
+   </li>
+   <li>Moodle needs a folder for its temporary operations. It shouldn’t be accessed from the web, so move the folder outside of the server web root. To create it in the home directory, use the following command:
+   <div class="hacker">sudo mkdir <em><u>/moodledata</u></em></div>
+   </li>
+   <li>Make it writeable by the machine.
+   <div class="hacker">sudo chown http:http <em><u>/moodledata</u></em></div>
+   </li>
+  </ol>
+  
+  <h2>Create a database</h2>
+  <ol>
+  <li>Create blank database for the backend operation.
+  <div class="hacker">sudo mysql –u root –p</div>
+  <div class="hacker">CREATE DATABASE <em><u>moodle</u></em>;</div>
+  </li>
+  <li>Exit the MySQL shell.  <!--tester, how to exit?-->
+  <div class= "hacker">exit</div>
+  </li>
+  </ol>
+  
+  <h2>Install Moodle</h2>
+<ol> 
+<li>Open the browser, type your public IP or URL of moodle server as <strong>http://<em><u>your server address</u></em>/moodle</strong>.
+   </li>
+   <li>After pressing <strong>Enter</strong>, you will find first step of Moodle installation process.
+   </li>
+   <li>Choose a language you want, and then click <strong>Next</strong>.
+ <br /> <img src="images/17589/091515/Choose-language.png" alt="Choose-language page"/>
+   </li>
+   <li>Set the <strong>Data directory</strong>, that you have created earlier, and then click <strong>Next</strong>.
+  <br /><img src="images/17589/091515/data-directory.png" alt="data-directory.png"/>
+   </li>
+   <li>Select a <strong>database driver</strong> to connect with the database, and then click <strong>Next</strong>.
+      <br /><img src="images/17589/091515/Choose-database-driver.png" alt="Choose database driver"/>
+	   <p class="note">To avoid errors, use the driver that the database engine has installed.</p>
+   </li>
+   <li>Enter the database credentials to connect with the database, and then click <strong>Next</strong>.
+   <br /> <img src="images/17589/091515/Database-settings.png" alt="Database settings page"/>
+   </li>
+    <li>If the configuration fails, you will be asked to copy a certain block of text to the config file. This happens mostly because of the lack of ownership to the moodle directory. Make sure you have provided that and you can avoid making changes in the <code>config.php</code> file.</li>
+    <li>After the configuration is complete you will see <strong>Server Checks</strong> and <strong>Installation</strong> page click on <strong>Continue</strong> button on both page. </li>
+  </ol>
+  
+  <h3>Update the site profile</h3>
+<ol> 
+<li>Update the profile for your site, fill the mandatory information fields, and then click <strong>Update profile</strong>.
+    <br /><img src="images/17589/091515/Site-profile.png" alt="Site profile page"/>
+	</li>
+   <li>After updating the profile, you will be redirected to the site settings. Enter your <strong>Full site name</strong>, and then click <strong>Save changes.</strong> 
+       <br /> <img src="images/17589/091515/Front-page-settings.png" alt="Front page settings page"/>
+   </li>
+   <li>After saving the changes, you will be redirected to the Moodle home page, where you can manage your courses and site.
+   </li>
+  </ol>
+  
+    <h2>Conclusion</h2>
+    <p>In this article, you learned to install and configure Moodle on your LAMP server with Arch Linux.</p>
+   
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Install NGINX on your server - CentOS 7, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Install Nginx on Your Server on CentOS 7, Fedora 20 and 21.</p>
+    <h1>Install Nginx on Your Server - CentOS 7, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>5 minutes</u></em></p>
+       <p> This article guides you through installing and starting Nginx on CentOS 7 and Fedora 20, 21.</p>
+       <h2>Install and start Nginx</h2>
+
+        <ol>
+ <li>Install Nginx:
+                       <div class="hacker">sudo yum install nginx</div>
+                   Enter <strong>y</strong> at the prompt to continue installation.
+                    </li>
+    <li>Start the Nginx service:
+      <div class="hacker">sudo systemctl start nginx</div></li>
+ </ol>
+<p>Nginx is now running as a web server. To verify, you can use your browser to navigate to the IP address of your cloud server; for example, <code>http://<em><u>IP Address of your cloudserver</u></em></code> .</p>
+  
+<h2>Next steps</h2>
+    <p>You have just installed Nginx. Next, you may want to add any of the following:</p>
+        <ul>
+         <li><a href="17360 - Configure NGINX Server Blocks - ALL DISTROS.html">Additional Nginx server blocks</a></li>
+        <li> <a href="17500 - Configure NGINX as a reverse proxy - ALL DISTROS.html">More advanced Nginx functionality, such as a reverse proxy</a></li>
+        <li><a href="17932 - Set up FastCGI Caching with NGINX on your server - ALL DISTROS.html">FastCGI Caching with Nginx</a></li>
+
+
+        </ul>  
+   
+</body>
+</html>

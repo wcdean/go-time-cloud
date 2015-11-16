@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17910-->
+
+
+
+<title>Install and configure an EFK stack (Elasticsearch, Fluentd, Kibana) - CentOS</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+
+<p>Install  and configure an EFK stack (Elasticsearch, Fluentd, Kibana) - CentOS, Logging</p>
+<h1>Install and configure an EFK stack (Elasticsearch, Fluentd, Kibana) - CentOS</h1>
+
+<p><strong>Difficulty: </strong><em><u>2</u></em></p>
+<p><strong>Time: </strong> <em><u>2 hours</u></em></p>
+
+<p>Using Elasticsearch, Fluentd, and  Kibana (also known as an <em>EFK stack</em>) is a common way to deal with data analysis. This combination allows you collect, index, search, and  visualize log data. In this article, you'll  learn how to install an EFK stack on a CentOS platform.</p>
+<p>Before starting, make sure to complete the initial server setup for your host machine. See <a href="C:\Users\BPCS\Desktop\GoDaddy\gd-cloud-docs\17323 - Initial Server Setup - CentOS.html">Initial Server Setup - CentOS</a>.
+
+These tasks assume that you have sudo user privileges.</p>
+
+<h2>Install and configure Elasticsearch</h2>
+<h3>Install ElasticSearch</h3>
+<ol>
+	<li>Log into the CentOS machine.</li>
+	<li>Update the server.
+		<div class="hacker">
+		sudo yum -y update
+		</div>
+	</li>
+	<li>Install other required dependencies.
+		<div class="hacker">
+		sudo yum install tar
+		</div>
+	</li>
+	<li>Install Java.
+		<div class="hacker">
+		sudo yum -y install jre
+		</div>
+	</li>	
+	<li>To confirm the successful installation, check the Java version.
+
+	  <div class="hacker">
+		java -version
+		</div> 
+	</li>
+    <li>Install the Elasticsearch deb packages. 
+  
+ <p class="note">These commands are for version <em><u>1.7.1</u></em>. To obtain the latest version, visit the <a href="http://www.elasticsearch.org/download/" target="_top"> Elasticsearch download page</a>.</p>
+
+	  <div class="hacker">
+	    sudo wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-<em><u>1.7.1</u></em>.tar.gz 
+	  </div>
+	  <div class="hacker">
+	    sudo tar xzf elasticsearch-<em><u>1.7.1</u></em>.tar.gz 
+      </div>
+	  <div class="hacker">
+	    sudo mv elasticsearch-<em><u>1.7.1</u></em> /usr/share/elasticsearch 
+      </div>
+  </li>
+  </ol>
+  
+<h3>Configure Elasticsearch</h3>
+	<ol>
+	<li>Open  the <code>elasticsearch.yml</code> file.<br />
+	  To make Elasticsearch accessible from the public Internet, you need to disable its dynamic scripting, so that the Kibana dashboards can access it.
+		<div class="hacker">
+			cd /usr/share/elasticsearch
+		</div>
+		<div class="hacker">
+			sudo vim config/elasticsearch.yml
+		</div>
+  </li>
+  <li>Append the following code at the end of the file to set <code>script.disable_dynamic</code> to <code>true</code>.
+<div class="hacker">
+		script.disable_dynamic: true
+	</div>
+  </li>
+	<li>Start Elasticsearch.
+	  <div class="hacker">
+	  sudo ./bin/elasticsearch
+	  </div>
+	  A successful startup displays a <strong>started</strong> message.<br />
+	</li>
+	<li> To stop the Elasticsearch, and continue with other tasks, press <strong>CTRL+C</strong>.
+	</li>
+</ol>
+<h2>Install and configure Kibana</h2>
+<h3>Install Kibana</h3>
+<ol>
+  <li> Move to the home directory.
+    <div class="hacker">
+	  cd ~
+	</div>
+  </li>
+  <li> Install Kibana. 
+    <p class="note">These commands are  for version 4.1.1. To obtain the latest version, visit the <a href="https://www.elastic.co/downloads/kibana" target="_top"> Kibana download page</a>.</p>
+	 
+    <div class="hacker">
+		sudo curl -L https://download.elastic.co/kibana/kibana/kibana-<em><u>4.1.1</u></em>-linux-x64.tar.gz | tar xzf -</div>
+    <div class="hacker">
+  		sudo cp -r kibana-<em><u>4.1.1</u></em>* /usr/share/kibana-<em><u>4.1.1</u></em>
+	</div>
+  </li>
+   </ol>
+<h3>Configure Kibana</h3>
+  <ol>
+  <li>Open the Kibana configuration file to change the port from the default value <code>9200</code> to <code>80</code>, which is used for interaction with Elasticsearch. 
+	<div class="hacker">
+		sudo vim /usr/share/kibana-<em><u>4.1.1</u></em>/config/kibana.yml
+	</div>
+  </li>  
+  <li>Locate the following code:
+	  <div class="hacker"> 
+	  <pre>
+elasticsearch_url: "http://localhost:9200"</pre>
+    </div>
+  </li>
+  <li>Update the code to the following:
+	  <div class="hacker"> 
+	  <pre>
+elasticsearch_url: "http://localhost:80"</pre>
+	  </div>
+  </li>
+    <li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+	</li> 
+  </ol>  
+<h3>Install and configure Nginx</h3>
+  <ol>	
+  <li>Install Nginx, which can be used as the proxy server. This enable access to the Kibana dashboards from the Internet.
+      <div class="hacker"> 
+	  sudo yum -y install nginx
+    </div>
+  </li>
+  <li>Create the Nginx configuration file.
+	<div class="hacker"> 
+		sudo vim /etc/nginx/conf.d/default.conf
+	  </div>
+  </li>
+  <li>Put the following code into the Nginx configuration file:
+  	  <div class="hacker"> 
+		  <pre>
+#
+# Nginx config file, for setting up Nginx proxy for Elasticsearch + Kibana
+#
+# This setup will password protect the saving of dashboards. 
+# This can be extended for password protection to all paths.
+#
+# Even though these paths are being called as the result of an ajax request, the
+# browser will prompt for a username/password on the first request
+#
+# If you use this, the config.js should point at http://FQDN:80/ instead of
+# http://FQDN:9200
+#
+
+server {
+ listen                *:80 ;
+ server_name           localhost;
+ access_log            /var/log/nginx/kibana.log;
+ location / 
+ {
+   root  /usr/share/kibana-4.1.1;
+   index  index.html  index.htm;
+ }
+  
+ location ~ ^/_aliases$ 
+ {
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+ }
+ 
+ location ~ ^/.*/_aliases$ 
+ {
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+ }
+ 
+ location ~ ^/_nodes$ 
+ { 
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+}
+  
+ location ~ ^/.*/_search$ 
+ {
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+}
+
+ location ~ ^/.*/_mapping 
+ {
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+} 
+  
+# Password protected end points
+location ~ ^/kibana-int/dashboard/.*$ 
+ {
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+   limit_except
+   GET
+   { 
+    proxy_pass http://127.0.0.1:9200;
+    auth_basic "Restricted";
+    auth_basic_user_file /etc/nginx/conf.d/kibana.myhost.org.htpasswd;
+   }
+}
+
+ location ~ ^/kibana-int/temp.*$
+ {
+   proxy_pass http://127.0.0.1:9200;
+   proxy_read_timeout 90;
+   limit_except GET 
+   {
+      proxy_pass http://127.0.0.1:9200;
+      auth_basic "Restricted";
+      auth_basic_user_file /etc/nginx/conf.d/kibana.myhost.org.htpasswd;
+   }
+ }
+}
+</pre>
+  	  </div>
+  </li>
+  <li>Restart Nginx.
+		<div class="hacker">
+			sudo service nginx restart
+		</div>
+  </li>
+</ol>
+
+<h2>Install and configure Fluentd</h2>
+<ol>
+  <li>Install Fluentd.
+  	  <div class="hacker">
+		sudo curl -L https://td-toolbelt.herokuapp.com/sh/install-redhat-td-agent2.sh | sh
+	  </div>
+  </li>
+  <li>Install the additional plug-ins required to integrate Elasticsearch with Fluentd. 
+
+	  <div class="hacker">  
+		  sudo yum -y install make libcurl-devel
+	  </div>
+	  <div class="hacker">  
+		  sudo /opt/td-agent/embedded/bin/fluent-gem install fluent-plugin-elasticsearch
+	  </div> 
+	   <div class="hacker">  
+		  sudo /opt/td-agent/embedded/bin/fluent-gem install fluent-plugin-record-reformer
+	  </div>
+  </li>
+  <li>Open the configuration file <code>td-agent.conf</code>. To allow Fluentd to listen to the syslog  messages, and then forward them to Elasticsearch, this file needs to be updated. 
+	  <div class="hacker"> 
+	   sudo vim /etc/td-agent/td-agent.conf
+	  </div>
+	  <p>Add the following lines at the top of the  file:</p>
+	  <div class="hacker">
+		  <pre>&lt;source&gt;
+     type syslog
+     port 5140
+     tag system
+&lt;/source&gt;
+&lt;match system.*.*&gt;
+	 type record_reformer
+	 tag elasticsearch
+	 facility ${tag_parts[1]}
+	 severity ${tag_parts[2]}
+&lt;/match&gt;
+&lt;match elasticsearch&gt;
+	 type copy
+	 &lt;store&gt;
+             type stdout
+	 &lt;/store&gt;
+	 &lt;store&gt;
+		type elasticsearch
+		logstash_format true
+		flush_interval 5s #debug
+	 &lt;/store&gt;
+&lt;/match&gt; </pre>
+	  </div>
+	  </li>
+	<li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
+  </li> 
+ 
+  <li>Start  Fluentd.
+   		<div class="hacker">
+		sudo service td-agent start
+		</div>
+  </li>
+  <li>Redirect  traffic to Fluentd by updating the <code>rsyslog.conf</code> file.
+    <div class="hacker">
+  	  sudo vim /etc/rsyslog.conf
+  </div></li>
+  <li>
+	  	Add the following line at the top of this file:
+	    <div class="hacker">
+	  	 *.* @127.0.0.1:5140 
+	  </div>
+  </li>
+  <li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong>, followed by the <strong>Enter</strong> key. </li>
+  <li>Restart <code>rsyslogd</code>.
+	   <div class="hacker">
+	     sudo service rsyslog restart
+	   </div>
+  </li></ol>
+<h2>Next steps</h2>
+  <p>As an alternative to Fluentd, you can use Logstash. To learn more about the ELK (Elasticsearch, Logstash, and Kibana) stack and its installation, see <a href="17854">Install ELK stack (Elasticsearch, Logstash, Kibana) - CentOS</a>.</p>
+
+</body>
+</html>

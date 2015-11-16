@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Check your Linux version - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+
+tr:nth-child(odd) {background-color: #f7f7f7 ;}
+
+tr:nth-child(1) {background-color:#ddd;}
+
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+
+td{border: 1px solid #b2b2b2 ;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+
+
+</style>
+
+
+</head>
+
+<body>
+<p>Check the version of your Linux distribution</p>
+    <h1>Check your Linux version - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>5 minutes</u></em></p>
+
+    <p>There are a number of Linux-based operating systems and, like other software, each version has a unique identifier. The version number provides important information about the operating system, including its date of release,  its capabilities, and  duration of  its official support. A simple command  provides  version information for a number of different operating systems (or "distributions").</p>
+
+    <h2>Check your version information    </h2>
+    <ul>
+  <li>In a terminal window,  enter the following command:
+	
+    <div class="hacker">$ cat /etc/*-release</div>
+    Each system returns similar information:
+     <table>
+	  <tr>
+	    <th>OS</th>
+	    <th>Output</th>
+      </tr>
+	  <tr>
+	    <td>Arch Linux</td>
+	    <td><ul>
+	      <li>NAME shows that the operating system (or Linux distribution) is Arch Linux.</li></ul></td>
+      </tr>
+	  <tr>
+	    <td>CentOS</td>
+	    <td><ul>
+	      <li>NAME shows that the operating system (or Linux distribution) is CentOS Linux.</li>
+	      <li>VERSION shows the version and code name. &quot;7 (Core)&quot; indicates the seventh release with a code name of &quot;Core.&quot;</li>
+        </ul></td>
+      </tr>
+	  <tr>
+	    <td>Debian</td>
+	    <td><ul>
+	      <li>NAME shows that the operating system (or Linux distribution) is Debian GNU/Linux.</li>
+	      <li>VERSION shows the version and code name. &quot;7 (wheezy)&quot; indicates the seventh release with a code name of &quot;wheezy.&quot; (Trivia fact: Wheezy comes from a character in Disney Pixar's <i>Toy Story.</i>)</li>
+        </ul></td>
+      </tr>
+	  <tr>
+	    <td>Fedora</td>
+	    <td><ul>
+	      <li>NAME shows that the operating system (or Linux distribution) is Fedora.</li>
+	      <li>VERSION shows the version and code name. &quot;21 (Twenty One)&quot; indicates the twenty-first release with a code name of &quot;Twenty One.&quot; (Trivia fact: Fedora's code names are not as interesting as Debian's.)</li>
+        </ul></td>
+      </tr>
+      <tr>
+	    <td>Ubuntu</td>
+	    <td><ul>
+	      <li>DISTRIB_ID shows that the operating system (or Linux distribution) is Ubuntu.</li>
+          <li>VERSION shows the complete version and code name. &quot;14.04.2 LTS, Trusty Tahr&quot; indicates the second version that was released in October 2014. The &quot;LTS&quot; designator indicates that the version is eligible for long-term support, so it is officially supported for five years after release. The code name for this particular release is &quot;Trusty <a href="https://en.wikipedia.org/wiki/Tahr">Tahr</a>.&quot;</li>
+        </ul></td>
+      </tr>
+</table></li></ul>
+  <h2>Conclusion</h2>
+  <p>Now you know how to determine which version of the operating system is running on your server.</p>
+   
+</body>
+</html>

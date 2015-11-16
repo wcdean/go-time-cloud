@@ -1,0 +1,470 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is _17500_-->
+
+
+<title>Configure NGINX as a reverse proxy - ALL DISTROS</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    .auto-style1 {
+        width: 1258px;
+    }
+    .auto-style2 {
+        width: 159px;
+    }
+    .auto-style3 {
+        width: 230px;
+    }
+    
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body class="ading ">
+<p>Setting up a NGNIX proxy server with load balancing, buffering, and caching for all DISTROS.</p>
+    <h1>Configure NGINX as a reverse proxy - Arch Linux - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>4</u></em><br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+        
+
+    <p>A proxy server sits between a user requesting a resource and the server providing that resource, such as a web site or order form. A reverse proxy hides the fact that proxying is occuring; the user enters an address and has no idea that the request is being routed through a proxy server prior to being sent to the application server that actually services the request. </p>
+    
+    <p>An example of a simple reverse proxy is a load balancing application where several customers browse the on-line storefront of Pointsman Industries at <strong>coolexample.com</strong> and request pages from the company's on-line catalog.</p> 
+    
+    <p> Pointsman Industries uses a proxy server to distribute these http requests to several application servers, which it uses to manage its catalog and sales operations. When the customer purchases an item, the proxy can direct that traffic to application servers over non-http protocols.</p>
+
+    <p>A proxy server can also buffer responses so that relatively slower application servers are free as soon as possible to respond to the next request. Caching responses in the proxy server allows the application server to be bypassed altogether for some requests. </p>
+    
+        <p>Other benefits of using a proxy server are that it helps insulate the order system from hackers, and allows Pointsman Industries to maintain its web and application servers without taking the entire store off-line. </p>
+        
+<p>This article describes how to set up a proxy server and define load balancing. In this article, the terms "reverse-proxy," "http proxy," and "proxy" will be used interchangably.</p>
+
+
+    <h2>Assumptions</h2>
+     <p>It is assumed the reader:</p><ul> 
+               <li>Knows how to set up a web server. The articles <a href="http://">How to set up a web server on Apache</a> and <a href="http://">How to set up a web server on NGINX </a>have instructions on how to do this.</li>
+               <li>Understands the <a href="19224%20-%20Understanding%20Nginx%20configuration%20files%20-%20ALL%20DISTROS.html">NGINX configuration file structure</a> and related include files.</li>
+    <li>Has a <a href="17371-%20Understanding%20Nginx%20HTTP%20Proxying,%20Load%20Balancing,%20Buffering,%20and%20Caching%20-%20ALL%20DISTROS.html">general understanding of the topics</a> covered in this tutorial.</li>
+               <li>Knows how to edit a client machine's hosts file.</li>
+               <li>Has an environment that includes a proxy server, <strong>yourproxyserver.com</strong>, and three target servers <strong>cloudappserver1.com</strong>, <strong>cloudappserver2.com</strong>, and <strong>cloudappserver3.com</strong>, or the equivalent.</li>
+               </ul>
+	 <h2>Create a simple http proxy server</h2>
+	Our first goal is to set up a way to verify our traffic is actually being proxied from <strong>yourproxyserver.com</strong> to site <strong>cloudappserver1.com</strong>.
+  
+  <ol>
+   <li>Set up a target server: <strong> cloudappserver1.com</strong>. </li>
+	 <li>Verify that it is capable of serving its default page <code>index.html</code> via http, and edit the page so that it identifies itself as belonging to <em>cloudappserver1</em>.</li>
+   <li> On your proxy server, edit the NGINX configuration file <code> /etc/nginx/nginx.conf</code>.  Add a <code>location</code> directive under the default server context:
+   <div class="hacker">
+    # server context
+       location /index.html/ {       
+                        proxy_pass http://cloudappserver1.com
+                          }</div> </li>
+    <li> Save and close.</li>
+    <li>Restart NGINX.</li>
+    </ol>
+    
+    NGINX is now running as a proxy server, passing requests to another machine.  <p />
+    
+    <h3>Verify the proxy server</h3>
+    <p>You can verify that NGINX is running as a proxy sever by changing the hosts file of a client machine such that yourproxyserver.com maps to the IP address of your cloud server proxy machine.</p>
+     <div class="hacker">127.0.0.                    localhost
+         cloud proxy server IP address yourproxyserver.com</div>
+<p>You may need to restart your local machine for these mappings to take, then navigate to yourproxyserver.com. The hosts file will resolve the request to the IP of your cloud proxy server where the request will be re-routed to <strong> cloudappserver1.com</strong>.</p>
+<p>While the example above doesn't do much by itself other than add the overhead of another server to your ecosystem, it does open the door to some extremely useful capabilities.  Before we move on, it's worth taking a slight detour to talk discuss headers.</p>
+    
+    <h3>About headers</h3>
+    <p> Unfortunately, there is no guarantee that an NGINX proxy <i>request</i> will actually be useful to the proxied server because the header information may be different. This is because:</p>
+    <ul>
+        <li>NGINX removes empty headers. </li>
+        <li>The "Connection" header is changed to "close."</li>
+        <li>NGINX treats header that contains underscores as invalid (and ignores them) unless you set <code>underscores_in_headers on </code> appropriately in your NGINX config file. Even if this directive is set, you can't use an underscore as the first character.</li>
+    </ul>
+<p> One way to remedy this is to include some variables in your proxy definition: </p>    
+   <ol>
+       <li>Open the <code>nginx.conf</code> file.</li>
+       <li> Add the following lines to the <code>location context</code>:
+     
+<div class="hacker">
+        # location context
+location /index.html/ {
+        <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header HOST $host;
+        <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header X-Forwarded-Proto $scheme;
+        <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header X-Real-IP $remote_addr;
+        <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        <br />
+&nbsp;&nbsp;&nbsp; proxy_pass <a href="http://cloudappserver1.com">http://cloudappserver1.com</a>;
+        <br />
+        }
+</div></li></ol>
+
+     <p>The following table explains the directives above: </p>  
+   <table>
+    <tr>
+    <th class="auto-style3">Directive </th>
+     <th class="auto-style2">Variable</th>
+      <th class="auto-style1">Remarks</th>
+    </tr>
+    <tr>
+    <td class="auto-style3"><code>HOST</code> </td>
+       <td class="auto-style2"><em><u>$host</u></em></td>
+          <td class="auto-style1">Resolves to (in preference order): 
+              <ol>
+               <li>Host name from the request line</li>
+               <li>The "Host" header from the client request</li>
+               <li>Server name matching the request</li>
+                </ol> </td>
+               </tr>
+               <tr>
+    <td class="auto-style3"><code>X-Forwarded-Proto</code></td>
+       <td class="auto-style2"><em><u>$scheme</u></em></td>
+          <td class="auto-style1">Provides information about whether the request was http or https.</td>
+             
+               </tr>
+               <tr>
+    <td class="auto-style3"><code>X-Real-IP</code> </td>
+       <td class="auto-style2"><em><u>$remote_addr</u></em></td>
+          <td class="auto-style1">The IP address of the client making the request.</td>
+               </tr>
+               <tr>
+    <td class="auto-style3"><code>X-Forwarded-ForM</code></td>
+       <td class="auto-style2"><em><u>$proxy_add_x_forwarded_for </u></em></td>
+          <td class="auto-style1">Adds the proxy server to the end of the list of servers through which this request has passed.</td>
+               </tr>
+               </table>
+    <br />For additional flexibility, you can include include the <code>proxy_set_header</code> definitions outside the <code>location directive</code>:
+             <br /><br />
+<div class="hacker">
+        # server context
+
+                                                 proxy_set_header HOST $host;
+                                                 <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header X-Forwarded-Proto $scheme;
+                                                 <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header X-Real-IP $remote_addr;
+                                                 <br />
+&nbsp;&nbsp;&nbsp; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+
+        <br />
+        <br />
+        location ...
+</div>
+    
+<h2>Modify your proxy server for load balancing</h2>
+	 Define a set of servers to perform the balancing.
+   <ol>
+   <li>Open the <code>nginx.conf</code> file for editing.</li>
+   <li>Find the <code>http context</code> and add an <code>upstream</code> block to it.
+    <div class="hacker">
+        # http context
+
+        <br />
+&nbsp; upstream appserver { 
+        <br />
+&nbsp;&nbsp;&nbsp;&nbsp; server cloudappserver1.com ;
+        
+                                                  <br />
+&nbsp;&nbsp;&nbsp;&nbsp; server cloudappserver2.com ;
+                                                  <br />
+&nbsp;&nbsp;&nbsp;&nbsp; server cloudappserver3.com ; 
+                                                  <br />
+        }</div></li>
+  <li> Reference the <code>appserver</code> server group
+    in your <code>proxy_pass</code> directive.
+    <br />
+   <div class="hacker">
+    # server context
+
+       <br />
+       ...<br />
+       location /index.html/ { 
+       <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_pass <a href="http://appserver">http://appserver</a>;
+       <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</div></li> 
+  <li> Save and close.</li>
+  <li> Restart NGINX.</li>
+</ol>
+    
+	 <h2>Load balancing options</h2>
+    The following load balancing options may be implemented by editing the <code>nginx.conf</code> file. Remember that after making any of these edits,  restart NGINX for the changes to take effect. <p />
+	 The default setting for NGINX load balancing is round-robin, but you can also send traffic to the least busy server by using the <code>least_conn;</code> directive. <p />
+    <div class="hacker">
+        # http context<br />
+
+        upstream appserver { 
+        <br />
+&nbsp;&nbsp;&nbsp; least_conn;<br />
+                                                  &nbsp;&nbsp;&nbsp;
+                                                  server cloudappserver1.com ; 
+                                                  <br />
+&nbsp;&nbsp;&nbsp; server cloudappserver2.com ; 
+                                                  <br />
+&nbsp;&nbsp;&nbsp; server cloudappserver3.com ; 
+                                                  <br />
+&nbsp;&nbsp; }</div>
+Either of these methods can modified by changing the weight each server is assigned in the load-balancing scheme. This allows you maximize application service based on the power of each individual proxied server (the default weight =1):<p />
+         
+<div class="hacker"> # http context
+        <br />
+    upstream appserver { 
+                                          <br />
+&nbsp; server cloudappserver1.com weight=3;
+                                          <br />
+&nbsp; server cloudappserver2.com weight=2;                                                                                                                                                                                                                   
+                                          <br />
+&nbsp; server cloudappserver3.com;
+                                                  <br />
+&nbsp;&nbsp; }</div>
+If you want to implement session continuity, i.e. once an appserver has been assigned to a given client subsequent requests are tied to that appserver, you can add the <code>ip_hash</code> directive.
+    <div class="hacker">
+        # http context
+
+        <br />
+        upstream appserver {
+                                                      <br />
+&nbsp;&nbsp; ip_hash;
+                                                       <br />
+&nbsp;&nbsp; server cloudappserver1.com ;
+                                                       <br />
+&nbsp;&nbsp; server cloudappserver2.com ;
+                                                       <br />
+&nbsp;&nbsp; server cloudappserver3.com ;
+                                                       <br />
+&nbsp;&nbsp; }</div>
+
+<h2>Verification</h2>
+NGINX is now running as a proxy server, passing requests from it to another machine. You can verify this by changing the hosts file of a client machine such that <strong>yourproxyserver.com</strong> maps to the IP address of your cloud server proxy machine.
+<div class="hacker">
+        127.0.0.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; localhost
+        <br />
+        cloud proxy server IP address&nbsp; yourproxyserver.com</div>
+        
+You may need to restart your local machine for these mappings to take, then navigate to <strong>yourproxyserver.com</strong>. The host's file will resolve the request to the IP of your cloud proxy server where the request will be re-routed to <strong>cloudappserver.com</strong>. <p />
+
+<h2>Buffering</h2>
+Adding buffering to your solution will increase the performance of your web application by reducing the load on your application servers thus allowing them to serve more requests. 
+ <ol>
+   <li>Open the <code>nginx.conf</code> file for editing.</li>
+   <li>Find the <code>server context</code> for the server of interest, and add the following lines above the <code>location context</code>: </li>
+</ol>
+    <div class="hacker"># server context<br />
+        &nbsp;
+        proxy_buffering on; 
+        <br />
+&nbsp; proxy_buffer_size 1k; 
+        <br />
+&nbsp; proxy_buffers 24 4k; 
+        <br />
+&nbsp; proxy_busy_buffers_size 8k; 
+        <br />
+&nbsp; proxy_max_temp_file_size 2048m; 
+        <br />
+&nbsp; proxy_temp_file_write_size 32k; 
+</div>
+    
+When implementing your buffering solution you will want to tune it to suit your particular needs. The following is a brief explanation of the directives above:
+
+        <br />
+      <table>
+         
+    <tr>
+    <th> Directive </th>
+     <th> Variable </th>
+      <th> Remarks </th>
+    </tr>
+   <tr>
+    <td> <code>proxy_buffering</code>  </td>
+     <td><em><u>on</u></em></td>
+      <td> "on" is the default</td>
+    </tr>
+    <tr>
+    <td> <code>proxy_buffer_size</code></td>
+     <td><em><u>1k</u></em></td>
+      <td> Size of the header buffer (kilobytes) </td>
+    </tr>
+           <tr>
+    <td><code> proxy_buffers</code> </td>
+     <td><em><u> 24 4k</u></em></td>
+      <td> 24 buffers, each one is 4 kilobytes </td>
+    </tr>
+           <tr>
+    <td><code>proxy_busy_buffers_size</code></td>
+     <td><em><u>8k</u></em></td>
+      <td> Maximum size of buffers that can be marked "ready" for the client </td>
+      </tr>
+           <tr>
+    <td><code>proxy_max_temp_file_size</code></td>
+     <td><em><u>2048m</u></em></td>
+      <td> If the upstream response is too large to fit into the buffers, it will be written to disk.  This is the maximum size of any such file. (megabytes) </td>
+      </tr>
+     <tr>
+    <td><code>proxy_temp_file_write_size</code></td>
+     <td><em><u>32k</u></em></td>
+      <td> NGINX will write data to the temp file in 32k chunks </td>
+      </tr>
+   </table>
+   
+<p>Although implmenting these directives in the server context is most common, it also possible to increase the scope of any buffering directive by implementing it in the http context (proxy_buffering on is a good candidate for this). You can also decrease the scope of buffering by implementing any of the directives in the <code>location context</code>.</p>
+
+<h2>Create a cache</h2>
+<p>
+Caching allows you to offload your back-end servers by having the NGINX server respond to a request directly.</p>
+
+<ol>
+    <li>Create a location for the cache.
+
+
+<div class="hacker">
+
+sudo mkdir -p /var/lib/nginx/cache
+</div></li>
+     <li>Change the owner of that location to the NGINX user.
+
+
+<div class="hacker">
+
+    sudo chown www-data /var/lib/nginx/cache
+    </div></li> 
+<li>Change the permissions for the cache to allow reading and writing.
+<div class="hacker">
+
+    sudo chmod 700 /var/lib/nginx/cache
+
+    </div></li> 
+    <li>Open the <code> nginx.conf</code> file and add the following to the<code>http context</code>:
+        <div class="hacker">
+
+# http context 
+                         <br />
+            proxy_cache_path /var/lib/nginx/cache
+                                                                        levels=1:2 
+                                                                              keys_zone=backcache:8m 
+                                                                        max_size=40m; 
+                         <br />
+            proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args"; 
+                         <br />
+            proxy_cache_valid 200 5m; 
+             <br />
+            proxy_cache_valid 404 1m;
+</div>
+
+<p>The above directives do the following:</p>
+ <table>
+            <tr>
+                <th>Directive </th>
+                <th>Remarks </th>
+            </tr>
+            <tr>
+                <td><code>proxy_cache_path</code> </td>
+                <td>Tells NGINX to use the location we set up in (1),<code> var/lib/nginx/cache</code> 
+                 <br />levels=1:2  describes how the cache will be organized. Each cache request will be stored in a two character subdirectory under a single character directory, e.g.<code> /var/lib/nginx/cache/g/st/</code>
+                    <br /><code>keys_zone=backcache:8m</code>  defines the name of the cache zone, backcache, and the number of keys (8 megabytes) ;<br />  <code>max_size=</code>  tells NGINX the maximum size of the cached data (40 mb) </td>
+            </tr>
+            <tr>
+                <td><code>proxy_cache_key</code> </td>
+                <td>Defines the hash key to be used to create the subdirectory in the levels flag of the <code>proxy_cache_path</code> directive  
+ </td>
+            </tr>
+            <tr>
+                <td><code>proxy_cache_valid</code></td>
+                <td>In this case, successes (200) are kept for 5 minutes and failures (404) are kept for 1 minute </td>
+            </tr>
+        </table></li>
+        
+    <li>Navigate to the <code>server context</code> and tell NGINX when to use the cache:
+        <div class="hacker">
+
+# server context
+
+    <br />location /
+
+{  proxy_cache backcache;
+
+            <br />proxy_cache_bypass $http_cache_control<br />;
+
+    proxy_pass http://appserver;
+            <br />}
+
+        </div>
+
+        <table>
+            <tr>
+                <th>Directive </th>
+                <th>Remarks </th>
+            </tr>
+            <tr>
+                <td><code>proxy_cache</code> </td>
+                <td>Tells NGINX to use the virtual location we set up in (2), backcache, which in turn resolves to the <code>var/lib/nginx/cache</code> physical location you set up in (1) </td>
+            </tr>
+            <tr>
+                <td><code>proxy_cache_bypass</code> </td>
+                <td>Tells NGINX to bypass the cache when there is an explicit client request to do so  
+ </td>
+            </tr>
+            <tr>
+                <td><code>proxy_pass</code> </td>
+                <td>Tells NGINX where to go if the request is not found in cache 
+
+    </td>
+            </tr>
+        </table></li>
+   
+    <li>Save and close.</li>
+    <li>Restart NGINX.</li>
+    </ol>
+
+
+<h2>Next steps</h2>
+<p>You have now set up an NGNIX proxy server with load balancing, buffering, and caching. </p>
+         
+   
+</body>
+</html>

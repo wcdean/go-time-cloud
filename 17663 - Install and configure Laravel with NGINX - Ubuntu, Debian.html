@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is _17663-->
+
+
+<title>Install and configure Laravel with NGINX - Ubuntu, Debian</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>Instructions to install and configure Laravel in a NGINX / Ubuntu, Debian environment.</p>
+    <h1>Install and configure Laravel with NGINX - Ubuntu, Debian</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>Laravel is a framework used to create web applications.</p>
+
+      <p>Before you start, be sure you have a <a href="17347 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu.html">Ubuntu</a> or <a href="17351 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Debian.html">Debian</a> installed. And if your server is 512 MB or smaller, it's recommended to <a href="17326 - Add Memory Swap - Debian, Ubuntu.html">add swap</a> for Laravel to install correctly.</p>
+
+    <h2>Install dependencies</h2>
+           <ol>
+               <li>Update your installation package.
+                   <div class="hacker">sudo apt-get update</div>
+               </li>
+               <li>Get these additional items:
+                   <div class="hacker">sudo apt-get install nginx php5-fpm php5-cli php5-mcrypt git</div>
+               </li>
+           </ol>
+     <h2>Configure PHP</h2>  
+    
+    <ol>
+           <li>Enable <code>mcrypt</code>.
+               <div class="hacker">sudo php5enmod mcrypt</div>
+       </li> 
+               <li>Restart PHP. 
+         <div class="hacker">sudo service php5-fpm restart</div>
+       </li> 
+        </ol>
+   
+
+ <h2>Configure NGINX for Laravel</h2>
+
+<ol>
+  <li>First, create a physical location for the Laravel server.
+                 <div class="hacker">sudo mkdir -p /var/www/laravel</div>
+       </li> 
+
+ <li>Create a new Laravel configuration file. 
+<div class="hacker">sudo vim /etc/nginx/conf.d/laravel.conf</div> </li>
+
+<li>Add the following contents to the newly-created file:
+<div class="hacker"><pre>server {
+listen       81;
+root /var/www/laravel/public;
+index index.php index.html index.htm;
+server_name localhost;
+try_files $uri $uri/ /index.php?$query_string;
+
+# Load configuration files for the default server block.
+
+location / {
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+
+location ~ \.php$ {
+try_files $uri /index.php =404;
+fastcgi_split_path_info ^(.+\.php)(/.+)$;
+fastcgi_pass unix:/var/run/php5-fpm.sock;
+fastcgi_index index.php;
+fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; 
+include fastcgi_params;
+ }
+
+    }</pre></div></li>
+
+ <li>Save and close the file.</li> 
+
+<!--CT: we're not using this...
+<li>Create a symlink from <code>sites-available</code> to <code>sites-enabled</code> to activate the server block. 
+<div class="hacker">sudo ln -s /etc/nginx/sites-available/laravel /etc/nginx/sites-enabled/laravel</div> </li>
+...-->
+</ol>
+
+
+
+<h2>Make your main Nginx config file read your Laravel server block</h2>
+
+<ol>
+        <li>Open your main Nginx config file to edit. 
+      <div class="hacker">sudo vim /etc/nginx/nginx.conf</div> </li>
+
+<li>Make sure this <code>include</code> line is present.  It should be under the heading <code> # Virtual Host Configs</code>. Add this <code>server_names </code>line underneath it.
+<div class="hacker"><pre>include /etc/nginx/conf.d/*.conf;
+<em><u>server_names_hash_bucket_size 64;</u></em></pre></div> </li>
+
+<li>Restart Nginx.
+  <div class="hacker">sudo service nginx restart</div>
+       </li>
+
+<li>Restart PHP.
+<div class="hacker">sudo service php5-fpm restart</div></li>
+</ol>
+
+<h2>Install Composer</h2>
+    <p>Composer is a tool we will use to manage the Laravel implementation. </p>
+           <ol>
+               <li>Navigate to your home directory
+                   <div class="hacker">cd ~</div>
+               </li>
+               <li>Run the Composer install script.
+                   <div class="hacker">curl -sS https://getcomposer.org/installer | php</div>
+               </li>
+               <li>Change the name of the newly-created composer.phar file to &quot;composer&quot;
+                   <div class="hacker">sudo mv composer.phar /usr/local/bin/composer</div>
+               </li>
+</ol>
+
+
+
+<h2>Install Laravel</h2>
+    <ol>             
+<li>Use composer to retrieve and install Laravel into your <code>/var/www</code> directory. This might take a few minutes.
+<div class="hacker">sudo /usr/local/bin/composer create-project laravel/laravel /var/www/laravel 4.2</div>
+</li>         
+
+<li>Change the owner to "www-data."
+   <div class="hacker">sudo chown -R www-data:www-data /var/www/laravel</div>
+               </li>              
+
+<li> Grant permissions to your Laravel directory.
+  <div class="hacker">sudo chmod -R 755 /var/www/laravel</div></li>
+
+<li>Change the permissions to allow www-data to write to the <code>app/storage</code> directory.
+ <div class="hacker">sudo chmod -R 755 /var/www/laravel/app/storage</div>
+               </li>   
+             <li>In your web browser, verify success by navigating to your server, appended by :81.
+              <div class="hacker"><em><u>your server IP address</u></em>:81</div></li>
+               </li>
+           </ol>
+
+    
+    <h2>Conclusion</h2>
+    <p>You have arrived. Now you can use the Laravel framework to make beautiful apps.</p>
+   
+</body>
+</html>

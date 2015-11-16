@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17550 -->
+
+
+<title>Create temporary and permanent redirects with Apache and Nginx - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 ;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up permanent and temporary redirects, Apache, Nginx</p>
+    <h1>Create temporary and permanent redirects with Apache and Nginx - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em>2</em><br />
+        <strong>Time</strong>: <em>45 minutes</em></p>
+
+    <p>Redirects are required when you are moving to a new domain, expanding your domain, or forcing SSL. This article explains how to create redirects with Apache and Nginx.</p>
+	<p class="note">You will need <code>sudo</code> privileges to complete these steps. </p>
+  
+  <h2>Prerequisite</h2>
+  <p>You need to either have Apache or Nginx installed. </p>
+ Point your server to a domain name. 
+
+     <h2>Methods for redirects</h2>
+<ul> 
+<li><strong>Temporary redirects:</strong> These redirects come into play when your web content needs to be served from a different location for a period of time, such as during maintenance. These URLs inform the browser that content is temporarily at a different location, but that they can attempt to access the original URL.
+  </li>
+   <li><strong>Permanent redirects:</strong> These redirects are used when content is moved permanently to another location.
+   </li>
+</ul>
+  
+  <h2>Redirect in Apache </h2>
+
+<p>Apache uses different tools for redirect. The simplest method would be to redirect using<code> mod_alias</code> module. In case of extensive redirects,<code> mod_rewrite</code> is used. Redirects using<code> mod_rewrite</code> is out of scope of this article.</p>
+
+   <h3>With Redirect directive </h3>
+   <p>This directive is included in the <code>mod_alias</code> module and is used for simple, single-page redirects. It takes two arguments - old and new URLs.</p>
+<ol> 
+   <li>Open the appropriate file, depending on your distribution, in any editor.
+   <table >
+   <tr>
+   <td>Ubuntu</td>
+   <td><code>/etc/apache2/sites-available/000-default.conf</code></td>
+   </tr>
+   <tr>
+   <td>Debian</td>
+   <td><code>/etc/apache2/sites-enabled/000-default</code></td>
+   </tr>
+   <tr>
+   <td>Fedora</td>
+   <td><code>/etc/httpd/conf/httpd.conf</code></td>
+   </tr>
+   <tr>
+	<td>Arch Linux</td>
+	<td><code>/etc/httpd/conf/httpd.conf</code></td>
+	</tr>
+	<tr>
+	<td>CentOS</td>
+	<td><code>/etc/httpd/conf/httpd.conf</code></td>
+	</tr>
+  </table></li>
+   <li>Add the following lines in<code> VirtualHost *:80 </code>block:
+   <div class="hacker">
+<pre>
+&lt;VirtualHost *:80&gt;
+	…
+	…	
+	ServerName <em><u>www.coolexample.com</u></em>
+	Redirect / <em><u>http://coolexample.net</u></em>
+	…
+	…
+
+&lt;/VirtualHost&gt;
+</pre> 
+ </div>
+ <p>This redirect instructs the browser to redirect all requests for <em><u>www.coolexample.com</u></em> to <em><u>www.coolexample.net</u></em>, but this works only for a single page, and not for the entire site.</p>
+   </li>
+   <li><code>Redirect</code> directive creates 302, or temporary redirects. To create permanent redirects, you can use any of following:
+ 
+   <div class="hacker">Redirect 301 <em><u>http://coolexample.com</u></em> <em><u>http://www.coolexample.net</u></em>/newlocation</div>
+   <p>Or</p>
+   <div class="hacker">Redirect permanent <em><u>http://coolexample.com</u></em> <em><u>http://www.coolexample.net</u></em>/newlocation</div>
+   </li>
+  </ol>
+  
+  <h3>With RedirectMatch directive</h3>
+  <p>This directive uses regular expression to allow redirect for entire directories. It matches patterns in parentheses, and then references the matched text in the redirect using <code>$1</code>. <em>1</em> designates the first group of text. Sequential numbers are given to subsequent groups.</p>
+  <p>For example, if you want to match any request within <code>/customers</code> directory to a subdomain, say <code>- customers.coolexample.com,</code> add the following lines in same file that you opened in the last step.</p>
+
+   <div class="hacker">
+<pre>
+&lt;VirtualHost *:80&gt;
+…
+RedirectMatch ^/<em><u>customers</u></em>/(.*)$ http://<em><u>customers.coolexample.com</u></em>/$1
+     	…
+&lt;/VirtualHost&gt;
+</pre>   
+</div>
+ 
+ 
+  <h2>Redirect in Nginx</h2>
+<ol> 
+<li>If you want to redirect requests from <code>coolexample.com</code> to <code>coolexample.net,</code> open the appropriate file based on your distribution in any editor.
+<table >
+<tr>
+<td>Ubuntu</td>
+<td><code>/etc/nginx/sites-available/default</code></td>
+</tr>
+<tr>
+<td>Debian</td>
+<td><code>/etc/nginx/sites-available/default </code></td>
+</tr>
+<tr>
+<td>Fedora</td>
+<td><code>/etc/nginx/nginx.conf</code></td>
+</tr>
+<tr>
+<td>Arch Linux</td>
+<td><code>/etc/nginx/nginx.conf</code></td>
+</tr>
+<tr>
+<td>CentOS 6</td>
+<td><code>/etc/nginx/conf.d/default.conf</code></td>
+</tr>
+<td>CentOS 7</td>
+<td><code>/etc/nginx/nginx.conf</code></td>
+</tr>
+</table></li>
+   <li>In the <code>server</code> block, add the following lines:
+   <div class="hacker">server_name <em><u>coolexample.com</u></em>;</div>
+   <div class="hacker">return 301 $scheme://<em><u>coolexample.net</u></em>$request_uri;</div>
+   <p>Final block will look like this:</p>
+    <div class="hacker">
+<pre>
+server {
+	listen 80;
+…
+	server_name <em><u>coolexample.com</u></em>;
+	return 301 $scheme:// <em><u>coolexample.net</u></em>$request_uri;
+	…
+}
+</pre>
+	</div>
+   </li>
+   <li>For directory redirects, you can use the same <code>rewrite</code> directive as used in Apache.
+   <div class="hacker">rewrite ^/<em><u>customers</u></em>(.*)$ http://<em><u>customers.coolexample.com</u></em>/$1 redirect;</div>
+   </li>
+   <li>For permanent redirects, use the following:
+   <div class="hacker">rewrite ^/customers/(.*)$ http://<em><u>customers.coolexample.com</u></em>/$1 permanent;</div>
+   </li>
+</ol>
+  
+    <h2>Conclusion</h2>
+    <p>The improper use of temporary redirects may spoil your web site's search ranking.   
+    In this article, you learned how and when to create temporary and permanent redirects with Apache and Nginx. </p>
+   
+</body>
+</html>

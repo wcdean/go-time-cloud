@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18021-->
+
+<title>Build a LLMP stack (Linux, Lighttpd, MySQL, PHP) - Ubuntu, Debian</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+    <p>Install Lighttpd, MySQL, and PHP on a server running Ubuntu or Debian to serve web applications.</p>
+    <h1>Build a LLMP (Linux, Lighttpd, MySQL, PHP) stack on a server running Debian or Ubuntu</h1>
+    <p>
+        <strong>Difficulty</strong>: <u><em>: 2</em></u>
+        <br />
+        <strong>Time</strong>: <u><em>10 minutes</em></u>
+    </p>
+    <p>LLMP is an acronym used for the software suite that is used by developers and administrators to serve web applications quickly on a stable platform. In this article, you will learn how to build a LLMP stack on Debian or Ubuntu.</p>
+    <h2>Prerequisites</h2>
+    <p>You must have your server set up with either <a href="17325 - Initial Server Setup - Debian.html">Debian</a> or <a href="17321 - Initial Server Setup - Ubuntu.html">Ubuntu</a>. Linux will be installed with Debian or Ubuntu.</p>
+
+    <h2>Install Lighttpd</h2>
+    <p>Lighttpd is an open-source web server that is lightweight and optimized for high performance environments.</p>
+    <ol>
+        <li>
+            Before you begin any installation, make sure that you update the repository <code>apt</code>.
+            <div class="hacker">sudo apt-get update</div>
+        </li>
+        <li>
+            Install Lighttpd.
+            <div class="hacker">sudo apt-get install lighttpd</div>
+
+        </li>
+        <li>
+            To confirm that Lighttpd is installed, in a browser type this URL:<strong>http://<em><u>your server address</u></em></strong><br />
+            If Lighttpd is installed, the <strong>Placeholder Page</strong> displays. The page contains information about the default location for the configuration, log files, and such. <br /><br />
+            If you do not know your ip address, you can <a href="/article/19041?prog_id=PROG_ID">look it up</a>.
+
+        </li>
+    </ol>
+    
+    <h2>Install MySQL</h2>
+    <ol>
+        <li>
+            Install MySQL with a few helper packages.
+            <div class="hacker">sudo apt-get install mysql-server php5-mysql</div>
+        </li>
+        <li>You will be asked to set a MySQL root password. If you skip this step, you can configure the password later.</li>
+        <li>
+            Create the database directory structure for MySQL.
+            <div class="hacker">sudo mysql_install_db</div>
+        </li>
+        <li>
+            Run the following security script:
+            <div class="hacker"> sudo mysql_secure_installation</div>
+        </li>
+        <li>You will be asked for the root password, which you set earlier. If you didn't set the password, or if you want to change it, you can do so now. If you want to continue with the current password, type <strong>N</strong> at the prompt. </li>
+        <li>You will be asked more questions as part of security configuration. It is a best practice to respond <strong>Y</strong> to these system prompts.</li>
+
+    </ol>
+    <h2>Install PHP</h2>
+    <ol>
+        <li>
+            To install PHP, open the terminal and type:
+            <div class="hacker">sudo apt-get install php5-cgi php5-mysql</div>
+
+        </li>
+        <li>
+            Enable the PHP5 CGI modules in Lighttpd.
+            
+            <div class="hacker">sudo lighty-enable-mod fastcgi </div>
+            <div class="hacker">sudo lighty-enable-mod fastcgi-php </div>
+        </li>
+       
+        <li>
+            Reload Lighttpd.
+            <div class="hacker"> sudo service lighttpd force-reload</div>
+        </li>
+
+    </ol>
+    
+    <h3>Test PHP processing on Lighttpd</h3>
+    <ol>
+        <li>
+            Create a new PHP file under the <code>/var/www/</code> directory.
+            <div class="hacker">sudo vim /var/www/info.php</div>
+        </li>
+        <li>
+            After the file opens, type in the following code:
+            <div class="hacker"> &lt;?php <br />  phpinfo(); <br /> ?> </div>
+       </li>
+        <li>
+            To verify it works, type this URL in your browser:
+            <strong>http://<em><u>your server address</u></em>/info.php</strong>.
+            If it works, a page displays the PHP version, extensions, build date, and other information.
+        </li>
+
+    </ol>
+
+    <h2>Next steps</h2>
+    <p>Congratulations! You have successfully built a LLMP stack on your server. 
+
+        <!--CT: Commenting out because this article's not written yet...If you are interested, you can learn more about <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18810 - Set Up Multiple SSL Certificates on One IP with Lighttpd - Ubuntu, Debian.html">setting up multiple SSL certificates on one IP</a>...--> </p>
+    
+</body>
+</html>

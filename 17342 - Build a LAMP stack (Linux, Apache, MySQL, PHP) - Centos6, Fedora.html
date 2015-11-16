@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17342-->
+
+<title>Build a LAMP stack (Linux, Apache, MySQL, PHP) - Centos 6, Fedora</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install Apache, MySQL, and PHP on a server running CentOS 6 or Fedora to serve web applications.</p>
+        <h1>Build a LAMP (Linux, Apache, MySQL, PHP) stack on a server running CentOS 6 or Fedora</h1>
+    <p>
+        <strong>Difficulty</strong>: 3
+        <br />
+        <strong>Time</strong>: 20 minutes
+    </p>
+    <p>
+        LAMP is an acronym used for the software suite that is used by developers and administrators to serve web applications quickly on a stable platform. In this article, you will learn how to create a LAMP stack on Fedora.
+    </p>Because we are already running CentOS 6 or Fedora, Linux is already installed.
+    <h2>Prerequisites</h2>
+    <p>
+        Before you get started, we recommend that you <a href="/article/17431?prog_id =PROG_ID">create a non-root user with administrative privileges</a>.
+    </p>
+    <h2>Install Apache</h2>
+    <ol>
+        <li>
+            Before you begin any installation, make sure that you install all the updates.
+            <div class="hacker">sudo yum update</div>
+        </li>
+        <li>
+            Install Apache.
+            <div class="hacker">sudo yum install httpd</div>
+
+        </li>
+        <li>
+            Start Apache.
+            <div class="hacker">sudo service httpd start</div>
+
+        </li>
+        <li>To verify that Apache is installed, type this URL in a browser: <strong>http://<em><u>server-ip-address</u></em>.</strong> Replace <em><u>server-ip-address</u></em> with your ip address. If Apache is installed, the <strong>Apache Test Page</strong> displays. <br/><br/>
+If you do not know your ip address, you can use this procedure to <a href="/article/19041?prog_id=PROG_ID"> find your ip address</a>.
+
+            </li>
+            </ol>
+
+
+    <h2>Install MySQL</h2>
+    <ol>
+        <li>
+            Install MySQL.
+            <div class="hacker">sudo yum install mysql mysql-server</div>
+        </li>
+        <li>
+            After the installation is complete, start the service.
+            <div class="hacker">sudo service mysqld start</div>
+        </li>
+
+
+        <li>
+            Run the following security script:
+            <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>
+        </li>
+        <li>You will be asked for the root password. Because you didn't set it earlier, press <strong>Enter</strong> to set a password now. </li>
+        <li>Type "Y" to set the root password.</li>
+        <li>Enter and confirm the new password.</li>
+        <li>You will be asked more questions as part of security configuration. It is a best practice to respond "Y" to these system prompts.</li>
+
+    </ol>
+    <h2>Install PHP</h2>
+    <ol>
+        <li>
+            To install PHP, open the terminal and type:
+            <div class="hacker">sudo yum install php php-mysql</div>
+            Enter "Y" to install.
+        </li>
+
+        <li>
+            Restart Apache.
+            <div class="hacker"> sudo service httpd restart</div>
+        </li>
+
+    </ol>
+    <h3> Install PHP modules</h3>
+    <ol>
+        <li>
+            You can install any PHP module that you may require. To see the available PHP modules, type:
+            <div class="hacker">yum search php-</div>
+
+        </li>
+        <li>        
+            The list displays the available PHP modules. If you want to get more information on a specific package, you can display the description by typing:
+            <div class="hacker">yum info <em>package</em></div>
+            Replace <em><u>package</u></em> with the name of the package from the list of available modules.
+        </li>
+        <li>
+            Install the package you want.
+            <div class="hacker">sudo yum install <em>package</em></div>
+            Replace <em><u>package</u></em> with the package you want to install.
+        </li>
+        <li>
+            If you want to install more than one package, type the names of the packages separated by a space.
+            <div class="hacker"> sudo yum install <em>package1 package2 package3</em></div>
+        </li>
+    </ol>
+    <h3>Test PHP processing on Apache</h3>
+    <ol>
+        <li>
+            Create a new PHP file under the <code>/var/www/html</code> directory.
+            <div class="hacker"> sudo vim /var/www/html/info.php</div>
+        </li>
+        <li>
+            When the file opens, type in the following code:
+            <div class="hacker"> &lt;?php <br /> phpinfo(); <br /> ?> </div>
+        </li>
+        <li>Save and exit the file.</li>
+        <li>
+            To verify that it works, type this URL in your browser:
+            <strong>http://<em>server-ip-address</em>/info.php</strong>
+            Replace <em><u>server-ip-address</u></em> with your ip address.
+            If it works, a page displays the PHP version, extensions, build date, and other information.</li>
+
+    </ol>
+         <h2>Next steps</h2>  
+Now that you have installed LAMP on your server you can <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17383%20-%20Install%20WordPress%20on%20your%20LAMP%20server%20-%20CentOS.html">install Wordpress on your LAMP server</a>, <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18007 - Install and Configure Varnish for your Drupal 7 site on your LAMP server - CentOS, Fedora.html"> install Drupal 7</a>, <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18050 - Install and configure Simple Machines Forum on your LAMP server - CentOS, Fedora.html">install Simple Machines Forum</a>, and
+    <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18236 - Install and configure MediaWiki on your LAMP server - CentOS, Fedora.html">install MediaWiki.</a>
+
+
+</body>
+</html>

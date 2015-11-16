@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Redirect www to Non-www with Apache - CentOS 7, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+
+ <h1>Redirect www to Non-www with Apache - CentOS 7, Fedora</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15</u></em>
+    </p>
+    <p>Let's assume that you have a domain with and without the <code>www</code> prefix: <em><u>www.coolexample.com</u></em> and <em><u>coolexample.com</u></em>. Both display the same content. <strong>Permanent redirect</strong> or "301 Redirect" is the type of redirect in which you   redirect your users from one domain to the other.</p>
+    
+    <p>This article walks you through the process of setting up redirects on CentOS 7 and Fedora 20, 21.</p>
+    
+    <p>
+Before starting, make sure to complete the <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17325 - Initial Server Setup - Debian.html">initial server setup</a>  on your server and to install Apache. </p>
+    <p>To install Apache:</p>
+<div class="hacker">sudo yum update</div>
+<div class="hacker">sudo yum install httpd</div>
+
+    <h2>Configure DNS records</h2>
+    For this article we'll use a COMPANY_NAME domain. 
+    <ol>
+        <li>
+      Assuming that you have a domain with COMPANY_NAME, log into the <a href="https://mya.godaddy.com/default.aspx">account manager</a> page.</li>
+        <li>Click <strong>Manage</strong> in the <strong>Domains</strong> section. <br />
+        <img src="images/00033/091115/Manage_Domains.png" alt="Manage Domains" />       <br/>   <br/>
+            </li>
+            <li> <p>This will take you to the list of domains you have with COMPANY_NAME. Click the drop down button on the domain that you want to work with and click on <strong>MANAGE DNS</strong>.</p>
+                <img src="images/00033/091115/DNS_Manage.png" alt="DNS Manage" /> <br/>         <br/>
+            </li>
+            <li><p>If you don't see a record for your domain, create one. You should also create another <strong>A</strong> record or <strong>CNAME</strong> record with the hostname "www" in the <strong>HOST</strong> field. Make sure to type in the IP address of your server in the <strong>POINTS TO </strong> field.</p> 
+                <p>Here's how both the records will look like:</p>
+                <img src="images/00033/091115/A_CNAME_Record.png" alt="DNS Records" />       <br/>  <br/>
+          You should now be able to access both the www and non-www domains of your server. </li>
+
+</ol>
+<h2>Enable Rewrite, and create <code>.htaccess</code></h2>
+    <p>We'll  use the <code>.htaccess</code> file to hold the redirect rules. By default, the Rewrite module is enabled. In case it isn't enabled, edit the Apache configuration file.</p>
+    <ol>
+        <li>
+            Open the modules section of the Apache configuration file.
+            <div class="hacker">sudo vim /etc/httpd/conf.modules.d/00-base.conf</div>
+        </li>
+<li>
+            Add the following line if it isn't already present:
+              <div class="hacker">LoadModule rewrite_module modules/mod_rewrite.so</div>
+      </li>
+        <li>
+            Open the configuration file.
+            <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+        </li>
+        
+        <li>
+            In the configuration block that corresponds to the DocumentRoot (in this case <code>/var/www/html</code>), replace <code>AllowOverride None</code> with <code>AllowOverride All</code>. <br />
+          The <code>Directory</code> section resembles this:
+            <div class="hacker">
+                <pre>
+&lt;Directory /var/www/html>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride <em><u>All</u></em>
+    Order allow,deny
+    allow from all
+ &lt;/Directory>
+</pre>
+      </div>
+
+<p>If your first configuration block doesn't include the <code>Options Indexes FollowSymLinks</code> line, it means that line is in its own separate section, and you'll need to change the <code>AllowOverride</code> for that block as well. </p>
+
+<p>Here's an example of how that might look:</p>
+
+            <div class="hacker">
+                <pre>
+&lt;Directory /var/www/html>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride <em><u>All</u></em>
+       # Allow open access:
+    Require all granted
+ &lt;/Directory>
+...
+    # The Options directive is both complicated and important.  Please see
+    # http://httpd.apache.org/docs/2.4/mod/core.html#options
+    # for more information.
+    #
+    Options Indexes FollowSymLinks
+    #
+    # AllowOverride controls what directives may be placed in .htaccess files.
+    # It can be "All", "None", or any combination of the keywords:
+    #   Options FileInfo AuthConfig Limit
+    #
+    AllowOverride <em><u>All</u></em>
+...</pre></div>
+
+ </li>       
+
+
+        <li>
+            Save and exit the file.
+      </li>
+        <li>
+            Restart Apache for the changes to take effect.
+            <div class="hacker">sudo systemctl restart httpd</div>
+        </li>
+
+        <li>
+            Navigate to the DocumentRoot directory (in this case <code>/var/www/html</code>).
+            <div class="hacker">cd /var/www/html</div>
+        </li>
+        <li>
+            Create a <code>.htaccess</code> file to enter the redirection information. There are two options.We'll take a look at both.
+            <div class="hacker">sudo vim .htaccess</div>
+      </li>
+    </ol>
+    <h3>Option 1: Redirect www to non-www</h3>
+    <ol>
+        <li>
+            If you want to redirect from www to non-www, type the following block of text in the <code>.htaccess</code> file.
+<div class="hacker">
+      <pre>
+RewriteEngine On
+RewriteBase /
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+</pre>
+          </div> <p class="note">If  using HTTPS, replace <strong>http</strong> with <strong>https</strong> in the last line, <code>RewriteRule</code>.</p></li><li>
+            Save and exit.
+           
+      </li>
+      <li>
+            To validate your redirection, use the  <code>curl</code>  command to retreive your domain. 
+<div class="hacker">curl -I www.coolexample.com</div>
+            The following displays on the console:
+            <div class="hacker">
+                <pre>
+HTTP/1.1 301 Moved Permanently
+Date: Thu, 20 Aug 2015 20:52:30 GMT
+Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
+Location: http://coolexample.com/
+Content-Type: text/html; charset=iso-8859-1
+</pre>
+          </div>
+        
+          You can also verify the redirection by going to <em><u>www.coolexample.com</u></em> in your browser. You are redirected to <em><u>coolexample.com</u></em>.</li>
+    </ol>
+<h3>Option 2: Redirect non-www to www</h3>
+    <ol>
+        <li>
+            If you want to redirect from www to non-www, type the following block of text in the <code>.htaccess</code> file.
+            <div class="hacker">
+        <pre>
+RewriteEngine On
+RewriteBase /
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
+</pre>
+          </div>  <p class="note">If using HTTPS, replace <strong>http</strong> with <strong>https</strong> in the last line <code>RewriteRule</code>.</p></li>
+        <li>
+            Save and exit.
+           
+      </li>
+      <li>
+            To validate your redirection, use the  <code>curl</code> command to retreive your domain.
+            <div class="hacker">curl -I coolexample.com</div>
+            The following displays on the console:
+        <div class="hacker">
+                <pre>
+HTTP/1.1 301 Moved Permanently
+Date: Sun, 23 Aug 2015 00:11:10 GMT
+Server: Apache/2.4.6 (CentOS) 
+Location: http://www.coolexample.com/
+Content-Type: text/html; charset=iso-8859-1
+</pre>
+          </div>
+        You can also verify the redirection by going to http://<em><u>coolexample.com</u></em> in your browser. You are redirected to  www.<em><u>coolexample.com</u></em>.</li>
+    </ol>
+
+    <h2>Conclusion</h2>
+
+    <p>With this article, you have learned to create a permanent redirect with Apache using the Rewrite module.</p>
+
+ 
+</body>
+</html>

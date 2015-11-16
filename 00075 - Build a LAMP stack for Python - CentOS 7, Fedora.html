@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Use this template for articles that include steps for accomplishing a task or tasks (for example, installing). For articles that explain or describe something (such as an operating system), use the Informational template instead.  -->
+
+<title>Build a LAMP stack for Python - CentOS, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+        <p> Describes how to install Apache, MySQL, PHP (LAMP) stack on CentOS, Fedora</p>
+    <h1>Build a LAMP stack for Python - CentOS, Fedora</h1>
+
+        <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+            <p>The <em>LAMP stack</em> is a group of open source software used to get web servers up and running. The acronym stands for Linux, Apache, MySQL, and PHP. RHEL distributions use the <code>yum</code> package manager, which can update the system and install all of the required packages for each part of the LAMP stack. </p>
+
+            <p>This tutorial is written for a user with sudo privileges. See the Initial Server Setup article for
+           <a href="17323 - Initial Server Setup - CentOS.html">CentOS</a> or 
+           <a href="17322 - Initial Server Setup - Fedora.html">Fedora</a> for 
+             more on getting your server set up.</p>
+
+<h2>Install Apache</h2>
+<ol>
+
+            <li> Start by updating your packages.
+    <div class="hacker">sudo yum update</div></li>
+
+                <li>Then install Apache.
+                <div class="hacker">sudo yum install httpd</div>
+            <p class=>If you are not in the <code><em><u> /etc/sudoers</u></em></code> file Centos/Fedora will ask for your regular user's password to verify your intentions. <br />Afterwards, your web server is installed.</p> </li>
+
+            <li>Once it installs, you can start Apache on your server:
+
+                <div class="hacker">sudo service httpd start</div> </li>
+
+            <li>Type in your servers public ip address in your favorite web browser
+             <strong>http://<em><u>your_server_IP_address</u></em></strong>
+
+            <p>You will see the default CentOS/Fedora Apache page, which is there for informational and testing purposes. If you see this page, then your web server is now correctly installed.</p>
+
+            </li>
+
+
+           <!--CT... <li>The last thing you will want to do is enable Apache to start on boot. Use the following command to do so:
+                     <div class="hacker">sudo systemctl enable httpd.service</div> </li>
+
+            <li>And you should see this after you run the command above:
+            <div class="hacker">ln -s '/usr/lib/systemd/system/httpd.service' '/etc/systemd/system/multi-user.target.wants/httpd.service'</div> </li>
+            ...-->
+
+</ol>
+
+
+<h2>Check your version of Python</h2>
+
+<p>Python comes either preinstalled or with the system package manager on most popular Linux distributions. This means it's integrated into the system/environment from the start.</p> 
+
+<ol>
+<li>Confirm you have Python by checking your version. 
+<div class="hacker">python --version</div></li>
+
+<p class="note">Most modern Python development requires version 2.6 or later. </p>
+
+<li><p>You don't need to install or configure anything else to use Python. However, you may want to install some tools and libraries if you're planning on building Python applications.</p>
+
+<p>The most important of these tools are  <code>pip</code> and <code>setuptools</code>.</p>
+
+Check to see if you have pip.
+<div class="hacker">command -v pip</div>
+
+If it doesn't return any output, you do not have <code>pip</code>.</li>
+
+<p class="note">Python 2.7.9 and later versions include <code>pip</code> by default.</p>
+
+
+<li>Install <code>pip</code> and <code>setuptools</code>.
+<div class="hacker">sudo yum install python-pip python-setuptools</div>
+</li>
+
+<li>Confirm you now have <code>pip</code> by checking the version. 
+    <div class="hacker">pip --version</div></li>
+
+
+<li>Alternatively, you can check the filepath with this command. 
+<div class="hacker">command -v pip</div></li>
+</ol>
+
+
+
+    <h2>Install MySQL</h2>
+    <ol>
+        <li>
+            Install MySQL.
+            <div class="hacker">sudo yum install mysql mysql-server</div>
+        </li>
+        <li>
+            After the installation is complete, start the service.
+            <div class="hacker">sudo service mysqld start</div>
+        </li>
+
+
+        <li>
+            Run the following security script:
+            <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>
+        </li>
+        <li>You will be asked for the root password. Because you didn't set it earlier, press <strong>Enter</strong> to set a password now. </li>
+        <li>Type "Y" to set the root password.</li>
+        <li>Enter and confirm the new password.</li>
+        <li>You will be asked more questions as part of security configuration. It is a best practice to respond "Y" to these system prompts.</li>
+
+    </ol>
+ 
+        <p>Once you're done installing MySQL, finish the LAMP stack by installing PHP.</p>
+
+
+
+<h2> Install PHP</h2>
+
+        <p>PHP is an open source web scripting language that is widely used to build dynamic web pages.</p>
+
+        <ol>
+          <li>Install PHP:
+            <div class="hacker">sudo yum install php php-mysql</div></li>
+
+          <li>This should install PHP without any problems. We need to restart the Apache web server in order for it to work with PHP. You can do this by typing this:
+             <div class="hacker">sudo service httpd restart</div> </li>
+
+
+        </ol>
+
+    <h2>Next steps</h2>
+       
+       <p>Congratulations! You now have a LAMP stack on your Debian or Ubuntu server, you can now Install phpMyadmin for <a href="17640 - Install and secure phpMyAdmin with Apache - CentOS 7.html">CentOS 7</a>
+       or  <a href="17639 - Install and secure phpMyAdmin with Apache - Fedora.html">Fedora</a> or install WordPress for  <a href="17383 - Install WordPress on your LAMP server - CentOS.html">CentOS</a> or <a href="19192 - Install WordPress on your LAMP server - Fedora.html">Fedora</a></p>.
+    
+</body>
+</html>

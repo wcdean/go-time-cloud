@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Understanding Nginx HTTP Proxying, Load Balancing, Buffering, and Caching - ALL DISTROS</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+span.codeChar
+	{font-family:"Courier New";
+	}
+    </style>
+
+</head>
+<body>
+
+<p>Proxying concepts as implemented by Nginx.
+ </p>
+ 
+<h1>Understanding Nginx HTTP Proxying, Load Balancing, Buffering, and Caching - ALL DISTROS</h1>
+ 
+ <!--Brian, This intro mentions "reverse-proxy server" but the rest of the doc does not. We should use consistent terminology. Can you clarify? -c --> 
+ 
+<p><strong>Difficulty</strong>: <em><u>3</u></em><br />
+        <strong>Time</strong>: <em><u>1 hr</u></em></p>
+ <p>Nginx is an event-based web server that has become popular due to its ability to scale.  Its advanced features have sometimes led administrators to use it as reverse-proxy server or load balancer. This article concerns these and other advanced features of Nginx: HTTP proxying, load balancing, buffering, and caching.</p>
+
+<p>
+   This article provides a feel for how certain features work in Nginx. It assumes that you are familiar with <a href="http://00001%20-%20Understanding%20Nginx%20configuration%20files%20-%20ALL%20DISTROS.html">Nginx configuration files</a>. The code examples are from the <code>nginx.conf</code> file or from files that it references. </p>
+<div class="hacker"> # server context <br />
+This is what a code example looks like.&nbsp; The # ... context comment tells you in what section of the configuration file it belongs.</div>  
+   <!--Brian, what is in the following div? Is this the default config file? c --> 
+  
+
+<h2>About proxy servers</h2>
+ <p>A <em>proxy server</em> sits between the requestor and the provider of a resource. In a reverse-proxy environment, the requestor is unaware of the proxy; that is, they think they are connecting directly to the provider. For example, with a load-balancing application, an end user browses the online storefront of YourCompany and requests pages from the catalog. YourCompany uses a reverse-proxy server to distribute these requests to several application servers that manage its catalog and sales operations.</p><p>
+  Using a proxy server also helps to insulate YourCompany's order system from hackers and allows YourCompany to maintain its application servers without taking the entire store offline.</p>
+<p>
+      A proxy server can also buffer responses so that the relatively slower application servers are free as soon as possible to respond to the next request. Caching responses in the proxy server allows some requests to bypass the application server altogether.
+    </p><p> 
+ When implemented correctly, all of these features can significantly improve the user experience.
+  </p>
+     
+
+
+   
+<h2>HTTP proxying</h2>
+<p>The simplest way to define a proxy server is to place it between the client and a single server using <code>proxy_pass</code> and to pass the information "as-is":
+</p>
+   <div class="hacker">
+    #server context<br />
+    location /YourCompany <br />
+    { proxy_pass http://YourCompany;
+    <br />
+    }
+</div> 
+    <p>
+Assuming that the name of your Nginx site is "mycloudserver," this definition translates requests for 
+<code>mycloudserver/YourCompany </code>
+to 
+<code>http://YourCompany</code> by appending the matched portion of the URL to the location defined in the <code>proxy_pass</code> statement. Other requests - such as requests for <code>mycloudserver/someotherpage</code> or any other locations that don't match <code>/YourCompany </code>are served by mycloudserver directly.</p>
+
+You can also provide an explicit translation:
+
+<div class="hacker"># server context
+
+    <br />
+    location /YourCompany 
+    <br />
+    {
+    proxy_pass http://YourCompany/yourapplication/;
+    <br />
+    }
+</div> 
+This translates requests for 
+<code>/YourCompany </code>
+to 
+<code>http://YourCompany/yourapplication/</code>, where your application picks up the request.<br />    <br />
+Unfortunately, there is no guarantee that an Nginx proxy request actually will  be useful to the proxied server because the header information may be different.      <!--Brian, what header info, and different from what? -cj -->The information may be different because:
+<br />   
+ <ul>
+<li>Nginx removes empty headers. </li>
+<li>The <code>Connection</code> header is changed to <code>close</code>.</li>
+<li>Nginx treats headers that contain underscores as invalid (and ignores them) unless you set <code>underscores_in_headers on</code> in your Nginx configuration file. Even if you set this directive, you can't use an underscore as the first character. 
+One way to remedy this issue is to include some variables in your proxy definition:
+
+  <div class="hacker">
+# server context
+
+    <br />
+    location /YourCompany 
+    <br />
+    {
+    proxy_set_header HOST $host;
+    <br />
+    proxy_set_header X-Forwarded-Proto $scheme;
+    <br />
+    proxy_set_header X-Real-IP $remote_addr;
+    <br />
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    <br />
+    proxy_pass <a href="http://SmallCompany">http://YourCompany</a>/yourapplication;
+    <br />
+    }
+</div>  
+
+<!--Brian, what is in this table, and what does the user do with it?  Is it a definition of all the variables used in the example above? Is it an exhaustive list of possible variables? -cj -->
+<p>The table below describes how the Nginx system variables in the example above let you tailor the header information passed to the proxied server.</p> 
+      <table>
+    <tr>
+    <td> <b>Directive </b> </td>
+     <td> <b>Variable </b> </td>
+      <td> <b>Remarks </b> </td>
+    </tr>
+   <tr>
+    <td> <code>HOST</code></td>
+     <td><code> $host</code></td>
+      <td>Resolves to (in preference order): host name from the request line, the <code>Host</code> header from the client request, and server name matching the request. </td>
+    </tr>
+    <tr>
+    <td> <code>X-Forwarded-Proto</code></td>
+     <td><code> $scheme</code></td>
+      <td> Provides information about whether the request was http or https.</td>
+    </tr>
+           <tr>
+    <td> <code>X-Real-IP</code></td>
+     <td><code> $remote_addr</code></td>
+      <td> IP address of the client making the request.</td>
+    </tr>
+           <tr>
+    <td><code> X-Forwarded-For</code></td>
+     <td><code> $proxy_add_x_forwarded_for</code></td>
+      <td> Adds the proxy server to the end of the list of servers through which this request has passed. </td>
+</tr> </table>
+
+     </li>
+     
+ </ul>
+    <p>For additional flexibility, include the <code>proxy_set_header</code> definitions outside the location directive:</p>
+<div class="hacker">
+    # server context
+    <br />
+    proxy_set_header HOST $host;
+    <br />
+    proxy_set_header X-Forwarded-Proto $scheme;
+    <br />
+    proxy_set_header X-Real-IP $remote_addr;
+    <br />
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    <br />
+    location /YourCompany 
+    <br />
+    {
+
+    <br />
+    proxy_pass <a href="http://SmallCompany">http://YourCompany</a>/yourapplication;&nbsp;
+    <br />
+    }
+
+    </div>
+<h2>Load balancing</h2>
+<p>
+Nginx makes it easy to extend our proxy example to become a load-balancing solution by letting us define a group of hosts and refer to the group in the <code>proxy_pass</code>:
+</p>
+<div class="hacker">
+
+# http context 
+upstream YourCompanyHosts 
+{ server host1.YourCompany; 
+  server host2.YourCompany; 
+  server host3.YourCompany; 
+} server 
+{ listen 80; 
+  server_name YourCompany; 
+  location /YourCompany 
+ { proxy_pass http://YourCompanyHosts; 
+ } 
+}
+</div>
+
+The default method for balancing the load is round-robin, but Nginx also supports other methods:
+<ul><li>
+
+To send the request to the server with the highest availability, insert <code>least_conn</code> before the list of servers:
+    
+<div class="hacker">
+# http context 
+upstream YourCompanyHosts 
+{ least_conn; 
+  server host1.YourCompany; 
+  server host2.YourCompany; 
+  server host3.YourCompany; 
+}
+
+</div></li><li>
+To enhance session consistency, use <code>ip_hash</code>, which uses the user's IP address to determine which server responds:
+    
+
+    <div class="hacker">
+
+# http context 
+upstream YourCompanyHosts 
+ { ip_hash; 
+   server host1.YourCompany; 
+   server host2.YourCompany; 
+   server host3.YourCompany; 
+ }
+ 
+</div></li>
+<li>To further control session consistency, use a hash (you must provide a reference to a hash key):
+
+  <div class="hacker">
+# http context
+
+upstream YourCompanyHosts 
+
+{
+Hash $remote_addr$remote_port;
+    server host1.YourCompany;
+    server host2.YourCompany;
+    server host3.YourCompany;
+}
+</div>
+</li><li>If you want to send proportionally more traffic to a given server, increase its weight in any of the load-balancing schemes: 
+
+<div class="hacker">
+# http context
+
+upstream YourCompanyHosts 
+
+{
+    server morepowerfulhost.YourCompany weight=3;
+    server lesspowerfulhost.YourCompany weight=2;
+    server prettyweakhost.YourCompany;
+}
+</div></li></ul>
+
+<h2>Buffering</h2>
+<p>
+When functioning as a proxy server, Nginx passes data from one computer to another based on the speed of the slower computer.  Typically, the Nginx server is the fastest of the three parties in the proxy solution, but the remaining two are often unequal in performance. Buffering is used when you want to free up the resources of the fast server by having the Nginx server collect data from it and pass the data to the slow server.  This allows the fast server to move on to the next request while Nginx delivers results to the slow server.</p>
+    
+<div class="hacker">
+# server context
+    <br />
+    proxy_buffering on;
+    <br />
+    proxy_buffer_size 1k;
+    <br />
+    proxy_buffers 24 4k;
+    <br />
+    proxy_busy_buffers_size 8k;
+    <br />
+    proxy_max_temp_file_size 2048m;
+    <br />
+    proxy_temp_file_write_size 32k;
+</div>
+    In the example above, each request has the following buffering characteristics:
+
+        <br />
+      <table>
+          <tr>
+    <th> Directive </th>
+     <th> Variable </th>
+      <th> Remarks </th>
+    </tr>
+   <tr>
+    <td> <code>proxy_buffering </code></td>
+     <td> <code>on</code></td>
+      <td> <code>on</code> is the default</td>
+    </tr>
+    <tr>
+    <td><code> proxy_buffer_size</code></td>
+     <td> <code>1k</code></td>
+      <td> Size of the header buffer (kilobytes) </td>
+    </tr>
+           <tr>
+    <td><code> proxy_buffers </code></td>
+     <td> <code>24 4k</code></td>
+      <td> 24 buffers, each  is 4 kilobytes </td>
+    </tr>
+           <tr>
+    <td><code> proxy_busy_buffers_size</code></td>
+     <td> <code>8k</code></td>
+      <td> Maximum size of buffers that can be marked “ready” for the client </td>
+      </tr>
+           <tr>
+    <td><code> proxy_max_temp_file_size</code></td>
+     <td><code> 2048m</code></td>
+      <td> If the upstream response is too large to fit into the buffers, it is written to disk.  This is the maximum size of any such file.  </td>
+      </tr>
+     <tr>
+    <td><code> proxy_temp_file_write_size</code></td>
+     <td> <code>32k</code></td>
+      <td> Nginx writes data to the <code>temp</code> file in 32k chunks.</td>
+      </tr>
+   </table>
+   
+<p>On the other hand, if you know that all of the clients in your environment are faster than your back-end servers, you can turn buffering off. When buffering is off, Nginx writes to clients as fast as they can read the data. If this becomes too much for a client to handle, Nginx automatically buffers the data.</p>
+
+<h2>Caching</h2>
+<p>
+If you want to offload your back-end servers, caching can help by storing response information on the Nginx server itself. </p>
+<p>To  set up an example simple caching solution: </p>
+<ol>
+    <li>Create a location for the cache:
+
+
+<div class="hacker">
+
+sudo mkdir -p /var/lib/nginx/cache
+
+sudo chown www-data /var/lib/nginx/cache
+
+sudo chmod 700 /var/lib/nginx/cache
+
+</div>
+
+
+</li>
+    <li>Set up the framework of the caching system:
+<!--Brian, are we back in the config file now? If so, can we be more specific about where in the file the user inserts these statements? -cj -->
+
+<div class="hacker"><pre>
+# http context 
+   proxy_cache_path /var/lib/nginx/cache 
+     levels=1:2 
+     keys_zone=backcache:8m 
+     max_size=40m; 
+   proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args"; 
+   proxy_cache_valid 200 5m; 
+   proxy_cache_valid 404 1m; 
+</pre>
+    </div>
+
+The above directives do the following:
+
+     <table>
+    <tr>
+    <th> Directive </th>
+    <th> Remarks </th>
+    </tr>
+    <tr>
+    <td> <code>proxy_cache_path</code></td>
+    <td> Tells Nginx to use the location  <code>var/lib/nginx/cache</code> <ul>
+      <li>
+<code> levels=1:2</code> Describes how the cache is organized. Each cache request is stored in a two character subdirectory under a single character directory; for example,<code> /var/lib/nginx/cache/g/st/</code>   </li>   
+      <li><code>keys_zone=backcache:8m</code>  Defines the name of the cache zone, &quot;backcache&quot;, and the number of keys (8 megabytes)</li>      
+      <li><code>max_size=</code> Tells Nginx the maximum size of the cached data (40 megabytes)</li></ul> </td>
+    </tr>
+    <tr>
+    <td> <code>proxy_cache_key</code></td>
+    <td> Defines the hash key to use to create the subdirectory in the levels flag of the <code>proxy_cache_path</code> directive. </td>
+    </tr>
+    <tr>
+    <td> <code>proxy_cache_valid</code> </td>
+    <td> In this example, successes (200) are kept for 5 minutes, and failures (404) are kept for 1 minute.</td>
+    </tr>
+ </table>
+
+</li>
+
+<li> Tell Nginx when to use the cache:
+
+
+
+<div class="hacker">
+
+# server context
+
+    <br />
+    location /
+
+{  proxy_cache backcache;
+
+    <br />
+    proxy_cache_bypass $http_cache_control<br />
+    ;
+
+    proxy_pass <a href="http://backendserver">http://backendserver</a>;
+    <br />
+    }
+
+</div>
+
+The above directives do the following:
+<table>
+    <tr>
+    <th> Directive </th>
+    <th> Remarks </th>
+    </tr>
+    <tr>
+    <td> <code>proxy_cache</code></td>
+    <td> Tells Nginx to use the virtual location we set up in step 2 (backcache), which in turn resolves to the <code>var/lib/nginx/cache physical</code> location we set up in step 1. </td>
+    </tr>
+    <tr>
+    <td> <code>proxy_cache_bypass</code></td>
+    <td> Tells Nginx to bypass the cache when there is an explicit client request to do so.  
+ </td>
+    </tr>
+    <tr>
+    <td> <code>proxy_pass</code></td>
+    <td> Tells Nginx where to go if the request is not found in cache.</td>
+    </tr>
+ </table>
+
+</li>
+    </ol>
+
+<p>Caching offers a huge performance boost, but there are some important considerations:</p>
+
+<ul>
+<li>Never cache user-related data. You don't want to serve content to user A that was intended for user B.
+
+</li><li>If responses depend on dynamic data, use caching carefully. Always make sure that the data you are serving is accurate.
+</li></ul>
+<p>
+Cache control is not specific to Nginx. It is implemented in the <code>http</code> header on the back-end server.  However, every proxy server is sensitive to these settings.
+</p>
+ 
+    <table>
+    <tr>
+    <th> Directive </th>
+    <th> Remarks </th>
+    </tr>
+    <tr>
+    <td> <code>no-cache</code></td>
+    <td> Tells Nginx to check that the back-end data has not changed. If not changed, it is safe to serve the data from cache. </td>
+    </tr>
+    <tr>
+    <td> <code>no-store</code></td>
+    <td> Never use cache. Always serve from the back end.
+ </td>
+    </tr>
+    <tr>
+    <td> <code>private</code></td>
+    <td> The proxy server should not cache the data, but the client browser can.</td>
+    </tr>  
+    <tr>
+    <td> <code>public</code></td>
+    <td> Data can be cached on the browser and on the proxy.</td>
+    </tr>
+ </table>
+
+   <br />
+  <h2>Next steps</h2>
+    <p>This article provides a broad overview of some advanced Nginx features. For help setting up your Nginx server as a load-balancing proxy server with buffering and caching, see <a href="http://17500%20-%20Configure%20NGINX%20as%20a%20reverse%20proxy%20-%20ALL%20DISTROS.html">Configure NGINX as a reverse proxy server</a>.<b><i>
+</i></b></p>
+</body>
+</html>

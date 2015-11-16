@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17488 -->
+
+
+<title>Install and use Webmin - Debian, Ubuntu</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Webmin is a web-based tool for managing your server.  It supports many common tasks like installing software, adding users, and managing servers.</p>
+    <h1>Install Webmin - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+
+    <p>Webmin is a web-based tool for managing your server. It supports many common tasks like installing software, adding users, and managing servers.  
+        This article describes how to install Webmin. It assumes you have a user, <em><u>yourloginuser</u></em>, who will access your server via SSH.</p>
+
+    <h2>Create a user with sudo privileges</h2>
+ <ol>
+               <li>Edit the <code>/etc/sudoers</code> file with visudo.
+                   <div class="hacker">sudo visudo</div>
+               </li>
+               <li>Find the section that looks like this:
+                   <div class="hacker"><pre># User privilege specification
+root    ALL=(ALL:ALL) ALL</pre></div>
+              </li>
+              <li>Add a line to the section for the user who will log in to your server. This line will grant sudo privileges to that user.
+                   <div class="hacker"><pre># User privilege specification
+root    ALL=(ALL:ALL) ALL
+<em><u>yourloginuser</u></em>    ALL=(ALL:ALL) ALL</pre></div>
+              </li>
+               <li>Save and close.</li>
+    </ol>
+ <h2>Install Webmin</h2>
+ <ol>
+               <li>Edit the <code>/etc/apt/sources.list</code> file. 
+                   <div class="hacker">sudo vim /etc/apt/sources.list</div>
+               </li>
+               <li>Add the following lines to the bottom of the file:
+                   <div class="hacker"><pre>deb http://download.webmin.com/download/repository sarge contrib
+deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib</pre></div>
+              </li>
+      <li>Save and close.</li>
+              <li>Add the Webmin key to your apt keyring.
+                   <div class="hacker">wget -q http://www.webmin.com/jcameron-key.asc -O- | sudo apt-key add -</div>
+              </li>
+              <li>Update your local repository.
+                   <div class="hacker">sudo apt-get update</div>
+              </li>
+              <li>Install Webmin.
+                   <div class="hacker">sudo apt-get install webmin</div>
+              Enter <strong>y</strong> at the prompt to continue installation.
+              </li>
+ </ol>
+ <h2>Verify the new user</h2>
+ <ol>
+               <li>Using your browser, access the Webmin login page one of two ways: 
+                   <div class="hacker">https://<em><u>your IP address</u></em>:10000</div>
+                   <div class="hacker"><em><u>your IP address</u></em>:10000</div>
+               </li>
+               <li>Ignore the SSL warning. You can trust this server, because you own it. 
+              </li>
+              <li>A login screen will appear.  Log in using the <em><u>yourloginuser</u></em> and start using Webmin!
+              </li>
+</ol>
+
+             
+    <h2>Next steps</h2>
+    <p>Explore the Webmin interface and start using it to manage your server.</p>
+   
+</body>
+</html>

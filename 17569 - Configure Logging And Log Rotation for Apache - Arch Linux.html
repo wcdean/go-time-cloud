@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Configure Logging And Log Rotation for Apache - Arch Linux</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up log rotations, logging, optimization, Apache, LAMP</p>
+    <h1>Configure Logging and Log Rotation for Apache - Arch Linux</h1>
+    
+    <p><strong>Difficulty</strong>: <em>1</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+
+	<p class="note">You need to have Apache server installed. The easiest way to do this is by installing a LAMP. Refer to <a href="17345">Arch Linux</a></p>	
+    <p>You can configure the Apache web server  to provide important functional  information and to create a log file whenever there's an issue. Apache has a highly configurable logging mechanism that can output messages at different locations. </p>
+
+    <p>In this article, you'll learn to configure logging and log rotation on Arch Linux.</p>
+    
+  <h2>Apache log levels </h2>
+<p>Apache categorizes  informational messages based on their importance. The following lists the log levels recognized by Apache, from most important to least:</p>
+<table border="1">
+<tr>
+<td><code>emerg</code></td> 
+<td> System is in an unusable state because of an emergency situation.</td>
+</tr>
+<tr>
+<td><code>alert</code></td>
+<td> Situation in which action is needed.</td></tr>
+<tr>
+<td><code>crit</code></td>
+<td>Important problems that need to be addressed.</td></tr>
+<tr>
+<td><code>error</code></td>
+<td>An error occurred.</td></tr>
+<tr>
+<td><code>warn</code></td>
+<td> Not a cause for concern, but something out of the ordinary occurred.</td></tr>
+<tr>
+<td><code>notice</code></td>
+<td> Something normal but requires noticing.</td></tr>
+<tr>
+<td><code>info</code></td>
+<td> An informational message.</td></tr>
+<tr>
+<td><code>debug</code></td>
+<td> Debugging information to pinpoint where a problem is occurring.</td></tr>
+<tr>
+<td><code>trace[1-8]</code></td>
+<td> Tracing information of various levels of verbosity that produces a large amount of information.</td></tr>
+</table>
+
+
+<h2>Specify the level of logging</h2>
+<ol>
+<li>Open <code>/etc/httpd/conf/httpd.conf </code> in a text editor.
+   <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+   </li>
+   <li>Locate <code>LogLevel</code>.
+<div class="hacker">
+... <br />
+LogLevel warn<br />
+...</div>
+<p>By default, Apache is configured to log messages with a priority of <code>warn</code>. You can change it here.</p>
+</li>
+   <li>Save and exit the file by pressing the <strong>Esc</strong> key, and then typing <strong>:wq</strong> followed by pressing the <strong>Enter</strong> key. 
+   </li>
+   </ol>
+   
+   <h2>Configure Apache log locations</h2>
+   <p>You can configure Apache  to place its logs using server-wide logging specifications. Each separate virtual host can also be configured to log individually.  </p>
+   <h3>Server-wide logging</h3>
+   <p>Find out the location of the default log information by following these steps.</p>
+   <ol>
+   <li>Open <code>/etc/httpd/conf/httpd.conf</code> in a text editor.
+     <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+   </li>
+   <li>Search for the following line:
+     <div class="hacker">ErrorLog " /var/log/httpd/error_log"  </div>
+   <p>This is the declaration of the location where Apache will store the error messages. </p>
+   </li>
+   </ol>
+   
+   <h3>Virtual host logging</h3>
+   <p>The use of the  <code>/etc/httpd/logs /access_log</code> file is defined in the directive used within a virtual host definition. </p>
+<p>Examine its definition by following these steps:</p>
+   <ol>
+   <li>Scroll through the already opened <code>/etc/httpd/conf/httpd.conf </code> file, and find the following separate values related to logging:
+     <div class="hacker">
+. . . <br />
+ErrorLog " /var/log/httpd/error_log" <br />
+LogLevel warn<br />
+
+#CustomLog "/var/log/httpd/access_log" combined<br />
+. . .
+
+   </div>
+   </li>
+   <li>Exit the file by pressing the <strong>Esc</strong> key, and then typing :<strong>wq</strong> followed by pressing the <strong>Enter</strong> key. 
+    </li>
+  </ol>
+
+
+<h2>Define custom log</h2>
+<p>In the last section, the line specifying <code>access.log</code> uses a different directive. <code>CustomLog</code> is used to specify the <code>access.log</code> location. <code>combined</code> is a label for a custom format and is defined in the default configuration file.</p>
+<p>This directive has the following syntax: </p>
+<div class="hacker">CustomLog <em><u>log_location</u></em> <em><u>log_format</u></em></div>
+<p>To see the definition of <code>combined</code> log format:</p>
+<ol> 
+<li>Open <code>/etc/httpd/conf/httpd.conf</code>.
+   <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
+</li>
+<li>View the following line that defines <code>combined</code> log format:
+<div class="hacker">LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined  </div>
+  <p>The <code>LogFormat</code> command defines a custom format for logs that can be called using the <code>CustomLog</code> directive.</p>
+</li>
+   <li>Exit the file by pressing <strong>Esc</strong> key, and then typing <strong>:wq</strong> followed by pressing the <strong>Enter</strong> key. 
+   </li>
+</ol>
+   
+<h2>Rotate Apache logs</h2>
+   <p>Rotation of logs is required because Apache logs a large amount of information. Log rotation can be just switching out the logs that grow to a certain limit or to store logs for reference at a later date.</p>
+   <h3>Manually rotate logs</h3>
+   <ul>
+   <li>Manually rotate logs:
+     <div class="hacker">sudo mv <em><u>error_log error_log.old</u></em></div>
+   <div class="hacker">sudo apachectl graceful</div>
+    <div class="hacker">sleep <em><u>600</u></em></div>
+	<p>This command will move the files, reload the file, and then wait for 600 seconds.</p>
+   </li>
+   </ul>
+   
+   
+   <h3>Rotate logs using <code>logrotate</code></h3>
+   <p>Arch Linux configures its own log rotation plan by default with <code>logrotate</code>.</p>
+   <ol>
+   <li>Open <code>/etc/logrotate.d/httpd.</code>
+   <div class="hacker">sudo vim /etc/logrotate.d/httpd</div>
+   <p>You'll see the following configuration:</p>
+   <div class="hacker">
+<pre>
+/var/log/httpd/*log {
+   missingok
+   postrotate
+      /bin/kill -HUP `cat /run/httpd/httpd.pid 2>/dev/null` 2> /dev/null || true
+   endscript
+}
+</pre>
+   </div>
+   </li>
+<li>Change the directory in first line, if in the Apache configuration you  chose a different directory for your logs. <code>logrotate</code> will  operate only on this directory.   
+  <div class="hacker">/var/log/httpd/*log {…</div>
+   </li>
+   <li>Add the following option here:
+   <table border="1">
+<tr>
+<td><code>rotate </code></td> 
+<td>The number of back logs to keep using the rotate option. For example, <code>rotate 3</code> will keep three old log files. </td>
+</tr>
+<tr>
+<td><code>compress </code></td> 
+<td>Compress the old log files.</td>
+</tr>
+<tr>
+<td><code>daily, weekly, monthly or yearly</code></td> 
+<td>Rotate logs after the mentioned period.</td>
+</tr>
+<tr>
+<td><code>size </code></td> 
+<td>Size of the log file to trigger the rotation. </td>
+</tr>
+<tr>
+<td><code>minsize</code></td> 
+<td>Trigger <code>rotate</code> only if the period is reached AND the log file size is more than  <code>minsize</code> specified.</td>
+</tr>
+<tr>
+<td><code>prerotate</code> and <code>postrotate</code></td> 
+<td>These are specify commands that you can run before and after log rotation. For example, restarting the daemon after log rotation.</td>
+</tr></table>
+<p>Apache is reloaded after this operation.</p>
+  </li>
+   <li>Exit the file by pressing <strong>Esc</strong> key, and then typing <strong>:wq</strong> followed by pressing the <strong>Enter </strong>key. 
+   </li>
+   </ol>
+   
+<h2>Log with pipes</h2>
+   <p>Allow a separate logging program to handle the logs by using pipes instead of files.</p>
+   <ul>
+   <li>Change the custom log definition as shown to let the access log be handled by a logging program that accepts standard input.
+     <div class="hacker">CustomLog "| <em><u>logging_program</u></em> <em><u>logging_program_parameters"</u></em> combined</div>
+   <p>Multiple programs can be configured to rotate logs. Use the following syntax to configure <code>rotatelogs</code>, which is included in Apache.</p>
+   <div class="hacker">CustomLog "| <em><u>path_to_rotate_log</u></em> <em><u>path_of_log_to_rotate</u></em> <em><u>time_in_seconds_between_rotations"</u></em> <em><u>log_level</u></em></div>
+   </li>
+   </ul>
+   
+    <h2>Conclusion</h2>
+    <p>In this article, you have learned to configure logging and log rotation in Arch Linux. It's important to log everything  necessary to troubleshoot your problems and  to have a good log rotation mechanism so that files don’t grow too large.</p>
+   
+</body></html>

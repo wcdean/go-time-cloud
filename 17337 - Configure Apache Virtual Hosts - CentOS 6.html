@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Configure Apache Virtual Hosts - CentOS 6</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>Configuring Apache Virtual Hosts for CentOS 6.</p>
+    <h1>Configure Apache Virtual Hosts - CentOS 6</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+    
+    <p>To run multiple sites on a single IP address, you'll need to set up the virtual hosts in your web browser. Apache is the most commonly used web server and can run a multitude of content based on IP address or hostname.</p>
+
+    <p>This article will walk you through  setting up an Apache virtual host on a CentOS 6 virtual private server (VPS) as a non-root user with <code>sudo</code> privileges.</p>
+    
+    <p class="note">If you need the full LAMP stack (Linux, Apache, MySQL, and PHP), you can <a href="../articels/17342 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Centos6, Fedora.html">install MySQL and PHP</a>. </p>
+    
+    <h2>Install the Apache web server</h2>
+    <ol>
+    <li>Install Apache by running the <code>yum</code> command.<br />
+      <div class="hacker">sudo yum install httpd</div></li>
+    <li>Start up Apache so that the httpd service will start automatically on a reboot.
+    <div class="hacker">sudo service httpd start</div></li>
+    
+   </ol> 
+   
+    <h2>Set up the virtual host</h2>
+    <ol>
+    <li>Create the virtual directories for the domains/sites you'll be serving from your VPS.
+    We'll use the example domain name <em><u>coolexample.com</u></em>.<br />
+    <div class="hacker">
+    sudo mkdir -p /var/www/coolexample.com/public_html</div></li>
+    
+    <li>Set up ownership and grant permissions. Change the ownership from the <code>root</code> user to a regular user using <code>chown</code>. This way, regular users can modify files in your web directories.
+    <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
+     
+    <li>Set read permissions to the Apache web root <code>/var/www </code> directory to enable access to the files from that directory. Modify permissions so that the general web directory has read access.<br />
+    <div class="hacker">sudo chmod -R 755 /var/www/</div>         
+    </li>
+    </ol>
+    
+    <h2>Create a sample page for your virtual host</h2>
+    
+    <ol>
+    <li>Create a sample page for your virtual host. For simplicity's sake, let's create <code>index.html</code> pages.
+    <div class="hacker">vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div>
+
+    It'll be a blank file. Add some content: 
+        <div class="hacker"><pre>&lt;html&gt; 
+    &lt;head&gt; 
+    &lt;title&gt;Welcome to coolexample.com!&lt;/title&gt; 
+    &lt;/head&gt; 
+    &lt;body&gt; 
+    &lt;h1&gt;Hooray! Your coolexample.com virtual host is working!&lt;/h1&gt; 
+    &lt;/body&gt; 
+&lt;/html&gt;</pre></div></li>
+    <li>Save and close the file.</li>
+
+    </ol>
+    
+    
+    <h2>Modify your Apache configuration file</h2>
+    
+    <p>Edit the main configuration file so that Apache will look for a virtual host.</p>
+
+    <ol>
+      <li>Open the Apache config file.
+     <div class="hacker">vim /etc/httpd/conf/httpd.conf</div></li>
+      
+        <li>Check that Apache is listening on the default HTTP port (port 80) for the virtual host. Find these two lines in the file: 
+          <div class="hacker">#Listen 12.34.56.78:80<br/>
+        Listen 80</div>
+      And make sure that they match the above and that the <code>Listen</code> line is uncommented. Most likely, this is already the case.</li>
+
+    <li>Farther down in the file, uncomment <code>NameVirtualHost</code> so that it looks like this:
+      <div class="hacker">NameVirtualHost *:80</div></li>
+
+    <li>At the very end of the file, find the section beginning with <code>&lt;VirtualHost *:80&gt;</code> and make the following changes to this part:
+
+
+        <ul>
+            <li>Starting with the first line <code>&lt;VirtualHost *:80&gt;</code>, uncomment the whole section, ending with <code>&lt;/VirtualHost&gt;</code>. </li>
+            <li>Point <code>DocumentRoot</code> to your domain and the directory that holds it. In our case, that would be <code>/var/www/coolexample.com/public_html</code>. So the line will look like this:
+                <div class="hacker">DocumentRoot /var/www/coolexample.com/public_html</div>
+            </li>
+            <li>Point <code>ServerName</code> to your domain with the www.</li>
+            <li>Make sure that your hostname has a valid DNS record, so that the www version of your domain works. In our case, that would be <em><u>www.coolexample.com</u></em></li>
+            <li>Point <code>ServerAlias</code> to other variations of your domain, such as the domain without the www.</li>
+        </ul>
+
+
+<p>Here's what the whole section could look like after your changes:</p>
+ <div class="hacker"><pre>
+    &lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@coolexample.com
+    DocumentRoot <em><u>/var/www/coolexample.com/public_html</u></em>
+    ServerName <em><u>www.coolexample.com</u></em> 
+    ServerAlias <em><u>coolexample.com</u></em> 
+    ServerName <em><u>www.coolexample.com</u></em>     
+    ErrorLog /var/www/coolexample.com/error.log 
+    CustomLog /var/www/coolexample.com/requests.log combined 
+    &lt;/VirtualHost&gt; </pre> </div>
+
+<p class="note">Note that the other lines (ServerAdmin, ErrorLog, and CustomLog) are not required to set up your virtual host. We've filled them out for this example.</p>
+</li>
+
+<li>Save and close.</li>
+
+<li>Restart Apache.
+ <div class="hacker">sudo service httpd restart</div></li>
+
+</ol>
+
+You may see the following error, which you can disregard. This message is just a warning, and your virtual hosts will work.
+ <div class="hacker">Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName</div>
+ 
+ <h2>Test your setup</h2>
+
+ <p>See your virtual host in action by typing in your domain or IP address into your browser, such as <em><u>coolexample.com</u></em>. You should see your test page created earlier.</p>
+
+ <p>To access your sites from your remote systems, add the actual domain name records in your DNS
+    server.</p>
+
+<p class="note">You can test your virtual host locally by setting up local hosts on your computer alone. This is a good option if you have not yet pointed your domain name to the IP address of your VPS. See <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/00003 - Set up Local Hosts to Test Virtual Host Setup - ALL DISTROS.html"> Set up Local Hosts to Test Virtual Host Setup - ALL DISTROS</a> for more on how to do this.</p> 
+      
+
+<h2>Adding additional virtual hosts</h2>
+
+<p>Repeat the above steps to create more virtual hosts. Be sure to create a new document root with your domain name each time.  </p>
+
+
+<p>In your Apache config file, copy and paste the new Virtual Host information. So, for example, if you were adding coolexample.net as a second host, it could look like this:</p>
+ <div class="hacker"><pre>
+   &lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@coolexample.com
+    DocumentRoot <em><u>/var/www/coolexample.com/public_html</u></em> 
+    ServerName <em><u>www.coolexample.com</u></em> 
+    ServerAlias <em><u>coolexample.com</u></em>
+    ServerName <em><u>www.coolexample.com</u></em>     
+    ErrorLog /var/www/coolexample.com/error.log 
+    CustomLog /var/www/coolexample.com/requests.log combined 
+    &lt;/VirtualHost&gt; 
+
+   &lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@coolexample.net
+    DocumentRoot <em><u>/var/www/coolexample.net/public_html</u></em> 
+    ServerName <em><u>www.coolexample.net</u></em> 
+    ServerAlias <em><u>coolexample.net</u></em> 
+    ServerName <em><u>www.coolexample.net</u></em>     
+    ErrorLog /var/www/coolexample.net/error.log 
+    CustomLog /var/www/coolexample.net/requests.log combined 
+    &lt;/VirtualHost&gt; 
+  </pre></div>
+
+<h2>Next steps</h2>
+<p>Congratulations! You now have a single server handling a site with its own domain. Again, remember that you can add additional virtual hosts since there is no limit on the number of domain names Apache can handle.</p>
+
+  </body>
+</html>

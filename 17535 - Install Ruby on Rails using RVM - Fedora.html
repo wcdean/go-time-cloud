@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+                                    
+<!--Article Number is 17535-->
+
+<title>Install Ruby on Rails using RVM - Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+ <p>Steps to install Ruby on Rails using Ruby Version Manager (RVM) in Fedora, Ruby, Rails</p>
+    <h1>Install Ruby on Rails using RVM - Fedora</h1>
+   
+ <strong>Difficulty</strong>: <em><u>2 </u></em>
+        <br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em>
+
+    <p>Ruby on Rails&trade; is a well-known framework for web application development. The Ruby Version Manager (RVM) allows developers to easily manage multiple Ruby application environments and switch between them efficiently. </p>
+
+<p>This article will walk through how to install Ruby on Rails on Fedora 20 or 21 using RVM, and assumes that you have <code>sudo</code> privileges. See <a href="17322 - Initial Server Setup - Fedora.html">Initial Server Setup - Fedora</a> for more on how to set up your Fedora server.</p>
+
+<h2>Prepare your system</h2>
+Before you install Ruby on Rails, prepare your system with the required system software.    
+    <ol>
+        <li>Update the system software and access root by running the following command:
+          <div class='hacker'>sudo yum update</div>      
+      </li>
+        <li>Install curl by typing:
+            <div class='hacker'>sudo yum install curl</div>
+        </li>
+		 <li>Install tar.
+            <div class='hacker'>sudo yum install tar</div>
+        </li>
+        </ol>
+        
+<h2>Update and install RVM and Ruby</h2>
+<ol> 		
+       <li>Install the RVM dependencies using the following commands:
+		<div class='hacker'>sudo curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -</div>
+		
+      </li>   
+
+	  <li>If your system doesn't have RVM already installed, type the following command to install RVM:
+         <div class='hacker'>sudo curl -L https://get.rvm.io | bash -s stable</div>
+    
+	  </li>
+	    
+         
+        <li>To apply RVM, execute the following command:
+          <div class="hacker">source ~/.rvm/scripts/rvm</div>
+            
+			     If your system already has RVM installed, update it.
+			    <div class='hacker'>rvm get stable --autolibs=enable</div>
+		
+			</li>
+      </ol>
+      
+<h2>Install Ruby</h2>
+      <ol>
+      <li>Use RVM to install Ruby.
+      	<div class='hacker'>rvm install ruby</div></li>
+        <li>To check Ruby version, type:
+          <div class='hacker'>ruby -v</div>
+      </li>
+        <li>Rails asset pipeline needs JavaScript runtime to compile code. On Fedora, <code>nodejs</code> (a server-side JavaScript environment) is preferred. To install Node.js, type the following command:
+          <div class='hacker'>sudo yum install nodejs</div>
+      </li>
+	  
+	  
+    </ol>
+<h2>Install common and useful gems</h2>
+<p>Bundler is a tool to manage gems while developing and running Rails applications. Nokogiri is a dependency for many other gems.</p>
+<ol>
+<li>Update the gem manager.
+          <div class='hacker'>gem update --system</div>
+      </li>
+	  <li>Type the following command to use Ruby with gemset global:
+          <div class='hacker'>rvm gemset use global</div>
+      </li> 
+    <li>Install both the gems.
+      <div class='hacker'>gem install bundler</div>
+      <div class='hacker'>gem install nokogiri</div>
+    </li>
+    </ol>
+<h2>Install Rails</h2>
+<ol>    
+        <li>Use gem to install the most recent stable release of Rails.
+          <div class='hacker'>gem install rails</div>
+    To check the version, type:
+      <div class='hacker'>rails -v</div>    
+	  </li> 
+	  
+    </ol>
+  
+  <h2>Next steps</h2>
+
+<p>Congratulations! You've set up Ruby on Rails using RVM for your web application. For more information on RVM, see <a href="17912 - Use RVM to manage Ruby installations and Environments - ALL DISTROS.html">Use RVM to manage Ruby installations.</a></p>
+</body>
+</html>

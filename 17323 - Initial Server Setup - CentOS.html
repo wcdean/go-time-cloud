@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 17323 -->
+    <title>Initial Server Setup &ndash; CentOS</title>
+    <style type='text/css'>
+        div.hacker {
+            background-color: #666;
+            border: 1px solid #ccc;
+            color: #fff;
+            font-family: "Lucida Console","Courier New",Courier,fixed;
+            font-size: 95%;
+            line-height: 160%;
+            margin-bottom: 1.5em;
+            padding: 10px;
+        }
+
+        p.note {
+            background-color: #ffffe6;
+            border: 1px solid #eee;
+            color: #666;
+            padding: .8em 1.6em;
+            margin: 15px 0;
+        }
+
+        .warning {
+            border: 1px #d25100 solid;
+            padding: .5em 1em .5em 4em;
+            margin: 10px 20px 15px 20px;
+            background-image: url('@{help-img-path}/img_warning.gif');
+            background-repeat: no-repeat;
+            background-position: left top;
+            background-color: #ededed;
+            -moz-border-radius: 0.8em;
+            -webkit-border-radius: 0.8em;
+            /* -moz-border-bottom-radius: 0;9 */
+            -webkit-border-bottom-radius: 0;
+            padding-top: 14px;
+            padding-bottom: 15px;
+        }
+    </style>
+
+</head>
+<body>
+     <p>Setting up a CentOS server to use SSH public key authentication, general server updates System Setup</p>
+    <h1>Initial Server Setup - CentOS</h1>
+    <p><strong>Difficulty</strong>: <em>1</em>
+        <br/>
+        <strong>Time</strong>: <em>60 minutes</em>
+    </p>
+    <p>In this article, we review the steps that should be taken prior to setting up a new CentOS server in the COMPANY_NAME cloud panel and steps to perform once your new server is available for use. You will setup the new server to use SSH public key authentication, connect to the server via SSH using public key authentication and update the software that comes pre-installed on the server to the most recent version.</p>
+    
+    
+    <h2>Add SSH Public Key Authentication</h2>
+    <p class="note">
+        Note: These steps are for Mac OS X users. For information on adding SSH public key authentication for Windows, see the article <a href='#'>00005 PuTTY and GoDaddy</a>.
+    </p>
+    <p>To add a SSH public key authentication, complete these four tasks in this order:</p>
+    <ol>
+    <li>Create SSH public/private key pairs.</li>
+    <li>Copy public SSH key.</li>
+    <li>Load public SSH key.</li>
+    <li>Spin up new server.</li>
+    </ol>
+    <p>For this example, we will use GoDaddy as the certificate authority. </p>
+    
+    <h2>Create SSH public/private key pairs</h2>
+    <ol>
+        <li>Open terminal.</li>
+        <li>Create a new key, using your email address as a label.
+            <br/>
+            <div class='hacker'>ssh-keygen -t rsa -b 2048 -C "your_email_address@email.com"</div>
+        </li>
+        <li>Enter the file name and location to save the key. We recommend keeping the default setting.</li>
+        <li>Enter file in which to save the key.
+            <br/>
+            <div class='hacker'>(/Users/yourName/.ssh/id_rsa): [Press Enter]</div>
+        </li>
+        <li>Enter a passphrase, at least six characters in length.</li>
+        <li>Enter the same passphrase again.</li>
+    
+    <li>After completion, you will be given your key fingerprint.<br/>
+    <div class='hacker'>
+        <pre>
+Your identification has been saved in /Users/yourName/.ssh/test_key.
+Your public key has been saved in /Users/yourName/.ssh/id_rsa.pub.
+The key fingerprint is:
+45:06:b5:b0:65:09:10:ff:20:4c:16:99:78:39:5a:b9
+The key's randomart image is:
++--[ RSA 2048]----+
+|     .*O++*.     |
+|    .+O. B..     |
+|     +oo+ o      |
+|    . E. +       |
+|        S .      |
+|                 |
+|                 |
+|                 |
+|                 |
++-----------------+
+</pre>
+    </div></li>
+    </ol>
+    <h2>Copy public SSH key</h2>
+    <ol>
+        <li>Open terminal (if closed after previous task).</li>
+        <li>Copy the contents of the public SSH key created in the previous task.
+            <br/>
+            <div class='hacker'>pbcopy %3C /Users/yourName/.ssh/id_rsa.pub</div>
+        </li>
+    </ol>
+    <p>The contents of your public SSH key are now in your clipboard and ready for use in the next task.</p>
+    
+    <h2>Load public SSH key in GoDaddy</h2>
+    <ol>
+        <li>Go to the SSH key page in the GoDaddy panel - <a href='https://cloud.godaddy.com/keys'>https://cloud.godaddy.com/keys</a></li>
+        <li>Click <strong>Create Key</strong>.</li>
+        <li>In the GoDaddy panel, click <strong>Create Key</strong>. The <strong>Create SSH Key</strong> window opens.
+            <br/>
+            <img src='images/17323/073115/create1.png' alt='Create SSH Key screenshot' />
+        </li>
+        <li>Enter a unique name that identifies the SSH key you created in previous task.</li>
+        <li>Paste the contents (copied in the previous task) in the <strong>Key</strong> field.</li>
+        <li>Click <strong>Ok</strong>. A <strong>Success</strong> message will display.</li>
+    </ol>
+    
+    <h2>Spin up new server</h2>
+    <ol>
+        <li>In the GoDaddy panel, click <strong>Servers</strong>.</li>
+        <li>Click <strong>Create Server</strong> button.</li>
+        <li>Give a unique name to your server, and then choose a size and base image.</li>
+        <li>Enter a username. This should be a different username than your main GoDaddy account name.</li>
+        <li>In the <strong>Password</strong> field, choose <strong>Connect through SSH instead</strong></li>
+        <li>Select the SSH key created in previous task from the drop-down list.</li>
+        <li>Click <strong>Finish</strong>.</li>
+    </ol>
+    
+    <h3>Disable Remote Root SSH Login</h3>
+    <p>As a security best practice, remote root account login should be disabled. COMPANY_NAME disables root login on all COMPANY_NAME cloud servers.</p>
+    <p>The steps to disable remote root account SSH login on a non-COMPANY_NAME server are:</p>
+    <ol>
+        <li>Open the <code> sshd_config</code> file.
+            <br/>
+            <div class='hacker'>sudo vim /etc/ssh/sshd_config</div>
+        </li>
+        <li>Add or edit the following line in the <code>sshd_config</code> file:
+            <br/>
+            <div class='hacker'>PermitRootLogin no</div>
+        </li>
+        <li>Save file changes.</li>
+        <li>Restart the SSH service.
+            <br/>
+            <div class='hacker'>sudo service ssh restart</div>
+        </li>
+    </ol>
+    <h3>Update the server</h3>
+    <p>After logging into a new server, update all software currently installed on the server.</p>
+    <ol>
+        <li>Update software sources list.
+            <br/>
+            <div class='hacker'>sudo yum check-update</div>
+        </li>
+        <li>Upgrade all currently installed software on the system.
+            <div class='hacker'>sudo yum upgrade</div>
+        </li>
+    </ol>
+    <h2>Next steps</h2>
+    <p>In this article, you have created a new CentOS server on the COMPANY_NAME cloud platform, setup and connected to the server via SSH using public key authentication and updated the software that comes pre-installed on the server.</p>
+</body>
+</html>

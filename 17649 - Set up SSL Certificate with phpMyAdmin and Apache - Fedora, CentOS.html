@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Set up SSL Certificate with phpMyAdmin and Apache - Fedora, CentOS</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+ <p>Configure Apache  to make your phpMyAdmin implementation use SSL</p>
+    <h1>Set Up an SSL Certificate with phpMyAdmin and Apache - CentOS, Fedora</h1>
+
+    <p>
+        <strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>20</u></em>
+    </p>
+    <p>phpMyAdmin is an open source tool that provides a user interface to let you perform MySQL database operations like create, delete, or modify MySQL databases or execute SQL statements. An essential way to help safeguard your data is to encrypt traffic between the web server client and your phpMyAdmin implementation. This article describes how to use an SSL certificate to allow phpMyAdmin traffic to be encrypted. </p>
+<h2>Prerequisites</h2>
+    You need to have the following installed on your server:
+    <ul>
+        <li>A LAMP stack. See the instructions for <a href="17342 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Centos6, Fedora.html">CentOS 6 or Fedora</a> or <a href="17344 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7.html">CentOS 7</a>.</li>
+
+        <li> phpMyAdmin. See the instructions for <a href="17639 - Install and secure phpMyAdmin with Apache - Fedora.html">Fedora</a>, <a href="19205 - Install and secure phpMyAdmin with Apache - Centos 6.html">CentOS 6</a>, or <a href="17640 - Install and secure phpMyAdmin with Apache - CentOS 7.html">CentOS 7</a>.</li>
+
+        <li> <a href="17452 - Install an SSL Certificate on Apache - CentOS, Fedora.html">An SSL certificate</a>.</li>
+    </ul>
+<h2>Force phpMyAdmin to your SSL server</h2>
+    <p>Once you have all the prerequisites in place, the only thing to do is to force phpMyAdmin to use SSL instead of HTTP.</p>
+    <ol>
+        <li>
+            Open the phpMyAdmin configuration file.
+            <div class="hacker">sudo vim /etc/phpMyAdmin/config.inc.php</div>
+        </li>
+        <li>
+            Add the following line towards the end of the file:
+              <div class="hacker">$cfg['ForceSSl'] = TRUE;</div>
+        </li>
+        <li>Save and exit the file. <br />
+        When you go to your browser,  navigate to <strong>http://<em><u>yourdomainname.com</u></em>/phpmyadmin</strong>, and enter your user credentials, you'll see <strong>https://</strong> used in the address bar.</li>
+
+    </ol>
+
+
+<h2>Conclusion</h2>
+    <p>Access to phpMyAdmin will now be limited to <strong>https://<em><u>yourdomainname.com</u></em></strong> only.</p> 
+   
+</body>
+</html>

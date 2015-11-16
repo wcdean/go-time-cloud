@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 18441 -->
+    <title>Compile Node.js With NPM From Source - Ubuntu, Debian</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+</head>
+
+<body>
+    <p>Compile Node.js With NPM From Source - Ubuntu, Debian</p>
+    <h1>Compile Node.js With NPM From Source - Ubuntu, Debian</h1>
+    <p><strong>Difficulty</strong>: <em><u>3</u></em>
+        <br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+    <p>Node.js is a server-side javascript runtime environment. Stable versions are available for install via standard package managers such as apt (Ubuntu, Debian) and yum (Fedora, CentOS). However, installing from source may be preferred in environments where current or beta versions are not available. In this article, we will install the current version of Node.js from a source package.</p>
+    <h2>Step 1: Install Dependency Packages and Tools</h2>
+    <ol>
+        <li>
+            Update the local package database
+            <br/>
+            <div class="hacker">sudo apt-get update</div>
+        </li>
+        <li>
+            Install make, gcc and other relevant tools and packages
+            <br/>
+            <div class="hacker">sudo apt-get install -y make g++ libssl-dev git</div>
+        </li>
+    </ol>
+    
+    <h2>Step 2: Download Source</h2>
+    <ol>
+        <li>
+            Navigate to the 'opt' directory
+            <div class="hacker">cd /opt</div>
+        </li>
+        <li>
+            Download latest source version
+            <div class="hacker">sudo wget http://nodejs.org/dist/node-latest.tar.gz</div>
+        </li>
+        <li>
+            Extract the source
+            <br/>
+            <div class="hacker">sudo tar xzvf node-latest.tar.gz</div>
+        </li>
+        <li>
+            Navigate to the folder created during the source extraction. At the time of this writing, the latest node source version available was <code>node-v4.2.1</code>.
+            <br/>
+            <div class="hacker">cd node-v*</div>
+        </li>
+    </ol>
+
+    <h2>Step 3: Configure, Build and Install</h2>
+    <ol>
+        <li>
+            Run the configuration script
+            <div class="hacker">sudo ./configure</div>
+        </li>
+        <li>
+            Compile the code. NOTE: This command will take a while to complete.
+            <div class="hacker">sudo make</div>
+        </li>
+        <li>
+            Install Node.js
+            <div class="hacker">sudo make install</div>
+        </li>
+        <li>
+            Verify Node.js installation
+            <br/>
+            <div class="hacker">node --version</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+            <pre>v2.14.7</pre>
+            </div>
+        </li>
+        <li>
+            Verify npm installation
+            <br/>
+            <div class="hacker">npm --version</div>
+            The output should be similar to the following: <br/>
+            <div class="hacker">
+            <pre>4.2.1</pre>
+            </div>
+        </li>
+    </ol>
+
+    <h2>Conclusion</h2>
+    <p>In this article, you compiled, configured and installed the current version of Node.js from source.</p>
+</body>
+
+</html>

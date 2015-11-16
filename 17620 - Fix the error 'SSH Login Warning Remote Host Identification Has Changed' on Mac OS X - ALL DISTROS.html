@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <!--Article Number is 17620 -->
+    <title>Fix the error 'SSH Login Warning: Remote Host Identification Has Changed' on Mac OS X - ALL DISTROS</title>
+    <style type='text/css'>
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+</head>
+
+<body>
+    <p>Addressing warning message for Remote Host Identification Has Changed, SSH, security</p>
+    <h1>Fix the error 'SSH Login Warning Remote Host Identification Has Changed'</h1>
+    <p><strong>Difficulty</strong>: <em>1</em>
+        <br/>
+        <strong>Time</strong>: <em>2 minutes</em></p>
+    <p>After updating or rebuilding a server, and then connecting via SSH, you may see a warning message similar to the following:</p>
+    <div class='hacker'>
+        <pre>
+<code>
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@   WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that the RSA host key has just been changed. 
+The fingerprint for the RSA key sent by the remote host is
+xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx
+
+Please contact your system administrator.
+</code>
+</pre>
+    </div>
+    <p>The message above is the result of information within your local <code>known_hosts file</code> not matching with that sent by the remote server. Aside from malicious circumstances, this can also be caused by the <code>ssh-rsa</code> footprint getting updated during a server rebuild.</p>
+    <ol>
+    <li>If you are certain you are connecting to the correct server, you can remove the current entry for the server by entering the following command:
+    <div class='hacker'>
+        <code>
+ssh-keygen -R <em>domain name or IP address</em>
+</code>
+    </div></li>
+    <li>The next time you SSH into the remote server, you may receive the following warning message:
+    <div class='hacker'>
+The authenticity of host '[host information]' can't be established.
+RSA key fingerprint is xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx.
+Are you sure you want to continue connecting (yes/no)?</div>
+Type "yes" to continue connecting. Your local <code>known_hosts</code> file will be updated accordingly and the warning message should not appear again.</li>
+    </ol>
+    <h2>Next Steps</h2>
+    <p>In this article, we reviewed the steps involved in addressing the <code>ssh login</code> warning <strong>Remote Host Identification Has Changed</strong> when connecting to a server that was recently rebuilt.</p>
+</body>
+
+</html>

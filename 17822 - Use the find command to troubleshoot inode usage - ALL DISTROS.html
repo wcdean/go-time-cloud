@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17822  -->
+
+
+<title>Use the Find command to troubleshoot inode usage - ALL DISTROS</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+</head>
+
+<body>
+  <p>System Tools</p>
+  <h1>Use the Find command to troubleshoot inode usage - ALL DISTROS</h1>
+
+  <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+  <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+  <p>
+    An <code>inode</code> is a block of storage on the physical storage unit that Linux&trade; uses to store the 
+    metadata for files, directories, symbolic links, and other objects in the filesystem. The content of files and other objects are stored at a different location in the stored unit, independent of the <code>inode</code>. The <code>inode</code> only maintains a reference the content of the filesystem object.
+  </p>
+  <p>
+    The <code>inode</code> metadata for a file contains the following details:
+  </p>
+  <ul>
+    <li>Mode/permission (protection)</li>
+    <li>Owner ID</li>
+    <li>Group ID</li>
+    <li>Size of file</li>
+    <li>Number of hard links to the file</li>
+    <li>Time content last accessed</li>
+    <li>Time content last modified</li>
+    <li>Time inode last modified</li>
+  </ul>
+
+  <h2>Determining the inode count</h2>
+  <p>To create a new file, directory, or object on the file system, Linux reserves an <code>inode</code> for the new item.
+    If all of the <code>inode</code> have already been reserved, you will get an error
+    similar to: “No space left on device,” even if the storage unit is not full and has room for more data.  This issue is most often caused when creating a lot of small files.
+  </p>
+  <h3>Find the inode at the root of your system</h3>
+  <ol>
+    <li>Go to the root directory.
+    <div class="hacker">cd ~</div></li>
+    <li>This command lists all of the directories at the root of the file system prefixed with the number of inodes used by that directory.
+        
+      <div class="hacker">sudo find . -printf "%h\n" | cut -d/ -f-2 | sort | uniq -c | sort -rn</div>
+        
+      Here is an example of how your output could look like. These are listed in descending order, with the directory using the most inodes listed first.
+
+      <div class="hacker"><pre>        28308 /usr
+        13345 /proc
+        7918 /sys
+        3950 /lib
+        2039 /var
+        1381 /etc
+        1381 /tmp
+        307 /dev
+        229 /boot
+        227 /run
+        119 /sbin
+        107 /bin
+        25
+        6 /root
+        2 /media
+        2 /home
+        1 /mnt
+        1 /lib64 </pre></div>    </li>
+    </ol>
+    <h3>Find inode in a specific directory</h3>
+    <p>Let's get a better idea of how <code>/tmp</code> is allocating the <code>inodes</code>.</p>
+    <ol>
+    <li>Use <code>cd</code> to go that directory.
+    <div class="hacker">cd /tmp</div></li>
+    <li>Run the <code>find</code> command.
+    <div class="hacker">sudo find . -printf "%h\n" | cut -d/ -f-2 | sort | uniq -c | sort -rn</div>
+    This will list your directories in your <code>/tmp</code> directory by descending order of inode usage . You will obviously see fewer directories here than in your root directory. 
+   <!--CT: ...  <div class="hacker">
+        1381 /tmp</div> 
+        ...-->
+      </li>
+    </ol>   
+ 
+  <h2>Reduce the inode count</h2>
+  <p>The most common cause of excessive inode usage is a lot of small files in some directories.
+    After you've identified that there is an actual problem with inode allocation being too high, such as several not needed files,
+    you can delete the files to allocate more available inodes back to the system.</p>
+  <ol>
+    <li>
+      Run the command <code>pwd</code> to verify you are in the correct directory.   
+      <div class="hacker">pwd</div>
+    </li>
+    <li>
+      Remove the unneeded files from the current directory.
+      <div class="hacker">sudo find . -type f | sudo xargs rm -rf</div>
+    </li>
+  </ol>
+
+  <h2>Conclusion</h2>
+  <p>In this article, you learned:</p>
+<ul>
+    <li>The files and directories would be useless in Linux without <code>inodes</code>.</li>
+    <li>The <code>inode</code> is a key component of filesystem structure in Linux. </li>
+    <li>The <code>find</code> command is a valuable tool in investigating and troubleshooting excessive <code>inode</code> usage.</li>
+</ul>
+
+</body>
+</html>

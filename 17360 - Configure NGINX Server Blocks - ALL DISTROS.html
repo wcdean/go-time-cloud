@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Configure NGINX Server Blocks - ALL DISTROS</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    </style>
+
+
+</head>
+
+<body>
+<br/>Brief description of what this article accomplishes. Include any keywords indicated in the spreadsheet. This blurb will not appear with the content.
+    <h1>Using NGINX Server Blocks to Host Multiple Domains</h1>
+    
+    <br/><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>Time value</u></em>
+
+    <br/>
+   <p>
+    Using Nginx server blocks, you can host more than one domain on a single server, allowing several sites to share hardware resources. </p>
+    
+   <p> This article contains instructions for setting up one new server block. They assume the following: 
+    <ul>
+    <li>You are using a non-root user with sudo privileges. </li>
+    <li>You already have Nginx installed on your machine. You can install Nginx from the  <a href="http://nginx.org/en/linux_packages.html#stable">Nginx web site</a>.</li></ul>
+    
+    <h2>Create directory structures</h2>
+       <ol><li>
+   Create a directory structure to store your html files. <br/>
+    
+    The following command creates locations for your html content, and the <code>-p</code> flag creates parent directories. This example uses the domain <code>yourdomain</code>.
+    <br />
+    <div class="hacker"> sudo mkdir -p /var/www/yourdomain.com/html<br />
+    </div>
+       
+    </li><li>Create the required directory structure to store your configuration files: 
+    <br />
+    <div class="hacker"> sudo mkdir /var/www/NGINXserverblocks<br />
+    </div></li> </ol>
+    <h2>Create a test page</h2>
+   <ol>
+    <li>Locate the default page that comes with Nginx and is located at <code>/usr/share/nginx/html/index.html</code>.</li>  
+    <li>Copy the file to the <code>yourdomain</code> html directories you created above:
+    <br />
+      <div class="hacker"> sudo cp /usr/share/nginx/html/index.html /var/www/yourdomain.com/html<br />
+    </div>
+    </li><li>Open the new index file for editing, and find this line:
+    <br />
+     <code>
+        This page is used to test the proper operation of the <strong>nginx</strong> HTTP server after it has been installed. If you can read this page, it means that the web server installed at this site is working properly.</code></li>
+ <li>Modify the line to this:<br />
+ 
+     <code>This page is used to test the <strong>yourdomain</strong> server block. If you can read this page, it means that the server block is working properly.</code></li>
+     <li>Save and close the file. </li></ol>
+
+    <h2>Create the server block</h2> 
+   <ol><li>Navigate to the <code>/var/www/NGINXserverblocks</code> directory, and create a file named <code>yourdomainserverblock.conf</code> with the following contents: 
+  <pre>
+  # yourdomain.com server block
+server { 
+  server_name yourdomain.com www/yourdomain.com;
+  root  /var/www/yourdomain.com/html;
+  index index.html index.htm; 
+location = /Error50x.html { root /usr/share/nginx/html; 
+                         } 
+       }
+  </pre>
+
+</li><li>Save and close the file. <br />You have created a server block named <code>yourdomain.com</code>. </li></ol>
+        
+        
+    <h2>Reference the server block</h2>
+   <p>Next you need to reference the server block you created. Nginx installs with a default server block defined by its configuration file (<code>/etc/nginx/nginx.conf</code>). The configuration file includes a commented-out section for creating another virtual host. </p>
+   
+   <ol><li>Open the <code>/etc/nginx/nginx.conf</code> file for editing.</li>
+   <li>Add the following line just below the commented-out section for creating another virtual host: <br />
+    <code>  include /var/www/NGINXserverblocks/yourdomainserverblock.conf</code>
+    <br />
+    </li><li>Save and close the file.</li>
+   <li>Restart Nginx.</li>
+    </ol>
+       
+     <h2>Test your configuration</h2>
+    <p>Nginx should now be serving both domain names. You can verify by completing the following steps.
+    
+    <ol><li>Open the hosts file of your <strong>local client machine</strong>.</li>
+     <li>Modify the file so that <code>yourdomain.com</code> maps to the IP address of your cloud server:
+       <br />
+       <pre>
+127.0.0.1                  localhost 
+cloud server IP address    yourdomain.com</pre></li>
+         <li>Restart your local machine for these mappings to take effect.</li>
+         <li>Navigate to <code>yourdomain.com</code>.<br />
+         
+         
+         The hosts file resolves the request to the IP of your cloud server and includes <code>yourdomain.com</code> in the request, which in turn allows Nginx to direct your request to the <code>yourdomain.com</code> <code>index.html</code> page. The message that you created in your test page displays:<br />
+         &quot;This page is used to test the yourdomain server block. If you can read this page, it means that the server block is working properly.&quot;</li>
+  </ol>
+ 
+ <h2>Next steps</h2>  
+<p> You are now ready to use your single server to host the <code>yourdomain.com</code> site. Repeat these steps as necessary to set up as many server blocks as you wish.</p>
+</body>
+</html>

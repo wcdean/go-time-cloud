@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+  <title>Use Traceroute and MTR to diagnose network issues - Arch Linux</title>
+  <style type="text/css">
+    div.hacker
+    {
+      background-color: #666;
+      border: 1px solid #ccc;
+      color: #fff;
+      font-family: "Lucida Console","Courier New",Courier,fixed;
+      font-size: 95%;
+      line-height: 160%;
+      margin-bottom: 1.5em;
+      padding: 10px;
+    }
+
+    p.note
+    {
+      background-color: #ffffe6;
+      border: 1px solid #eee;
+      color: #666;
+      padding: .8em 1.6em;
+      margin: 15px 0;
+    }
+
+    .warning
+    {
+      border: 1px #d25100 solid;
+      padding: .5em 1em .5em 4em;
+      margin: 10px 20px 15px 20px;
+      background-image: url('@{help-img-path}/img_warning.gif');
+      background-repeat: no-repeat;
+      background-position: left top;
+      background-color: #ededed;
+      -moz-border-radius: 0.8em;
+      -webkit-border-radius: 0.8em;
+      /* -moz-border-bottom-radius: 0;9 */
+      -webkit-border-bottom-radius: 0;
+      padding-top: 14px;
+      padding-bottom: 15px;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <p>Networking, Troubleshooting</p>
+  <h1>Use Traceroute and MTR to Diagnose Network Issues - Arch Linux</h1>
+
+  <p>
+    <strong>Difficulty</strong>: <em><u>1</u></em><br />
+    <strong>Time</strong>: <em><u>1 hour</u></em>
+  </p>
+
+  <p>
+    A crucial aspect of server administration is monitoring and troubleshooting network connectivity.
+    Linux provides several easy to use, yet invaluable tools to help.
+This article discusses how to use a few of these tools&#8212;<code>ping</code>,<code> traceroute</code>, and <code>MTR</code>&#8212;to diagnose and troubleshoot network connectivity issues. </p>
+
+<h2>Ping</h2>
+  <p><code>Ping</code> tests responsiveness between two hosts.
+    Its primary purpose <code></code> is to verify if a host is reachable. <code>Ping</code> accomplishes this task by sending an Internet Control Message Protocol (ICMP) echo request packet to the remote host.
+  When the remote host receives the packet, it responds with an ICMP echo replay message indicating that the host is online. </p>
+  <p>
+    <code>Ping</code> requires only one parameter:  IP address or  host name of the remote host. For example:
+</p>
+  <div class="hacker">ping godaddy.com</div>
+
+  <p>
+    The output looks like this:
+  </p><div class="hacker">
+  <pre>
+    PING godaddy.com (208.109.4.218) 56(84) bytes of data.
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=1 ttl=247 time=0.632 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=2 ttl=247 time=0.669 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=4 ttl=247 time=0.632 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=5 ttl=247 time=0.604 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=6 ttl=247 time=0.622 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=7 ttl=247 time=0.621 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=8 ttl=247 time=0.621 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=9 ttl=247 time=0.604 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=10 ttl=247 time=0.635 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=11 ttl=247 time=0.596 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=12 ttl=247 time=0.617 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=13 ttl=247 time=0.658 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=14 ttl=247 time=0.628 ms
+    64 bytes from ip-208-109-4-218.ip.secureserver.net (208.109.4.218): icmp_req=15 ttl=247 time=0.605 ms
+    --- godaddy.com ping statistics ---
+    15 packets transmitted, 14 received, 6% packet loss, time 14029ms
+    rtt min/avg/max/mdev = 0.596/0.624/0.669/0.033 ms
+  </pre></div>
+  <p>
+  For this example, the <code>ping</code> statistics indicate the following:</p>
+  <ul>
+    <li>15 ICMP echo request packets were sent to the remote host.</li>
+    <li>14 ICMP echo replay messages were received from the remote host.</li>
+<li><code>Ping</code> received no reply for one ICMP echo request<code>.</code></li>
+<li>Total runtime for <code>ping</code> was 14029 milliseconds (or about 14 seconds).</li></ul>
+
+  <p>
+    Some hosts block the ICMP port so they don't see the ICMP echo request messages and don't reply. In this case, the <code>ping</code> statistics  indicate
+    a 100% packet loss:
+  </p>
+<div class="hacker">
+    --- example.com ping statistics ---
+    26 packets transmitted, 0 received, 100% packet loss, time 25200ms
+  </div>
+  <p>
+    <code>Ping</code> is a  useful tool but provides only limited information that a remote host is reachable.
+    If there is significant packet loss, <code>ping</code> does not help identify the cause.</p>
+  
+  <h2>Traceroute</h2>
+  <p><code>Traceroute</code> attempts to trace the route that an IP packet takes to reach the destination host. It sends ICMP probe packets with a TTL (Time To Live) value of <code>1</code> and waits for a response. When an intermediate router or host receives the ICMP probe packet, it decrements TTL value by one. Afterward, if the TTL value is greater than zero, the intermediate router or host forwards the ICMP probe packet to the next host. If the decremented TTL value happens to be zero,  the host that decremented the TTL value discards the probe packet and responds with an  ICMP error message of &ldquo;Time exceeded&rdquo; back to the source that generated the ICMP probe packet. </p>
+  <p> <code>Traceroute</code> continues sending ICMP probe packets and waiting for responses, increasing the TTL value by one each time until it reaches the destination host or the maximum number of hops. If the response to the probe packets comes from different gateways, the IP address details for the gateway/router/host are printed. If there is no response to a probe packet within the allocated time, an asterisk  (*) is printed. </p>
+  <p><b>Install Traceroute</b></p>
+  <div class="hacker">sudo pacman -Syu traceroute</div>
+  <p>At the <code>Proceed with installation [Y/n]</code> prompt, choose <code>Y</code></p>
+  <p><b>Use Traceroute</b></p>
+  <p> <code>Traceroute</code> requires only one parameter:  IP address or  host name of the destination.
+    For example:</p>
+<div class="hacker">traceroute godaddy.com</div>
+  <p>The output looks like this: </p>
+  <div class="hacker">
+<pre>
+    traceroute to godaddy.com (208.109.4.218), 30 hops max, 60 byte packets
+    1  * * *
+    2  10.240.1.10 (10.240.1.10)  0.883 ms  1.094 ms 10.240.0.10 (10.240.0.10)  0.7  59 ms
+    3  10.240.10.6 (10.240.10.6)  0.837 ms 10.240.11.2 (10.240.11.2)  0.835 ms 10.2  40.10.4 (10.240.10.4)  1.043 ms
+    4  * * *
+    5  10.240.12.50 (10.240.12.50)  1.323 ms 10.240.12.44 (10.240.12.44)  1.215 ms 10.240.12.50 (10.240.12.50)  1.379 ms
+    6  ip-184-168-0-117.ip.secureserver.net (184.168.0.117)  1.362 ms  1.539 ms  1.547 ms
+    7  ip-184-168-0-117.ip.secureserver.net (184.168.0.117)  1.276 ms  1.362 ms  0.689 ms
+</pre></div>
+  <p>
+    The first line shows the destination host, the IP address of the destination host, the maximum number of hops, and the size of the probe packets sent.
+  In this example, the host <code>godaddy.com</code> was resolved to the IP address 208.109.4.218. </p>
+  <div class="hacker">traceroute to godaddy.com (208.109.4.218), 30 hops max, 60 byte packets  </div>
+  <p>
+    The subsequent lines of the <code>traceroute</code> output each represent a hop (or intermediate host) that the probe packets had to travel through to reach the destination host. Each line contains the information:
+  </p>
+<div class="hacker">6  ip-184-168-0-117.ip.secureserver.net (184.168.0.117)  1.362 ms  1.539 ms  1.547 ms</div>
+  <ul>
+    <li><b>Hop Number</b> - A sequential count of the number of hops to get to this intermediate host. The higher the number the more hosts that need to be passed through to reach this intermediate host.</li>
+    <li><b>Host Name</b> - Name  returned from a reverse DNS lookup for the IP address of the intermediate host.</li>
+    <li><b>IP Address</b> -  IP address of the intermediate host.</li>
+    <li><b>Packet Round Trip Times</b> - Time that it took to get a response to the probe packets. A time for each packet sent is listed. In the example, three packets were sent.</li>
+  </ul>
+  <p class="note">If the <code>traceroute</code> output is  an asterisk  (*), <code>traceroute</code> did not get a proper response to the probe packet within the allocated time.
+  This could happen for several reasons. The important thing is if the intermediate host was able to forward the probe packet to the next host. Inability to forward the packet could indicate a source of the connectivity issue.</p>
+  <div class="hacker">4  * * *</div>
+  
+<h2>MTR</h2>
+  <p><code>MTR</code> provides the functionality of <code>traceroute</code> with the added benefit of <code>ping</code>. <code>MTR</code> enables administrators to diagnose and isolate network connectivity problems.
+  Like <code>traceroute</code>, <code>MTR</code> starts by sending ICMP probe packets with incremental TTL values until the destination host is reached or the maximum number of hops is exhausted. After <code>MTR</code> finds all hops to the destination host, <code>MTR</code> sends ICMP echo packets to each intermediate host that it found to investigate the quality of network connectivity with the intermediate host. </p>
+  <p> <code>MTR</code> is not installed on most systems by default.
+    You can install<code> MTR</code> with the following command:</p>
+<div class="hacker">sudo pacman -Syu mtr</div>
+<p>At the <code>Proceed with installation [Y/n]</code> prompt, choose <code>Y</code></p>
+  <p>
+    <code>MTR</code> requires only one parameter:  IP address or  host name of the destination.
+  For example:</p>
+<div class="hacker">mtr godaddy.com</div>
+  <p>
+    The output is formatted as a table:</p>
+  <div class="hacker">
+<pre>
+                                                                     Packets               Pings
+       Host                                                     Loss%   Snt   Last   Avg  Best  Wrst StDev
+    1. ???
+    2. 10.240.0.136                                              0.0%    18    0.6   0.6   0.6   0.7   0.0
+    3. 10.240.10.2                                               0.0%    18    0.6   0.6   0.6   0.7   0.0
+    4. ???
+    5. 10.240.12.50                                              0.0%    18    0.9   1.0   0.9   1.2   0.1
+    6. ip-184-168-0-117.ip.secureserver.net                      0.0%    18    1.2   1.2   0.9   1.7   0.2
+    7. ip-184-168-0-117.ip.secureserver.net                      0.0%    18    0.9   0.9   0.7   1.1   0.1
+    8. ???
+    9. ip-208-109-4-218.ip.secureserver.net                      0.0%    18    0.6   0.6   0.6   0.7   0.0
+    </pre></div>
+  <p>
+    The table columns contain this information:
+  </p>
+<ul>
+    <li><b>Host</b> -  Host name that is returned from a reverse DNS lookup for the IP address of the intermediate host. If the host name can't be resolved, the IP address is displayed.</li>
+    <li><b>Loss%</b> -  Percent of probe packets that returned no response.</li>
+    <li><b>Snt</b> - Running count of the number of probe packets sent.</li>
+    <li><b>Last</b> - Latency of the last probe pack. Measured in milliseconds.</li>
+    <li><b>Avg</b> - Average latency of  all probe packets sent. Measured in milliseconds.</li>
+    <li><b>Best</b> -  Lowest latency of  all probe packets sent. Measured in milliseconds.</li>
+    <li><b>Wrst</b> -  Largest latency of  all probe packets sent. Measured in milliseconds.</li>
+    <li><b>StDev</b> - Standard deviation of latency of  all probe packets sent. Measured in milliseconds.</li>
+  </ul>
+  <p>If the <code>MTR</code> output is <code>???</code>, <code>MTR</code> did not get a proper response to the probe packet within the allocated time. </p>
+  <div class="hacker">4. ???</div>
+  <p>The difference in output between <code>MTR</code> and <code>traceroute</code> is that <code>MTR</code> information is constantly updated. <code>MTR</code> shows you live data while <code>traceroute</code> shows you a snapshot of the data found in one execution. </p>
+  <h2>Conclusion</h2>
+  <p>
+    <code>Ping</code>, <code>traceroute</code>, and <code>MTR</code> are  useful tools when troubleshooting network connectivity problems.
+    <code>Ping</code> shows if a remote host is reachable.
+    <code>Traceroute</code> provides a one-time snapshot of the hops to get to a destination host.    <code>MTR</code> provides the functionality of both <code>ping</code> and <code>traceroute</code>.
+    Each  has its purpose and usefulness, and all three should be a part of an administrator's toolbox when investigating network connectivity problems.
+  </p>
+</body>
+</html>

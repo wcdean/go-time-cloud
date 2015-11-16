@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18562 (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Set up a custom Composer Repository - Ubuntu, Debian</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>This article describes two separate ways to set up a Composer repository</p>
+    <h1>Set up a custom Composer Repository with Satis - Ubuntu, Debian</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+    <p>Composer is a package dependency tool that assists users to install software.  If you are reading this article, you probably have used it in that capacity and are ready to create a repository of your own that others can use to download whatever cool software you have built.
+        This article covers implementing two mutually exclusive custom repositories with Composer, Satis and Pakagist.   
+    </p>
+
+    <h2>Platform Requirements</h2>
+    <ul>
+<li>LAMP / LEMP stack</li>
+<li>git</li>
+<li>curl</li>
+    </ul>
+
+<h2>Install Composer</h2>
+    <ol>
+
+<li>Start from your web root (usually /usr/share/nginx/html)  
+<div class="hacker">cd /usr/share/nginx/html</div>
+</li>
+<li>Install php5-cli
+ <div class="hacker">sudo apt-get install php5-cli </div>
+</li>
+<li>Change permissions on the web root 
+ <div class="hacker">sudo chmod 667 /usr/share/nginx/html</div>
+</li>
+<li>Install Composer
+ <div class="hacker">sudo curl -sS https://getcomposer.org/installer | php</div>
+</li>
+        </ol>
+<h2>Install Satis</h2>
+        <ol>
+<li>Use Composer to install Satis
+ <div class="hacker">php composer.phar create-project composer/satis --stability=dev --keep-vcs</div>
+</li>
+<li>Create a satis.json file in your document root
+ <div class="hacker">sudo vim /usr/share/nginx/html/satis.json</div>
+</li>
+<li>Copy the content below into the empty satis.json file.
+ <div class="hacker"><pre>{
+    "name": "My Cool Repository",
+    "homepage": "http://Your Ip address",
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/symfony/yaml" },
+        { "type": "vcs", "url": "https://github.com/symfony/HttpFoundation"
+}
+    ],
+    "require-all": true
+}</pre></div>
+</li>
+
+ <li>Change permissions on theindex file
+ <div class="hacker">sudo chmod 666 index.html</div>
+</li>
+<li>Generate satis web pages (don't forget to include the "." at the end of the command).
+ <div class="hacker">sudo php satis/bin/satis build satis.json .</div>
+           <p class="warning">The process may ask you to supply your github username and password.</p> 
+</li>
+
+    
+        <li>Verify your installation by navigating to your server or IP:
+<div class="hacker">http://your server or IP/index.html</div>
+   Your repository will display</li>
+    </ol>
+
+    <h2>Conclusion</h2>
+    <p>You have just set up a custom repository using Composer and Satis. </p>
+   
+</body>
+</html>

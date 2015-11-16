@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17433-->
+
+
+
+<title>Use Visudo to edit the sudoers file - Debian, Ubuntu</title>
+<style>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<h1>Use Visudo to edit the sudoers file</h1>
+
+ <p><strong>Difficulty</strong>: <em><u>1</u></em><br />
+<strong>Time</strong>: <em><u>5 minutes</u></em></p>
+    <p>Sudo allows system administrators to grant certain users or groups administrative privileges. In other words, you can use sudo to execute commands as root without logging in as root. Using sudo is also a great way to log user actions.</p>
+    <p>The sudoers file can be found at <code>/etc/sudoers</code>. It is not recommended to edit the file directly, instead you can use the <code>visudo</code> command to modify it. The <code>visudo</code> command opens the file in the default text editor.</p>
+    <p>Execute the following command to open the sudoers file: </p>
+    <div class="hacker"> sudo visudo</div>
+    The sudoers file  looks something like this:<p />
+    <div class="hacker">
+<pre># This file must be edited with the 'visudo' command as root 
+# 
+# See the man page for details on how to write a sudoers file.
+# 
+Defaults        env_reset
+Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:$" 
+
+# Host alias specification 
+# User alias specification 
+# Cmnd alias specification 
+
+# User privilege specification 
+root ALL=(ALL:ALL) ALL
+
+# Members of the admin group may gain root privileges
+%admin  All=(ALL) ALL 
+
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+</pre>        
+    </div>
+
+    <h2>Defaults section</h2>
+    <ul>
+        <li><code>env_reset</code>: Resets the terminal environment to a minimal environment, which removes any user variables that may be harmful. This option is enabled by default..</li>
+        <li><code>secure_path</code>: Specifies the default path variable when you execute any sudo commands.</li>
+    </ul>
+    
+    <h2>Alias section</h2>
+    <p>Creating alias is an effective way to group things. There are four types of aliases:</p>
+    <ul>
+        <li><code>Host alias</code>: Specifies a list of hostnames, ip addresses, networks, and netgroups. For example:
+            <div class="hacker"> Host_Alias SERVER=server1, server2, server3</div>
+        </li> 
+        <li><code>User alias</code>: Specifies a list of user names, user ids, system group names.
+            <div class="hacker"> User_Alias USERS=user1,user2,user3</div>
+        </li>
+        <li><code>Cmnd alias</code>: Specifies a list of command names, directories, and other aliases.
+            <div class="hacker">  Cmnd_Alias APT     = /usr/bin/apt-get update,/usr/bin/apt-get upgrade</div>
+        </li>
+
+    </ul>
+    <p class="note">The alias name should always start with a capital letter. </p>
+  
+        
+    <h2>User privilege specification</h2>
+    If you want to grant a specific user sudo access, you can add the username after the line <code>root ALL=(ALL:ALL) ALL </code> like this:
+    <div class="hacker">username root ALL=(ALL:ALL) ALL</div>
+    <ul>
+        <li>The first <code>ALL</code> specifies that this rule applies to all hosts.</li>
+        <li>The second <code>ALL</code> specifies  that the user can execute commands as all users. </li>
+        <li>The third <code>ALL</code> specifies that the user can execute commands as all groups.</li>
+        <li>The final <code>ALL</code> specifies that these rules apply to all commands.</li>
+    </ul>
+    
+<h2>Conclusion</h2>   
+ <p>Now that you know how to modify a suoders file, you should have a basic understanding of granting users privileges. If you want a more detailed reference, make sure to check out the manual pages with the <code>man</code> command like <code>man visudo</code>.
+    </p> 
+</body>
+</html>

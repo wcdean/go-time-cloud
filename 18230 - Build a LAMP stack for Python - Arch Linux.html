@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18228-->
+ 
+<title>Build a LAMP stack for Python - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 ;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+        <p>Describes how to install Apache, MySQL, PHP (LAMP) stack on Arch Linux.</p>
+    <h1>Build a LAMP stack for Python -  Arch Linux</h1>
+    
+        <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+     
+
+        <p>The LAMP stack is a group of open source software used to get web servers up and running. The acronym stands for Linux, Apache, MySQL, and PHP. Arch Linux uses the pacman installer, which can update the system and install all of the required packages for each part of the LAMP stack. The tutorial is written for a user with sudo privileges.</p>
+
+<p>If you have not installed Arch Linux, <a href="17324 - Initial Server Setup - Arch Linux.html">install it</a> before starting. </p>       
+        
+    <h2>Install Apache</h2>
+ <ol>
+        <li>Before installing any of the LAMP programs, update the package manager.
+
+        <div class="hacker">sudo pacman -Syu</div></li>
+
+
+        <li>Use this command to install Apache:
+        <div class="hacker">sudo pacman -S apache</div></li>
+     </ol>
+        <p>After installing Apache, you need to make a couple of changes in the configuration.</p>
+     
+     <h3>Configure Apache</h3>
+<ol>
+<li> Open the Apache configuration file.
+        <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
+
+        <li>Use <strong>Control/CTRL+W</strong> to find <code>unique_id_module</code>. Add a number sign (#) at the beginning of the line to comment out the line.
+        <div class="hacker">#LoadModule unique_id_module<br /> modules/mod_unique_id.so</div></li>
+
+<li>Restart Apache.
+        <div class="hacker">sudo systemctl restart httpd</div></li>
+
+        <li>After Apache is installed, you need to make a couple of changes to the configuration.
+
+        <div class="hacker">sudo vim /etc/hosts</div></li>
+
+        <li>Add your hostname to the end of the line beginning with <code>127.0.0.1</code>.
+        <div class="hacker">127.0.0.1 localhost.localdomain localhost &lt;hostname&gt;</div></li>
+        </ol>
+
+    
+<h2>Check your version of Python</h2>
+
+<p>Python comes preinstalled on most popular Linux distributions and is integrated into the system/environment from the start. Python is available from the pacman repository.</p> 
+
+<ol>
+<li>Confirm you have Python by checking your version. 
+<div class="hacker">python --version</div></li>
+
+<p class="note">Most modern Python development requires version 2.6 or later. </p>
+
+<li><p>You don't need to install or configure anything else to use Python. However, you may want to install some tools and libraries if you're planning on building Python applications.</p>
+
+<p>The most important of these tools are <code>pip</code> and <code>setuptools</code>.</p>
+
+Check to see if you have pip.
+<div class="hacker">command -v pip</div>
+
+If it doesn't return any output, you do not have <code>pip</code>.</li>
+
+<p class="note">Python 2.7.9 and later versions include <code>pip</code> by default.</p>
+
+<li>If you need to, install <code>pip</code> and <code>setuptools</code>.
+<div class="hacker">sudo yum -y install python-pip python-setuptools</div>
+</li>
+
+<li>Confirm you now have <code>pip</code> by checking the version. 
+    <div class="hacker">pip --version</div></li>
+</ol>
+
+
+
+
+    <h2>Install MySQL</h2>  
+      <ol>
+        <li>To install MySQL, in the same terminal type in these commands:
+        <div class="hacker">sudo pacman -S mysql</div></li>
+
+        <li>If the following is displayed, press <strong>Enter</strong>, unless you are sure that you do not want the defaults.
+	<div class="hacker">:: There are 2 providers available for mysql:<br /> :: Repository extra<br /> 1) mariadb<br /> :: Repository community<br /> 2) percona-server}</div></li>
+
+        </ol>
+
+        
+<h3>Install and start the MariaDB data directory.</h3>
+<p>MariaDB is now the default database solution for Arch Linux. MariaDB is an open source drop-in replacement for MySQL, and all system commands that reference MySQL are compatible with it.</p>
+<ol>
+<li>Install MariaDB with this command:
+        <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div> </li>
+
+        <li>After you have installed MySQL, start it up:
+        <div class="hacker">sudo systemctl start mysqld</div></li>
+        </ol>
+
+<h3>Set up MySQL</h3>
+<ol>
+<li>Run the MySQL set up script.
+        <div class="hacker">sudo mysql_secure_installation</div></li>
+
+        <li>During this process, you will be asked for your current MySQL root password (not to be confused with your server password) and, since it has not yet been set, simply press <strong>Enter</strong>.</li>
+
+        <li>When asked <code>Set root password</code>, type <strong>Y</strong>, and then enter in your new MySQL root password. </li>
+        <li>After the root password is set, respond <strong>Yes</strong> to the remaining options.</li>
+
+    </ol>
+
+    <!--CT:...
+
+            <as seen in the following section:</li>
+ </ol>
+ 
+<table style="width:100%;">
+            <tr style ='font-weight: bold;'>
+                <td width='60%'>Prompt</td>
+                <td style="text-align:center;">Action</td>
+                <td>Success Message</td>
+            </tr>
+                <tr>
+                    <td><div class='hacker'>Remove anonymous users?</div></td>
+                    
+                
+                    <td style="vertical-align: top; text-align:center;"><strong>y</strong></td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'> Disallow root login remotely?</div></td>
+                
+                    <td style="vertical-align: top; text-align:center;">y</td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Remove test database and access to it? [Y/n]</div></td>
+                
+                    <td style="vertical-align: top; text-align:center;">y</td>
+                    <td style="vertical-align: top;">Dropping test database... ... Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Removing privileges on test database</div></td>
+                
+                    <td style="vertical-align: top; text-align:center;"></td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Reload privilege tables now?</div></td>
+                    <td style="vertical-align: top; text-align:center;">y</td>
+                    <td style="vertical-align: top;">Success!</td>
+                </tr>
+
+                <tr>
+                    <td><div class='hacker'>Cleaning up...</div></td>
+                    <td style="vertical-align: top; text-align:center;"></td>
+                    <td style="vertical-align: top;"></td>
+                </tr>
+
+        </table>
+...-->
+        <p>All done!  If you've completed all of the above steps, your MariaDB installation should now be secure.</p>
+
+        <p>After you're done installing MySQL/MariaDB, finish the LAMP stack by installing PHP.</p>
+
+
+<h2>Install PHP</h2>
+        <p>PHP is an open source web scripting language that is widely used to build dynamic web pages.</p>
+      <ol>
+
+        <li>To install PHP in the same terminal, type in these commands:
+        <div class="hacker">sudo pacman -S php php-apache</div></li>
+
+        <li>Add PHP to the Apache configuration file.
+        <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
+
+        <li>Paste in this text of block within the config file.
+         <div class="hacker"># Use for PHP 5.x:<br />
+LoadModule php5_module       modules/libphp5.so
+<br />AddHandler php5-script php<br />
+Include conf/extra/php5_module.conf</div></li>
+       </ol>
+       
+
+        <h2>Next steps</h2>
+        <p>Congratulations! You now have a LAMP stack on your Arch Linux server, 
+        
+        you can now 
+        <a href="17641 - Install and secure phpMyAdmin with Apache - Arch Linux.html">set up phpMyAdmin</a> or <a href="17384 - Install WordPress on your LAMP server - Arch Linux.html">install WordPress</a>.</p>
+</body>
+</html>

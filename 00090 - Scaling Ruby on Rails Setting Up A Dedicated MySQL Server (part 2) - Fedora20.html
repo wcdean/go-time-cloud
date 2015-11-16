@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17982-->
+
+<title>Scaling Ruby on Rails: Setting Up A Dedicated MySQL Server (part 2) - CentOS, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+
+<p>Setting up a dedicated MySQL server to host Ruby on Rails application servers, Ruby, Rails, MariaDB, MySQL, NoSQL, Scaling.</p>
+<h1>Scaling Ruby on Rails: Setting up a dedicated MySQL server (part 2) - CentOS, Fedora</h1>
+
+<p><strong>Difficulty</strong>: <em><u>4</u></em><br/>
+<strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+
+<p>This article provides information about creating a database layer using MySQL to host application servers running Ruby on Rails. </p>
+
+<h2>Prerequisites</h2>
+Make sure to have <a href="17535 - Install Ruby on Rails using RVM - Fedora.html">Ruby on Rails using RVM installed</a> and running.
+
+This article is part 2 of the scaling Ruby on Rails series. To refer to the first or third part, see:
+<ul>
+<li><a href="17953 - Scale Ruby on Rails Applications Across Multiple Servers (Part 1) - Fedora.html">Scale Ruby on Rails Applications across multiple Servers - Fedora (part 1)</a></li>
+<li><a href="17895 - Scaling Ruby on Rails Setting Up A Dedicated PostgreSQL Server (Part 3) - Centos, Fedora.html">Scaling Ruby on Rails Setting Up A Dedicated PostgreSQL Server - CentOS, Fedora (part 3)</a></li>
+</ul>
+
+<h2>Architecture of the database server layer - an overview</h2>
+<p>To make the database server centrally accessible, a load-balancer, two application servers, and one database server to set-up the database server layer is 
+required. The architecture will look like the following diagram:</p>
+
+<img src="images/17982.png" alt="17982 - Architectural diagram of the database server layer" /> 
+<p> This article assists you in setting up a dedicated MySQL server and scaling Ruby on Rails applications between the servers in CentOS or Fedora. 
+distributions.</p>
+
+     
+<h2>Install MySQL and other dependencies</h2>
+<ol>
+<li>Update the operating system packages, and then install development tools.
+  <div class="hacker"> sudo yum -y update </div>
+
+      <div class="hacker"> sudo yum groupinstall -y 'development tools' <To use the YUM package, add the Extra Packages for Enterprise Linux (or EPEL) software repository. 
+<div class="hacker"> sudo   wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm </div>
+<div class="hacker"> sudo rpm -ivh epel-release-7-5.noarch.rpm </div>
+</li>
+<li>Update everything again, and then install the required libraries.
+uired libraries.
+<div class="hacker"> sudo yum -y update </div>
+<div class="hacker"> sudo yum install -y curl-devel vim sqlite-devel libyaml-devel </div>
+</li>
+
+<li>Download and install the MySQL database server.
+      <div class="hacker"> sudo yum --disablerepo=epel install mysql-server </div>
+ </li>
+<li>Initiate the MySQL server daemon.
+  <div class="hacker"> sudo  service mysqld start </div>
+
+</li>
+<li>Run the MySQL installation process.
+  <div class="hacker"> sudo /usr/bin/mysql_secure_installation </div>
+After you have finished the above command, a welcome screen will display.</li>
+
+<li>At the prompt, since you don't have a current password for root, press <strong>Enter</strong>, then you'll be prompted to create a password.
+
+<!--CT:...
+using the following command:
+<div class="hacker">
+   /usr/bin/mysqladmin -u root password '<em><u>new-password</u></em>'    
+</div></li>
+<li>
+Press <strong>Enter.</strong></li>
+...-->
+
+<li>Answer the following questions by pressing <strong>Y</strong>.
+<div class="hacker">
+<pre>    Set root password?                     --> Y
+    Remove anonymous users?                --> Y
+    Disallow root login remotely?          --> Y
+    Remove test database and access to it? --> Y
+    Reload privilege tables now?           --> Y</pre></div></li>
+</ol>
+<h2>Create a database, database user, and database connection</h2>
+<ol>
+<li>Establish a database connection using MySQL client, and then enter the password for root that was previously set up.
+  <div class="hacker"> sudo mysql -u root -p </div>
+</li>
+<li>Create a sample database.
+<div class="hacker"> create database <em><u>rails_Database_name</u></em>; </div>
+</li>
+<li>Create a new user for your database, and then grant remote and local access to this user.
+  <div class="hacker"> CREATE USER '<em><u>rails_UserName</u></em>'@'localhost' IDENTIFIED BY 'pwd'; </div>
+<div class="hacker">  CREATE USER '<em><u>rails_UserName</u></em>r'@'%' IDENTIFIED BY 'pwd'; </div> </li>
+
+<li>Grant access rights to any specific user by typing:
+  <div class="hacker"> GRANT ALL ON rails_myapp.* TO '<em><u>rails_UserName</u></em>'@'localhost'; </div>
+  <div class="hacker"> GRANT ALL ON rails_myapp.* TO '<em><u>rails_UserName</u></em>r'@'%'; </div>
+  <p>Revoke the privileges.</p>
+    <div class="hacker"> FLUSH PRIVILEGES; </div>
+  <p>Exit from MySQL.</p>
+<div class="hacker"> exit </div>
+</li>
+<li>Enable remote connections, open the MySQL configuration <code>my.cnf</code>, and then edit it using the vim text editor.
+<div class="hacker"> sudo vim  /etc/my.cnf </div>
+Add the following lines in this file:
+<div class="hacker">
+<pre>
+[mysqld]
+..
+.
+bind-address   =  0.0.0.0
+</pre>
+</div>
+</li>
+<li>Save and exit the file.
+</li>
+</ol>
+<h2>Create a Rails application</h2>
+<ol>
+<li>Install the gem for MySQL, and then update the gem.
+  <div class="hacker">  gem install mysql2 </div>
+     <div class="hacker">  gem update --system </div>
+</li>
+<li>Install the Rails package.
+  <div class="hacker">  gem install rails </div>
+</li>
+<li>Create a Rails application, and  then use the <code>-d mysql</code> option to set MySQL as the database.
+  <div class="hacker"> rails new <em><u>Your_application</u></em> -d mysql </div>
+</li>
+<li>Go to your application directory.
+  <div class="hacker"> cd <em><u>Your_application</u></em> </div>
+</li>
+
+<li>Open the <code>database.yml</code> file.
+
+  <div class="hacker"> sudo vim config/database.yml </div>
+</li>
+<li>Locate the <code>default</code> section, and then update the following line, replacing <em><u>Your_password</u></em> with your MySQL password.
+<div class="hacker">
+  password: <em><u>Your_password</u></em></div>
+</li>
+
+<li>Find the <code>production</code> section towards the end of the file. We'll be adding  in our configuration details.
+
+  <p> The database, username, and password lines will be there and should be pulling in the right values - they can be left as is.</p>
+  Add in these 2 lines right after production:
+<div class="hacker">adapter: mysql<br/>
+  encoding: utf8</div></li>
+
+<li>Then add these lines after the password line.
+  <div class="hacker">host: localhost<br/>
+  port: 3306<br/>
+  pool: 10</div>
+
+  So the final product looks something like this:
+<pre>
+production:
+  adapter: mysql
+  encoding: utf8
+  database: <em><u>rails_Database_name</u></em>
+  username:<em><u>Your_application</u></em> 
+  password: <em><u>Your_password</u></em>
+  host: localhost
+  port: 3306
+  pool: 10
+</pre>
+</div>
+ 
+</li>
+<li>Save and exit the file.
+
+</li></ol>
+<h2>Install MySQL dependencies</h2>
+<ol>
+<li>Open the <code>Gemfile</code>. 
+
+<div class="hacker"> vim Gemfile </div></li>
+<li>Add the following code at the end of the file:
+    <div class="hacker"> gem 'mysql2', '~> 0.3.18'  </div></li>
+
+<li>Comment out the following line towards the beginning of the file.
+<div class="hacker">gem 'mysql2'</div>
+</li>
+
+<li>Save and exit the file.</li>
+
+<li>Install all the dependencies of <code>Gemfile</code>.
+    <div class="hacker"> bundle install </div>
+</li>
+<li>Create database for Rails application using the following command
+    <div class="hacker">rake db:create </div>
+
+</li>
+<li>To test your Rails application execute the following command
+
+<div class="hacker">rails server --binding=<em><u>Your_IP_address</u></em></div>
+</div>
+</li>
+</ol>
+<h2>Conclusion</h2>
+<p>In this article, you learned to scale a Ruby on Rails application, and then set up a dedicated MySQL Server on CentOS or Fedora.</p>
+
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is __________ (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Build a LLMP Stack (Linux, Lighttpd, MySQL, PHP) - Arch Linux</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+    <p>Install Lighttpd, MySQL, and PHP on a server running Arch Linux to serve web applications.</p>
+
+    <h1>Build a LLMP (Linux, Lighttpd, MySQL, PHP) stack on a server running Arch Linux</h1>
+    <p>
+        <strong>Difficulty</strong>: 3
+        <br />
+        <strong>Time</strong>: 20 minutes
+    </p>
+    <p>
+        LLMP is an acronym used for the software suite that is used by developers and administrators to serve web applications quickly on a stable platform. In this article, you will learn how to build a LLMP stack on Arch Linux.
+        
+    </p>Because we are already running  Arch Linux, Linux is already installed.
+    <h2>Prerequisites</h2>
+    You must have <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17324 - Initial Server Setup - Arch Linux.html">Initial Server Setup</a> done on your server.
+    <h2>Install Lighttpd</h2>
+    <p>Lighttpd is an open source web server that is light weight and optimized for high performance environments.</p>
+    <ol>
+        <li>
+            Before we begin any installation, ensure that you install all the updates.
+            <div class="hacker">sudo pacman -Syu</div>
+        </li>
+        <li>
+            Install Lighttpd.
+            <div class="hacker">sudo pacman -S lighttpd</div>
+        </li>
+
+        <li>
+            To check if Lighttpd is installed properly, create a sample page by adding an index.html in the server's document root directory located in <code>/srv/http</code>
+            <div class="hacker"> sudo vim /srv/http/index.html</div>
+        </li>
+        <li>
+            Type the following in when the file opens:
+
+            <div class="hacker">
+<pre>&lt;html&gt;
+        &lt;title&gt; Welcome &lt;/title&gt;
+        &lt;body&gt;
+        &lt;h2&gt;Welcome to the test page!&lt;/h2&gt;
+        &lt;/body&gt;
+&lt;/html&gt;</pre>
+            </div>
+        </li>
+        <li>
+            Start the Lighttpd service.
+            <div class="hacker"> sudo systemctl start lighttpd</div>
+        </li>
+
+        <li>
+            Go to the web browser and navigate to <strong>http://server_ip_address</strong>. You should see the words "Welcome to the test page!"
+        </li>
+        <li>
+            You can <a href="/article/19041?prog_id=PROG_ID"> find your IP address </a>in case you do not know.
+        </li>
+
+    </ol>
+
+
+    <h2>Install MySQL</h2>
+    <ol>
+        <li>
+            Install MySQL.
+            <div class="hacker">sudo pacman -S mysql</div>
+        </li>
+        <li>It presents you with two provider options. If you do not know which option to choose, press Enter and it will install the default. Type "Y" when prompted.</li>
+        <li>
+            After the installation is complete, install the data directory.
+            <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div>
+        </li>
+
+        <li>
+            Use the following command to start MySQL.
+            <div class="hacker">
+                sudo systemctl start mysqld.service
+            </div>
+        </li>
+
+        <li>
+            Run the following security script:
+            <div class="hacker">sudo mysql_secure_installation</div>
+        </li>
+        <li>You will be asked for the root password. Since haven't set it earlier, press Enter to set one now. </li>
+        <li>Type "Y" when asked if you want to set root password.</li>
+        <li>Enter and confirm the new password.</li>
+        <li>You will be asked more questions as part of security configuration. It is a best practice to respond "Y" to these system prompts.</li>
+
+    </ol>
+    <h2>Install and configure PHP</h2>
+    <ol>
+        <li>
+            To install PHP, open the terminal and type
+            <div class="hacker">sudo pacman -S php php-cgi php-fpm </div>
+            Enter Y to install.
+        </li>
+        <li>
+            Create <code>conf.d</code> directory under <code>/etc/lighttpd</code>
+            <div class="hacker">sudo mkdir -p /etc/lighttpd/conf.d</div>
+        </li>
+
+        <li>
+            Create a new configuration file.
+            <div class="hacker">sudo vim /etc/lighttpd/conf.d/fastcgi.conf</div>
+        </li>
+        <li>
+            Include the following block:                                             
+ <div class="hacker"><pre> server.modules += ("mod_fastcgi")
+# FCGI server
+# ===========
+#
+# Configure a FastCGI server which handles PHP requests.
+#
+index-file.names += ("index.php")
+fastcgi.server = (
+    ".php" => (
+      "localhost" => ( 
+        "socket" => "/run/php-fpm/php-fpm.sock",
+        "broken-scriptfilename" => "enable"
+      ))
+)</pre></div>
+        </li>
+        <li>Make Lighttpd use the new configuration file that you created in the previous step. Open the lighttpd configuration file.
+        <div class="hacker">sudo vim /etc/lighttpd/lighttpd.conf</div>
+        Add the following line towards the end of the file:
+        <div class="hacker">include "conf.d/fastcgi.conf"</div>
+        </li>
+        <li>Reload the lighttpd service and start the php-fpm service.
+        <div class="hacker">sudo systemctl reload lighttpd</div>
+        <div class="hacker"> sudo systemctl start php-fpm</div>
+        
+        </li>
+        
+    </ol>
+
+    <h3>Test PHP processing on lighttpd</h3>
+
+    <ol>
+        <li>
+            Create a new PHP file.
+            <div class="hacker">sudo vim /srv/http/info.php</div>
+        </li>
+        <li>
+            When the file opens, type in the following code:
+<div class="hacker"><pre>&lt;?php 
+phpinfo();
+?> </pre></div>
+        </li>
+        <li>Save and exit the file.</li>
+        <li>
+            Restart Lighttpd for the changes to take effect.
+            <div class="hacker"> sudo systemctl restart lighttpd</div>
+        </li>
+        <li>
+            To verify it works, in a browser type <strong>http://<em><u>your server address</em></u>/info.php </strong>and replace <code><em><u>your server address</u></em></code> with your public ip address.<br />
+
+            If it works, a page displays the PHP version, extensions, build date, and other information.
+
+        </li>
+    </ol>
+    <h2>Next steps</h2>
+    <p>You have successfully built a LLMP  stack on your server. If you are interested, you can take a look at <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/18812 - Set Up Multiple SSL Certificates on One IP with Lighttpd - Arch Linux.html">Setting up multiple SSL certificates on one IP</a> </p>
+
+
+</body>
+</html>

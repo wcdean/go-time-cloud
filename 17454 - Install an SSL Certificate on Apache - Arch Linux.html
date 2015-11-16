@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17454-->
+
+
+<title>Install an SSL Certificate on Apache - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <h1>Install an SSL Certificate on Apache – Arch Linux</h1>
+    
+        <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+  
+  <p>Installing a Secure Sockets Layer (SSL) certificate on your server can improve the security of your website. Using a combination of the certificate and a key pair, a third-party certificate authority (CA) validates the identity of both parties in a transaction. A website protected by an SSL certificate is identified by a URL that starts with <strong>https</strong>.</p>
+
+  <p> This article walks you through the installation of an SSL certificate on a Arch Linux&trade; server running Apache&trade;.</p>
+  
+   <p>If you don't have Apache installed on your server, you can <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17345%20-%20Build%20a%20LAMP%20stack%20(Linux%2C%20Apache%2C%20MySQL%2C%20PHP)%20-%20Arch%20Linux.html">install it as part of a LAMP stack</a>.</p>                                                                                               
+
+<h2>Generate a CSR and key</h2>
+ 
+   <p>A certificate signing request (CSR) is sent to a certificate authority to request a certificate. It contains information such as organization, country, state, common name, and email that will be included in the certificate. It also includes a public key. You will also generate a private key which will be stored on your server.</p> 
+    <ol>
+        <li>
+            Create the following directory to store your certificate and key.
+            <div class="hacker">sudo mkdir /etc/httpd/ssl</div>
+           
+        </li>
+        <li>Generate a CSR and private key.
+            <div class="hacker">sudo openssl req -out CSR.csr -new -newkey rsa:2048 -nodes -keyout /etc/httpd/ssl/<em><u>certkey.key</u></em></div></li>
+        <li> In order to view the newly generated CSR, use the following command:
+        <div class="hacker">cat CSR.csr</div>
+         <li>Input the CSR into the certificate authority's web site when you generate the certificate. </li>
+        </li>
+        <li>You will be asked to enter information that will be included in your certificate request like <em>country</em>, <em>state</em>, <em>common name</em>, and <em>email</em>. The <em>common name</em> field is the fully qualified domain name of the server that will use the certificate.           
+        </li>
+        <li>Point your domain name to your server's IP address.</li>
+    </ol>
+    
+  <h2>Install the certificate</h2>
+    Now that you have your CSR generated, you can go to your certificate authority and get the certificate bundle and follow their instructions on installing the certificate. If you're getting your certificate from COMPANY_NAME, check out <a href="https://www.godaddy.com/help/ssl-certificates">this guide</a>  on how to install your certificate. Make sure that you  move the certificates to the directory you created in the previous section where you have  your key, in this case <em><u>ssl</u></em>.
+
+    
+       
+        <h2>Configure Apache to use SSL</h2>
+    <p>You need to edit your configuration file to make sure that the SSL entries are pointing to the right artifacts.</p>
+    <ol>
+        <li>
+            Open the <code>ssl.conf</code> file. 
+            <div class="hacker" >sudo vim /etc/httpd/conf/extra/httpd-ssl.conf</div>
+        </li>
+        <li>
+            Make the following changes in the <code>Virtual host</code> section.
+            <div class="hacker"> <pre>
+ServerName <em><u>yourdomainname.com</u></em> 
+ServerAlias <em><u>www.yourdomainname.com</u></em>
+SSLEngine on 
+SSLCertificateFile  /etc/httpd/ssl/<em><u>gdcert.crt </u> </em>
+SSLCertificateKeyFile /etc/httpd/ssl/<em><u>certkey.key  </u></em>
+SSLCertificateChainFile /etc/httpd/ssl/<em><u>gdBundle.crt </u></em>
+</pre>
+            </div>
+            
+        </li>
+        <li>Save and exit the file.
+        </li>
+        <li>
+            You will also need to make changes in the <code>/etc/httpd/conf/httpd.conf</code> file. Open the file and remove the comment tags in the following lines:
+            <div class="hacker"> 
+            <pre>LoadModule ssl_module modules/mod_ssl.so 
+LoadModule socache_shmcb_module modules/mod_socache_shmcb.so 
+Include conf/extra/httpd-ssl.conf</pre></div> 
+        </li>
+        <li>
+            Restart Apache to load the new virtual host file.
+            <div class="hacker">sudo systemctl restart httpd</div>
+        </li>
+        <li>
+            You can test your setup by typing <strong>https://<em><u>yourdomainname.com</u></em></strong> in your web browser. You can also use your server's public IP address instead of the domain name. 
+           
+        </li>
+    </ol>
+<h2>Conclusion</h2>
+You have successfully installed a SSL certificate on your web server. The certificates installed will ensure the privacy and integrity of the data between the web server and the client.      
+</body>
+</html>

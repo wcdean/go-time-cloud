@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+
+<title>Install and configure Openfire XMPP Server - Arch Linux</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+.red-text{
+                                color:#FF8080 ;
+                }
+		.command{
+                                font-family: 'Courier New',
+								 Courier, 'Lucida Sans Typewriter',
+								  'Lucida Typewriter', monospace;
+                }
+</style>
+
+
+</head>
+
+<body>
+
+
+
+<p>Setting up Openfire XMPP server on Arch Linux, Miscellaneous, Java.</p>
+    <h1>Install and Configure Openfire XMPP Server - Arch Linux </h1>
+    <p><strong>Difficulty</strong>: <em>2</em></p>
+    <p><strong>Time</strong>: <em>30 minutes</em></p>
+
+    <p>This article will help you to install and configure Openfire XMPP server on   Arch Linux.</p>
+<p>Extensible Messaging and Presence Protocol (XMPP) is an XML-based communication protocol for middleware. It enables the near real-time exchange of structured yet extensible data between any two or more network entities.</p>
+<p>Openfire enables collaboration in real time and provides a tightly secured and high performing server. You can use the Open Source Apache License for Openfire and can easily set up and configure it using Java. </p>
+<p> Openfire is a Java based tool.</p>
+<p class="note">Openfire disallows  chat options. </p>
+<h2>Install Openfire</h2>
+<ol><li>Update the operating system.
+<div class="hacker">sudo pacman -Sy</div>
+</li>
+<li>Install Java.
+  <div class="hacker">sudo pacman -S jre7-openjdk-headless</div>
+</li>
+<li>Install Openfire.
+<div class = "hacker">sudo pacman -S openfire</div>
+</li>
+<li>Check the Openfire package, and again update the operating system.
+  <div class = "hacker">	sudo  pacman  -Si openfire</div>
+<div class = "hacker">sudo pacman  -Sy</div>
+
+</li>
+
+	<li>Start the Openfire service.
+		<div class ="hacker">sudo systemctl start openfire.service</div>
+	</li>
+	
+	</ol>
+	
+	<h2>Test Openfire </h2>
+<ol> 
+<li>Visit <span class="hacker"><strong>http://<em><u>your_IP</u></em>:9090</strong></span>  in your browser.
+
+   <br />
+   A successful Openfire installation displays the Openfire wizard. </li>
+<li>Follow the instructions to continue the setup. 
+  
+<ul>
+  <li>On the first page, choose the language.</li>
+  <li>On the second page, provide appropriate values for the domain and associated ports.<br/>
+    <img src="images/18599/091815/18599 - 1.png" alt="18599 - 1.png"/>
+    
+  </li>
+  <li>On fouth page that is database setting select the <code>Embedded Database</code>.
+	<img src="images/18599/091815/18599 - 7.png" alt="18599 - 7.png"/>
+  </li>
+  <li>Keep the default values for the remaining steps.
+  <li>On Final page Account Setting press on <strong>Skip This Step</strong> without type anything.
+	<img src="images/18599/091815/18599 - 8.png" alt="18599 - 8.png"/>
+  </li>
+    
+  </li>
+</ul></li>
+
+  <li>After completing the setup procedure, log into the Administration Console using the Admin account.<br/>
+    <img src="images/18599/091815/18599 - 2.png" alt="18599 - 2.png"/>
+    <br />
+	Default username is <strong>admin</strong> and password is <strong>admin</strong>, you can change it after login.<br />
+    After you log in, the first screen shows the <strong>Server Manager</strong> tab under the <strong>Server</strong> tab. The Server Manager provides information about the server properties and environment, system properties, language and time, clustering, database, logs, email settings, and the security audit viewer.<br/>
+    <img src="images/18599/091815/18599 - 3.png" alt="18599 - 3.png"/>
+    <br />
+	
+    The <strong>Server Settings</strong> tab provides information about profile settings, client connections, server to server connections, external components, HTTP bindings, update management, registration and login management, resource policies, offline messages, audit policies for messages, private data storage options, security settings, server certificates, compression settings, and file transfer settings.<br/>
+    <img src="images/18599/091815/18599 - 4.png" alt="18599 - 4.png"/>
+    <br />
+    The <strong>Media Services</strong> tab provides information about media proxy settings.
+    <br/>
+    <img src="images/18599/091815/18599 - 5.png" alt="18599 - 5.png"/>
+   </li>
+</ol>
+
+<h2>Conclusion</h2>
+    <p>You have installed and configured Openfire XMPP server on Arch Linux.</p></body>
+</html>

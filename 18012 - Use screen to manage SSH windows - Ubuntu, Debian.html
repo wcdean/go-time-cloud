@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+    <title>Use screen to manage SSH windows - Debian, Ubuntu</title>
+    <style type="text/css">
+    div.hacker {
+        background-color: #666;
+        border: 1px solid #ccc;
+        color: #fff;
+        font-family: "Lucida Console", "Courier New", Courier, fixed;
+        font-size: 95%;
+        line-height: 160%;
+        margin-bottom: 1.5em;
+        padding: 10px;
+    }
+    
+    p.note {
+        background-color: #ffffe6;
+        border: 1px solid #eee;
+        color: #666;
+        padding: .8em 1.6em;
+        margin: 15px 0;
+    }
+    
+    .warning {
+        border: 1px #d25100 solid;
+        padding: .5em 1em .5em 4em;
+        margin: 10px 20px 15px 20px;
+        background-image: url('@{help-img-path}/img_warning.gif');
+        background-repeat: no-repeat;
+        background-position: left top;
+        background-color: #ededed;
+        -moz-border-radius: 0.8em;
+        -webkit-border-radius: 0.8em;
+        /* -moz-border-bottom-radius: 0;9 */
+        -webkit-border-bottom-radius: 0;
+        padding-top: 14px;
+        padding-bottom: 15px;
+    }
+    </style>
+</head>
+
+<body>
+
+<p>Description: Manage SSH windows</p>
+    <h1>Use Screen to Manage SSH Windows - Debian, Ubuntu </h1>
+    <p><strong>Difficulty</strong>: <em><u>1</u></em>
+        <br/>
+<strong>Time</strong>: <em><u>10</u></em></p>
+    <p><code>Screen</code> is an application that lets you create and manage multiple terminal windows from a single terminal session. In this article, we'll install <code>screen</code>, view the available keyboard shortcuts, and create and switch among multiple windows.</p>
+    <h2>Install <code>screen</code></h2>
+    <ul>
+        <li>Run the following commands:
+            <div class="hacker">sudo apt-get update</div>
+            <div class="hacker">sudo apt-get install screen</div>
+        </li>
+    </ul>
+    <h2>Start <code>screen</code></h2>
+    <ul>
+        <li>Open the <code>screen</code> application:
+<div class="hacker">
+        screen
+  </div>
+            The <code>screen</code> welcome and licensing information displays:
+            <div class="hacker">
+        <pre>
+Screen version 4.01.00devel (GNU) 2-May-06
+
+Copyright (c) 2010 Juergen Weigert, Sadrul Habib Chowdhury
+Copyright (c) 2008, 2009 Juergen Weigert, Michael Schroeder, Micah
+Cowan, Sadrul Habib Chowdhury
+Copyright (c) 1993-2002, 2003, 2005, 2006, 2007 Juergen Weigert,
+Michael Schroeder
+Copyright (c) 1987 Oliver Laumann
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 3, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program (see the file COPYING); if not, see
+http://www.gnu.org/licenses/, or contact Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA.
+
+Send bugreports, fixes, enhancements, t-shirts, money, beer and pizza to
+screen-devel@gnu.org
+
+
+Capabilities:
++copy +remote-detach +power-detach +multi-attach +multi-user +font
++color-256 +utf8 +rxvt +builtin-telnet
+
+
+
+                    [Press Space or Return to end.]
+                </pre>
+</div>
+Press Spacebar or <strong>Return</strong>. You should see the standard shell prompt you saw before you started <code>screen</code>.
+</li>
+</ul>
+
+<h2>View keyboard shortcuts</h2>
+<p>Interacting with <code>screen</code> windows is  primarily via keyboard shortcuts.</p>
+<ol>
+  <li>Hold down the <strong>Control/Ctrl</strong> key,  press  <strong>A</strong>, and then release the <strong>Control/Ctrl</strong> key. <br />
+  <code>screen</code>  listens for key bindings.</li>
+	<li>Press the <strong>?</strong> key to display a list of keyboard shortcuts.<br />
+The keyboard shortcuts screen  displays: 
+<div class="hacker">
+<pre><code>
+	                   Screen key bindings, page 1 of 2.
+
+                   Command key:  ^A   Literal ^A:  a
+
+break       ^B b       license     ,          removebuf   =
+clear       C          lockscreen  ^X x       reset       Z
+colon       :          log         H          screen      ^C c
+copy        ^[ [       login       L          select      '
+detach      ^D d       meta        a          silence     _
+digraph     ^V         monitor     M          split       S
+displays    *          next        ^@ ^N sp n suspend     ^Z z
+dumptermcap .          number      N          time        ^T t
+fit         F          only        Q          title       A
+flow        ^F f       other       ^A         vbell       ^G
+focus       ^I         pow_break   B          version     v
+hardcopy    h          pow_detach  D          width       W
+help        ?          prev        ^H ^P p ^? windows     ^W w
+history     { }        quit        \          wrap        ^R r
+info        i          readbuf     &lt;         writebuf    >
+kill        K k        redisplay   ^L l       xoff        ^S s
+lastmsg     ^M m       remove      X          xon         ^Q q
+
+^]   paste .
+"    windowlist -b
+-    select -
+0    select 0
+1    select 1
+2    select 2
+3    select 3
+4    select 4
+5    select 5
+6    select 6
+7    select 7
+8    select 8
+
+              [Press Space for next page; Return to end.]
+</code></pre>
+</div></li></ol>
+<h2>Create and manage multiple windows</h2>
+<p>Understanding how to create and manage multiple windows is fundamental to using <code>screen</code>. Before we create a new window with <code>screen</code>, let's identify our current window.</p>
+<p>To identify the current window: </p>
+
+<ol>
+
+<li>Start <code>screen</code>.</li> 
+<li>At the current shell prompt, type the following:<br/>
+    <div class='hacker'>Window 0</div>
+</li>
+</ol>
+<p>To create a new window in <code>screen</code>:</p>
+<ol>
+    <li>Hold down the <strong>Control/Ctrl</strong> key, press  <strong>A</strong>, and then <strong>Shift + A</strong>. <code><br />
+    screen</code>  listens for key bindings.</li>
+    <li>Press the <strong>C</strong> key to create a new window. <br />
+    You should see a standard shell prompt.</li>
+    <li>At this shell prompt, type the following: <br/>
+        <div class='hacker'>Window 1</div>
+    </li>
+</ol>
+
+<p>You should now have two windows available: one with the text "Window 0" at the prompt, the other with "Window 1" at the prompt. </p>
+<p>To view a list of windows open in <code>screen</code>:</p>
+<ol>
+<li>Hold down the<strong> Control/Ctrl</strong> key, press  <strong>A</strong>, and then release  <strong>Control/Ctrl</strong>. <br />
+  <code>screen</code>  listens for key bindings.</li>
+    <li>Hold down the <strong>Shift</strong> key, and press the <strong>"</strong> key. <br />
+      You should see a list of <code>screen</code> windows:<br/>
+      <div class='hacker'>
+        <pre>
+Num Name                                                           Flags
+
+   0 bash                                                               $
+   1 bash                                                               $
+        </pre>
+      </div>
+    </li>
+</ol>
+<p>To navigate the list and select a particular window:</p> 
+
+<ol>
+<li>Press the Up and Down arrow keys to highlight the line  "0 bash".</li>
+<li>Press <strong>Return/Enter</strong>. <br />
+  You should see the shell prompt with "Window 0" at the prompt.</li>
+<li>Press <strong>Control/Ctrl+A "</strong> to display the window list again.</li>
+<li>Press the Up and Down arrow keys to highlight the line  "1 bash".</li>
+<li>Press <strong>Return/Enter</strong>. <br />
+  You should see the shell prompt with "Window 1" at the prompt.</li>
+</ol>
+
+
+<p>To close a single window session:</p>
+<ol>
+    <li>Using the steps above, select and enter the window you want to close.</li>
+    <li>Hold down the <strong>Control/Ctrl </strong>key,  press  <strong>A</strong>, and then release  <strong>Control/Ctrl</strong>. <br />
+    <code>screen</code>  listens for key bindings.</li>
+    <li>Press the <strong>K</strong> key. </li>
+    <li>At the prompt "Really kill this window [y/n]", press the <strong>Y</strong> key.</li>
+</ol>
+
+<p>To close all window sessions opened via <code>screen</code>:</p>
+<ol>
+    <li>Using the steps above, select and enter the window you want to close.</li>
+    <li>Hold down the<strong> Control/Ctrl</strong> key, press  <strong>A</strong> , and then release  <strong>Control/Ctrl</strong>. <code><br />
+    screen</code>  listens for key bindings.</li>
+    <li>Press the <strong>\</strong> key. </li>
+    <li>At the prompt, "Really quit and kill all your windows [y/n]", press the <strong>Y</strong> key.</li>
+</ol>
+
+<h2>Conclusion</h2>
+<p>In this article, you  installed <code>screen</code>, viewed a list of available keyboard shortcuts, created new windows, and closed windows created in <code>screen</code>.</p>
+
+</body>
+
+</html>

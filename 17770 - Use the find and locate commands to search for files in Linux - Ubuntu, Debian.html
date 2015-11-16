@@ -1,0 +1,590 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17770-->
+
+
+<title>Use the find command to search for files in Linux - Debian,Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+    <h1>Use the find command to search for files in Linux - Debian, Ubuntu</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
+        <strong>Time</strong>: <em><u>20 minutes</u></em></p>
+
+    <p>This article will explain how to locate the files that you are looking for on your Debian or Ubuntu server.</p>
+	
+	<p>Linux environments use the <code>find</code> command to find files based on a set of parameters, and to find the location of files and directories.</p>
+
+<h2>Use the Find command</h2>
+  The Find command can be used with parameters that filter the results according to properties, such as name, file type, and time since creation.
+  
+  <h3>Find by name</h3>
+	
+	<ul>
+	<li>To find a file by name with the <code>find</code> command and the <code>-name</code> parameter.<div class="hacker">
+	find -name <em><u>name</u></em>
+	</div></li>
+	
+	<li>The <code>find</code> commands are case sensitive. To ignore case in the filename, use the <code>i</code> parameter.
+	
+	<div class="hacker">
+	find -iname <em><u>name</u></em>
+	</div></li>
+	
+	<li>To search for the files that do not match a certain pattern, use the <code>-not</code> parameter:
+	<div class="hacker">
+	find -not -name <em><u>file to avoid</u></em>
+	</div>
+   <p>    - OR - </p>
+ 
+Use the <code>!</code> parameter. You need to escape it first with an "\", so that Bash doesn't interpret it before executing it.
+	
+	<div class="hacker">
+	find \! -name  <em><u>file to avoid</u></em>
+	</div></li>
+	 </ul>
+	
+	<h3>Find by type</h3>
+
+<ul>
+<li>To find a file by type, use the <code>name</code> command with the <code>type</code> parameter.	
+	<div class="hacker">
+	find -type <em><u>filter type</u></em>
+	</div></li>
+</ul>
+
+	<p>This is a list of file types that you can use to filter your search.</p>
+  
+  <table>
+    <tr>
+    <th>File Type</th>
+     <th>Description</th>
+    </tr>
+    <tr>
+    <td>b</td>
+       <td>block (buffered)</td>
+               </tr>
+               <tr>
+    <td>c</td>
+       <td>character</td>
+          
+               </tr>
+               <tr>
+    <td>d</td>
+       <td>directory</td>
+               </tr>
+               <tr>
+    <td>p</td>
+       <td>named pipe</td>
+               </tr>
+               <tr>
+    <td>f</td>
+       <td>regular pipe</td>
+               </tr>
+               <tr>
+    <td>l</td>
+       <td>symbolic link</td>
+               </tr>
+               <tr>
+    <td>s</td>
+       <td>socket</td>
+               </tr>
+    <tr>
+    <td>*.ext</td>
+       <td>file extension (.txt, .doc, etc.)</td>
+               </tr>
+               </table>
+
+ <h3>Examples of finding by type</h3>
+	<ul>
+
+	<li><p>To find all of the directories in your environment, use the <code>d</code> option.</p>
+	
+	<div class="hacker">
+	find / -type d
+	</div>
+  The results are:
+	<div class="hacker">
+	<pre>/home
+/home/testuser
+/home/testuser/testDirectory
+/home/testuser/.byobu
+/home/testuser/.cache
+/home/testuser/.ssh
+...
+</pre>
+</div></li>
+
+<li>To search for files with a ".txt" extension:
+	<div class="hacker">
+	find / -type f -name "*.txt"
+	</div>
+	The results are:
+	<div class="hacker"><pre>
+/lib/firmware/carl9170fw/config/CMakeLists.txt
+/lib/firmware/carl9170fw/CMakeLists.txt
+/lib/firmware/carl9170fw/carlfw/CMakeLists.txt
+/home/testuser/localtestfile.txt
+/home/testuser/testfile.txt
+...</pre>
+	</div></li>
+  </ul>
+	
+	<h3>Filter by size and time</h3>
+	
+	<p>The <code>find</code> commands also gives you the flexibility to filter by size and time.</p>
+	
+	<h3>Filter by size</h3>
+	
+	<p>The <code>-size</code> parameter will filter by size.</p>
+  
+<div class="hacker">
+	find / -size <em><u>type suffix</u></em>
+	</div>
+	
+	<!--CT: Added per GD edit 9/21 (start)-->
+	<p>Use the + or - sign with the <em><u>type suffix</u></em> to filter by sizes larger or smaller than the filesize you specify. For example, -1M equals anything smaller than 1 Megabyte.
+	</p>	
+	<!--end-->
+
+		<p>You can add different types of sizes to the <code>-size</code> parameter, by default it uses 512 byte blocks. If you want to change this, the sizes available are:</p>
+	
+	<table>
+    <tr>
+    <th>Type Suffix</th>
+     <th>Size</th>
+    </tr>
+    <tr>
+    <td>c:</td>
+       <td>bytes</td>
+               </tr>
+               <tr>
+    <td>k:</td>
+       <td>Kilobytes</td>
+             
+               </tr>
+               <tr>
+    <td>M:</td>
+       <td>Megabytes</td>
+               </tr>
+               <tr>
+    <td>G:</td>
+       <td>Gigabytes</td>
+               </tr>
+              <tr>
+    <td>b:</td>
+       <td>512-byte blocks</td>
+               </tr>
+               </table> 
+	
+<h3>Examples of filtering by size</h3>
+<ul>
+  <li>To find files that are exactly 2 Megabytes in size:
+	
+	<div class="hacker">
+	find / -size 2M
+	</div></li>
+
+  <li>To find files that are less than 4 Megabytes in size:
+	
+	<div class="hacker">
+	find / -size -4M
+	</div></li>
+
+	
+	<li>To find all files that are more than 1 Gigabytes:
+	
+	<div class="hacker">
+	find / -size +1G
+	</div></li>
+  </ul>
+	
+	<h3>Filter by time</h3>
+	
+	<p>Linux stores the access times, modification times, and the change times for the files in the system. </p>
+  
+  <div class="hacker">
+	find / -<em><u>time parameter</u></em> <em><u>amount of time</u></em> 
+	</div>
+  
+  <p>This table explains the parameters you can use. You can also use the plus and minus symbols for greater or less than.</p>
+
+  <table>
+    <tr>
+    <th>Parameter</th>
+    <th>Filters by</th>
+     <th>Description</th>
+    </tr>
+    <tr>
+    <td>-atime</td>
+      <td>Access time</td>
+         <td>Last time a file was accessed</td>
+               </tr>
+               <tr>
+    <td>-mtime</td>
+       <td>Modification time</td>
+          <td>Last time the file's data was modified</td>
+              </tr>
+               <tr>
+    <td>-ctime</td>
+       <td>Change Time</td>
+          <td>Last time the file's status</td>
+               </tr>
+               </table> 
+
+<h3>Examples of filtering by time</h3>	
+	<p>Specify a value for these parameters to indicate how many days ago you would like to search:</p>
+  
+	<ul>
+	
+	<li>To search one day ago:
+	<div class="hacker">
+	find / -mtime 1
+	</div> </li>
+	
+	<li>To search less than a day ago:
+	<div class="hacker">
+	find / -atime -1
+	</div></li>
+	
+	<li>To search by minutes instead of days:
+	
+	<div class="hacker">
+	find / -mmin -1
+	</div></li>
+	
+	<li> To compare against a certain file and return the newer files.
+	
+	<div class="hacker">
+	find / -newer <em><u>file</u></em>
+	</div></li>
+	
+	</ul>
+	
+	<h2>Find by owner and permissions</h2>
+	
+	<p>You can also search by file owner using the <code>-user</code> or the group owner using the <code>-group</code> parameters.</p>
+	
+	<div class="hacker">
+	find / -user <em><u>testuser</u></em>
+	</div>
+	
+	<p>The results are:</p>
+	
+	<div class="hacker">
+<pre>.
+./testDirectory
+./group
+./localtestfile.txt
+./.profile
+./.byobu
+./.byobu/datetime.tmux
+./.byobu/color.tmux
+./.byobu/backend
+./.byobu/status
+./.byobu/statusrc
+./.byobu/profile
+...</pre>
+	</div>
+  <h3>Examples of filtering by group or owner</h3>
+<ul>
+	<li>To find files owned by a given group. Use the "alpha" group for instance:
+	
+	<div class="hacker">
+	find / -group alpha
+	</div></li>
+	
+	<li>To find files by permissions, use the <code>-perm</code> option.
+	<div class="hacker">
+	find / -perm 777
+	</div></li>
+	
+	<li>To for a file with at least certain permissions:
+	
+	<div class="hacker">
+	find / -perm -777
+	</div>
+	
+	<p>This will return the files that contain this and others permissions.</p></li>
+	</ul>	
+	<h2>Filter by depth</h2>
+	
+	<p>To show you how filtering by depth works, you will create a directory structure of three levels. Each directory will contain 10 directories with 10 files.</p>
+<ol>	
+	<li>To make this structure you execute the following set of commands.
+	
+	<div class="hacker">cd ~</div>
+	<div class="hacker">
+	<pre>
+mkdir -p ~/testDirectory/levelAdir{A..J}/levelBdir{A..J}/levelCdir{A..J}
+touch ~/testDirectory/{file{A..J},levelAdir{A..J}/{file{A..J},levelBdir{A..J}/{file{A..J},levelCdir{A..J}/file{A..J}}}}
+cd ~/testDirectory</pre>
+	</div></li>
+	
+	<li>Take a look at the directory structure you just created to see how it's organized. <code>ls</code> and <code>cd</code> can help you with that.</li>
+	
+  <li>When you're done, you can go back to the <code> testDirectory</code>.
+		<div class="hacker">
+	cd ~/testDirectory
+	</div>
+  </li>
+ </ol>
+  
+<h3>Examples of filtering by depth</h3>
+<ul>
+	<li>To return a specific file from within your directory structure, enter:
+	<div class="hacker">
+	find -name fileA
+	</div>
+	 
+   The results are:
+	
+	<div class="hacker">
+	<pre>./levelAdirI/levelBdirC/levelCdirB/fileA
+./levelAdirI/levelBdirC/levelCdirE/fileA
+./levelAdirI/levelBdirC/levelCdirD/fileA
+./levelAdirI/levelBdirC/levelCdirA/fileA
+./levelAdirI/levelBdirC/levelCdirC/fileA
+./levelAdirI/levelBdirC/levelCdirG/fileA
+./levelAdirI/levelBdirC/levelCdirH/fileA
+./levelAdirI/levelBdirC/levelCdirF/fileA
+./levelAdirI/levelBdirC/levelCdirJ/fileA
+./levelAdirI/levelBdirB/levelCdirI/fileA
+...</pre>
+	</div>
+	
+	<p>This returns a large number of results.</p></li>	
+	<li>To see the number of results, you can dump the results into a counter:
+	
+	<div class="hacker">
+	find -name fileA | wc -l
+	</div></li>
+	
+<li>To specify the depth of the search use the <code>maxdepth</code> parameter:
+	
+	<div class="hacker">
+	find -maxdepth <em><u>level</u></em> -name <em><u>file</u></em>
+	</div></li>
+	
+	<li>To search for <em><u>fileA</u></em> on <em><u>levelA</u></em>, which will be the the first level after the top level directory, use the following command:
+ <div class="hacker">
+ find -maxdepth 2 -name fileA
+ </div> 
+The results are:	
+<div class="hacker">
+<pre>./fileA
+./levelAdirE/fileA
+./levelAdirG/fileA
+./levelAdirJ/fileA
+./levelAdirF/fileA
+./levelAdirB/fileA
+./levelAdirH/fileA
+./levelAdirA/fileA
+./levelAdirD/fileA
+./levelAdirC/fileA
+./levelAdirI/fileA</pre>
+	</div></li>
+	
+	<li>You can also set a specific minimum depth to tell <code>find</code> to search past a certain point.
+	
+	<div class="hacker">
+	find -mindepth <em><u>num</u></em> -name <em><u>file</u></em>
+	</div></li>
+	
+	<li><p>To search only at the lowest branch level, use this parameter:</p>
+	
+	<div class="hacker">
+	find -mindepth 4 -name fileA
+	</div>
+	The results are:
+	<div class="hacker">
+	<pre>./levelAdirI/levelBdirC/levelCdirJ/fileA
+./levelAdirI/levelBdirB/levelCdirI/fileA
+./levelAdirI/levelBdirB/levelCdirB/fileA
+./levelAdirI/levelBdirB/levelCdirE/fileA
+./levelAdirI/levelBdirB/levelCdirD/fileA
+./levelAdirI/levelBdirB/levelCdirA/fileA
+./levelAdirI/levelBdirB/levelCdirC/fileA
+./levelAdirI/levelBdirB/levelCdirG/fileA
+./levelAdirI/levelBdirB/levelCdirH/fileA
+./levelAdirI/levelBdirB/levelCdirF/fileA
+...</pre>
+	</div></li>
+	
+	<li>To combine <code>mindepth</code> and <code>maxdepth</code>parameters to perform a narrower search, do this:
+	
+	<div class="hacker">
+	find -mindepth 2 -maxdepth 3 -name fileA
+	</div>
+  The results are:
+	<div class="hacker">
+	<pre>./levelAdirI/fileA
+./levelAdirI/levelBdirF/fileA
+./levelAdirI/levelBdirH/fileA
+./levelAdirI/levelBdirJ/fileA
+./levelAdirI/levelBdirA/fileA
+./levelAdirI/levelBdirI/fileA
+./levelAdirI/levelBdirD/fileA
+./levelAdirI/levelBdirC/fileA
+./levelAdirI/levelBdirB/fileA
+...</pre>
+	</div></li>
+	</ul>
+
+	<h3>Execute and combine Find commands</h3>
+	
+	<p>The <code>find</code> lets you execute commands on its search results with the help of the <code>-exec</code> command.</p>
+	
+	<div class="hacker">
+	find <em><u>find_parameters</u></em> -exec <em><u>command_and_params</u></em> {} \;
+	</div>
+  
+  <table>
+    <tr>
+    <th>Characters</th>
+     <th>Description</th>
+    </tr>
+    <tr>
+    <td>{}</td>
+         <td>Placeholder for the results of <code>find</code></td>
+               </tr>
+               <tr>
+    <td>\;</td>
+          <td>Termination of the command</td>
+              </tr>
+               </table> 
+
+  
+<h3>Examples of combining Find commands</h3>
+<ul>	
+	<li>To find files with 644 permissions and change them to 664 permissions:
+	
+	<div class="hacker">
+	<pre>cd ~/testDirectory
+find . -type f -perm 644 -exec chmod 664 {} \;</pre>
+	</div></li>
+	
+	<li>To change the directory permissions you execute the following:
+	
+	<div class="hacker">
+	find . -type d -perm 755 -exec chmod 700 {} \;
+	</div></li>
+	
+	<li>To chain results together, use the <code>-and</code> and <code>-or</code> parameters.
+	
+	<div class="hacker">
+	find . -name fileB -or -name fileH 
+	</div></li>
+  </ul>
+	
+<!--CT: commenting out per Sean. To be moved into its own article. 9/21 (start)...	
+<h2>Use the Locate command</h2>
+	
+<p>The <code>locate</code> command is faster than <code>find</code>, because it uses a database of the files on the file system, rather than the entire hard drive.</p>
+	
+<p>This database is automatically updated by a small program that runs on the background named <code>cron</code>. However, this program does not run all the time. To make sure that you are searching all the current files, you can update the database manually.</p>
+  
+<h3>Install Locate and update the database</h3> 
+	<ul>
+	<li>Install <code> locate</code> with the following command:
+	<div class="hacker">
+	<pre>sudo apt-get update
+sudo apt-get install mlocate</pre>
+	</div>
+  </li>
+	<li>To update the database manually:
+
+	<div class="hacker">
+	sudo updatedb
+	</div>
+	You can  also run this command to update the database after you create your directory structure. </li>
+  
+<li>To show statistics about the Locate database, use this command:
+	
+	<div class="hacker">
+	locate -S
+	</div>
+  The results are:
+	<div class="hacker">
+	<pre>Database /var/lib/mlocate/mlocate.db:
+9,874 directories
+78,212 files
+4,076,375 bytes in file names
+1,611,712 bytes used to store database</pre>
+	</div> </li>
+  </ul>
+  
+<h3>Use Locate</h3>	
+<p>After you update the database manually, use the <code>locate</code> to find files.</p>
+<ul>
+	<li><div class="hacker">
+	locate <em><u>file</u></em>
+	</div></li>
+  
+	<li>For results that include only the files that have not been removed from the file system between the last <code>updatedb</code> and the current <code>locate</code> call, use the <code>-e</code> option:
+	
+	<div class="hacker">
+	locate -e <em><u>file</u></em>
+	</div>
+  </li>
+	
+
+  </ul>
+  ...(end)-->
+	
+	<h2>Conclusion</h2>
+	
+	<p>The <code>find</code> command is useful to help you search for files in your system.</p>
+	
+	<p>Try the different parameters and filters to see what is more helpful for the type of searches you will be performing.</p>
+   
+</body>
+</html>

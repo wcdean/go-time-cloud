@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17458 (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>CentOS and Fedora Package Management with RPM and YUM - CentOS, Fedora</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+<p>CentOS and Fedora Package Management with RPM and YUM - CentOS, Fedora, Linux Basics, YUM, RPM</p>
+    <h1>CentOS and Fedora Package Management with RPM and YUM - CentOS, Fedora</h1>
+    
+    <!--CT: This is not a how-to...
+    <p><strong>Difficulty</strong>: <em>2</em><br/>
+        <strong>Time</strong>: <em>30 minutes</em></p>
+...-->
+    <p>Red Hat Package Manager (RPM) and Yellowdog Updater, Modified (YUM) are open source, default package-management utility tools for Red Hat based operating systems like CentOS and Fedora. Using RPM and YUM, you can  install, reinstall, uninstall, update, and upgrade packages. RPM and YUM are also used to check the version, status, signature, and dependencies using the RPM and YUM tools. A package consists of an archive of files and metadata used to install and erase the archive files.</p>
+
+    <p>This article will help you understand package management using RPM and YUM respectively. We'll be using a variety of package examples (indicated like so: <em><u>package examples</u></em>) to illustrate how these commands are used.</p>
+    
+<h2>RPM</h2>
+    <p>The RPM formerly known as <code>.rpm</code> file includes compiled software programs and libraries needed by the packages. This utility works only with packages that are built on <code>.rpm</code> format. </p>
+
+    <table>
+    <tr>
+          <th>Description</th>
+        <th>Command</th>
+      </tr>
+      <tr>
+        <td>Check the RPM signature package.</td>
+        <td><code>rpm --checksig <em><u>http://vault.centos.org/centos/7/extras/Source/SPackages/python-sqlalchemy-0.9.8-1.el7.src.rpm</u></em></code></td>
+      </tr>
+      <tr>
+        <td>Install the RPM package.</td>
+        <td><code>sudo rpm -ivh <em><u>ftp://fr2.rpmfind.net/linux/centos/7.1.1503/os/x86_64/Packages/nmap-ncat-6.40-4.el7.x86_64.rpm</u></em></code> <br/>
+          -i: Install a package. <br/>
+          -v: Verbose the message/output. <br/>
+          -h: Print the hash of the packages.</td>
+      </tr>
+      <tr>
+        <td>Check dependencies for installation.</td>
+        <td><code>sudo rpm -qpR <em><u>ftp://fr2.rpmfind.net/linux/centos/7.1.1503/os/x86_64/Packages/nmap-ncat-6.40-4.el7.x86_64.rpm</u></em></code><br/>
+          Option description: <br/>
+          -q: Query a package. <br/>
+          -p: List capabilities that this package provides. <br/>
+          -R: List the package dependencies. </td>
+      </tr>
+      <tr>
+        <td>Install a RPM package without dependencies.</td>
+        <td><code>sudo rpm -ivh --nodeps <em><u>ftp://fr2.rpmfind.net/linux/centos/7.1.1503/os/x86_64/Packages/nmap-6.40-4.el7.x86_64.rpm</u></em></code></td>
+      </tr>
+	  <tr>
+        <td>Verify the installed RPM package.</td>
+        <td><code>sudo rpm -Vp <em><u>ftp://fr2.rpmfind.net/linux/centos/7.1.1503/os/x86_64/Packages/nmap-6.40-4.el7.x86_64.rpm</u></em></code></td>
+      </tr>
+      <tr>
+        <td>List the files installed by RPM.</td>
+        <td><code>sudo rpm -ql <em><u>python</u></em></code></td>
+      </tr>
+      <tr>
+        <td>List the recently installed RPM packages.</td>
+        <td><code>sudo rpm -qa -last</code></td>
+      </tr>
+      <tr>
+        <td>Print all the installed packages.</td>
+        <td><code>sudo rpm -qa</code></td>
+      </tr>
+      <tr>
+        <td>Upgrade the RPM packages.</td>
+        <td><code>sudo rpm upgrade</code></td>
+      </tr>
+      <tr>
+        <td>Uninstall an RPM package.</td>
+        <td><code>sudo rpm -evv <em><u>nmap</u></em></code></td>
+      </tr>
+      <tr>
+        <td>Query a file that belongs to the RPM package.</td>
+        <td><code>sudo rpm -qf <em><u>/usr/bin/ls</u></em></code></td>
+      </tr>
+      <tr>
+        <td>Print the information of installed RPM.</td>
+        <td><code>sudo rpm -qi <em><u>python</u></em></code></td>
+      </tr>
+      <tr>
+        <td>Import the PGP keys to verify the packages.</td>
+        <td><code>sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7</code><p class="note">Above example is for CentOS 7.x</p></td>
+        
+      </tr>
+      <tr>
+        <td>List all the imported GPG keys.</td>
+        <td><code>sudo rpm -qa gpg-pubkey*</code></td>
+      </tr>
+</table>
+	
+	
+   <h2>YUM</h2>
+  <p>YUM is an automatic update and package-management utility. YUM installs all the dependencies automatically.</p>
+  
+  <table>
+  <tr>
+   <th>Description</th>
+   <th>Command</th>
+   </tr>
+   <tr>
+   <td>Update the YUM packages.</td>
+   <td><code>sudo yum update</code></td>
+   </tr>
+   <tr>
+   <td>Install a package.</td>
+   <td><code>sudo yum install <em><u>httpd</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Update the installed YUM package.</td>
+   <td><code>sudo yum update <em><u>httpd</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Search a package from the yum repository.</td>
+   <td><code>sudo yum search <em><u>httpd</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Remove or uninstall the package.</td>
+   <td><code>sudo yum erase <em><u>httpd</u></em></code>
+   <br/>or
+   <br/><code>sudo yum remove <em><u>httpd</u></em></code>
+   </td>
+   </tr>
+   <tr>
+   <td>Clear the caches of packages.</td>
+   <td><code>yum clean all</code></td>
+    </tr>
+   <tr>
+   <td>Check if the packages need to be updated.</td>
+   <td><code>sudo yum check-update</code></td>
+   </tr>
+   <tr>
+   <td>List a package or groups of packages.</td>
+   <td><code>sudo yum list</code>
+   <br/>
+   <code>sudo yum list <em><u>httpd</u></em></code></td>
+    </tr>
+   <tr>
+   <td>Print what a package does.</td>
+   <td><code>yum provides <em><u>httpd</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Find the list of RPM dependencies.</td>
+   <td><code>sudo yum deplist <em><u>package-name</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Print the list of groups.</td>
+   <td><code>sudo yum grouplist | more</code></td>
+   </tr>
+   <tr>
+   <td>YUM group install.</td>
+   <td><code>sudo yum groupinstall <em><u>'Development Tools'</u></em></code></td>
+    </tr>
+   <tr>
+   <td>Remove or uninstall YUM group.</td>
+   <td><code>sudo yum groupremove <em><u>'Development Tools'</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Update YUM group.</td>
+   <td><code>sudo yum groupupdate <em><u>'Development Tools'</u></em></code></td>
+    </tr>
+   <tr>
+   <td>Get YUM group information.</td>
+   <td><code>sudo yum groupinfo <em><u>'Development Tools'</u></em></code></td>
+   </tr>
+   <tr>
+   <td>Print the list of installed packages in paging.</td>
+   <td><code>sudo yum list installed | more</code></td>
+   </tr>
+ 
+</table>
+   
+    <h2>Conclusion</h2>
+    <p>In this article, you learned CentOS and Fedora package management using RPM and YUM. </p>
+   
+</body>
+</html>

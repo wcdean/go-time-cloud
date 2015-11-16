@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+
+<title>Manually install Oracle Java - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Install Oracle Java</p>
+    <h1>Manually Install Oracle Java - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+
+    <p>Java is a popular software package available in open source and Oracle (proprietary) flavors.  This article describes how to install the Oracle version.</p>
+
+    <h2>Install Oracle Java</h2>
+     <ol>
+        <li>Navigate to the <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">Oracle downloads</a> web site, and get the latest version appropriate to your machine.  Copy the URL, paste it into a <code>wget</code> statement as shown below, and run it.
+          <div class="hacker">wget --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-x64.tar.gz
+           </div>
+        </li>
+        <li>Make a Java directory.
+           <div class="hacker">sudo mkdir /opt/jdk
+           </div>
+        </li>
+        <li>Extract the downloaded files into your Java directory. 
+           <div class="hacker">sudo tar -zxf jdk-8u5-linux-x64.tar.gz -C /opt/jdk
+           </div>
+        </li>
+        <li>Install Java Runtime (JRE).
+           <div class="hacker">sudo update-alternatives --install /usr/bin/java java /opt/jdk/jdk1.8.0_05/bin/java 100
+           </div>
+        </li>
+        <li>Install Java compiler (SDK).
+           <div class="hacker">sudo update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk1.8.0_05/bin/javac 100
+           </div>
+        </li>
+        <li>Choose your Java default.
+          <div class="hacker">sudo update-alternatives --config java
+           </div>
+        Your screen  displays the following (or more rows if you have other versions of Java installed).  Pick your default version.
+           <div class="hacker">There is 1 program that provides 'java'. <br /> 
+             <br />
+
+  Selection    Command <br />
+-----------------------------------------------  <br />
+*+ 1           /opt/jdk/jdk1.8.0_05/bin/java  <br />
+                                             <br />
+Enter to keep the current selection[+], or type selection number:<br />
+          </div>
+        </li>
+    </ol>
+   
+             
+    <h2>Next steps</h2>
+    <p>When the next version of Oracle Java is released, you can repeat this process and use <code>update-alternatives</code> to select the new version and delete the old one if you like. </p>
+   
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17602 -->
+
+
+<title>Install and configure different versions of Python - CentOS 7</title>
+
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em 5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+</head>
+
+<body>
+            <p>Describes how to install and compile different versions of Python within the same CentOS 7 image.</p>
+<h1>Install and configure different versions of Python - CentOS 7 </h1>
+
+<h2>Introduction</h2>
+
+
+                    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+                    <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+                <p>When you install a new self-managed CentOS 6 server, you may notice that the Python version installed by default is Python <em><u>2.6.6</u></em>. If you're a Python application developer, you likely know that the current stable release of Python that is compatible with most applications in <em><u>2.7</u></em> or greater. </p>
+
+                    <p class="warning"><strong>The native Python is always needed</strong>. Modifying the existing Python <em><u>2.7</u></em> install will break apt, and prevent you from being able to use it for package management and installation. This article will show you how to install a different version of Python, while leaving the system version intact.</p>
+
+
+<h2>Overview</h2>
+
+    <ul>
+                <li>Preparing the server for the install</li>
+                <li>Downloading, compiling, and installing Python <em><u>2.7.6</u></em></li>
+                <li>Configuring the PATH variable, so that future calls to Python can be streamlined</li>
+
+    </ul>
+
+<h2>Prepare the server for compiling Python</h2>
+
+    <ol>        <li>Let's start by making sure that all our currently installed yum packages are up-to-date.
+                      <div class="hacker">sudo yum -y update</div></li>
+
+                <li>There is a suite of tools that we need installed before we can continue. Instead of doing this the hard way and installing all of these tools one-by-one, we are again going to let yum do the heavy lifting for us. Yum includes a software suite called 'Development Tools' that will contain everything we need. Install this by running:
+                       <div class="hacker">sudo yum groupinstall -y development</div></li>
+
+                <li>Now, we need to install another group of packages before we compile Python <em><u>2.7</u></em>. This step is optional, but this suite of tools will likely be needed in a variety of tasks you may come across in the future. If we wait to do this until after Python <em><u>2.7</u></em> is installed, then Python will not know how to link to them during the compiling process. Run the following command to install these tools:
+                       <div class="hacker">sudo yum install -y zlib-dev openssl-devel sqlite-devel bzip2-devel</div></li>
+
+    </ol>
+                <p>Our server is now ready for the next steps to compile some Python!</p>
+
+
+
+<h2>Compile Python from source</h2>
+
+                <p>This phase will contain three stages:</p>
+
+    <ol>        <li>Downloading the compressed source code package<code>- using wget</code></li>
+                <li> Extracting the files from this package</li>
+                <li>Configuring and building the application</li>
+    </ol>
+
+                <p>You might want to be logged in as <code>root</code>, and you should be in the </code>/root</code> folder. Use the <code>pwd</code> command to confirm this. We want to make certain we aren't leaving any tar files lying around inside important system folders.</p>
+
+    <ol>
+                <li>Run the following command to grab the tarball (a Linux-lingo term for the archive) from the Python official page. This example uses the link for Python <em><u>2.7.6</u></em>. If you are using a different version, you may substitute this link with whichever version you need.<br />
+                <div class="hacker">wget http://www.python.org/ftp/python/<em><u>2.7.6</u></em>/Python-2.7.6.tar.xz</div></li>
+
+                <li>You'll notice this is a <code>.xz</code> archive. This is an encoded TAR archive, so before proceeding, we need to run it through the .xz decoder.
+                <div class="hacker">xz -d Python-<em><u>2.7.6</u></em>.tar.xz</div>
+                It should now be in the proper .tar format<br /></li>
+
+
+                <li>Run the following command to extract our Python tarball:
+                <div class="hacker">tar -xvf Python-<em><u>2.7.6</u></em>.tar</div>
+                It should immediately unarchive into a folder named <code>Python-<em><u>2.7.6</u></em></code><br /> </li>
+
+                <li>We are almost ready to compile. Before doing that, we need to make sure that there aren't going to be any dependency issues when we compile, and that the environment is set up correctly for Python <em><u>2.7.6</u></em>. Luckily, Python contains a <code>./configure</code> that does all of this for us. Start by navigating into the <code>Python</code> directory that you just extracted:
+                <div class="hacker">cd Python-<em><u>2.7.6</u></em></div><br />
+                You should now be in a directory with a <code>configure and setup.py</code> file. You can confirm this by running <code>ls</code> (short for list) to confirm that you are in the correct directory. You will be if your <code>ls</code> looks like the example below: <br />
+                <div class="hacker">
+                [root@cent6server Python-<em><u>2.7.6</u></em>]# ls <br />
+                install-sh &nbsp;&nbsp; LICENSE &nbsp;&nbsp; Makefile.pre.in &nbsp;&nbsp; Modules&nbsp;&nbsp; Parser&nbsp;&nbsp;PCbuild &nbsp;&nbsp;Python&nbsp;&nbsp;RISCOS&nbsp;&nbsp;Tools <br />
+                config.sub&nbsp;&nbsp;configure.ac&nbsp;&nbsp;Doc&nbsp;&nbsp;Include&nbsp;&nbsp;Lib&nbsp;&nbsp;Mac&nbsp;&nbsp;Misc&nbsp;&nbsp;Objects  PC&nbsp;&nbsp;pyconfig.h.in&nbsp;&nbsp;README&nbsp;&nbsp;setup.py </div></li>
+
+                <li>Run the following command to configure the server for compilation. We are setting the flag for <code>--prefix</code> to specify which directory we will compile Python. Ours will follow the standard of putting it in <code>/usr/local </code>(which is the default). Technically, you can install it into any directory you want, but generally it's a good idea to follow standard procedure. If you don't specify a directory, it will default it to<code>/usr/local. </code>
+                <div class="hacker">./configure --prefix=/usr/local</div>
+                Python is going to run through and check to make sure everything is ready for the compiling process. If the output ends in creating Makefile, you should be ready to go. If you get any errors during configuration, do NOT proceed with compiling Python, it will cause problems on the system. Read through the errors and resolve them, before moving forward. We did all the preparation steps, so its unlikely that errors will occur, unless you had made custom changes that would have affected dependencies.<br /> <br /></li>
+
+                <li>If you were installing/compiling any other software suite from source, this is typically where we would run <code>make install</code>. Don't do this. Doing so will overwrite the system Python and will break all kinds of things on your server. Instead, this provides us with an <code>altinstall</code> file to use in its stead. Run the following commands, in order to compile and install <em><u>Python 2.7.6.</u></em>
+                <div class="hacker">#first we compile. This part can take a while - be patient while C works its magic.<br />
+                                    make<br />
+                                    #next we use altinstall to install our compiled Python libraries <br />
+                                    sudo make altinstall </div>
+
+                  After running both of these commands, the install will be complete, and Python <em><u>2.7</u></em> will be installed in <code>/usr/local/bin/python<em><u>2.7</u></em></code></li>
+
+    </ol>
+
+               <p> Python is now compiled, installed, and configured on your server. This means that you can now call directly to the <em><u>python2.7</u></em> variable,  and it will know to call to the proper location. 
+ <ul><li>              
+               To demonstrate and confirm this, type the following command inside your prompt:
+                    <div class="hacker">which <em><u>python2.7</u></em></div>
+               </li></ul> 
+               <p>You should see it showing the path to the <code>Python <em><u>2.7</u></em> interpreter</code> - which if you followed our steps, uses <code>/usr/local/bin/python<em><u>2.7</u></em>.</code></p>
+               <ul><li>To onfirm that it is recognizing this build, type:
+
+                    <div class="hacker">python<em><u>2.7</u></em> -V</div>
+
+                Your terminal should return an output confirming the version as <em><u>2.7.6</u></em>.</li></ul>
+
+
+<h2>Conclusion</h2>
+
+                <p>Congrats! You've just taken Python and compiled it from source, and installed it as an alternate Python install on your server. Now, any applications you run that require can refer directly to the version of Python you installed, instead of the system Python</p>
+
+
+</body>
+</html>

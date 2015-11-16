@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17478 (fill in blank)-->
+
+<!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
+
+
+<title>Deploy a remote MySQL server for your LAMP or LEMP application - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+    </style>
+
+
+</head>
+
+<body>
+<p>The article describes how to separate your web server from your database server in a LEMP environment.&nbsp; </p>
+    <h1>Deploy a remote MySQL server for your LEMP or LAMP application - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
+
+    <p>Most Enterprise deployments physically separate their web servers from their database server(s).  The reason for this is performance and security.  
+        It allows for tuning of servers to meet the needs of their respective roles as well as provides a layer of insulation between the choas of the internet and the organizations precious data. component .  
+        This article assumes you already have implemented: .</p>
+    <ul>
+        <li>a LEMP or LAMP stack installed on a server named StackServer running a database named MyDB</li>  
+        <li>a DBServer with MySQL installed and an empty database named MyDB.</li>
+        <li>a MySQL admin on both StackServernamed and DBServer named sqladmin.&nbsp; The names do not have to be identical but both must have MySQL root perms on their respective servers. </li>
+        <li>a client computer you will use to test remote access named SQLclient (or you can use your StackServer if you like).</li>  
+   </ul>
+
+    <h2>Install MySQL client tools</h2>
+   <p>Open a session on the computer you will use as the MySQL client, SQLclient, and install the mysql client tools.  Depending on your distro this will be:</p>
+
+ <ul>
+
+        <li> <code>sudo apt-get install mysql-client&nbsp; (Debian, Ubuntu)</code></li>
+        <li> <code>sudo pacman install mysql-client&nbsp; (Arch Linux)</code></li>
+        <li> <code>sudo yum install mysql-client&nbsp; (Centos, Fedora)</code></li>
+
+        </ul> 
+
+    <h2>Configure the target server to accept remote connections</h2>
+    <ol>
+ <li>Log in to DBServer</li>
+        <li>Use <code>find / -name my.cnf </code>to find the location of your <code>my.cnf</code> file.&nbsp; Usually it will be under <code>/etc</code> or&nbsp;<code>/etc/mysql</code>.</li>
+        <li>Open <code>my.cnf</code> for editing. Ignoring all commented lines, it should look something like this: 
+     <div class="hacker"><br />
+[mysqld]  <br />
+datadir=/var/lib/mysql <br />
+socket=/var/lib/mysql/mysql.sock    <br />
+log-error=/var/log/mysqld.log   <br />
+pid-file=/var/run/mysqld/mysqld.pid  <br />
+                     <br />
+[mysqld_safe]  <br />
+                    <br />
+!includedir /etc/my.cnf.d  <br />
+
+</div></li>
+<li>Add / modify the <code>bind-address</code> directive under the <code>[mysqld] heading to direct it to listen for incoming connections based on IP address</code>:
+     <div class="hacker">
+[mysqld]   <br />
+datadir=/var/lib/mysql  <br />
+socket=/var/lib/mysql/mysql.sock <br />
+log-error=/var/log/mysqld.log  <br />
+pid-file=/var/run/mysqld/mysqld.pid   <br />
+             <br />
+bind-address = DBServer_IPAddress  <br />
+  <br />
+[mysqld_safe] <br />
+                    <br />
+!includedir /etc/my.cnf.d    <br />
+                  <br />
+</div></li>
+                   <li>Restart MySQL on DBServer</li>   
+        </ol>       
+              
+  <h2>Backup your StackServer database and restore it to DBServer</h2> 
+    
+    <ol>
+        <li>Log in to StackServer</li>
+        <li>Backup StackServer MyDB 
+            <div class="hacker"> mysqldump --databases MyDB -u sqladmin -p  > MyDBdump.sql</div>
+</li>        
+    <li>Copy the backup to DBServer 
+       <div class="hacker"> scp MyDBdump.sql sqladmin@DBServer:MyDBdump.sql</div>
+This will create a file, MyDBdump.sql on DBserver.</li>
+ <li>Open a session on DBServer</li>
+        <li>Verify the location of the file by finding it.
+            <div class="hacker"> sudo find / -name MyDBdump.sql </div>
+       Use the path to that file in the command below. </li>
+ <li>Restore the MyDB backup to DBServer 
+       <div class="hacker"> mysql -u sqladmin -p &lt; MyDBdump.sql </div>
+</li>
+
+    </ol>
+    
+    <h2>Create local and remote users</h2>
+    <ol>
+    <li>Using your sqladmin account, open an MySQL session on DBServer by entering:
+    <div class="hacker">mysql -u sqladmin -p</div>
+ <p>You will be prompted for your password.&nbsp; After entering it you will see a mysql prompt:</p>
+     <div class="hacker">mysql>  </div>
+</li>
+<li>At the <code>mysql></code>prompt, navigate to the MyDB database:
+    <div class="hacker">
+USE MyDB</div>
+ </li> 
+<li>You will see:
+    <div class="hacker">
+Database changed</div>
+ </li>
+<li>Create a local user by entering the following at the <code>mysql></code>prompt:
+    <div class="hacker">
+CREATE USER 'localuser'@'localhost' IDENTIFIED BY 'password';</div>
+ </li> 
+ <li>Grant privileges to localuser by entering the following at the <code>mysql></code>prompt:
+    <div class="hacker">
+GRANT ALL PRIVILEGES ON MyDB.* TO 'localuser'@'localhost';</div>
+ </li> 
+ <li>Create a remote user by entering the following at the <code>mysql></code>prompt:
+    <div class="hacker">
+CREATE USER 'remoteuser'@&#39;Client IP Address&#39; IDENTIFIED BY 'password';</div>
+ </li> 
+ <li>Grant privileges to remoteuser by entering the following at the <code>mysql></code>prompt:
+    <div class="hacker">GRANT ALL PRIVILEGES ON MyDB.* TO 'remoteuser'@'Client IP Address';</div>
+ </li> 
+
+ <li>Write these changes to disk:
+    <div class="hacker">FLUSH PRIVILEGES;</div>
+ </li>
+   <li>Exit MySql
+    <div class="hacker">exit</div>
+ </li>
+   </ol> 
+
+       <h2>Verify Local Connectivity</h2>
+
+                 <ol>
+               <li>Open a session on DBServer and enter:
+                       <div class="hacker">mysql -u sqladmin -p</div></li>
+                       <li>You will be prompted for your password.&nbsp; After entering it you will see a mysql prompt:
+     <div class="hacker">mysql>  </div>
+<p>You have verified remote connectivity</p></li>
+                     </ol>
+ <h2>Verify Connectivity</h2>
+ <ol>
+ <li>Open a session on your client machine, DBclient, and enter:
+ <div class="hacker">mysql -u remoteuser -h DBServer_IPAddress  -p</div></li>
+<li>You will be prompted for your password.&nbsp; After entering it you will see a mysql prompt:
+<div class="hacker">mysql>  </div>
+<p>You have verified remote connectivity.</p>
+  </li> 
+<li>Open a new session on your client machine, DBclient, and enter:
+ <div class="hacker">mysql -u localuser -h DBServer_IPAddress  -p</div></li>
+     <li>You will be prompted for your password.&nbsp; After entering it you will see an error message indicating Access denied.
+<div class="hacker">ERROR 1045 (28000): Access denied for user 'localuser'@'ip-Client IP Address.ip.secureserver.net' (using password: YES)
+  </div>
+<p>You have verified denail of access to a non-remote user.</p>
+  </li> 
+
+ <li>Open a new session on DBServer and login as your newly-created local-only user:
+ <div class="hacker">mysql -u localuser -p</div></li>
+<li>You will be prompted for your password.&nbsp; After entering it you will see a mysql prompt:
+<div class="hacker">mysql>  </div>
+<p>You have verified the ability of a local-only user to login in locally.</p>
+  </li>  
+ </ol>
+
+  <h2>  Connecting your application</h2>
+<p>There are probably hundreds, if not thousands, of applications in the Linux universe that connect to a database server. Providing guidance for each of them is well beyond the scope of this article. However, since you have been running your application(s) on a LAMP or LEMP stack, your application(s) will have a configuration file reference to your database hostname that point to StackServer, StackServer&#39;s IP address, or &quot;localhost.&quot; The restored database on DBServer will be identical to the one on your StackServer so the database name, user and password configuration will not change. Change the database hostname directive in your application to point at
+
+DBServer_IPAddress &nbsp;or <strong><em>DBServer&#39;s fully qualified domain name (FQDN) </em></strong>depending on how your application supports database hostnames.
+ </p>       
+     <h2>Next steps</h2>
+    <p>You have moved your database to a remote server and provided for both local and remote access to it.&nbsp; 
+        Best practice suggests that you move all of your databases to DBServer and &quot;dumb-down&quot; your StackServer to be a web / app server by removing the databases hosted on it.&nbsp; You should also consider managing your databases with phpMyAdmin.&nbsp; </p>
+    <p>Distro-specific links to phpMyAdmin installation and configuration articles may be found in the list below:</p>
+    
+   <table>
+       <tr>
+       <th>
+           Apache
+       </th> 
+       <th>
+           NGINX
+       </th>
+           </tr>
+       <tr>
+           <td>
+    <ul>
+        
+        <li>Arch Linux</li>  
+        <li>Centos 6</li>  
+        <li>Centos 7</li>  
+        <li>Debian</li>  
+        <li>Fedora 20</li>  
+        <li>Fedora 21</li>  
+        <li>Ubuntu</li>
+    
+        </ul> 
+               </td>
+                   <td>
+    <ul>
+        
+        <li>Arch Linux</li>  
+        <li>Centos 6</li>  
+        <li>Centos 7</li>  
+        <li>Debian</li>  
+        <li>Fedora 20</li>  
+        <li>Fedora 21</li>  
+        <li>Ubuntu</li>
+    
+        </ul> 
+               </td>
+           </tr>
+    </table> 
+  
+   
+</body>
+</html>

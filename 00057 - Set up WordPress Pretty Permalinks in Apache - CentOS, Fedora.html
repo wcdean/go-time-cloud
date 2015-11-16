@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<title>Set Up WordPress Pretty Permalinks in Apache - CentOS, Fedora</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+tr:nth-child(odd) {background-color: #f7f7f7 
+;}
+tr:nth-child(1) {background-color:#ddd;}
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+td{border: 1px solid #b2b2b2 
+;padding: 5px;vertical-align:top;}
+td:nth-child(1) {font-weight:bold;}
+
+</style>
+
+
+
+</head>
+<body>
+<p>Set Up WordPress Pretty Permalinks in Apache for CentOS, Fedora.</p>
+    <h1>Set Up WordPress Pretty Permalinks in Apache - CentOS, Fedora</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+
+    <p>Permalinks are URLs of the content published on your WordPress site. Best practices state that these URLs should be permanent and never change, but you can, of course, change your permalink structure at any time. Doing so, however, changes the URL of all your pages, which causes your search and referral traffic to drop because the links are broken.</p>
+     
+<p>By default, WordPress produces dynamic links that are appended with the post ID number. Though these links work on all server environments, they're not descriptive, easily identifiable, or SEO-friendly.</p>
+
+<p>"Pretty" permalinks, on the other hand, are human-readable, descriptive, search-friendly and, depending on which format you choose, structured. <!--CT: too much, i think 9/16...You can use <code>mod_rewrite</code> or <code>lighttpd</code> to produce these, the most common and versatile being the Post Name link format.--></p>
+  
+<p>This article will walk you through setting up WordPress pretty permalinks in Apache on CentOS 6 or 7 and on Fedora 20 or 21. </p>
+
+    <h2>Prerequisite</h2>
+    <p>Before you begin, Wordpress has to be fully installed. If you haven't already installed it,  see one of the following articles:</p>
+         
+<ul>
+    <li><a href="17385 - Install WordPress on your LAMP server - CentOS.html">Install WordPress on your LAMP server - CentOS</a></li>
+    <li><a href="19192 - Install WordPress on your LEMP server - Fedora">Install WordPress on your LAMP server - Fedora</a></li>
+    <li><a href="17681 - Set up WordPress Multisite in Apache - CentOS, Fedora.html">Set up WordPress Multisite in Apache - CentOS, Fedora</a></li>
+</ul>
+
+
+<p>This article is for a non-root user with <code>sudo</code> privileges. </p>
+
+    
+<h2>Choose your pretty permalink type in WordPress </h2>
+
+    <ol>
+        <li>In your WordPress admin dashboard (http:/<em><u>/coolexample.com</u></em>/wp-admin), go to the <strong>Settings</strong> panel on the left, then to <strong>Permalinks</strong>.</li>
+      
+   
+      <li>Choose your permalink type. A common option is <strong>Post Name</strong>.<br/>
+        <img src="images/00057/091615/wordpress-pretty-permalinks-page.png" alt="wordpress pretty permalinks page" /></li>
+
+        <li>Select <strong>Save changes</strong>.
+            <br />
+          If using Fedora, you might see the message, &quot;If your <code>.htaccess</code> file were writable, we could do this automatically, but it isn't so these are the mod_rewrite rules you should have in your .htaccess file. Click in the field and press CTRL + A to select all&quot;.
+      We'll  create an<code> .htaccess</code> file shortly, which will take care of this. </li>
+
+    </ol>
+
+<h2>Enable URL rewrites</h2>
+  
+ <p> We have to change the configuration of Apache to read <code>.htaccess</code> files. We'll do this by enabling <code>AllowOverride</code>. When this directive is set to None, your server ignores all <code>.htaccess</code> files, attempting to read none of them. When <code>AllowOverride</code> is set to All, any command with <code>.htaccess</code> is allowed in.</p>
+  
+<p>You'll likely have to enable <code>AllowOverride</code> in your document root directory.</p> 
+     
+<ol>
+<li>Modify your virtual host file. The default file, if you haven't modified it, is <code>/httpd.conf</code>.  Let's pull up the file.
+  <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf </div>
+</li>
+<li>With the file open, find these lines and make these changes:
+  <ul>
+
+<li><code>AllowOverride All</code> allows all options in your <code>.htaccess</code> file. 
+Find all instances of <code>AllowOverride</code> and change None to All.
+ <div class="hacker">AllowOverride <em><u>All</u></em></div></li> 
+
+
+<li>Find the <code>DirectoryIndex</code> line, and add <code>index.php</code> to the front of the index files, if it's not already there. The line could look like this after your change:
+  <div class="hacker">DirectoryIndex <em><u>index.php</u></em> index.html index.html.var</div></li>
+ </ul></li>
+  <li>Save and close the file.</li>
+   
+<li>Restart Apache so that the changes  take effect.
+  <div class="hacker">sudo service httpd restart</div> 
+  </li>
+     </ol>
+  
+ <h2>Create the <code>.htaccess</code> file</h2>
+   
+  <ol>
+  <li>Create the <code>.htaccess</code> file within your document root using the <code>touch</code> command.
+    <div class="hacker">sudo touch /var/www/html/.htaccess  </div></li> 
+
+<li>Change ownership using <code>chown</code> to make the web server the owner.
+  <div class="hacker">sudo chown apache:apache /var/www/html/.htaccess  * -R</div>
+</li>
+   </ol>
+
+ <h2>Modify <code>.htaccess</code> privileges</h2>
+
+ <ol>
+     <li>Change the permissions so that WordPress can write to the <code>.htaccess</code> directory.
+<div class="hacker">sudo chmod 664 /var/www/html/.htaccess</div>
+
+Now WordPress can rewrite the rules for you, and technically anyone can write to this. We'll change the setting to tighten up the restrictions right after this step.</li>
+<li>Go back to your WordPress admin dashboard. </li>
+
+
+
+<li>Select <strong>Save changes</strong> in the dashboard, and go back to your command line.</li>
+<li>Change your permissions from <em><u>664</u> </em> to <em><u>644</u> </em> so that only your web server can read and write to the file.
+  <div class="hacker">sudo chmod <em><u>644</u> </em> /var/www/html/.htaccess</div>
+
+This gives you some added security.</li>
+ </ol>
+
+
+
+    <h2>Conclusion</h2>
+    
+    <p>Congratulations! You have set up WordPress pretty permalinks on your Apache server.</p>
+   
+</body>
+</html>

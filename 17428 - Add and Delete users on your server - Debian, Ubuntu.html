@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head>
+<title>Add or delete users on your server - Debian, Ubuntu</title>
+
+</head>
+<style>
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed; font-size:95%; 
+line-height:160%; margin-bottom:1.5em; 
+padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+ </style>
+<body>
+<p>Add or delete users on servers with Ubuntu or Debian.</p>
+<h1>Add and delete users on your server - Ubuntu, Debian</h1>
+<p>
+<strong>Difficulty</strong>: 1
+        <br />
+        <strong>Time</strong>: 10 mins
+    </p>
+    <p> In this article you will learn to add and delete users on a server 
+    running either Debian or Ubuntu.</p>
+      <h2>Add a new user</h2>
+    <ol>
+    <li>Type in the following command:
+    <div class="hacker">sudo adduser <em>username </em></div> 
+    Replace <code><em><u>username</u></em></code> with the one you want to create.</li>
+    <li>Confirm your password. </li>
+    <li>If needed, you can enter additional user details.</li>
+    <li>Type "Y" to confirm the user information and create the new user record.</li>
+    </ol>
+    <p>You have now created a new user.</p>
+    <p class="note">If you are logged in as root, to delete a user record you can use the above command without <code>sudo</code>.</p> 
+  
+
+    <h3>Grant sudo access to users</h3>
+   <p>If you want to grant sudo access (administrative privileges) to your users, you can use the <code>visudo</code> command.</p>
+    <div class="hacker">sudo visudo</div>
+    <p>This command allows you to edit the sudoers file. You can now add your user to it. </p>
+     <div class="hacker"><pre># User privilege specification 
+<em>username </em>      ALL=(ALL:ALL) ALL</pre> </div> 
+<p>Replace <code><em><u>username</u></em> </code> with the new user you just created.</p>
+    <p class="note">If you are logged in as root, to delete a user record you can use the above command without <code>sudo</code>.</p> 
+        
+    <h3>Switch users</h3>
+    <p>If you want to login as the new user you just created, you can use the <code>su</code> command. </p>
+    <div class="hacker">su - <em>username</em> </div>
+   Replace <code><em><u>username</u></em></code> is the user you want to delete.
+    <p>This allows you to switch to the new user without logging out first. If you want to logout before logging in as the new user, you can use the <code>exit</code> command. </p>
+    <h2>Delete an existing user</h2>
+    <p>Type in the following command:</p> 
+    <div class="hacker">sudo deluser --remove-home <em>username</em></div>
+    Replace <code><em><u>username</u></em></code> with the user you want to delete.
+    <p>You have now deleted the user and the user's home directory.</p>
+    <p class="note">If you are logged in as root, to delete a user record you can use the above command without <code>sudo</code>.</p> 
+   
+    <h2>Next steps</h2>
+   <p>Now that you have created a new user, you can <a href="/article/17433?prog_id =PROG_ID" > edit the sudoers file using Visudo.</a>
+
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 19003-->
+
+<title>Monitor OSSEC Agents using OSSEC Server - CentOS, Fedora</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Setting up OSSEC to monitor Agents, Security and Monitoring</p>
+	<h1>Monitor OSSEC Agents using OSSEC Server - CentOS, Fedora</h1>
+	<p><strong>Difficulty: </strong> 4<br />
+	<strong>Time: </strong> 1 hour</p>
+	<p>OSSEC is an open-source, host-based intrusion detection system. It performs log integrity checking, analysis, rootkit detection, Windows registry monitoring, active response, and time based alerting. It can monitor one or more servers and can be configured to give real time alerts. For proper communication between server and agent, <strong>rules</strong> are added into Iptables. Iptables is a flexible firewall utility, built for Linux operating systems. 
+	</p>
+	<p>
+	This article explains how to monitor OSSEC agents with OSSEC server on CentOS and Fedora..
+	</p>
+	<p class="note">You will need access to sudo privileges to complete all the steps.
+	</p>
+	<h2>Prerequisites</h2>
+	<ul>
+		<li>
+			Two separate Ubuntu servers. One for the server and other for the agent. 
+		</li>
+		<li>
+			<strong>Iptable</strong> should be enabled on both servers.
+		</li>
+	</ul>
+  
+	<h2>Download OSSEC and verify on the server and the agent</h2>
+	<ol>
+		<li>
+			Update the package database.
+			<div class="hacker">
+				sudo yum update
+			</div>
+		</li>
+		<li>
+			Install following packages on both the server and the agent. 
+			<div class="hacker">
+				sudo yum groupinstall 'Development Tools'<br/>
+				sudo yum install inotify-tools 
+			</div>
+		</li>
+		<li>
+			Install the following package on both servers to save any change that you make in <code>iptables</code>.
+			<div class="hacker">
+				sudo yum install iptables-services<br/>
+				sudo systemctl enable iptables
+			</div>
+		</li>
+		<li>
+			On both the servers, download OSSEC and its <strong>checksum</strong> file. 
+			<div class="hacker">
+				
+			wget -U ossec http://www.ossec.net/files/ossec-hids-<em><u>x.x.x</u></em>.tar.gz</div>
+			
+	<div class ="hacker">		wget -U ossec http://www.ossec.net/files/ossec-hids-<em><u>x.x.x</u></em>-checksum.txt
+				
+			</div>
+			To determine the current stable version of OSSEC, refer to <a href="http://www.ossec.net/?page_id=19" target="_blank">OSSEC Download</a>.
+			</li>  
+			<li><strong>md5sum</strong> is a computer program that calculates and verifies 128-bit MD5 hashes. The MD5 hash (or checksum) functions as a compact digital fingerprint of a file.<br />
+				Type the following command to verify md5sum of the compressed tarball:
+				
+				<div class="hacker">
+					md5sum -c ossec-hids-<em><u>x.x.x</u></em>-checksum.txt
+				</div>
+				The output should be:
+				<div class="hacker">
+					ossec-hids-<em><u>x.x.x</u></em>.tar.gz: OK<br />
+					md5sum: WARNING: 1 line is improperly formatted
+				</div>
+				You can ignore the warning.
+			</li>
+			<li><strong>SHA1</strong> produces a 160-bit output called a message digest. Message digest can be input to a signature algorithm which generates or verifies the signature for the message. US Secure Hash Algorithm 1 is used by SHA1. <br />
+				Type the following command to verify SHA1 of the compressed tarball.
+				
+				<div class="hacker">
+				sha1sum -c ossec-hids-<em><u>x.x.x</u></em>-checksum.txt
+				</div>
+				It should display:
+				<div class="hacker">
+					ossec-hids-<em><u>x.x.x</u></em>.tar.gz: OK<br />
+					sha1sum: WARNING: 1 line is improperly formatted
+				</div>
+				You can ignore the warning.
+
+			</li>
+			
+	</ol>
+
+
+	<h2>Install the OSSEC server</h2>
+	<ol>
+		<li>
+			Type the following command to untar the file.
+			<div class="hacker">
+				sudo tar xf ossec-hids-<em><u>x.x.x</u></em>.tar.gz
+			</div>
+			If these is any error for <code>tar</code> command, type: 
+			<div class="hacker">
+				sudo yum install tar
+			</div>
+			
+		</li>
+		<li>
+			Change directory to the one just expanded.
+			<div class="hacker">
+				cd ossec-hids-<em><u>x.x.x</u></em>/
+			</div>
+		</li>
+		<li>
+			Start the installation.
+			<div class="hacker">
+				sudo ./install.sh
+			</div>
+		</li>
+		<li>
+			During the installation, you will be prompted to answer a few questions, just press <strong>Enter</strong> to accept the default answers. 
+		</li>
+		<li>Choose a language. To accept the default, <em><u>English(en)</u></em>, press <strong>Enter</strong>.
+ 		</li>
+		<li>
+			Choose the kind of installation. To select <em><u>server</u></em>, type <em><u>server</u></em>, and then press <strong>Enter</strong>.
+			<div class="hacker">
+				1- What kind of installation do you want (server, agent, local, hybrid or help)? <em><u>server</u></em>
+			</div>
+		</li>
+		<li>For the rest of the questions, accept the defaults.</li> 
+		<li>Respond to the question about email with a valid email ID. All the notifications will be sent to this email address.</li>
+		<li>After you respond to the questions, the installation will start.</li>
+		<li>
+			
+		 On the successful installation, you will see the following message:
+			<div class="hacker">
+				<pre>
+In order to connect agent and server, you need to add each agent to the server.
+Run the <code>manage_agents</code> to add or remove them:
+
+/var/ossec/bin/manage_agents
+
+More information at:
+http://www.ossec.net/en/manual.html#ma
+				</pre>
+			</div>
+		</li>
+	</ol>
+
+	<h2>Configure OSSEC Server</h2>
+	<p>The OSSEC agent is not installed yet, but you can configure the server.</p>
+	<ol>
+		<li>
+			Open the <code>ossec.conf</code> file.
+			<div class="hacker">
+				sudo vim /var/ossec/etc/ossec.conf
+			</div>
+			At the top of the file, there are a few fields as described here:
+			<ul>
+				<li><code>email_to</code>is the email you entered during installation.</li>
+				<li><code>email_from </code>is where the emails appear to be coming from.</li>
+				<li>Change <code>smtp_server </code> to <code>localhost</code>, if you have your own email
+				 server installed on same the host as OSSEC.</li>
+			</ul></li>
+      <li>
+			Update these settings as per need. After all the changes, the section will look like:
+			<div class="hacker">
+				<pre>
+&lt;global>
+	&lt;email_notification><em><u>yes</u></em>&lt;/email_notification>
+	&lt;email_to><em><u>email@coolexample.com</u></em>&lt;/email_to>
+	&lt;smtp_server><em><u>mail.coolexample.com</u></em>.&lt;/smtp_server>
+	&lt;email_from><em><u>user@coolexample.com</u></em>&lt;/email_from>
+&lt;/global>
+				</pre>
+			</div>
+		</li>
+		<li>
+			Save the file, and then close it by pressing <strong>ESC</strong>, typing <code>:wq!</code>, and then pressing <strong>Enter</strong>.
+			
+		</li>
+		<li>
+			Start OSSEC.
+			<div class="hacker">
+				sudo /var/ossec/bin/ossec-control start
+			</div>
+		</li>
+	</ol>
+
+	<h2>Install OSSEC agent</h2>
+	<ol>
+		<li>
+		Type the following command to untar the file.
+			<div class="hacker">
+				sudo tar xf ossec-hids-<em><u>x.x.x</u></em>.tar.gz
+			</div>
+		</li>
+		<li>
+			Change into the following directory:
+			<div class="hacker">
+				cd ossec-hids-<em><u>x.x.x</u></em>/
+			</div>
+		</li>
+		<li>
+			Start the installation.
+			<div class="hacker">
+				sudo ./install.sh
+			</div>
+		</li>
+		<li>
+			Most of the prompts are same as before, except a few. When asked about the type of installation, type <code>agent</code>, and then press
+			<strong>Enter</strong>
+		</li>
+		<li>
+			When asked about the server IP address, type IP address of the server.
+			<div class="hacker">
+				3.1- What's the IP Address or hostname of the OSSEC HIDS server? : <em><u>server_ip</u></em>
+			</div >
+		</li>
+		<li>
+				For other questions, accept default by pressing <strong>Enter</strong>. On successful installation following will be displayed.
+			<div class="hacker">
+				<pre>
+You first need to add this agent to the server so they
+can communicate with each other. When you have done so,
+you can run the 'manage_agents' tool to import the
+authentication key from the server.
+
+/var/ossec/bin/manage_agents
+
+More information at:
+http://www.ossec.net/en/manual.html#ma
+				</pre>
+			</div>
+			Server and Agent both have been installed but they can't communicate.
+		</li>
+	</ol>
+
+	<h2>Add the agent to the server</h2>
+	<ol>
+		<li>
+			Type following command:
+			<div class="hacker">
+				sudo /var/ossec/bin/manage_agents
+			</div>
+		</li>
+		<li>
+			Type <strong>A</strong> and press <strong>Enter</strong> to add an agent.
+			<div class="hacker">
+				<pre>
+(A)dd an agent (A).
+(E)xtract key for an agent (E).
+(L)ist already added agents (L).
+(R)emove an agent (R).
+(Q)uit.
+Choose your action: A,E,L,R or Q: <em><u>a</u></em>
+				</pre>
+			</div>
+		</li>
+		<li>
+			You will be asked for the name, IP, and ID of the agent. Make sure the name is unique, and then enter the IP of your agent. For ID, you can accept the default value by pressing <strong>Enter</strong>:
+			<div class="hacker">
+				<pre>
+- Adding a new agent (use '\q' to return to the main menu).
+Please provide the following:
+* A name for the new agent: <em><u>agent-name</u></em>
+* The IP Address of the new agent: <em><u>ip_of_agent</u></em>
+* An ID for the new agent[001]:
+Agent information:
+ID:001
+Name:<em><u>agent-name</u></em>
+IP Address: <em><u>ip_of_agent</u></em>
+
+Confirm adding it?(y/n):<em><u> y</u></em>
+Agent added.
+				</pre>
+			</div>
+			
+		</li>
+		<li>
+			You will be returned to the main menu. Press <strong>E</strong>, <strong>Enter</strong>, and then give the ID of the agent to fetch the agent key. Make sure to keep a record of the key.
+			<div class="hacker">
+				<pre>
+Choose your action: A,E,L,R or Q: e
+
+Available agents:
+ID: 001, Name: <em><u>agent-name</u></em>, IP:<em><u>ip_of_agent</u></em>
+Provide the ID of the agent to extract the key (or '\q' to quit): 001
+
+Agent key information for '001' is:
+MDAxIGFnZW50VWJ1bnyEwNjI5MjI4ODBhMDkzMzA4MR1IXXwNC4yMzYuMjIyLjI1MSBiMTI2U3MTI4YWYzYzg4M2YyNTRlYzM5M2FmNGVhNDYTIwNDE3NDI1NWVkYmQw
+
+** Press ENTER to return to the main menu.
+				</pre>
+			</div>
+		</li>
+		<li>
+			Press <strong>Enter</strong> to return to <code>main menu</code>, and then press <strong>Q</strong> to quit.
+		</li>
+	</ol>
+
+	<h2>Import key to the agent from the server</h2>
+	These actions are to be completed on agent.
+	<ol>
+		<li>
+			Type following command.
+			<div class="hacker">
+				sudo /var/ossec/bin/manage_agents
+			</div>
+		</li>
+		<li>
+			Choose <strong>I</strong> to import key:
+			<div class="hacker">
+<pre>
+(I)mport key from the server (I).
+(Q)uit.
+Choose your action: I or Q: <em><u>i</u></em>
+</pre>
+			</div>
+			After choosing <code>I</code>, follow the direction to paste the key from the server, and then confirm when asked.
+		</li>
+		<li>
+			Press <strong>Enter</strong> to return to the <code>Main Menu</code>, and then choose <strong>Q</strong> to quit.
+			<div class="hacker">
+				<pre>
+Confirm adding it?(y/n): <em><u>y</u></em>
+Added.
+** Press ENTER to return to the main menu.
+				</pre>
+			</div>
+		</li>
+	</ol>
+
+	<h2>Allow UDP Port 1514 traffic through firewalls</h2>
+	<p>Communication on both sides take place on <em>UDP port 1514</em>. To add rule to <code>iptables</code> for both ends follow these steps.</p>
+	<ol>
+		<li>
+			Add the following rule at OSSEC server with the agent's IP.
+			<div class="hacker">
+				sudo iptables -I INPUT -p UDP --dport 1514 -s <em><u>ip_of_agent</u></em> -j ACCEPT
+			</div>
+		</li>
+		<li>
+			Add the following rule on the agent's side with server's IP.
+			<div class="hacker">
+				sudo iptables -I INPUT -p UDP --dport 1514 -s <em><u>ip_of_server</u></em> -j ACCEPT
+			</div>
+		</li>
+		<li>
+			These rules should persist after reboot. We have installed <strong>iptables-persistant</strong> to take care of this. Type the following command to 
+			save:
+			<div class="hacker">
+			sudo service iptables save
+			</div>
+		</li>
+	</ol>
+
+	<h2>Restart OSSEC Agent and Server</h2>
+	<ol>
+		<li>
+			Restart both the servers.
+			<div class="hacker">
+				sudo /var/ossec/bin/ossec-control restart
+			</div></li>
+		
+	</ol>
+	<h2>Next steps</h2>
+	<p>
+		After following all these steps, email alerts should be received from both the ends. Settings may be further customized 
+		for file addition or real time alerts. For configuration settings to the article: <a href="18477 - Install and Configure OSSEC Security Notifications - CentOS, Fed">Install and Configure OSSEC Security Notifications - CentOS, Fedora</a>
+	</p>
+	<p>
+		To monitor more than two servers, add them as OSSEC agents using same steps as described in this article. If you come across any issue during setup, you can go through the logs in the <code>/var/ossec/logs/ossec.log</code> file.
+	</p>
+</body>
+</html>

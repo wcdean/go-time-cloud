@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 18706-->
+
+
+
+<title>Install and configure a Jabber XMPP server - Debian, Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+<p>Configuring Jabber XMPP server in Debian and Ubuntu, XMPP</p>
+<h1>Install and configure a Jabber XMPP server - Debian, Ubuntu</h1>
+
+<p><strong>Difficulty:</strong> <em>2</em></p>
+<p><strong>Time:</strong> <em>20 Minutes</em></p>
+
+<p>
+Jabber is a simple, mature and powerful messaging protocol based on <em>Extensible Messaging and Presence Protocol (XMPP)</em>. Jabber was developed to collaborate in real-time between two or more people, based on the text typed. Enterprises use Jabber for internal communication, developers use it for programming skills improvement, and individuals use it for chatting. Hosting providers use it for high availability and stable communication services. Jabber is written in <strong>Erlang </strong> and has its own web-based management interface. This article explains the installation of Jabber XMPP server on Debian and Ubuntu. 
+</p>	
+	<p class="note">You will need access to <code>sudo</code> privileges to complete all the steps.</p>
+
+<h2>Install Jabber </h2>
+<ul>
+	<li>Use the following command to install Jabber server along with its components:
+		<div class="hacker">sudo apt-get install ejabberd</div>
+	</li>
+</ul>
+<p>After you have installed the server, you need to change a few configuration settings.</p>
+
+<h2>Configure Ejabberd</h2>
+<ol>
+	<li>Open the <code>ejabberd.cfg</code> file that resides in <code>/etc/ejabberd/</code>.
+		<div class="hacker">
+			sudo vim /etc/ejabberd/ejabberd.cfg
+		</div>
+	</li>
+	<li>To add the host name, locate the following line:
+				<div class="hacker"> {hosts, ["localhost"]} </div>
+			<p>Change <code>localhost</code> to the hostname to be used by Jabber server. This appears behind the @ sign in Jabber IDs. Physical hostname of machine is not necessarily required here.</p>
+			You can add more than one hostnames as <code>{hosts, ["localhost","coolexample.com","coolexample.net"]}</code> here, but in this article we are using <code>coolexample.com</code> as hostname.
+	
+		  <div class="hacker">{hosts, ["<em><u>coolexample.com</u></em>"]}</div>
+	</li>      
+	<li>To create an admin user, update the following line:
+		<div class="hacker">{acl, admin, {user, "", "localhost"}}</div>
+		<p>with this line: </p>
+		 <div class="hacker"> {acl, admin, {user, "<em><u>my_admin</u></em>", "<em><u>coolexample.com</u></em>"}}</div>
+		This line registers an admin user <code>my_admin</code> at <code>coolexample.com</code> hostname.
+	</li>
+	<li>Save and close the file by pressing <code>ESC</code>, and then type <strong>:wq</strong> and press the <strong>Enter</strong> key.
+		</li>
+	<li>Restart the service.
+		<div class="hacker">sudo service ejabberd restart</div>
+	</li>
+	<li>To set password for the admin user, use the following command:
+		<div class="hacker">sudo ejabberdctl register <em><u>my_admin</u></em> <em><u>coolexample.com</u></em> <em><u>password</u></em></div>
+	</li>    
+</ol>
+
+<h2>Conclusion</h2>
+<p>After following these steps, you will get an overview of the installation and basic configuration of Ejabberd server. To change any other configuration logs, go to the browser, type <strong>http://<em><u>public_IP_of_your_server_or_domain_name</u></em>:5280/admin</strong>, and then enter your admin credentials to get access to the web-based management panel. Make sure to enter your user name as <em><u>my_admin@coolexample.com</u></em>.</p>
+
+</body>
+</html>
