@@ -55,7 +55,7 @@ p.note {
   
 This article guides you through setting up a firewall and synchronizing Network Time Protocol.</p><p>
 
-If you haven't already set up your server, see <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17323 - Initial Server Setup - CentOS.html">Initial Server Setup - CentOS</a> for instructions, including setting up user accounts. 
+If you haven't already set up your server, see <a href="http://git.dean.xyz/17323 - Initial Server Setup - CentOS.html">Initial Server Setup - CentOS</a> for instructions, including setting up user accounts. 
 Make sure to set up a user account with <code>sudo</code> privileges.   </p>
 
  <h2>Set up a basic firewall</h2>
@@ -145,7 +145,7 @@ This firewall is the strictest configuration, so every incoming connection is de
 If you configure additional services later, make sure to open those respective ports.  </p>
 
 <!--CT: Replace with firewalld article once I have that ID (START)...
-<p>For more in-depth firewall instructions, see <li><a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17400 - Set Up a Firewall Using iptables.html">Set Up a Firewall Using iptables</a></li>. <code>iptables</code> is the full suite of commands used to manage <code>netfilter</code>, the Linux packet-filtering framework. Since <code>iptables</code> is considered complicated to use, the <code>ufw</code> program helps by simplifying <code>iptables</code> commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>
+<p>For more in-depth firewall instructions, see <li><a href="http://git.dean.xyz/17400 - Set Up a Firewall Using iptables.html">Set Up a Firewall Using iptables</a></li>. <code>iptables</code> is the full suite of commands used to manage <code>netfilter</code>, the Linux packet-filtering framework. Since <code>iptables</code> is considered complicated to use, the <code>ufw</code> program helps by simplifying <code>iptables</code> commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>
 ...(END)-->
 
 <h2>Synchronize Network Time Protocol</h2> 
@@ -206,7 +206,7 @@ NTP synchronization is now active on your server. This means that your system wi
 
 <p>If you like this configuration, you can <a href="/article/19042?prog_id=PROG_ID">take a server snapshot</a> to use as a guide for setting up future installations. </p>
   
-<p>Also, consider <a href="https://blueprintcs.sharepoint.com/sites/gdcmp/Articles/17328 - Add Memory Swap - CentOS, Fedora.html">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system. </p>
+<p>Also, consider <a href="http://git.dean.xyz/17328 - Add Memory Swap - CentOS, Fedora.html">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system. </p>
 
 </body>
 </html>
