@@ -82,7 +82,7 @@ p.note {
     
     <ol>
     <li>Create a sample page for your virtual host. For simplicity's sake, let's create <code>index.html</code> pages.
-    <div class="hacker">vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div>
+    <div class="hacker">sudo vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div>
 
     It'll be a blank file. Add some content: 
         <div class="hacker"><pre>&lt;html&gt; 
@@ -104,14 +104,8 @@ p.note {
 
     <ol>
       <li>Open the Apache config file.
-     <div class="hacker">vim /etc/httpd/conf/httpd.conf</div></li>
-      
-        <li>Check that Apache is listening on the default HTTP port (port 80) for the virtual host. Find these two lines in the file: 
-          <div class="hacker">#Listen 12.34.56.78:80<br/>
-        Listen 80</div>
-      And make sure that they match the above and that the <code>Listen</code> line is uncommented. Most likely, this is already the case.</li>
-
-    <li>Farther down in the file, uncomment <code>NameVirtualHost</code> so that it looks like this:
+     <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
+    <li>Uncomment <code>NameVirtualHost</code> so that it looks like this:
       <div class="hacker">NameVirtualHost *:80</div></li>
 
     <li>At the very end of the file, find the section beginning with <code>&lt;VirtualHost *:80&gt;</code> and make the following changes to this part:
