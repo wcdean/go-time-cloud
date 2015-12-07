@@ -79,15 +79,13 @@ td:nth-child(1) {font-weight:bold;}
 <div class="hacker">sudo pacman -Syu</div></li>
      <li>Install MySQL.
      <div class="hacker">sudo pacman -S mysql</div>
-                   <p>When prompted, choose the <code>percona-server provider</code>.</p></li>
-         <li>Activate MySQL.       
-              
+                   <p>When prompted, choose the <code>mariadb</code> provider. MariaDB is the accepted community drop-in replacement for MySQL, and is the standard for most Linux distributions.</p></li>
+    <li>Initialize the MySQL database and data directory.
+      <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div></li>
+         <li>Start MySQL.                   
     <div class="hacker">sudo systemctl start mysqld</div>
-                     <p>MySQL will ask you for a database admin password. Skip this for now.</p></li>  
-  <li>Secure your database server.       
-              
-    <div class="hacker">sudo /usr/bin/mysql_secure_installation</div> 
-                     
+  <li>Secure your database server.                     
+    <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>                      
      <p>The prompt will request the answer to a number of questions. </p>
      <p>The following table contains the remainder of the questions you will be asked, the recommended response, and some remarks regarding the consequences of not following the recommendation.</p> 
                      <table>
@@ -131,10 +129,12 @@ td:nth-child(1) {font-weight:bold;}
                  </li>             
                        
                      
-   <li>Activate MySQL.       
+   <li>Restart MySQL to save the changes.     
               
     <div class="hacker">sudo systemctl restart mysqld</div>
-       </li>  
+       </li>
+   <li>Make sure that MySQL will start upon server boot.
+    <div class="hacker">sudo systemctl enable mysqld</div></li>
                      </ol>   
                      
 <h2>Install and start NGINX</h2>
@@ -144,14 +144,16 @@ td:nth-child(1) {font-weight:bold;}
                        <div class="hacker">sudo pacman -S nginx</div></li>
                        <li>Start the NGINX service.
      <div class="hacker">sudo systemctl start nginx</div></li>
+     <li>Make sure that NGINX will start upon server boot.
+      <div class="hacker">sudo systemctl enable nginx</div></li>
                      </ol>
-
 <p>NGINX is now running as a web server.You can verify this using your browser to navigate to the IP address of your cloud server, e.g. <strong>http://<em><u>IP Address of your cloudserver</u></em> </strong>.</p>
 
 <h2>Install and configure PHP</h2>
  <h3>Install PHP</h3>
   <ul>
-     <li>Run the following command to install PHP:<div class="hacker">sudo pacman -S php-fpm php</div></li>
+     <li>Run the following command to install PHP:
+<div class="hacker">sudo pacman -S php-fpm php</div></li>
   </ul>       
 <h3>Configure the php.ini file</h3>
   <ol>
@@ -168,56 +170,43 @@ td:nth-child(1) {font-weight:bold;}
       <li>Add the document root so php recognizes the NGINX document root as a valid directory.  The result will look like this: 
           <div class="hacker">open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/<em><u>:/usr/share/nginx</u></em> </div></li>
      
-   
-      <li>Save and close.</li>
-   </ol>
-<h3>Configure www.conf</h3>
-      <ol>
-      <li>Open the <code>php-fpm.conf</code> file.
-          <div class="hacker">sudo vim /etc/php/php-fpm.conf</div>
-      </li> 
-      <li>Find the <code>listen</code> directive and verify it is set to use the unix socket for php traffic instead of port 9000: 
-         <div class="hacker">listen = /run/php-fpm/php-fpm.sock </div></li>
-       <li>Edit, if neccessary.</li> 
-       <li>Save and close.</li>
-       </ol>
- <h3>Restart PHP</h3>
-        <ul>
-        <li> Run the following command to restart PHP:
+      <li>Save and close the file.</li>
+
+      <li>Restart PHP to bring the changes live:
         <div class="hacker">sudo systemctl restart php-fpm</div></li>
-        </ul>
-                     
-                     
+        </ol>                    
     <h2>Configure NGINX</h2>
     <p>All of your LEMP stack components are now installed. You need only make NGINX aware that a FastCGI server exists to process PHP requests.</p>
         <ol> 
-        <li>Open <code>/etc/nginx/nginx.conf</code> for editing.<br /> 
-         The <code>server</code> context will look something like this:
-         <div class="hacker"><pre>server {
-listen 80;  root /usr/share/nginx/html;
-  server_name localhost; </pre>  </div>
-
+        <li>Open <code>/etc/nginx/nginx.conf</code> for editing.
+          <div class="hacker">sudo vim /etc/nginx/nginx.conf</div>
+          <br /> 
+         The <code>server</code> context will look something like this (ignoring comments):
+         <div class="hacker">
+        <pre>server {
+        listen       80;
+        server_name  localhost;
+</pre>  </div>
         </li>
-
-            <li>Edit the <code>index</code> and <code>server_name</code> parameters to look like this:  
-         <div class="hacker"><pre>server {
-           
+            <li>Edit the <code>server_name</code>, <code>index</code>, and <code>root</code> parameters. Use your own server IP address domain name for <code>server_name</code>:
+         <div class="hacker"><pre>server {           
 listen 80; 
+server_name <em><u>coolexample.com</u></em>
 root /usr/share/nginx/html;
-index  index.php index.html index.htm;
-server_name [yourservername]</pre></div></li>
+index index.php index.html index.htm;
+</pre></div></li>
             <li>The default <code>location</code> context will look like this:    
- <div class="hacker"><pre>location / {
-    root /usr/share/nginx/html;
-    index index.php index.html index.htm;        
-     }
+ <div class="hacker"><pre> location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
                      </pre> </div>
             </li>      
-            <li>The default <code>location</code> should look like this (remove <code>root</code> and <code>index</code> directives):    
- <div class="hacker"><pre>location / {
-   }</pre> </div>
+            <li>Change the <code>location</code> block to remove the root and index directives.:    
+ <div class="hacker"><pre> location / {
+        }
+</pre> </div>
             </li>
-
   <li>If your NGINX package has installed a commented out <code> php location</code> context, you won't have to do much more than remove the comments. 
       If not, you will have to make the edits manually. In either case, edit the <code>php location</code> context to look like this:
       <div class="hacker"><pre> location ~\.php
@@ -237,15 +226,16 @@ server_name [yourservername]</pre></div></li>
 
 <h2>Verify PHP is running</h2>
 <ol>
-<li>Create a test file <code>/usr/share/nginx/html/info.php</code> with the following contents:
- <div class="hacker">       &lt;?php
+<li>Create a test file in your web root.
+<div class="hacker">sudo vim /usr/share/nginx/html/info.php</div></li>
+<li>Give this file the following contents:
+<div class="hacker">       &lt;?php
     
      <br />
      phpinfo();
      <br />
      ?&gt;</div> 
-</li>
-   
+</li>  
        <li>Open a browser and type:
             <strong>http://<em><u>IP address or domain name of your server</u></em>/info.php</strong>. You will see a page full of statistics with a PHP logo in the upper right-corner.</li> 
             </ol>
