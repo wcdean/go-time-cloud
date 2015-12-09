@@ -85,10 +85,9 @@ td:nth-child(1) {font-weight:bold;}
     <h2>Install and configure MySQL</h2>
 
                  <ol>
-               <li>Run apt-get update to ensure your server is up-to-date on all of its apt packages<div class="hacker">sudo apt-get update</div></li>
      <li>Install MySQL
      <div class="hacker">sudo apt-get install mysql-server php5-mysql</div>
-         MySQL will ask you for a database admin password. Enter and confirm.
+         MySQL will ask you for a database root password. Enter a strong password and confirm.
      </li>
          <li>Activate MySQL.       
               
@@ -141,141 +140,81 @@ td:nth-child(1) {font-weight:bold;}
                    </li>          
               </ol>                 
                      
-    <h2>Install PHP</h2>
-
+    <h2>Install and configure PHP</h2>
    <ol>             
                <li>Install PHP.
      <div class="hacker">sudo apt-get install php5-fpm</div></li>
-                     <li>Configure php.ini<p>   Open the <code> /etc/php5/fpm/php.ini</code> file. Find the <code>cgi.fix_pathinfo</code> directive.  Most of the file is commented out and it will be about halfway through the file under a section called <code>Paths and Directories</code>.  Uncomment the line and set it as follows:</p> 
-         <div class="hacker">cgi.fix_pathinfo=0</div>
-       </li> 
- <li>Configure<code> www.conf</code>.<br />
-      <p>   Open <code>/etc/php5/fpm/pool.d/www.conf</code>. Find the <code>listen</code> directives and set it as follows:</p> 
- listen = /var/run/php5-fpm.sock</div>
-</li>
-  
-<li>Find the v>
-</li>
-  
-<li>Find the <code>listen.owner</code>, and <code>mode </code> directives and verify / modify them as follows:
-                     <div class="hacker">listen.owner = www-dataker">listen.owner = www-data<br /listen.group = www-data<br />
-                         mode&nbsp; = 0660</div></li>
-  
-<li>Configure iv></li>
-  
-<li>Configure <code>www.conf listen.owner</code>, <code>listen.group</code>, and <code>listen.mode</code> directives.<br />
-      Find the <code>owner</code> and <code>group </code>directives and verify/modify them as follows:
-                     <div class="hacker">user = www-data<br />
-                         group = www-data</div>
-                     </li>
-  
-     <li>Save and close.</li>
+                     <li>Open the <code>php.ini</code> file in vim.
+                     <div class="hacker">sudo vim /etc/php5/fpm/php.ini</div></li>
+                     <li>Find the <code>cgi.fix_pathinfo</code> directive.  Most of the file is commented out and it will be about halfway through the file under a section called <code>Paths and Directories</code>.</li>
+                     <li>Uncomment the line and set it as follows:
+         <div class="hacker">cgi.fix_pathinfo=0</div></li>
+     <li>Save and close the file.</li>
         <li>Restart PHP.
          <div class="hacker">sudo service php5-fpm restart</div>
      </li>
-        </ol>
-                     
-                     
-                     
-    <h2>Configure NGINX for PHP <h2>Configure NGINX for PHP</h2>
+        </ol>               
+    <h2>Configure NGINX for PHP</h2>
     <p>All of your LEMP stack components are now installed. You need only make NGINX aware that a FastCGI server exists to process PHP requests. </p>
         <ol> 
         <li>Open the nginx default config file for editing. 
              <div class="hacker">sudo vim /etc/nginx/sites-available/default</div>
          <p>The server context will look something like this:</p>
-         <div class="hacker">server {
-             <br />
-&nbsp; listen 80; 
-             <br />
-&nbsp; root /usr/share/nginx/www;
-             <br />
-&nbsp; index  index.php index.html index.htm;
-             <br />
-&nbsp; server_name localhost;<br />
-             <br />
-             </div>
-              <div class= "warning"> On some Debian installations, the "html" directory may be named "www." If this is the case, replace "html" with "www" throughout this document, i.e. root <code> /usr/share/nginx/www;</code> </div>
+        <div class="hacker"><pre>server {
+        #listen   80;
+        #listen   [::]:80 default_server ipv6only=on;
+        root /usr/share/nginx/www;
+        index index.html index.htm;
+        server_name localhost;
+        </pre></div>
 </li>
-            <li>Edit the <code>index</code> and <code>server_name</code> parameters to look like this:  
-                      <div class="hacker"><pre>server {
-  listen 80; 
-&nbsp; root /usr/share/nginx/www;
-&nbsp; index  index&nbsp; server_name [yourdomain_or_IP];           
+<li>Uncomment the <code>listen</code> parameter, and edit the <code>index</code> and <code>server_name</code> parameters. Your server name should be either your server's IP address or a domain name you want to use. When complete, it should look like the following:  
+<div class="hacker"><pre>server {
+        listen   80;
+        root /usr/share/nginx/www;
+        index index.php index.html index.htm;
+        server_name <em><u>coolexample.com</u></em>;       
           </pre>   </div>
                 </li>
-            <li>The location context will look like this:  
- xt will look like this:  
- <div class="hacker">
-     
-&nbsp; location / {
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp; try_files $uri $uri/ /index.html;
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp; }
-             <br />
-&nbsp; error_page 404 /404.html;
-             <br />
-&nbsp; error_page 500 502 503 504 /50x.html;
-             <br />
-&nbsp; location = /50x.html {
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root /usr/share/nginx/www;
-             <br />
-&nbsp; }
-             <br />
-                </div></li>
-
-  <li>If your NGINX package has installed a commented out <code>PHP location</code> context you won't have to do much more than remove a few comments.
-      If not, you will have to make the edits manually. In either case, edit the <code>location</code> context to look like something like this:
-      <div class="hacker">&nbsp; location / {
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp; try_files $uri $uri/ /index.html;
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp; }
-             <br />
-&nbsp; error_page 404 /404.html;
-             <br />
-&nbsp; error_page 500 502 503 504 /50x.html;
-             <br />
-&nbsp; location = /50x.html {
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root /usr/share/nginx/www;
-             <br />
-&nbsp; }
-             <br />
-             <br />
-             # pass the PHP scripts to FastCGI server listening on the php-fpm socket
-             <br />
-             <br />
-             location ~ \.php$ {
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try_files $uri =404;
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fastcgi_pass unix:/var/run/php-fpm.sock;
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fastcgi_index index.php;
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-             <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; include fastcgi_params; 
-      <br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp; </div></li> 
-      <li>Save and close.</li>
+            <li>The base <code>location</code> context will look like this (comments are removed from the example):  
+ <div class="hacker"><pre>  
+    location / {
+        try_files $uri $uri/ /index.html;
+        }
+</pre></div></li>
+<li>Below this section, uncomment the following lines. If these lines do not exist in your example file, you will need to create them manually.
+<div class="hacker"><pre>
+error_page 404 /404.html;
+error_page 500 502 503 504 /50x.html;
+location = /50x.html {
+                root /usr/share/nginx/www;
+        }
+</pre></div></li>
+<li>Lastly, uncomment and edit the <code>location</code> parameter related to PHP. You will also need to change the <code>fastcgi_pass</code> parameter. It should look like the following example:
+<div class="hacker"><pre>
+location ~ \.php$ {
+                   try_files $uri =404;
+                   fastcgi_pass unix:/var/run/php-fpm.sock;
+                   fastcgi_index index.php;
+                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                   include fastcgi_params;
+                  }
+</pre></div></li>
+      <li>Save and close the file.</li>
       <li>Restart NGINX.
     <div class="hacker">sudo service nginx restart</div>  </li>
-      <li>If NGINX fails to restart, check your edits and make sure all of your braces ({}) are closed, and that each directive ends with a semi-colon (;) are </li> 
+      <li>If NGINX fails to restart, check your edits and make sure all of your braces ({}) are closed, and that each directive ends with a semi-colon (;).</li> 
             </ol>
 <h2>Verify PHP is running</h2>
             <ol>
-    <li>Create a test file <code> /usr/share/nginx/www/info.php</code> with the following contents:
+    <li>Create a test file in your web root directory.
+    <div class="hacker">sudo vim /usr/share/nginx/www/info.php</div></li>
+    <li>Give this file the following contents:
  <div class="hacker">       &lt;?php
      <br />
      phpinfo();
      <br />
-     ?&gt;</div>
-   
-
-   <div class= "warning"> Don't forget - on some Debian installations, the <code>html</code> directory may be named <code>www</code>. </div> </li>
+     ?&gt;</div></li>
        <li>Open a browser and type:
             <strong>http://<u><em>IP address or domain name of your server</em></u>/info.php</strong>. 
      You will see a page full of statistics with a PHP logo in the upper right-hand corner </li> 
