@@ -54,19 +54,21 @@ p.note {
         <strong>Time</strong>: <em><u>20 minutes</u></em></p>
 
     <p><em>LEMP</em> is an unsual acronym because it really should be <em>LNMP</em> (Linux, Nginx, MySQL, PHP). The E stands for Nginx (pronounced &quot;Engine X&quot;) and is used because of the wide acceptance of <em>LAMP</em> to refer to a collection of software (stack) built with the Apache web server.</p>
-    <p> Installing a LEMP stack creates a platform for your cloud server that includes an operating system (Linux), a web server (Nginx), a database (MySQL), and an application server (PHP). You can build a fully functioning website, use it as a platform for other applications, or both. </p>
+    <p>Installing a LEMP stack creates a platform for your cloud server that includes an operating system (Linux), a web server (Nginx), a database (MySQL), and an application server (PHP). You can build a fully functioning website, use it as a platform for other applications, or both.</p>
 
 <h2>Install MySQL</h2>
 
                  <ol>
-               <li>Run a <code>yum</code> update to ensure that your server is up to date on  its packages.
-                 <div class="hacker">sudo yum install epel-release</div>
-   </li>  <li>Install MySQL.
+               <li>Install the Extra Packages for Enterprise Linux Repository (or EPEL for short).
+                 <div class="hacker">sudo yum install epel-release</div></li>
+                <li>Run a <code>yum</code> update to sync your packages with the new EPEL repository.
+                  <div class="hacker">sudo yum update</div></li>
+                 <li>Install MySQL.
      <div class="hacker">sudo yum install mysql-server</div></li>
                    <li>Activate MySQL.        
               
-                     <div class="hacker">sudo service mysqld restart</div></li> 
-                     <li>Secure your database server.
+                     <div class="hacker">sudo service mysqld start</div></li> 
+                     <li>Configure your MySQL installation.
               
                        <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>
                    </li>
@@ -108,8 +110,9 @@ p.note {
                          </tr>
                        </table>                  
                      </li>                      
-                     
-   <li> Activate MySQL.
+    <li>Make it so that MySQL will start automatically on server reboot.
+    <div class="hacker">sudo chkconfig mysqld on</div></li>
+   <li> Restart MySQL to save the changes.
               
      <div class="hacker">sudo service mysqld restart</div></li>  
                      </ol>   
@@ -120,10 +123,11 @@ p.note {
                <li>Install Nginx.
                        <div class="hacker">sudo yum install nginx</div></li>
                        <li>Start the Nginx service.
-                         <div class="hacker">sudo service nginx start</div>
-
-<p>Nginx is now running as a web server. You can verify by using your browser to navigate to the IP address of your cloudserver,  <code>http://<em><u>IP Address of your cloudserver</u></em></code> .</p>
-  </li>  
+                         <div class="hacker">sudo service nginx start</div></li>
+                        <li>Make it so that Nginx will start automatically on server reboot.
+                          <div class="hacker">sudo chkconfig nginx on</div>
+<p>Nginx is now running as a web server. You can verify by using your browser to navigate to the IP address of your cloudserver,  <code>http://<em><u>IP Address of your cloudserver</u></em></code> .</p></li>
+   
                      </ol>
         
         <h2>Install and configure PHP</h2>
@@ -141,19 +145,19 @@ p.note {
 <li>Save and close the file.</li>              
                    
  <li>Open the <code>www.conf</code> file for editing.
- <div class="hacker">/etc/php-fpm.d/www.conf </div>  
+ <div class="hacker">sudo vim /etc/php-fpm.d/www.conf </div>  
  </li>                    
  <li>Find the <code>listen</code> directive (It should be  first), and verify that it is set to listen for php traffic using a unix socket instead of port 9000: 
    <div class="hacker">listen = /var/run/php-fpm/php-fpm.sock </div></li>
- <li>Many systems pre-install with apache defaullts.  Find the <code>Unix user / group of processes</code> section, and edit it so that the user and group are set to <code>nginx</code> instead of <code>apache</code>.
+ <li>Many systems pre-install with apache defaullts.  Find the <code>Unix user / group of processes</code> section, uncomment the <code>listen.owner</code> and <code>listen.group</code> sections, and edit them so that the user and group are set to <code>nginx</code> instead of <code>apache</code>.
 <div class="hacker">listen.owner = nginx
     <br />
     listen.group = nginx
 </div></li>
      <li>Save and close the file.</li>
-     <li>Start PHP.
+     <li>Restart PHP.
    
-       <div class="hacker"> sudo service php-fpm start </div>
+       <div class="hacker"> sudo service php-fpm restart </div>
      </li>  
  
   </ol>
@@ -170,58 +174,61 @@ p.note {
  <div class="hacker"> sudo vim /etc/nginx/conf.d/default.conf </div>
 </li>
             <li>
-          <p>The <code>server</code> context  resembles this:</p>
-         <div class="hacker">server {
-             <br />
-&nbsp; listen 80; 
-             <br />
-             root /usr/share/nginx/html;
-             <br />&nbsp; server_name _;<br />
-          </div></li>
+          <p>The <code>server</code> context resembles this:</p>
+         <div class="hacker"><pre>server {
+    listen 80 default_server;
+    server_name  _;
+    include /etc/nginx/default.d/*.conf;
+          </pre></div></li>
 
-            <li>Edit the <code>index</code> and <code>server_name</code> parameters to look like this:
-<div class="hacker">server {
-      <br />
-&nbsp; listen 80 default_server; 
-                         <br />
-&nbsp; root /usr/share/nginx/html;
-                         <br />
-&nbsp; index index.php index.html index.htm;<br />
-&nbsp;
-&nbsp; server_name <em><u>yourdomain_or_IP</u></em>;<br />
-    ...</div>
-            The <code>location</code> context resembles this:
-              <div class="hacker">
-     
-     &nbsp; location / {
-     <br />
-&nbsp;&nbsp;&nbsp;&nbsp; root /usr/share/nginx/html;
-     <br />
-&nbsp;&nbsp;&nbsp;&nbsp; index index.html index.htm;
-             <br />
-          </div></li>
+            <li>Edit this section. You will change the <code>index</code> and <code>server_name</code> parameters, and add a <code>root</code> parameter. You will use your own IP address or domain for the <code>server_name</code> parameter. After your changes, it should look like this:
+<div class="hacker"><pre>
+server {
+listen 80 default_server;
+index index.php index.html index.htm;
+server_name <em><u>your_domain_or_ip</u></em>;
+root /usr/share/nginx/html;
+include /etc/nginx/default.d/*.conf;
+    ...</pre></div></li>
 
-  <li>Add a new <code>location</code> context below the default location to look like this:
-    <div class="hacker"><pre>location / {
+<li>The base <code>location</code> context blocks resemble this:
+<div class="hacker"><pre>
+location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+          </pre></div></li>
+
+  <li>Change the base <code>location</code> context below, removing the <code>root</code> and <code>index</code> paramters, and adding a <code>try_files</code> parameter. After your changes, the default locations should look like this:
+<div class="hacker"><pre>
+location / {
     try_files $uri $uri/ /index.html; 
      } 
-  location = /50x.html { 
-             root /usr/share/nginx/html; 
-   } 
-
-# pass the PHP scripts to FastCGI server listening on the php-fpm socket 
-
-location ~ \.php$ { 
-                   fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock; 
-                   fastcgi_index index.php; 
-                   fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; 
-                   include fastcgi_params; 
-                   }</pre></div>
-
-
-If your Nginx package has included a commented-out <code>php location</code> context, you don't have to do much more than remove the comments. Otherwise, you have to make the edits manually. </li> 
-      <li>Save and close the file.</li>
-            <li>Restart PHP.
+</pre></div></li>
+<li>The php <code>location</code> context blocks is commented out, and should resemble this:
+<div class="hacker"><pre>
+    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+    #
+    #location ~ \.php$ {
+    #    root           html;
+    #    fastcgi_pass   127.0.0.1:9000;
+    #    fastcgi_index  index.php;
+    #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+    #    include        fastcgi_params;
+    #}
+</pre></div></li>
+<li>Uncomment the php <code>location</code> block, and include the path to the <code>php-fpm.sock</code> file for your FastCGI server. After your changes, the php <code>location</code> block should look like this:
+<div class="hacker"><pre>
+ location ~ \.php$ {
+        root           /usr/share/nginx/html;
+        fastcgi_pass   unix:/var/run/php-fpm/php-fpm.sock;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+</pre></div></li>
+<li>Save and close the file.</li>
+<li>Restart PHP.
               <div class="hacker">sudo service php-fpm restart</div></li>
       <li>Restart Nginx.
         <div class="hacker">sudo service nginx restart</div>  </li> </ol>
