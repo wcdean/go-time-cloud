@@ -54,14 +54,13 @@ td:nth-child(1) {font-weight:bold;}
 </head>
 
 <body>
-<p>Webmin is a web-based tool for managing your server.  It supports many common tasks like installing software, adding users, and managing servers.</p>
     <h1>Install Webmin - CentOS, Fedora</h1>
     
     <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
         <strong>Time</strong>: <em><u>15</u></em></p>
 
-    <p>Webmin is a web-based tool for managing your server.  It supports many common tasks like installing software, adding users, and managing servers.  
-        This article describes how to install webmin on CentOS 6, 7 and Fedora 20, 21.  It assumes you have a user, <em><u>yourloginuser</u></em>, who accesses your server via SSH.</p>
+    <p>Webmin is a web-based tool for managing your server.  It supports many common tasks like installing software, adding users, and managing sites and applications.  
+        This article describes how to install webmin on CentOS and Fedora.</p>
 
    <ol>
      <li>Install perl-Net-SSLeay.
@@ -70,14 +69,14 @@ td:nth-child(1) {font-weight:bold;}
        <li>Navigate to your <code>/opt </code>directory
  <div class="hacker">cd /opt</div>
        </li>
-              <li>Add the Webmin key to your keyring.
+              <li>Download the Webmin key ASC key.
                    <div class="hacker">sudo wget http://www.webmin.com/jcameron-key.asc
                   </div>
               </li>
-              <li>Import the public key.
+              <li>Import the ASC key to your RPM keyring.
                    <div class="hacker">sudo rpm --import jcameron-key.asc </div>
               </li>
-   <li>Get Webmin from rpm.
+   <li>Download the Webmin RPM package.
                    <div class="hacker">sudo wget  http://www.webmin.com/download/rpm/webmin-current.rpm
                    </div>
               </li>         
@@ -91,13 +90,13 @@ Webmin install complete. You can now login to https://YourMachineName:10000/
 as root with your root password.
                                </pre> </div>
               </li>
-              There are two problems with the response.  First, the install responds with your machine name, not your domain name.  When you verify the install (see below), you will use your domain name or IP.  
-                  Second, <strong>you do not want to send your root password out over the Internet. </strong> </br>
+
                 
-       <li> Change your Webmin root password with the command below.  <strong>This will not affect your system's root password.</strong>
+       <li> Change your Webmin root password with the command below. Use a secure password. <strong>This will not affect your system's root password.</strong>
                    <div class="hacker">sudo /usr/libexec/webmin/changepass.pl /etc/webmin root newpassword
                    </div>
               </li>
+              <p class="note">If you used an SSH key to log in to your server, then you will need to manually change this <code>root</code> user. Even if you just used a normal login for your server, it is still a good idea to change this anyway so that your system <code>root</code> user and your Webmin <code>root</code> user do not share the same password.</br>
 
  </ol>
  <h2>Verification</h2>
@@ -105,7 +104,7 @@ as root with your root password.
                <li>In your browser, go to the Webmin login page. 
                 <strong>https://<em><u>Your domain or IP address</u></em>:10000</strong>
               </li>
-              <li>Ignore the SSL warning and proceed. You can trust this server because you own it. 
+              <li>Ignore the self-signed SSL warning and proceed. You can trust this server because you own it. 
               </li>
               <li>A login screen will appear.  Log in using <em><u>root</u></em> as your user name and the <em><u>newpassword</u></em> you set up in the previous step, and start using Webmin!
               </li>
@@ -113,7 +112,6 @@ as root with your root password.
 
              
     <h2>Next steps</h2>
-    <p>Explore the Webmin interface and start using it to manage your server.</p>
-   
+    <p>Explore the Webmin interface and start using it to manage your server. Check out the <a href="http://doxfer.webmin.com/Webmin/Main_Page">Webmin Wiki</a> for more information on using Webmin to install Apache, create new SSH and FTP users, and much more.</p> 
 </body>
 </html>

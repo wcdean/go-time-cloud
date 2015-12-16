@@ -1,12 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
-
 <head>
-
 <!--Article Number is __17490 -->
-
-
 <title>Install and use Webmin - Arch Linux</title>
 
 <style type='text/css'>
@@ -54,34 +50,35 @@ td:nth-child(1) {font-weight:bold;}
 </head>
 
 <body>
-<p>Webmin is a web-based tool for managing your server. It supports many common tasks like installing software, adding users, and managing servers.</p>
     <h1>Install Webmin - Arch Linux</h1>
     
     <p><strong>Difficulty</strong>: 2<br />
         <strong>Time</strong>: 15 minutes</p>
 
-    <p>Webmin is a web-based tool for managing your server. It supports many common tasks like installing software, adding users, and managing servers.  
-        This article describes how to install Webmin.  It assumes you have a user, yourloginuser, who accesses your server via SSH.</p>
+    <p>Webmin is a web-based tool for managing your server. It supports many common tasks like installing software, adding users, and managing sites and applications.  
+        This article describes how to install Webmin.</p>
+    <p class="note">Webmin does not have native support for Arch Linux's Pacman software utility. You will not be able to install software packages, such as Apache or MySQL, directly through Webmin. If you want to be able to use Webmin to install and manage services, you should consider a traditional Linux distribution, such as <a href="/article/17489?prog_id=PROG_ID" target="_blank">CentOS/Fedora</a> or <a href="/article/17488?prog_id=PROG_ID" target="_blank">Ubuntu/Debian</a> builds.</p>
 
 <h2>Get Webmin</h2>
  <ol>
                <li>Change to the <code>tmp</code> directory.
-                   <div class="hacker">cd /tmp</div>
+                <div class="hacker">cd /tmp</div>
                </li>
-      <li>Install unzip.
-                   <div class="hacker">sudo pacman -Syu unzip</div>
+      <li>Use Pacman to install a few tools we need for Webmin setup.
+                   <div class="hacker">sudo pacman -Syu unzip tar perl-crypt-ssleay</div>
               </li>
                <li>Download Webmin.
-                   <div class="hacker">sudo wget http://prdownloads.sourceforge.net/webadmin/webmin-current.tar.gz </div>
+                   <div class="hacker">sudo wget http://www.webmin.com/download/webmin-current.tar.gz</div>
               </li>
-              <li>Unzip it.
-                   <div class="hacker">sudo gunzip webmin-current.tar.gz</div>
+              <li>Extract the tar archive
+                   <div class="hacker">sudo tar -xvf webmin-current.tar.gz</div>
               </li>
-              <li>Unzip the tar archive.
-                   <div class="hacker">sudo tar -xf webmin-current.tar </div>
-              </li>
-              <li>Navigate to the directory created by tar.
-                   <div class="hacker">cd webmin-current</div>
+              <li>This will create a directory with the current version name.
+                <div class="hacker">[user@server tmp]$ ls <br />
+                user_firstboot  <u><em>webmin-1.770</em></u>  webmin-current.tar.gz
+                </li>
+              <li>Navigate to that directory.
+                   <div class="hacker">cd <u><em>webmin-1.770</em></u></div>
               </li>
               <li>Install Webmin.
                    <div class="hacker">sudo ./setup.sh /usr/local/webmin</div>
@@ -89,15 +86,17 @@ td:nth-child(1) {font-weight:bold;}
  </ol>
  <h2>Verification</h2>
  <ol>
-               <li>Using your browser, access the Webmin login page:
-                <strong>Your IP address:10000</strong>  </li>
-              <li>A login screen will appear.  Log in using yourloginuser, and start using Webmin!
+               <li>In your browser, go to the Webmin login page. 
+                <strong>https://<em><u>Your domain or IP address</u></em>:10000</strong>
+              </li>
+              <li>Ignore the self-signed SSL warning and proceed. You can trust this server because you own it. 
+              </li>
+              <li>A login screen will appear.  Log in with the username and password you set up in the previous steps, and start using Webmin!
               </li>
 </ol>
 
              
     <h2>Next steps</h2>
-    <p>Explore the Webmin interface and start using it to manage your server.</p>
-   
+    <p>Explore the Webmin interface and start using it to manage your server. Check out the <a href="http://doxfer.webmin.com/Webmin/Main_Page">Webmin Wiki</a> for more information on using Webmin to install Apache, create new SSH and FTP users, and much more.</p>
 </body>
 </html>
