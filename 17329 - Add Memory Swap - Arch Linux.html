@@ -77,33 +77,17 @@ td:nth-child(1) {font-weight:bold;}
       Check current swap space usage
     </h2>
     <p>
-    To prevent any issues when adding swap, first check that your system does not have a swap file (or swap partition) that was previously activated. See your summary of swap usage with the <code>swapon</code> command or <code>free</code> command:</p>
-<ul>
-      <li>Use <code>swapon -s</code> if your computer is not yet set up or if you're unsure where the swap is located:
-        <div class="hacker">
-          sudo swapon -s
-        </div>
-        If no swap space is found, you see the following results:
-        <div class="hacker">
-          swapon: stat failed -s: No such file or directory
-        </div>
-        These results mean that you have no swap space enabled.
-</li>
-      <li> Use the <code>free</code>
-      command:
-        <div class="hacker">
+    To prevent any issues when adding swap, first check that your system does not have a swap file (or swap partition) that was previously activated. See your summary of swap usage with the <code>free</code> command:</p>
+    <p><div class="hacker">
           free -m
-        </div>
-The output looks similar to this, in which the total swap space in the system is 0:
-        <div class="hacker">
-      total used free shared buffers cached<br />
-      Mem: 4902 102 4800 0 8 82<br />
-      -/+ buffers/cache: 62 3890<br />
-      Swap: 0 0 0<br />
-      </div>
-        This output matches the output
-      from the <code>swapon -s</code> command in the first example above.</li>
-    </ul>
+        </div></p>
+<p>The output looks similar to this, in which the total swap space in the system is 0:<br />
+        <div class="hacker"><pre>
+              total        used        free      shared  buff/cache   available
+Mem:           2005          24        1870           0         111        1953
+Swap:             0           0           0
+     <pre></div>
+     <p>This shows available memory, and should display a zero for swap memory.</p>
     <h2>
       Check the file system
     </h2>
@@ -151,16 +135,14 @@ and <code>dd</code> comand.
     Verify that the correct amount of
     space was reserved:
       <div class="hacker">
-      ls -lh swapfile
+      ls -lh /swapfile
     </div>
     This result shows that the file was added with the correct amount of space set aside:
     
     <div class="hacker">
       -rw-r--r-- 1 root root 4.0G Jul 08 10:52 swapfile
     </div>
-    
-If, on the other hand, you get a failure message saying <code>fallocate failed: Operation not supported</code>, your file system doesn't currently support <code>fallocate</code> (for example, ext3). Use the more traditional way with the <code>dd</code> command instead. (This situation should be rare.)</li></ol>
-
+</li></ol>
   <h3>
   Create a swap file using <code>dd</code> comand </h3>
     <p>Creating a swap file by using the <code>dd</code> command may not be as quick as <code>fallocate</code>, but it works. The <code>dd</code> command is one of the original UNIX disk utilities with many uses, including generating new files, copying files, and converting file formats.</p>
@@ -186,50 +168,51 @@ If, on the other hand, you get a failure message saying <code>fallocate failed: 
       </li>
       <li>Verify that the file has been created on the server:
         <div class="hacker">
-          ls -lh swapfile
+          ls -lh /swapfile
         </div>
         
         The command returns something similar to this:
         <div class="hacker">
-          -rw-r--r-- 1 root root 4.0G Jul 08 22:27 swapfile
+          -rw-r--r-- 1 root root 1000M Jul 08 22:27 swapfile
         </div>
-        The system created the file by writing 4 GB of zeroes to the disk
+        The system created the file by writing 1 GB (1000M) of zeroes to the disk
         and, in this case, took 1 second to complete.
       </li>
   </ol>
 <h3>
       Enable the swap file
     </h3>
-    Now that the file is created, format it as swap, and then enable it.
+    Your file has now been created. Tell the system to format your file as swap, and then enable it. 
     <ol>
-      <li> Lock the swap file's permissions so that only the root user can access it. By default, swap files are readable by the world when first created, so locking permissions prevents users from reading posudo chmod 600 /swapfile
-        </div></li><li>
-        Verify that the file has the correct permissions:
-        li><li>
+      <li>Change the permission of the swap file so that only the root user can access it. By default, swap files are readable by the world when first created, so locking the permissions will prevent users from reading potentially sensitive information.
+      <div class="hacker">sudo chmod 600 /swapfile
+        </div></li>
+        <li>
         Verify that the file has the correct permissions:
         <div class="hacker">
-          ls -lh swapfile
+          ls -lh /swapfile
         </div>
         
         The command returns something similar to this:
         <div class="hacker">
           -rw------- 1 root root 4.0G Jul 08 10:40 swapfile
-        </div>This confirms that only the root has read and write flags
+        </div>This confirms that only the root has read and write permissions
       enabled.</li>
-      <li>Formasudo mkswap /swapfile
-        </div>The command returns something similar to this:
+      <li>Format that file to create a swap space.
+        <div class="hacker">sudo mkswap /swapfile
+        </div>
+        The command returns something similar to this:
         file
         </div>The command returns something similar to this:
-        <div class="hacker">
-          Setting up swapspace version 1, size = 4194300 KiB<br />
-          no label, UUID=e2f1e9cf-c0a9-4ed4-b8ab-714b8a7d6944
+        <div class="hacker"><pre>
+Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
+no label, UUID=f86d9832-7d9b-4325-93a5-e806815372e5</pre>
         </div>
       </li>
-      <li>Ensudo swapon /swapfile
+      <li>Mount/enable the swap space in the system.
+        <div class="hacker">sudo swapon /swapfile
         </div>
-      </li>
-      
-  
+      </li>  
       <li>Verify that the swap space was enabled by checking the system reports:
         fy that the swap space was enabled by checking the system reports:
         <div class="hacker">
@@ -238,17 +221,13 @@ If, on the other hand, you get a failure message saying <code>fallocate failed: 
         You can also use the <code>free -m</code> command to confirm that the
         swap is set up.
       </li>
-  
-  </ol>
-  
+  </ol>  
   <h2>
       Make the change (swap file) permanent
     </h2>
-    
-  <p><code>fstab</code> is Linux's file system table that has the information of all your system's storage partitions and devices (such as hard drives). We'll modify this file.</p>
-  <ol><li>Open the <code>fstab</code> file  so you can edit it:
-
-<div class="hacker">sudo vim /etc/fstab   </div></li>
+  <ol>  
+  <li>The Linux file system table fstab has the information of all your system's storage partitions and devices (such as hard drives). Let's get this file so we can modify it.
+<div class="hacker">sudo vim /etc/fstab</div></li>
 
 <li>At the end of the <code>fstab</code> file, add this line to tell the  system to automatically use the newly created swap space:
 
@@ -294,7 +273,7 @@ If, on the other hand, you get a failure message saying <code>fallocate failed: 
     <div class="hacker">
       60
     </div>
-    The default swappiness value is 60. Reducing the value may improve
+    The default swappiness value in Arch Linux is 60. Reducing the value may improve
     overall performance for a desktop and very likely improve the performance
     for a database server or virtual private server (VPS). Try setting
     the swappiness to 10 to start, and increase if needed. </li>    

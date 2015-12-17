@@ -4,7 +4,7 @@
 
 <head>
     <!--Article Number is 17324-->
-    <title>Initial Server Setup - ArchLinux</title>
+    <title>Initial Server Setup - Arch Linux</title>
 
 <style type='text/css'>
 div.hacker {
@@ -60,7 +60,7 @@ td:nth-child(1) {font-weight:bold;}
    
     <h2>Add SSH public key authentication</h2>
     <p class="note">
-     These steps are for Mac OS X users. For information on adding SSH public key authentication for Windows, see article <a href='http://git.dean.xyz/19228%20-%20Use%20SSH%20Keys%20with%20PuTTY%20-%20ALL%20DISTROS.html'>Use SSH Keys with PuTTY and GoDaddy</a>.
+     These steps are for Mac OS X users. For information on adding SSH public key authentication for Windows, see article <a href="/article/19228?prog_id=PROG_ID" target="_blank">Use SSH Keys with PuTTY</a>.
     </p>
       <ol>
 <li>Create SSH public/private key pairs.</li>
@@ -151,7 +151,7 @@ The key's randomart image is:
         <li>Save file changes.</li>
         <li>Restart the SSH service.
             <br/>
-            <div class='hacker'>sudo service ssh restart</div>
+            <div class='hacker'>sudo systemctl restart sshd</div>
         </li>
     </ol>
     <h2>Update the server</h2>
@@ -162,6 +162,6 @@ The key's randomart image is:
         </li>
     </ul>
     <h2>Next steps</h2>
-    <p>In this article, you have created a new Arch Linux server on the COMPANY_NAME cloud platform, setup and connected to the server via SSH using public key authentication, and updated the software that comes pre-installed on the server.</p>
+    <p>In this article, you have created a new Arch Linux server on the COMPANY_NAME cloud platform, setup and connected to the server via SSH using public key authentication, and updated the software that comes pre-installed on the server. We also recommend taking some <a href="/article/17334?prog_id=PROG_ID" target="_blank">additional steps</a> to secure and optimize your server.</p>
 </body>
 </html>

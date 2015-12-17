@@ -119,11 +119,10 @@ none            100M     0  100M   0% /run/user
 
 <h2>Create a swap file</h2>
 
-Now that you've established you have available storage space, you can add a swap file to your system. You'll do this by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. You will allocate the amount of space you want for your swap file. <p /> 
+<p>Now that you've established you have available storage space, you can add a swap file to your system. You'll do this by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. You will allocate the amount of space you want for your swap file. <p /> 
 
-There are two ways to add swap files: use the <code>fallocate</code> command or use the <code>dd</code> command.
-
-
+<p>There are two ways to add swap files: use the <code>fallocate</code> command or use the <code>dd</code> command.</p>
+<p class="note">The <code>fallocate</code> command has <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1129205">unresolved bugs</a> in CentOS 7. CentOS 7 users should instead use the <code>dd</code> command to create their swap file.</p>
 <h3>Create a swap file using the fallocate command</h3>
 You can gain more file space with the <code>fallocate</code> command - used to manipulate file space. The <code>fallocate</code> creates a file of a preallocated size instantly, without having to write dummy contents. <p />
 <ol>

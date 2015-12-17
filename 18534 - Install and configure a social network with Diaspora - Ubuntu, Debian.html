@@ -60,10 +60,6 @@ p.note {
 	<li>Install the required dependencies and update them.
 	<div class="hacker">sudo apt-get update</div>
 	<div class="hacker">sudo apt-get install build-essential git curl imagemagick libmagickwand-dev nodejs redis-server libcurl4-openssl-dev libxml2-dev libxslt-dev libpq-dev</div>
-	<div class="hacker">rvm reinstall ruby <em><u>latest_ruby_version</u></em></div>
-	<p class="note">Here, we used Ruby version 2.2.3 </p>
-	<div class="hacker">rvm use <em><u>latest_ruby_version</u></em>  --default</div>
-
 	</li>
 </ul>
 
@@ -75,9 +71,8 @@ p.note {
 <li>Create a file named as <code>pgdg.list</code> in <code>sources.list.d</code> directory.
    <div class="hacker">sudo touch /etc/apt/sources.list.d/pgdg.list</div>
   </li>
-   <li>Open <code>/etc/apt/sources.list.d/pgdg.list</code> file.
-   <div class="hacker">sudo vim /etc/apt/sources.list.d/pgdg.list</div></li>
-  <li>Add the following lines:
+   <li>Add the following lines:
+   <div class="hacker">sudo vim /etc/apt/sources.list.d/pgdg.list</div>
    <div class="hacker">deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg main</div>
    </li>
    <li>Save and exit the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
@@ -89,52 +84,53 @@ p.note {
    <li>Install PostgreSQL. After installation an account named <code>postgres</code> will be created by default
    <div class="hacker">sudo apt-get install postgresql</div>
    </li>
-   </ol>
-   <h2>Create Postgres user</h2>
-   <ol>
-   <li>To use PostgreSQL, switch to the default role <code>postgres</code>. When creating a database user, we suggest that you keep the production username the same as your application name, so it will be easier to use and remember.
+   <li>To use PostgreSQL, switch to the default role <code>postgres</code>.
    <div class="hacker">sudo -i -u postgres</div>
-   <div class="hacker">createuser -s <em><u>database_user</u></em></div>
    </li>
    <li>Type the following command to access PostgreSQL prompt.
    <div class="hacker">psql</div>
    </li>
+     <li>Set a password for the postgres database role.
+   <div class="hacker">\password postgres</div>
+   You will be prompted to enter a password.</li>
+    
 
-   <li>Type the following command in the PostgreSQL prompt:
-   <div class="hacker">\password <em><u>database_user</u></em></div>
-   </li>
-   <li>When prompted for the password, enter a desired password. Re-enter the password and exit.:
+   <li>To exit from the PostgreSQL prompt, type:
    <div class="hacker">\q</div>
    </li> 
     <li>To return to your own account, type:
    <div class="hacker">exit</div>
    </li> 
 </ol>
-     
+  
+  
+  <h2>Set up Diaspora user account</h2>
+<ol> 
+<li>Create a new user for Diaspora. 
+   <div class="hacker">sudo useradd diaspora -m -s /bin/bash</div>
+</li>
+<li>Type the following for setting up the password.
+ <div class="hacker">sudo passwd diaspora</div>
+ Set a password for the <code>diaspora</code> user.
+ </li>
+<li>Add this user in <code>/etc/sudoers</code>.
+ <div class="hacker">diaspora ALL=(ALL:ALL) ALL</div>
+</li>
+<li>Login as <code>diaspora</code> user.
+ <div class="hacker">sudo -iu diaspora</div>
+  	<p class ="note">The rest of the steps should be executed using this user.</p>
+   </li>
+</ol>
+  
   
   <h2>Get the source</h2>
-<ol> 
+<ul> 
 <li>Download Diaspora.
    <div class="hacker">git clone -b master git://github.com/diaspora/diaspora.git</div>
    <div class="hacker">cd diaspora</div>
-   You may get the following output:
-<div class="hacker">
-<pre>
-ruby-<em><u>some_version</u></em> is not installed.
-To install do: 'rvm install ruby-<em><u>some_version</u></em>'
-</pre></div>
-	You can ignore the above output as the most recent version of ruby is already installed.
-</li>
-   <li>Generate the certificate authorities. Keep on pressing the Enter key when asked for Country Name, State or Province Name, Locality name, Organization name, and so on.
-     <div class="hacker">openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ssl.key -out ssl.crt</div>
-     <div class="hacker">openssl dhparam 2048 > dhparam.pem</div>
-	 
-     You might get error saying <code>unable to write 'random state'</code>. You can ignore this. After you have generated the certificate, check its location using:
-	 <div class="hacker">pwd</div>
-	 Keep a note of this certificate location <code>/home/Logged_in_user/diaspora</code>.
-	 </li>
-	 
-</ol>
+   This will prompt for the password that was set earlier for <code>diaspora</code> user. So enter the password to proceed further.
+  </li>
+</ul>
    
    <h2>Configure Diaspora Database.yml</h2>
    <ol>
@@ -144,25 +140,25 @@ To install do: 'rvm install ruby-<em><u>some_version</u></em>'
    <li>Edit <code>database.yml</code> file by typing:
    <div class="hacker">vim config/database.yml</div>
     </li>
-	<li>Set the username and password in the <code>postgres: &postgres </code> section in the configuration file. Enter the username and password that was set earlier for posrgres user.
+	<li>Set the username and password in the configuration file.
 <div class="hacker"><pre>
   postgres: &postgres
   adapter: postgresql
   host: localhost
   port: 5432
-  username: <u><em>postgres database_user</em></u>
+  username: <u><em>postgres</em></u>
   password: <em><u>password</u></em>
   encoding: unicode
   </pre></div>
   </li>
  <li> In the same file, comment the the mysql line and uncomment the postgres line in the <code>common: &common </code> section: 
  
-<div class="hacker"><pre>
-common: &common 
-# Choose one of the following 
-#<<: *mysql 
-<<: *postgres 
-</pre></div>
+      <div class="hacker"><pre>
+	  common: &common 
+	  # Choose one of the following 
+	  #<<: *mysql 
+	  <<: *postgres 
+	  </pre></div>
 </li>
 <li>Save and close the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
    </li>
@@ -172,67 +168,73 @@ common: &common
     <ol>
 <li>Copy the configuration file.
 <div class="hacker">cp config/diaspora.yml.example config/diaspora.yml</div></li>
-<li>Open <code> config/diaspora.yml</code> file.
-<div class="hacker">vim config/diaspora.yml</div></li>
+         <li>Edit <code>the diaspora.yml</code> file by typing:
+   <div class="hacker">vim config/diaspora.yml</div>
+    </li>
    <li>Make following changes in the <code> config/diaspora.yml</code> file:
    <ul>
-   <li>Find the line that starts with 'url: "https://example.org"' and uncomment it.  Change example.org to your server IP address:
-        <div class="hacker"> url: "https://<em><u>Your domain or IP</u></em>"</div></li>
-   <li>Find the line that reads, "certificate_authorities: '/etc/ssl/certs/ca-certificates.crt'.  Uncomment it and replace it with the fully qualifed location of your crt file, e.g. 
-       <div class="hacker"> certificate_authorities: <em><u>/home/Logged_in_user/diaspora/ssl.crt</u></em></div></li>
-   <li>Uncomment line 180 and edit it:
+   <li>Uncomment line 39, and add a proper <strong>https</strong> URL or your public IP.
+    <div class="hacker">   url: "<em><u>your domain name or IP</u></em>"</div>
+   </li>
+   <li>Uncomment line 47, and then choose <code>certificate_authorities</code> for Ubuntu.
+   <div class="hacker">    certificate_authorities: '/etc/nginx/server.crt'</div>
+</li>
+   <li>Uncomment line 177 and edit it:
       <div class="hacker">rails_environment: '<em><u>production</u></em>'</div>
    </li>
    </ul>
    </li>
    <li>Save and close the file by pressing the <strong>Esc</strong> key, typing <code>:wq</code>, and then pressing the <strong>Enter</strong> key.
    </li>
-           </ol>
+         <li>Return to your own account:
+   <div class="hacker">exit</div>
+   </li> 
+  </ol>
   
   <h2>Install and configure Nginx</h2>
 <ol> 
 <li>Install Nginx.
    <div class="hacker">sudo apt-get install nginx</div>
-    <div class="hacker">sudo apt-get install libgmp-dev</div>
-
      <div class="hacker">sudo service nginx start</div>
   </li>
    <li>Create a new configuration file.
    <div class="hacker">sudo vim /etc/nginx/conf.d/diaspora.conf</div>
-   And paste the following in the configuration file. Make sure to provide the necessary changes for the underlined text wherever required.&nbsp; It is assumed your certificates and keys are installed under the /home/logged_in_user/diaspora.&nbsp; If this is not the case, edit appropriately.
+   And paste the following in the configuration file. Make sure to provide the necessary changes for the underlined text wherever required.&nbsp; It is assumed your certificates and keys are installed under the /etc/nginx directory.&nbsp; If this is not the case, edit appropriately.
    <div class="hacker">
 <pre>
-   upstream diaspora_server {
+upstream diaspora_server {
     server 127.0.0.1:3000;
   }
 
 server {
     listen 80;
-    server_name <em><u>your_public_ip</u></em>;
-    return 301 https://<em><u>your_public_ip</u></em>$request_uri;
+    server_name <em><u>coolexample.com</u></em>;
+    return 301 https://192.169.166.151$request_uri;
   }
 
-
-
-   server {
+  server {
     listen 443; # Same rules as for listen [::]:80 apply.
-    server_name <em><u>your_public_ip</u></em>;
-    root <em><u>/home/Logged_in_user/diaspora/public</u></em>;
+    server_name coolexample.com;
+    root <em><u>/home/diaspora/diaspora/public;</u></em>;
     client_max_body_size 5M;
     client_body_buffer_size 256K;
     ssl on;
-    ssl_certificate <em><u>/home/Logged_in_user/diaspora/ssl.crt</u></em>;
-    ssl_certificate_key <em><u>/home/Logged_in_user/diaspora/ssl.key</u></em>;
-    ssl_dhparam <em><u>/home/Logged_in_user/diaspora/dhparam.pem</u></em>;
+    #ssl_session_timeout 5m;
+
+    #ssl_protocols SSLv3 TLSv1;
+    #ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+    #ssl_prefer_server_ciphers on;
+
+    ssl_certificate <em><u>/etc/nginx/server.crt;</u></em>
+    ssl_certificate_key <em><u>/etc/nginx/server.key;</u></em>;
+    ssl_dhparam <em><u>/home/diaspora/diaspora/dhparam.pem</u></em>;
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128:AES256:AES:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK';
+    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-$
     ssl_session_timeout 5m;
     ssl_prefer_server_ciphers on;
     ssl_session_cache shared:SSL:50m;
     try_files $uri @diaspora;
-
-
-location /assets/ {
+    location /assets/ {
       expires max;
       add_header Cache-Control public;
     }
@@ -244,12 +246,13 @@ location /assets/ {
       proxy_redirect off;
       proxy_pass http://diaspora_server;
     }
-
-
-
   }
+
 </pre>
    </div>
+   </li>
+   <li>Check the Nginx configuration.
+   <div class="hacker">sudo nginx –t</div>
    </li>
    <li>Restart the Nginx service.
    <div class="hacker">sudo service nginx restart</div>
@@ -262,31 +265,25 @@ location /assets/ {
 <ul> 
 <li>Type the following command to install the bundler. Bundler is the most common package manager used for Ruby gems.
    <div class="hacker">gem install bundler</div>
-   <div class="hacker">RAILS_ENV=production DB=postgres  bin/bundle install --without test development</div>
+   <div class="hacker">RAILS_ENV=production DB=postgres  bin/bundle install --without test development </div>
   </li>
 </ul>
    
-<h2>Set up the  environment and start Diaspora</h2>
+<h2>Set up the  environment and start Diaspora&nbsp; </h2>
 <ol>   
    <li>Initialize the database.
    <div class="hacker">RAILS_ENV=production DB=postgres  bin/rake db:create db:schema:load</div>
      <div class="hacker">RAILS_ENV=production DB=postgres bin/rake assets:precompile</div>
    </li>
-    
-	<li>Open <code>/etc/nginx/nginx.conf</code> file.
-	<div class="hacker">sudo vim  /etc/nginx/nginx.conf</div>
-	</li>
-	<li>Change the <code>www-data</code> to <em><u>Logged_in_user</u></em> next to the <code>user</code> at the top of the file.</li>
-<li>Restart the Nginx service.
-   <div class="hacker">sudo service nginx restart</div>
-   </li>
-   <li>To run diaspora in the browser, type the following in the command prompt:
+   <li>If you get an error, such as <code>Could not find gem 'mysql2 (= 0.3.18) ruby' in any of the gem sources listed in your Gemfile</code>, then install <code>mysql2</code> gem, and rerun the above command.
+   <div class="hacker">sudo apt-get install libmysqlclient-dev</div>
+   <div class="hacker">gem install mysql2 -v 0.3.18</div>
    <div class="hacker">DB=postgres ./script/server</div>
     
    </li>
 
 </ol>
- <p>This completes the installation of Diaspora, and now you will be able to view the Diaspora page in a browser using <strong>https://your_public_ip</strong>.</p>
+ <p>This completes the installation of Diaspora, and now you will be able to view the Diaspora page in a browser using <strong>https</strong>.</p>
   
     <h2>Conclusion</h2>
     <p>In this article, you learned to install and configure Diaspora on your Debian or Unbuntu server. </p>
