@@ -1,0 +1,39 @@
+17321 - Initial Server Setup - Ubuntu
+17322 - Initial Server Setup - Fedora
+17323 - Initial Server Setup - CentOS
+*17324 - Initial Server Setup - Arch Linux
+17325 - Initial Server Setup - Debian
+17326 - Add Memory Swap - Debian, Ubuntu
+17328 - Add Memory Swap - CentOS, Fedora
+*17329 - Add Memory Swap - Arch Linux
+*17331 - Additional Recommendations for New Servers - Ubuntu
+17332 - Additional Recommendations for New Servers - Fedora
+17333 - Additional Recommendations for New Servers - CentOS 7
+*17334 - Additional Recommendations for New Servers - Arch Linux
+19197 - Additional Recommendations for New Servers - CentOS 6
+17341 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu
+17342 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6, Fedora
+17344 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7
+17345 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux
+17346 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Debian
+(start here tomorrow for dependency check)
+17347 - Built a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu
+17348 - Built a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 21
+17349 - Built a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 7
+17350 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Arch Linux
+17351 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Debian
+19186 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - CentOS 6
+19187 - Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 20
+17336 - Configure Apache Virtual Hosts - Ubuntu
+17337 - Configure Apache Virtual Hosts - CentOS 6
+17338 - Configure Apache Virtual Hosts - CentOS 7, Fedora
+17339 - Configure Apache Virtual Hosts - Arch Linux
+17340 - Configure Apache Virtual Hosts - Debian
+*19228 - Use SSH Keys with PuTTY - ALL DISTROS
+17400 - Set up a Firewall using IPtables - ALL DISTROS
+19189 - Install a UFW firewall - Debian, Ubuntu
+19194 - Install a UFW firewall - Arch Linux
+17849 - Set up UFW firewall - Debian, Ubuntu
+*17851 - Set up UFW firewall - Arch Linux
+19190 - Use UFW firewall with IPv6 - Debian, Ubuntu
+*19198 - Use UFW firewall with IPv6 - Arch Linux

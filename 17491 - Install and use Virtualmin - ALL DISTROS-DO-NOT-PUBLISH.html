@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+<head>
+
+<!--Article Number is 17491  -->
+
+
+<title>Install and use Virtualmin - ALL DISTROS</title>
+<style type='text/css'>
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+
+</head>
+
+<body>
+    <h1>Install and use Virtualmin - ALL DISTROS</h1>
+    
+    <p><strong>Difficulty</strong>: <em><u>Value from spreadsheet</u></em><br/>
+        <strong>Time</strong>: <em><u>Time value</u></em></p>
+
+    <p>Webmin is a GUI tool that helps you manage the software packages installed on your server.  
+        Virtualmin is an extension of Webmin that extends its functionality to manage Virtual Private Servers (VPS).&nbsp; You should already have Webmin installed if not, use one of the links below depending on your distribution of linux:</p>
+   <ul>
+     <li><a href="http://17490%20-%20Install%20and%20use%20Webmin%20-%20Arch%20Linux.html">Arch Linux</a></li>
+    <li><a href="http://17489%20-%20Install%20and%20use%20Webmin%20-%20CentOS,%20Fedora.html">Centos, Fedora</a></li>
+    <li><a href="http://17488%20-%20Install%20and%20use%20Webmin%20-%20Ubuntu,%20Debian.html">Debian, Ubuntu</a></li>
+</ul>
+
+    <h2>Install Virtualmin</h2>
+     <ol>
+               <li>Download the Virtualmin software.
+                 <div class="hacker"> sudo wget http://software.virtualmin.com/gpl/scripts/install.sh -O /root/virtualmin-install.sh</div>
+               Your screen will display something like this:
+                   <div class="hacker">2015-09-03 13:32:53 (710 KB/s) - ‘/root/virtualmin-install.sh’ saved [47633/47633]</div>
+               </li>
+               <li>Install Virtualmin.
+                   <div class="hacker">sudo sh /root/virtualmin-install.sh</div>
+               </li>
+               <li>You may have logged into your server using an IP address rather than a fully qualified domain name (FQDN).  
+                   The script may prompt you for your FQDN.  If this is the case, provide it.
+                </li>
+               <li>Log in to your server using your FQDN.&nbsp; Do not use your IP address.&nbsp; https://<em><u>coolexample.com</u></em>:10000</li>
+               <li>If prompted, provide your Webmin credentials to login. </li>
+    </ol>
+<h2>Review the Virtualmin and Webmin UI</h2>    
+<ul><li>On the left hand side of the page, there is a menu. Click on the name to toggle the UI between Virtualmin and Webmin.</li> </ul> 
+<p>You will notice some differences from the standard Webmin interface, because the two tools offer slightly different functionality. Webmin manages your physical server, while Virtualmin manages the individual VPS that you have installed on your physical server.</p>   
+    <h2>Next steps</h2>
+  <p>Use the post-installation wizard to familiarize yourself with Virtualmin, and use it to help you build out VPS and the software running on them.</p>         
+</body>
+</html>
