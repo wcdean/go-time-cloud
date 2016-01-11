@@ -3,10 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 
 <head>
-
-<!--Article Number is 17584 -->
-
-
 <title>Install and configure Joomla on your LAMP server - Ubuntu</title>
 <style type="text/css">
 div.hacker {
@@ -38,10 +34,7 @@ p.note {
  padding-bottom:15px;
 }
 </style>
-
-
 </head>
-
 <body>
  <p>Installation of Joomla on your web server.</p>
   
@@ -52,108 +45,112 @@ p.note {
         <strong>Time</strong>: <em><u>10 minutes</u></em>
     </p>
 
-    <p>Joomla is an open source content management system that helps you build websites and online applications. Joomla is built in PHP and makes use of a database system like MySQL. </p>
-
+    <p>Joomla is an open source content management system (CMS) that helps you build websites and online applications. Joomla is a flexible platform boasting more than 10,000 addons, used for sites of all types - ranging from simple blogs to large-scale business sites. Currently the 2nd most popular CMS in the industry, Joomla sits on top of a robust PHP codebase that is used with a backend database such as MySQL.</p>
     This article walks you through the installation of Joomla on your Ubuntu server. 
-    <h2>Prerequisite</h2>
-    Before getting started, you need to have LAMP (Linux, Apache, MySQL, PHP) set up on your server. For instructions, see <a href="http://git.dean.xyz17341 - Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu"> installing LAMP stack.</a>
+<h2>Prerequisites</h2>
+    <p>Before getting started, you want to make sure you have a few things ready to go on your server.</p>
+    <ul>
+        <li>A running LAMP stack (Linux, Apache, MySQL, PHP.) For instructions, see <a href="/article/17341?prog_id=PROG_ID" target="_blank">Build a LAMP stack - Ubuntu</a>.</li>
+        <li>(Optional) A domain name that points to your server IP address. This guide will simply use the Server IP address, but if you wish to use a domain, you should first <a href="/article/17336?prog_id=PROG_ID" target="_blank">set up an Apache Virtual Host</a> for your domain.</li>
+    </ul>  
    
-    <h2>Download Joomla</h2>
+<h2>Server Setup</h2>
+    <h3>Install Git and PHP extensions</h3>
     <ol>
-        <li>
-            Download the latest version of Joomla.
-            <div class="hacker">sudo wget https://github.com/joomla/joomla-cms/archive/master.zip</div>
+        <li>Use <code>apt-get</code>to update your current packages, and install a few we will need for installing and using Joomla.
+            <div class="hacker">sudo apt-get update<br \>
+            sudo apt-get install git php5-mysql</div>
         </li>
-        <li>
-            Install <code>unzip</code> and unzip the downloaded package, moving it to the default Apache directory.
-            <div class="hacker">sudo apt-get install unzip</div>
-            <div class="hacker">unzip -q master.zip</div>
-        </li>  
-        <li>
-            Move the downloaded package to the default Apache directory.
-            <div class="hacker">sudo mv joomla-cms-master/* /var/www/html</div>
+        <li>Make sure Apache and MySQL are running if you have not yet done so:
+            <div class="hacker">sudo service apache2 start<br \>
+                sudo service mysql start</div>
         </li>
-        <li>
-            Remove the master file.
-            <div class="hacker">rm -rf master.zip</div>
-        </li>      
-       
-
     </ol>
-
-    <h2>Grant permissions</h2>
-    Change ownership of the directory.
-    <div class="hacker" >sudo chown -R www-data:www-data /var/www/html </div>
-    
-
-    <h2>Create Joomla DB and User</h2>
+    <h3>Download Joomla to your web root</h3>
+    <ol>
+        <li>Navigate to your Apache web root.
+            <div class="hacker">cd /var/www/html</div>
+            <p class="note">This guide uses the default Apache DocumentRoot for Ubuntu. If you already <a href="/article/17336?prog_id=PROG_ID" target="_blank">set up an Apache virtual host</a> for your domain, you should use that document root instead of <code>/var/www/html</code>.</p>
+        </li>
+        <li>
+            Use <code>git</code> to download Joomla. This command will automatically download to the <code>joomla-cms</code> directory.
+            <div class="hacker">sudo git clone -b master https://github.com/joomla/joomla-cms.git</div>
+        </li>
+        <li>Use <code>mv</code> to move these files to your web root.
+            <div class="hacker">sudo mv joomla-cms/* /var/www/html/</div></li>
+    <li>Change directory permissions of your Apache web root so that it can properly run the install.
+        <div class="hacker">sudo chown -R www-data:www-data /var/www/html</div>
+    </li>
+    </ol>
+    <h3>Set up the MySQL database</h3>
+    <p>Next, we will set up the MySQL database, username, and password that you will use with your Joomla application. Make note of these credentials, as you will need them later.</p>
     <ol>
         <li>
             Login to MySQL. 
             <div class="hacker">sudo mysql -u root -p</div>
-            When prompted, enter the MySQL root password that you set during the MySQL installation. 
+            When prompted, enter the MySQL root password that you set during the <a href="/article/17341?prog_id=PROG_ID" target="_blank">MySQL installation</a>.
         </li>
         <li>
-            Create a database with any name.
-            <div class="hacker">CREATE DATABASE <em><u>testdb</u></em>;</div>
+            Create a new MySQL database.
+            <div class="hacker">CREATE DATABASE <em><u>joomla</u></em>;</div>
           
         </li>
         <li>
-            Create a user. 
+            Create a new MySQL user. 
             <div class="hacker">CREATE USER <em><u>joomlauser</u></em>@localhost;</div>
         </li>
-        <li>Set the password for the newly created user. 
-            <div class="hacker">SET PASSWORD FOR <em><u>joomlauser</u></em>@localhost= PASSWORD(<em><u>"testdbpwd"</u></em>);</div>
+        <li>Set the password for this user. Make sure to use a safe password.
+            <div class="hacker">SET PASSWORD FOR <em><u>joomlauser</u></em>@localhost= PASSWORD(<em><u>"joomladbpassword"</u></em>);</div>
         </li>
-        <li>Grant privileges to the newly created user.
-        <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>testdb</u></em>.* TO <em><u>joomlauser</u></em>@localhost IDENTIFIED BY '<em><u>testdbpwd</u></em>';</div>
+        <li>Grant all privileges to this new user.
+        <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>joomla</u></em>.* TO <em><u>joomlauser</u></em>@localhost IDENTIFIED BY '<em><u>joomladbpassword</u></em>';</div>
         </li>
+        <li>Confirm that the changes to this user are properly applied.
+            <div class="hacker">SHOW GRANTS FOR <em><u>joomlauser</u></em>@localhost;</div>
+            If the changes worked, you should see output that looks something like this:
+            <div class="hacker">
+GRANT USAGE ON *.* TO 'joomlauser'@'localhost' IDENTIFIED BY PASSWORD '*36F5DACB9CB45B4C150F4DCDCAF9A50D5A1C2D07'<br \>
+GRANT ALL PRIVILEGES ON `joomla`.* TO 'joomlauser'@'localhost'</div></li>
+
         <li>
-            Refresh MySQL.
+            If the changes did not apply properly, refresh the MySQL cache and try again.
             <div class="hacker">FLUSH PRIVILEGES;</div>
         </li>
         <li>
-            Exit the MySQL shell.
+            Once you confirm that the changes worked, exit MySQL.
             <div class="hacker">exit</div>
-        </li>
-        
+        </li>   
     </ol>
-   
-    <h2>Configure Apache Install Joomla</h2>
+    <h3>Configure Apache and PHP</h3>
+    <p>Now that we have the database set up, the last thing we need to do before installing Joomla is tweak the Apache and PHP configuration to optimize it for Joomla.</p>
     <ol>
-        <li>
-            In your browser, navigate to <strong>http://<em><u>your server address or domain name</u></em></strong> or <strong>http://<em><u>your server address or domain name</u></em>/installation </strong>. You will see the Joomla installation page. 
+        <li>Open your <code>php.ini</code>file in a text editor.
+            <div class="hacker">sudo vim /etc/php5/apache2/php.ini</div>
         </li>
-        <li>Enter <strong>Configuration information</strong> for your website, such as the name of the site, email and password for the administrator. </li>
-        <li>Click <strong>Next</strong> to enter <strong>Database configuration</strong> details. Enter the new user credentials (<em><u>joomlauser</u></em>, <em><u>testdbpwd</u></em>) that you created for the <em><u>testdb</u></em> database.</li>
-        <li> Click <strong>Next</strong>.We will not be entering any information in the <strong>FTP Configuration</strong> page as we will not be using FTP right now, so simply click <strong>Next</strong>.</li>
-        <li>Install <strong>Sample Data</strong> of any choice or you can choose <strong>None</strong>.</li>
-        <li>
-            To complete the installation you will be asked to remove the installation folder. You can delete the installation directory manually from your console.
-            <div class="hacker">sudo rm -rf /var/www/html/installation/</div>
-        </li>
-        <li>In your browser, navigate to <strong>http://<em><u>your server address or domain name</u></em>/index.php</strong>. The new Joomla page displays. </li>
-    </ol>
-    <h3>Configure Apache</h3>
-    <ol>
-        <li>
-            You can configure the document root for Apache to use index.php, so that when you browse to your IP address or domain you are directed to the Joomla installation page.
-            <div class="hacker">sudo vim /etc/apache2/mods-enabled/dir.conf</div>
-            Move the <code>index.php </code> to the first position after Directory Index, so it looks something like
-            <div class="hacker"> DirectoryIndex index.php  index.html index.cgi index.pl index.xhtml index.htm</div>
-        </li>
-        <li>
-            Point your IP address to the domain name so that you can see your Joomla site when you go to <strong>http</strong>
-        </li>
-        <li>
-            Restart Apache.
+        <li>Uncomment the following line by removing the <code>;</code> from the beginning of the line.
+            <div class="hacker">cgi.fix_pathinfo=1</li>
+        <li>Change the <code>output_buffering</code> value from <code>4096</code> to <code>Off</code>. Joomla recommends disabling PHP output buffering for better performance.
+            <div class="hacker">output_buffering = Off
+        <li>Save and close the file.</li>
+        <li>Restart Apache.
             <div class="hacker">sudo service apache2 restart</div>
         </li>
-        <li>In your browser, navigate to <strong>http://<em><u>yourdomainname</u></em></strong> and you will see your Joomla site.</li>
     </ol>
+<h2>Install Joomla</h2>
+    <p>You are now ready to use your browser to install Joomla.</p>
+    <ol>
+        <li>
+            In your browser, navigate to <strong>http://<em><u>your server address or domain name</u></em></strong>. You will see the Joomla installation page.
+        </li>
+        <li>Enter the <strong>Main Configuration</strong> information for your website. This will include the administrator login credentials you want to use for running Joomla. Once all this information has been entered, click <strong>Next</strong></li>
+        <li>Enter the <strong>Database configuration</strong> details. These are the MySQL credentials you created earlier in the guide. For the <strong>Database Type</strong>, use <strong>MySQLi</strong>. Once all infromation has been entered, click <strong>Next</strong>.</li>
+        <li>Choose a <strong>Sample Data</strong> option. If you are an experienced developer, you may simply wish to use the bare framework. If you are learning to use the Joomla platform, you will probably want to use either the <strong>Learn Joomla English</strong> or <strong>Default English</strong> options.</li>
+        <li>Once you have selected and confirmed all other final options, click <strong>Install</strong></li>
+        <li>Joomla will finish isntalling; it usually only takes a matter of seconds. Once this is finished, click <strong>Remove Installation Folder</strong>. This must be done before you will be able to use Joomla.</li>
+    </ol>
+    <p>Joomla is now finished installing! You can log in to your administrator page by navigating to <strong>http://<em><u>your server address or domain name</u></em>/administrator</strong>, and using the admin credentials you created during the install.</p>
 
     <h2>Next steps</h2>
-   Now that you have set up a Joomla site, you can <a href="http://git.dean.xyz17609 - Install Joomla Console to manage your Joomla site by command line - Ubuntu, Debian.html">install Joomla Console to manage your Joomla site by command line.</a>
-
+   Now that you have finished setting up your Joomla application, you should take a look at some of the <a href="https://docs.joomla.org/Portal:Beginners">starter guides at Joomla.org</a>. Joomla boasts and extensive community site and knowledge base to help you find the answers you need for both site development and ongoing administration.
 </body>
 </html>
