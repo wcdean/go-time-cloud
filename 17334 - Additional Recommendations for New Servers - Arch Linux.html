@@ -52,14 +52,14 @@ This article guides you through setting up a firewall and synchronizing Network 
 
 If you haven't already set up your server, see <a href="http://git.dean.xyz/17324 - Initial Server Setup - Arch Linux.html">Initial Server Setup - Arch Linux</a> for instructions, including setting up user accounts. Make sure to set up a user account with <code>sudo</code> privileges.                       
     <br />
-Also, if you haven't already, install Uncomplicated Firewall (UFW), the frontend for iptables, by following the instructions in <a href="http://git.dean.xyz/19194%20-%20Install%20a%20UFW%20firewall%20-%20Arch%20Linux.html">Install a UFW Firewall - Arch Linux</a>.
- <br />
 
  <h2>Set up a basic firewall</h2>
 
 
 <p>Set up your firewall to protect your server from any traffic you haven't approved. </p>
- 
+<h3>Install UFW</h3>
+<p>Use the <code>pacman</code> package manager to install the UFW firewall.</p>
+<div class="hacker"> sudo pacman -Syu ufw</div>
 <h3>Create firewall rules</h3>
 
 <p>Define exceptions to your firewall policy so that you can activate your firewall.</p>

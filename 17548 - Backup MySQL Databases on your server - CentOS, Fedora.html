@@ -49,22 +49,21 @@ p.note {
 
     <p>MySQL is one of the most popular database engines for storing data in a database. MySQL uses SQL, Structured Query Language, to retrieve and manipulate data. It can be used to manage data from websites or applications.</p>
 
-    <p>Backing up is useful for restoring data after system crashes. In this article, you'll learn ways to back up MySQL databases on your  CentOS or Fedora server. Before you begin, you need to install MySQL on the server. To learn more about MySQL installation, visit one of the following:    </p>
+    <p>Backing up is useful for restoring data after system crashes. In this article, you'll learn ways to back up MySQL databases on your CentOS or Fedora server. Before you begin, you need to install MySQL on the server. To learn more about MySQL installation, visit one of the following:</p>
     <ul>
-      <li> <a href="17343">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6</a></li>
-      <li><a href="17344">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7</a></li>
-      <li><a href="17342">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Fedora</a></li>
+      <li><a href="/article/17342?prog_id=PROG_ID" target="_blank">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 6 and Fedora</a></li>
+      <li><a href="/article/17344?prog_id=PROG_ID" target="_blank">Build a LAMP stack (Linux, Apache, MySQL, PHP) - CentOS 7</a></li>
     </ul>
 <p>You can choose any version of MySQL, as operational commands remain the same in all versions.</p>
 
    <h2>Back up the database</h2>
-   Assuming that the database already exists.
+<p>Assuming that the database already exists:</p>
 <ul> 
-<li>Export the database using the <code>mysqldump</code>  command. 
-   <div class="hacker">mysqldump -u <em><u>mysql_username</u></em> -p<em><u>mysql_user_password</u></em> <em><u>database_name</u></em> > <em><u>back_database_date</u></em>.sql</div>
-   <p class="note">Default user for <code>MySQL</code> is <code><strong>root</strong></code>.</p>
-  </li>
-</ul>
+<li>Export the database using the <code>mysqldump</code> command. 
+   <div class="hacker">mysqldump -u <em><u>mysql_username</u></em> -p <em><u>database_name</u></em> > <em><u>back_database_date</u></em>.sql</div></li>
+<li>You will be prompted to enter the password for your MySQL user. Enter it now.</li></ul>
+<p>This will create a .sql file in your current working directory, named <em><u>back_database_date.sql</u></em>. You can restore this .sql backup to another MySQL database on this server, or any other server.</p>
+
    
    
    <h2>Restore the database</h2>
