@@ -54,7 +54,7 @@ p.note {
         <li>RAM provides data to the processor quickly, which makes it very valuable.</li>
         <li>Once your RAM is full it needs to either delete or move the data elsewhere.</li>
         <li>Deleting the data from RAM it must be found and retrieved from the hard drive (which is slow) the next time the data is requested.</li>
-        <li>By moving the data to a swap space on the hard drive, it’s much faster to find the data the next time it’s requested.</li>
+        <li>By moving the data to a swap space instead of simply deleting it from RAM, it’s much faster to find the data the next time it’s requested.</li>
         <li>Moving data from RAM to the swap space consumes the processor’s resources, so doing it continually will actually degrade your application’s performance.</li>				
     </ul>
     
@@ -149,8 +149,10 @@ You can gain more file space with the <code>fallocate</code> command - used to m
 <p>Now that your swap file's been created, tell the system to format your file as swap, and then enable it.</p>
 
 <ol>
-	<li>Change the permission of the swap file so that only the root user can access it. By default, swap files are readable by the world when first created, so locking the permissions will prevent users from reading potentially sensitive information.
-		<div class="hacker">sudo chmod 600 /swapfile </div></li>
+  <li>Lock the swap file's permissions so that only the root user can access it:
+    <div class="hacker">sudo chmod 600 /swapfile </div>
+
+  When first created, swap files are readable by the world, so locking permissions prevents users from reading potentially sensitive information.</li>
 	<li>Verify that the file has the correct permissions.
 		<div class="hacker">ls -lh /swapfile  </div>
 	Look for your output, which will resemble:
@@ -217,6 +219,8 @@ You can gain more file space with the <code>fallocate</code> command - used to m
       <div class="hacker">:wq!</div></li>
 </ol>
 
+<p>To tune your application, you can test changes to your swappiness value (between 0 and 100) and running performance tests.</p>
+
 <h3>Cache pressure</h3>
 <p>Another setting is the <code>vfs_cache_pressure</code>. Changing this setting could help when the VFS (virtual file system) cache objects (called dentry and inode_cache objects) consume a larger amount of memory versus other data like page cache and swap. Because VFS cache accesses data about the file system, it's frequently requested and very resource-intensive. Thus, it's a prime setting for your system to cache.</p>
 
@@ -233,25 +237,27 @@ You can gain more file space with the <code>fallocate</code> command - used to m
       <li>Save and close the file:
         <div class="hacker">:wq!</div></li>
     </ol>
-  
+
+<p>Like swappiness, you can work on increasing performance by testing different values here.</p>
+
 <h2>Verify swap space was enabled</h2>
 
 <p>Check your work with any of these three commands:</p>
-		<ul>
-			<li>For a general report:
-				<div class="hacker">sudo swapon -s</div>
-			Output may look like this:
-			<div class="hacker"><pre>Filename                Type        Size    Used    Priority 
+<ul>
+	<li>For a general report:
+		<div class="hacker">sudo swapon -s</div>
+	Output may look like this:
+		<div class="hacker"><pre>Filename                Type        Size    Used    Priority 
 /swapfile               file        4194300 0       -1</pre></div>
 			
-			You'll see that a swap file of 4 G.0 was added.</li>
+	You'll see that a swap file of 4 G.0 was added.</li>
 
-			<li>For a more detailed report:
-				<div class="hacker">free -m</div></li>
+	<li>For a more detailed report:
+		<div class="hacker">free -m</div></li>
 
-			<li>For a report on just swap details:
-				<div class="hacker">cat /proc/meminfo | grep -i swap</div></li>
-		</ul>
+	<li>For a report on just swap details:
+		<div class="hacker">cat /proc/meminfo | grep -i swap</div></li>
+</ul>
 
 <h2>Conclusion</h2>
 <p>Swapping enables you to increase the amount of information that your server can keep in its working memory. Even though reading from and writing to swap is slower than using actual memory, swap can be a good safety net for the times your server is low on memory.</p>

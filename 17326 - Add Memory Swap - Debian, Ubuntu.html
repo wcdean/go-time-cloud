@@ -66,7 +66,7 @@ td:nth-child(1) {font-weight:bold;}
         <li>RAM provides data to the processor quickly, which makes it very valuable.</li>
         <li>Once your RAM is full it needs to either delete or move the data elsewhere.</li>
         <li>Deleting the data from RAM it must be found and retrieved from the hard drive (which is slow) the next time the data is requested.</li>
-        <li>By moving the data to a swap space on the hard drive, it’s much faster to find the data the next time it’s requested.</li>
+        <li>By moving the data to a swap space instead of simply deleting it from RAM, it’s much faster to find the data the next time it’s requested.</li>
         <li>Moving data from RAM to the swap space consumes the processor’s resources, so doing it continually will actually degrade your application’s performance.</li>       
     </ul>
     
@@ -171,7 +171,7 @@ none            100M     0  100M   0% /run/user
   <li>Lock the swap file's permissions so that only the root user can access it:
     <div class="hacker">sudo chmod 600 /swapfile </div>
 
-  By default, swap files are readable by the world when first created, so locking permissions prevents users from reading potentially sensitive information</li>
+  When first created, swap files are readable by the world, so locking permissions prevents users from reading potentially sensitive information.</li>
 
   <li>Verify that the file has the correct permissions: 
     <div class="hacker">ls -lh /swapfile  </div>
@@ -250,6 +250,7 @@ swapfile               file        4194300 0       -1</div>
       <div class="hacker">:wq!</div></li>
   </ol>
 
+<p>To tune your application, you can test changes to your swappiness value (between 0 and 100) and running performance tests.</p>
 
 <h3>Cache pressure</h3>
 <p>Another setting is the <code>vfs_cache_pressure</code>. Changing this setting could help when the VFS (virtual file system) cache objects (called dentry and inode_cache objects) consume a larger amount of memory versus other data like page cache and swap. Because VFS cache accesses data about the file system, it's frequently requested and very resource-intensive. Thus, it's a prime setting for your system to cache.</p>
@@ -268,6 +269,7 @@ swapfile               file        4194300 0       -1</div>
         <div class="hacker">:wq!</div></li>
     </ol>
 
+<p>Like swappiness, you can work on increasing performance by testing different values here.</p>
 
 <h2>Verify that swap space was enabled</h2>
 <p>Check your work with any of these three commands:</p>
