@@ -51,109 +51,89 @@ p.note {
     <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
         <strong>Time</strong>: <em><u>10 minutes</u></em></p>
 
-   <p> After installing Fedora, you can configure some additional components. These recommended steps increase security and make your operating system work better.  </p><p>
-  
-This article guides you through setting up a firewall and synchronizing Network Time Protocol.</p><p>
+<p>After you’ve <a href="/article/17322?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to make sure your server’s secure and works like you’d expect.</p>
 
-If you haven't already set up your server, see <a href="/article/17321?prog_id=PROG_ID" target="_blank">Initial Server Setup - Fedora</a> for instructions, including setting up user accounts. 
-Make sure to set up a user account with <code>sudo</code> privileges.</p>
+<p>These steps are optional, but they’re the kind of things that seasoned admins make sure are taken care of.</p>
+
 <h2>Set up a basic firewall</h2>
+<p>Creating a firewall protects your server from malicious traffic that can lead to security issues or degraded performance due to floods of traffic, such as DDoS attacks.</p>
+
 <p>Fedora includes a firewall tool called <code>firewalld</code>, a dynamically managed Linux firewall. 
 You'll use <code>firewall-cmd</code>  to configure your firewall policies. The <code>firewall-cmd</code> command can make modifications without losing any of your current connections.</p> 
 
 <h3>Turn on the firewall</h3>
+  <ol>
+    <li>Check the status of your firewall to see if it's running.
+      <div class="hacker">systemctl status firewalld</div></li>
 
-<ol>
-<li>Check the status of your firewall to see if it's running.
-  <div class="hacker">systemctl status firewalld</div> 
-  Or, obtain an abbreviated status report.
-  <div class="hacker">firewall-cmd --state</div>
-</li>
-<li>If the status is inactive, turn on your firewall.
-  <div class="hacker">sudo systemctl start firewalld</div> 
-</li>
-<li>
-(Fedora 20 only) If you receive the error <span class="hacker"><code>&quot;Failed to issue method call: Unit firewalld.service is masked</code>,&quot; then unmask </span> the firewall.<br/>
-<div class="hacker">sudo systemctl unmask firewalld</div>
-Turn on your firewall again. 
-<div class="hacker">sudo systemctl start firewalld</div> 
-</li> </ol>
+    <li>If the status is inactive, turn on your firewall.
+      <div class="hacker">sudo systemctl start firewalld</div><br/><br/>
+      <em>Fedora 20 only</em>: If you receive the error <code>&quot;Failed to issue method call: Unit firewalld.service is masked&quot;</code>, then unmask the firewall.
+
+      <div class="hacker">sudo systemctl unmask firewalld</div>
+
+      Turn on your firewall again.
+
+      <div class="hacker">sudo systemctl start firewalld</div></li>
+</ol>
 
                                                          
 <h3>Create firewall rules</h3>
 
-<p>Define exceptions to your firewall policy so that you can activate your firewall.</p>
+<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
 
-<ol><li>Create an exception for secure shell (SSH) connections to get remote administration access:<ul>
+<ol>
+  <li>Create an exception for secure shell (SSH) connections to get remote administration access:
+    <ul>
+      <li>If you have not modified the SSH port, enable the exception.
+        <div class="hacker">sudo firewall-cmd --permanent --add-service=ssh</div></li>
+      <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol. Make sure that you've first restarted your SSH server to use the new port.
+        <div class="hacker">sudo firewall-cmd --permanent --remove-service=ssh</div>
+        <div class="hacker">sudo firewall-cmd --permanent --add-port=<em><u>your SSH port</u></em>/tcp</div>
+      This firewall is the strictest configuration, so every incoming connection is denied except for the port just enabled. All other services will be inaccessible. To run an additional service, make sure to open the firewall for that portion. </li>
+    </ul></li>
 
-<li>If you have not modified the SSH port, enable the exception.<br />
-<div class="hacker">sudo firewall-cmd --permanent --add-service=ssh</div>
- </li>
- <li>
-If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol. Make sure that you've first restarted your SSH server to use the new port.
+  <li>Use the following commands to open your firewall based on what you need:
 
-<div class="hacker">
-sudo firewall-cmd --permanent --remove-service=ssh  </div>
-<div class="hacker">sudo firewall-cmd --permanent --add-port=4444/tcp        
-</div>
+    <ul>
+      <li>To run a standard HTTP web server, allow incoming HTTP traffic.
+        <div class="hacker">sudo firewall-cmd --permanent --add-service=http</div></li>
+      <li>To run an SSL/TLS-enabled web server, allow for HTTPS traffic.
+        <div class="hacker">sudo firewall-cmd --permanent --add-service=https</div></li>
+      <li>To enable outgoing email (SMTP), enable the SMTP service.
+        <div class="hacker">sudo firewall-cmd --permanent --add-service=smtp</div></li>
+      <li>Optionally, view any additional services that you can enable by name.
+        <div class="hacker">sudo firewall-cmd --get-services  </div>
+      If you want to add any of these services, you can use this command:
+        <div class="hacker">sudo firewall-cmd --permanent --add-service=<em><u>serviceName</u></em></div></li>
+    </ul></li>
 
-This firewall is the strictest configuration, so every incoming connection is denied except for the port just enabled. All other services will be inaccessible. To run an additional service, make sure to open the firewall for that portion. </li> </ul></li>
-
-<li>Open the firewall as needed. 
-  The following commands add some common services and open their respective ports: 
-<ul>
-
-<li>To run a standard HTTP web server, allow incoming HTTP traffic.
-
-  <div class="hacker">sudo firewall-cmd --permanent --add-service=http</div></li>
-
-<li>To run an SSL/TLS-enabled web server, allow for HTTPS traffic.
-  
-  <div class="hacker">sudo firewall-cmd --permanent --add-service=https</div></li> 
-
-<li>To enable your SMTP email connection, enable the SMTP service.
-  
-  <div class="hacker">sudo firewall-cmd --permanent --add-service=smtp</div></li>
-
-<li>Optionally, view any additional services that you can enable by name.
-
-  <div class="hacker">sudo firewall-cmd --get-services  </div>If you want to add any of these services, you can use this command:
-
-  <div class="hacker">sudo firewall-cmd --permanent --add-service=<em><u>serviceName</u></em></div></li></ul></li>
-
-<li>To review your exceptions, run the <code>list-all</code> command.
- 
-  <div class="hacker"> sudo firewall-cmd --permanent --list-all </div>  </li>
+  <li>To review your exceptions, run the <code>list-all</code> command.
+    <div class="hacker"> sudo firewall-cmd --permanent --list-all </div></li>
 </ol>
 
 
-  <h3>Reload and enable the firewall</h3>
-<p>You're now ready to activate the changes.  </p>
+<h3>Reload and enable the firewall</h3>
+
+<p>You're now ready to activate the changes.</p>
 <ol>
   <li>Reload the firewall.
-    <div class="hacker"> sudo firewall-cmd --reload      </div></li>
-              
-<li>Enable the firewall.<br />
+    <div class="hacker">sudo firewall-cmd --reload</div></li>
+  <li>Enable the firewall.
+    <div class="hacker">sudo systemctl enable firewalld</div></li>
+</ol>
 
-   <div class="hacker">sudo systemctl enable firewalld</div>
-   
-  The firewall starts automatically at startup.  </li> </ol>
-  
-  <p>
-If you configure additional services later, make sure to open those respective ports.  </p>
+<p>The firewall will now automatically starts during startup.</p>
 
-<!--CT: Replace with firewalld article once I have that ID (START)...
-<p>For more in-depth firewall instructions, see <li><a href="http://git.dean.xyz/17400 - Set Up a Firewall Using iptables.html">Set Up a Firewall Using iptables</a></li>. <code>iptables</code> is the full suite of commands used to manage <code>netfilter</code>, the Linux packet-filtering framework. Since <code>iptables</code> is considered complicated to use, the <code>ufw</code> program helps by simplifying <code>iptables</code> commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>
+<p>If you configure additional services later, make sure to open those respective ports.</p>
+
+<!--<p>For more in-depth firewall instructions, see <li><a href="http://git.dean.xyz/17400 - Set Up a Firewall Using iptables.html">Set Up a Firewall Using iptables</a></li>. <code>iptables</code> is the full suite of commands used to manage <code>netfilter</code>, the Linux packet-filtering framework. Since <code>iptables</code> is considered complicated to use, the <code>ufw</code> program helps by simplifying <code>iptables</code> commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>
 ...(END)-->
 
 <h2>Synchronize Network Time Protocol</h2> 
+<p>When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This can cause undesirable effects such as incorrect timestamps on emails or logs.</p>
 
-<p>
-Localize your server by configuring the Network Time Protocol (NTP) synchronization.
-</p><p>
-When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This jumping can result in undesirable effects such as email replies appearing to arrive before the original message is sent.</p><p>
-
-To resolve this issue, set your correct time zone, and then synchronize the system clock to the standard time maintained by a global network of NTP servers.  </p>
+<p>Fortunately, you can solve this problem simply by using Network Time Protocol (NTP) synchronization.</p>
 
 <h3>Configure Time Zones</h3>
 
@@ -183,28 +163,23 @@ Your system updates to your selected timezone.</li>
 <p>Next, configure your Network Time Protocol (NTP). NTP is an Internet protocol that synchronizes time of computer clocks across the Internet and helps to determine when events happened between systems. NTP works by a client requesting the current time from an NTP server and then using the server's response to set its own clock. Afterward, your computer is accurately synced with networked time servers.</p>
 
 <ol>
-  <li>
-Install the NTP daemon.
-  <div class="hacker">sudo yum install ntp</div> </li><li>
+  <li>Install the NTP daemon.
+    <div class="hacker">sudo yum install ntp</div> </li>
+  <li>Enter <strong>y</strong> at the prompt to continue.</li>
+  <li>Enable NTP.
+    <div class="hacker">sudo systemctl start ntpd</div>
+    <div class="hacker">sudo systemctl enable ntpd</div></li>
+</ol>
 
-Enter <strong>y</strong> at the prompt to continue.  </li>
+<p>NTP synchronization is now active on your server. This means that your system will adjust the time throughout the day to match up with global NTP servers.</p>
 
-<li>Enable NTP.
-
-  <div class="hacker">
-sudo systemctl start ntpd </div>
-
-<div class="hacker">sudo systemctl enable ntpd    </div>
-
-NTP synchronization is now active on your server. This means that your system will adjust the time throughout the day to match up with global NTP servers.</li></ol>
- 
 <h2>Next steps</h2>
  
 <p>Your setup is complete! Remember that you can always add on to your configuration as you add more services. </p> 
 
 <p>If you like this configuration, you can <a href="/article/19042?prog_id=PROG_ID">take a server snapshot</a> to use as a guide for setting up future installations. </p>
   
-<p>Also, consider <a href="http://git.dean.xyz/17328 - Add Memory Swap - CentOS, Fedora.html">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system. </p>
+<p>Also, consider <a href="/article/17328?prog_id=PROG_ID">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system. </p>
 
 </body>
 </html>

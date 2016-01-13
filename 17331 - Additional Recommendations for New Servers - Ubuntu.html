@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+
+  <head>
+  <title>Additional recommendations for new servers - Ubuntu</title>
+<style type="text/css">
+div.hacker {
+background-color:#666;
+border:1px solid #ccc;
+color:#fff;
+font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; }
+
+p.note {
+ background-color:#ffffe6;
+ border:1px solid #eee;
+ color:#666;
+ padding:.8em 1.6em;
+ margin:15px 0;
+}
+
+.warning {
+ border: 1px #d25100 solid;
+ padding: .5em 1em .5em 4em;
+ margin: 10px 20px 15px 20px;
+ background-image: url('@{help-img-path}/img_warning.gif');
+ background-repeat: no-repeat;
+ background-position: left top;
+ background-color: #ededed;-moz-border-radius:
+0.8em;-webkit-border-radius: 0.8em;
+ /* -moz-border-bottom-radius: 0;9 */
+ -webkit-border-bottom-radius: 0;
+ padding-top:14px;
+ padding-bottom:15px;
+}
+</style>
+
+</head>
+<body>
+<p>Getting started with adding security features after configuring your Ubuntu server.</p> 
+ 
+ <h1>Additional Recommendations for New Servers - Ubuntu</h1>  
+  <p><strong>Difficulty</strong>:<em><u> 1</u></em><br/>
+<strong>Time</strong>:<em><u> 10 minutes</u></em></p>
+
+<p>After you’ve <a href="/article/17321?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to make sure your server’s secure and works like you’d expect.</p>
+
+<p>These steps are optional, but they’re the kind of things that seasoned admins make sure are taken care of.</p>
+
+<h2>Set up a basic firewall</h2>
+
+<p>Creating a firewall protects your server from malicious traffic that can lead to security issues or degraded performance due to floods of traffic, such as DDoS attacks.</p>
+
+<p>Ubuntu includes a firewall called <code>ufw</code> which we'll use.</p>
+
+<h3>Create firewall rules</h3>
+<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
+  <ol>
+    <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default was changed.
+      <ul>
+        <li>If you have not modified the SSH port, enable the exception:
+          <div class="hacker">sudo ufw allow ssh</div> </li>
+        <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol:
+          <div class="hacker">sudo ufw allow <em><u>your SSH port</u></em>/tcp</div></li>
+      </ul>
+    This configuration is the strictest possible, and every incoming connection is denied except for the port just enabled. All other services are inaccessible. If you want to run additional services, open the proper port.</li>
+
+    <li>Open any of the following ports:
+      <ul>
+        <li>To run a standard HTTP web server, open port 80:
+          <div class="hacker">sudo ufw allow 80/tcp </div></li>
+        <li> To run an SSL/TLS enabled web server, open port 443:
+          <div class="hacker">sudo ufw allow 443/tcp</div> </li>
+        <li>To enable outgoing email (SMTP), open port 25:
+          <div class="hacker">sudo ufw allow 25/tcp</div></li>
+      </ul></li>
+    <li>Review your exceptions:
+      <div class="hacker">sudo ufw show listening</div>
+    The <code>ufw show listening</code> command lists your configured firewall rules in human-readable format, even when your firewall is inactive.</li>
+  </ol>
+
+<h3>Enable the firewall</h3>
+<p>Now that you've created your rules, you need to turn the firewall on.</p>
+            
+<ol>
+  <li>If the <code>ufw show listening</code> command lists all the rules you want, enable your firewall:
+    <div class="hacker">sudo ufw enable</div></li>
+  <li>At the prompt, enter <strong>y</strong> to continue. This entry applies your exceptions, blocks all other traffic, and configures your firewall to start automatically at startup.</li>
+</ol>
+
+<p>If you configure additional services later, make sure to open their respective ports.  </p>
+
+<!--<p>For more in-depth firewall instructions, see our<a href="/article/17400?prog_id=PROG_ID" target="_blank">IPtables guide</a>. IPtables is the full suite of commands used to manage Netfilter, the Linux packet-filtering framework. Since IPtables is considered complicated to use, the ufw program helps by simplifying IPtables commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>-->
+
+
+<h2>Synchronize Network Time Protocol (NTP)</h2>
+<p>When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This can cause undesirable effects such as incorrect timestamps on emails or logs.</p>
+
+<p>Fortunately, you can solve this problem simply by using Network Time Protocol (NTP) synchronization.</p>
+
+<h3>Configure time zone</h3>
+<ol>
+  <li>Set your server's time zone by reconfiguring the <code>tzdata</code> package. <code>tzdata</code> (time zone database) is a public-domain time zone database maintained by a global network of NTP servers.
+    <div class="hacker">sudo dpkg-reconfigure tzdata</div>
+  The package configuration window displays. </li>
+  
+  <li>Use the Up and Down arrow keys on the keyboard to find your geographic area (which are continents and oceans). Find the region/geographic area of your server, and then select <strong>OK</strong>:<br/>
+    <img src="http://img4.wsimg.com/support/images/cloudserver/17331/072715/ntp-package-configuration-geo-area-screen.png" alt="ntp package configuration geo area screen" /><br />
+  
+  <p class="note">For North America, select <strong>America</strong> (the second option). Note that  <strong>US</strong>  (the option before <strong>None of the above</strong>) stands for "<strong>U</strong>se <strong>S</strong>ystem V style time zones," not for &quot;United States.&quot;</p></li>
+  <li>In the next menu, select the city or region of your time zone, and then select <strong>OK</strong>:<br/>
+    <img src="http://img4.wsimg.com/support/images/cloudserver/17331/072715/ntp-package-configuration-time-zone-screen.png" alt="ntp package configuration time zone screen" /><br />
+
+  Your system updates to your selected timezone:
+    <div class="hacker">Current default time zone: 'America/Vancouver' <br />
+    Local time is now:      Mon Jul  10 13:00:10 PST 2015.<br />
+    Universal Time is now:  Mon Jul  10 20:00:10 UTC 2015.</div></li>
+</ol>
+
+<h3>Configure NTP synchronization</h3>
+
+<p>Next, configure your NTP. NTP is an Internet protocol that synchronizes time of computer clocks across the Internet and helps to determine when events happened between systems. A client requests the current time from an NTP server and then uses the server's response to set its own clock. Afterward, your computer is accurately synced with networked time servers. </p>
+
+<ul>
+  <li>Install the NTP daemon:
+    <div class="hacker">sudo apt-get install ntp </div></li>
+</ul>
+
+<p>NTP synchronization is now active on your server. Your system adjusts the time throughout the day to match up with global NTP servers.</p>
+ 
+<h2>Next steps</h2>
+ 
+<p>Your setup is complete! Remember that you can always add on to your configuration as you add more services. </p>
+
+<p>If you like this configuration, you can <a href="/article/19042?prog_id=PROG_ID">take a server snapshot</a> to use as a guide for setting up future installations.</p>
+
+<p>Also, consider <a href="/article/17326?prog_id=PROG_ID" target="_blank">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host  databases on your system. </p>
+  </body>
+</html>

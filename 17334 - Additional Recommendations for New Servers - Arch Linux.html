@@ -46,128 +46,106 @@ p.note {
     <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
         <strong>Time</strong>: <em><u>10 minutes</u></em></p>
 
-   <p> After installing Arch Linux, you can configure some additional components. These steps are optional, but recommended, as they increase security and make your operating system work better.  </p><p>
-  
-This article guides you through setting up a firewall and synchronizing Network Time Protocol.</p>
+<p>After you’ve <a href="/article/17324?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to make sure your server’s secure and works like you’d expect.</p>
 
-If you haven't already set up your server, see <a href="http://git.dean.xyz/17324 - Initial Server Setup - Arch Linux.html">Initial Server Setup - Arch Linux</a> for instructions, including setting up user accounts. Make sure to set up a user account with <code>sudo</code> privileges.                       
-    <br />
+<p>These steps are optional, but they’re the kind of things that seasoned admins make sure are taken care of.</p>
 
  <h2>Set up a basic firewall</h2>
+<p>Creating a firewall protects your server from malicious traffic that can lead to security issues or degraded performance due to floods of traffic, such as DDoS attacks.</p>
 
-
-<p>Set up your firewall to protect your server from any traffic you haven't approved. </p>
 <h3>Install UFW</h3>
-<p>Use the <code>pacman</code> package manager to install the UFW firewall.</p>
-<div class="hacker"> sudo pacman -Syu ufw</div>
-<h3>Create firewall rules</h3>
-
-<p>Define exceptions to your firewall policy so that you can activate your firewall.</p>
-
-        <ol>
-            <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default has not been changed.   </li>
-
-
-            <ul> <li>If you have not modified the SSH port, enable the exception:
-                <div class="hacker">sudo ufw allow ssh</div> </li>
-
-
-            <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol:
-                <div class="hacker">sudo ufw allow 4444/tcp</div></li>   </ul>
-
-This configuration is the strictest firewall configuration, so every incoming connection is denied except for the port just enabled. All other services will be inaccessible. If you will be running additional services, open the firewall for that portion by opening the proper port. <br />
-
- <li>Open any of the following ports:</li>
-
 <ul>
+  <li>Install the UFW firewall:
+    <div class="hacker">sudo pacman -Syu ufw</div></li>
+</ul>
 
+<h3>Create firewall rules</h3>
+<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
 
-<li>To run a standard HTTP web server, open port 80:
+<ol>
+  <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default has not been changed.</li>
+    <ul> 
+      <li>If you have not modified the SSH port, enable the exception:
+        <div class="hacker">sudo ufw allow ssh</div> </li>
+      <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol:
+        <div class="hacker">sudo ufw allow <em><u>your SSH port</u></em>/tcp</div></li>
+      </ul>
+  This configuration is the strictest firewall configuration, so every incoming connection is denied except for the port just enabled. All other services will be inaccessible. If you will be running additional services, open the firewall for that portion by opening the proper port.</li>
 
-<div class="hacker">sudo ufw allow 80/tcp </div>    </li>
+  <li>Open any of the following ports:
+    <ul>
+      <li>To run a standard HTTP web server, open port 80:
+        <div class="hacker">sudo ufw allow 80/tcp </div></li>
+      <li>To run an SSL/TLS enabled web server, open port 443:
+        <div class="hacker">sudo ufw allow 443/tcp</div></li>
+      <li>To enable outgoing email (SMTP), open port 25:
+        <div class="hacker">sudo ufw allow 25/tcp</div></li>
+    </ul></li>
 
-<li>To run an SSL/TLS enabled web server, open port 443:
-  
-<div class="hacker">sudo ufw allow 443/tcp</div>    </li>
+  <li>To review your exceptions, use the <code>ufw show added</code> command.
+    <div class="hacker"> sudo ufw show added </div></li>
+</ol>
 
-<li>To enable your SMTP email connection, open port 25:
+<p>The <code>ufw show added</code> command lists your configured firewall rules in human-readable format, even when your firewall is inactive.</p>
 
-<div class="hacker">sudo ufw allow 25/tcp</div>   </li>   </ul>
-
-<li>To review your exceptions, use the <code>ufw show added</code> command.
-
- <div class="hacker"> sudo ufw show added </div>   </li>
-
-The <code>ufw show added</code> command lists your configured firewall rules in human-readable format, even when your firewall is inactive.</ol>
-
-  
-  <h3>Enable the firewall</h3>
+<h3>Enable the firewall</h3>
               
-<ol><li>If the <code>ufw show added</code> command lists all the rules you want, enable your firewall:
+<ol>
+  <li>If the <code>ufw show added</code> command lists all the rules you want, enable your firewall:
+    <div class="hacker">sudo ufw enable</div></li>
 
-   <div class="hacker">sudo ufw enable</div></li>
-   
-   <li>At the prompt, enter <strong>y</strong> to continue. This entry applies your exceptions, blocks all other traffic, and configures your firewall to start automatically at startup.</li></ol>
+  <li>At the prompt, enter <strong>y</strong> to continue. This entry applies your exceptions, blocks all other traffic, and configures your firewall to start automatically at startup.</li>
+
+</ol>
 
 <p>If you configure additional services later, make sure to open their respective ports.  </p>
-<p>
- For more in-depth firewall instructions, see <a href="/article/17400?prog_id=PROG_ID">Set Up a Firewall Using IPtables</a>.
-iptables is the full suite of commands used to manage Netfilter, the Linux packet-filtering framework. Since iptables is considered complicated to use, the ufw program helps by simplifying iptables commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>
 
+<!--<p>For more in-depth firewall instructions, see <a href="/article/17400?prog_id=PROG_ID">Set Up a Firewall Using IPtables</a>.
+iptables is the full suite of commands used to manage Netfilter, the Linux packet-filtering framework. Since iptables is considered complicated to use, the ufw program helps by simplifying iptables commands in an intuitive interface. It is generally the front-end solution of choice for host-based firewalls.</p>-->
 
- 
 <h2>Synchronize Network Time Protocol</h2>
+<p>When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This can cause undesirable effects such as incorrect timestamps on emails or logs.</p>
 
-<p>
-Localize your server by configuring the Network Time Protocol (NTP) synchronization.
-</p><p>
-When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This jumping can result in undesirable effects such as email replies appearing to arrive before the original message is sent.</p><p>
-
-To resolve this issue, set your correct time zone, and then synchronize the system clock to the standard time maintained by a global network of NTP servers.  </p>
+<p>Fortunately, you can solve this problem simply by using Network Time Protocol (NTP) synchronization.</p>
 
 <h3>Configure Time Zones</h3>
 
-<ol><li>Set your server's time zone:
+<ol>
+  <li>Set your server's time zone:
+    <div class="hacker">sudo timedatectl list-timezones</div></li>
+  <li>In the resulting (long) list, find your region (of your server) and include it your command:
+    <div class="hacker">sudo timedatectl set-timezone <em><u>your region/geographic area</u></em> </div>
 
-<div class="hacker">sudo timedatectl list-timezones</div>
+  For example, if you live in Los Angeles:
+    <div class="hacker">sudo timedatectl set-timezone America/Los_Angeles</div>
 
-</li>
-<li>In the resulting (long) list, find your region (of your server) and include it your command:
+  Your system updates to your selected timezone.</li>
 
-<div class="hacker">sudo timedatectl set-timezone <em><u>your region/geographic area</u></em> </div>
-
-For example, if you live in Los Angeles:
-
-<div class="hacker">sudo timedatectl set-timezone America/Los_Angeles</div>
-
-Your system updates to your selected timezone.</li>
-
-<li>Optionally, confirm the timezone:
-
-<div class="hacker">sudo timedatectl</div></li></ol>
+  <li>Optionally, confirm the timezone:
+    <div class="hacker">sudo timedatectl</div></li>
+</ol>
 
 
 <h3>Configure NTP synchronization</h3>
 
 <p>Next, configure your Network Time Protocol (NTP). NTP is an Internet protocol that synchronizes time of computer clocks across the Internet and helps to determine when events happened between systems. NTP works by a client requesting the current time from an NTP server and then using the server's response to set its own clock. Afterward, your computer is accurately synced with networked time servers.</p>
 
-<ol><li>
-Install the NTP daemon: 
-<div class="hacker">sudo pacman -S ntp</div> </li>
+<ol>
+  <li>Install the NTP daemon:
+    <div class="hacker">sudo pacman -S ntp</div> </li>
 
-<li>Enable NTP:
+  <li>Enable NTP:
+    <div class="hacker">sudo timedatectl set-ntp true</div></li>
+</ol>
 
-<div class="hacker">
-sudo timedatectl set-ntp true </div>
-
-NTP synchronization is now active on your server. This means your system will adjust the time throughout the day to match up with global NTP servers.</li></ol>
+<p>NTP synchronization is now active on your server. This means your system will adjust the time throughout the day to match up with global NTP servers.</p>
 
 <h2>Next steps</h2>
  
 <p>Your setup is complete! Remember that you can always add on to your configuration as you add more services. </p> 
 
 <p>If you like this configuration, you can <a href="/article/19042?prog_id=PROG_ID">take a server snapshot</a> to use as a guide for setting up future installations.</p>
-  
-Also, consider <a href="http://git.dean.xyz/17329%20-%20Add%20Memory%20Swap%20-%20Arch Linux.html">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system. 
+
+<p>Also, consider <a href="/article/17329?prog_id=PROG_ID">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system.</p>
 </body>
 </html>
