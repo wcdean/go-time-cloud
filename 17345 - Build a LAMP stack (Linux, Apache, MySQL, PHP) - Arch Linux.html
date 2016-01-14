@@ -47,147 +47,139 @@ p.note {
         <br />
         <strong>Time</strong>: 20 minutes
     </p>
-    <p>
-        LAMP is an acronym used for the software suite that is used by developers and admins to serve web applications quickly on a stable platform. The suite consists of Linux, Apache, MySQL, and PHP. In this article, you will
-        learn how to create a LAMP stack on Arch Linux.
-    </p>Because we are already running  Arch Linux, Linux is already installed. 
-     <h2>Prerequisites</h2>
-    <p>Before you get started, we recommend that you <a href="/article/17431?prog_id =PROG_ID">  create a non-root user with administrative privileges</a>.</p>
-    <h2>Install Apache</h2>
-    <ol>
-        <li>
-            Before we begin any installation, ensure that you install all the updates.
-            <div class="hacker">sudo pacman -Syu</div>
-        </li>
-        <li>
-            Install Apache.
-            <div class="hacker">sudo pacman -S apache</div>
+<p>To build a dynamic web application, you need what has been coined a “stack” – which is developer lingo for an integrated set of software that has all of the components your application needs.</p>
 
-        </li>
+<p>Most stacks have the same types of component, and the stacks differ in which pieces of software they use for those components. For example, we’ll use LAMP (which this article covers):</p>
 
-        <li>
-            To check if Apache is installed properly, create a sample page by adding an index.html in the server's document root directory located in <code>/srv/http</code>
-            <div class="hacker"> sudo vim /srv/http/index.html</div>
-        </li>
-        <li>Type the following in when the file opens:
+<style>
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
 
-            <div class="hacker"><pre>
+tr:nth-child(odd) {background-color: #f7f7f7;}
+
+tr:nth-child(1) {background-color:#ddd;}
+
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+
+td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+</style>
+
+<table>
+    <tr>
+        <th>Component</th>
+        <th>LAMP Software</th>
+    </tr>
+    <tr>
+        <td>Operating system</td>
+        <td><em>L</em>inux (e.g. Arch Linux)</td>
+    </tr>
+    <tr>
+        <td>Web server</td>
+        <td><em>A</em>pache</td>
+    </tr>
+    <tr>
+        <td>Database</td>
+        <td><em>M</em>ySQL</td>
+    </tr>
+    <tr>
+        <td>Programming language</td>
+        <td><em>P</em>HP</td>
+    </tr>
+</table>
+
+<p>If you're astute, maybe you noticed that LAMP is just an acronym for the software the stack uses. We'll walk you through installing all of these (except for Linux, which is already installed as your OS when you create the server).</p>
+      
+<h2>Install Apache</h2>
+<ol>
+    <li>Before we begin any installation, ensure that you install all the updates:
+        <div class="hacker">sudo pacman -Syu</div></li>
+    <li>Install Apache:
+        <div class="hacker">sudo pacman -S apache</div></li>
+    <li>To check if Apache is installed properly, create a sample page by adding an index.html in the server's document root directory located in <code>/srv/http</code>
+        <div class="hacker"> sudo vim /srv/http/index.html</div></li>
+    <li>Type the following in when the file opens:
+        <div class="hacker"><pre>
 &lt;html&gt;
 &lt;title&gt; Welcome &lt;/title&gt;
   &lt;body&gt;
     &lt;h2&gt;Welcome to the test page!&lt;/h2&gt;
   &lt;/body&gt;
 &lt;/html&gt;
-            </pre></div>
-        </li>
-        <li>
-            Start Apache.
-            <div class="hacker"> sudo systemctl start httpd</div>
-        </li>
-
-        <li>
-            Go to the web browser and navigate to <strong>http://server_ip_address</strong>. You should see the words "Welcome to the test page!"
-        </li>
-        <li>
-            You can <a href="/article/19041?prog_id=PROG_ID"> find your IP address </a>in case you do not know.
-        </li>
-
-    </ol>
+            </pre></div></li>
+    <li>Start Apache:
+        <div class="hacker"> sudo systemctl start httpd</div></li>
+    <li>To verify that Apache is installed, type this URL in a browser:<br/>
+        <strong>http://<em><u>your server's IP address</u></em>.</strong><br/>
+        If Apache is installed, the <strong>Apache Test Page</strong> displays.
+        <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
+</ol>
 
 
 <h2>Install MySQL</h2>
 <ol>
-    <li>
-        Install MySQL.
-        <div class="hacker">sudo pacman -S mysql</div>
-    </li>
+    <li>Install MySQL:
+        <div class="hacker">sudo pacman -S mysql</div></li>
     <li>It presents you with two provider options. Choose 1 to install MariaDB. Type "Y" when prompted.</li>
-    <li>
-        After the installation is complete, install the data directory.
-        <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div>
-    </li>
-
-    <li>
-        Use the following command to start MySQL.
+    <li>After the installation is complete, install the data directory:
+        <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div></li>
+    <li>Start MySQL:
         <div class="hacker">
             sudo systemctl start mysqld.service
-        </div>
-    </li>
+        </div></li>
 
-    <li>
-        Run the following security script:
-        <div class="hacker">sudo mysql_secure_installation</div>
-    </li>
-    <li>You will be asked for the root password. Since you haven't set it earlier, press Enter to set one now. </li>
+    <li>Run the following security script:
+        <div class="hacker">sudo mysql_secure_installation</div></li>
+    <li>You will be asked for the root password. Since you haven't set it earlier, press Enter to set one now.</li>
     <li>Type "Y" when asked if you want to set root password.</li>
     <li>Enter and confirm the new password.</li>
     <li>You will be asked more questions as part of security configuration. It is a best practice to respond "Y" to these system prompts.</li>
-
 </ol>
+
 <h2>Install PHP</h2>
 <ol>
-    <li>
-        Install PHP.
+    <li>Install PHP:
         <div class="hacker">sudo pacman -S php php-apache</div>
-        Enter "Y" to install.
-    </li>
-    <li>
-        In order to configure the way Apache serves its files, you need to make some changes. Open the <code>httpd.conf </code>file.
-        <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div>
-    </li>
-    <li>
-        Under the  <code>Dynamic Shared Object (DSO) Support </code> section, add the following line:
+        Enter "Y" to install.</li>
+    <li>In order to configure the way Apache serves its files, you need to make some changes. Open the <code>httpd.conf </code>file:
+        <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
+    <li>Under the  <code>Dynamic Shared Object (DSO) Support </code> section, add the following line:
         <div class="hacker"> LoadModule php5_module modules/libphp5.so </div>
-        In the same section comment out the line <code>LoadModule mpm_event_module modules/mod_mpm_event.so</code> and uncomment the <code> LoadModule mpm_prefork_module modules/mod_mpm_prefork.so</code> line.
-        </li>
-    <li> Under the <code>Supplemental configuration</code> section, add the following lines:<div class="hacker">            
-<pre># PHP 5
-Include conf/extra/php5_module.conf</pre>
-</div>
-        </li>
-    <li>Under the <code>IfModule mime_module </code>section, add the following lines:<div class="hacker">       
-<pre>AddType application/x-httpd-php .php
+        In the same section comment out the line <code>LoadModule mpm_event_module modules/mod_mpm_event.so</code> and uncomment the <code> LoadModule mpm_prefork_module modules/mod_mpm_prefork.so</code> line.</li>
+    <li>Under the <code>Supplemental configuration</code> section, add the following lines:
+        <div class="hacker"><pre># PHP 5
+Include conf/extra/php5_module.conf</pre></div></li>
+    <li>Under the <code>IfModule mime_module </code>section, add the following lines:
+        <div class="hacker"><pre>AddType application/x-httpd-php .php
 AddType application/x-httpd-php-source .phps</pre>
-</div>
-    </li>
-    <li>Save and exit the file.</li>
-    
-    <li>
-        Restart Apache.
-        <div class="hacker">sudo systemctl restart httpd</div>
-    </li>   
-  
-
+</div></li>
+    <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+    <li>Restart Apache:
+        <div class="hacker">sudo systemctl restart httpd</div></li>
 </ol>
 
 <h3>Test PHP processing on Apache</h3>
-    
 <ol>
-    <li>
-        Create a new PHP file.
-        <div class="hacker">sudo vim /srv/http/info.php</div>
-    </li>
+    <li>Create a new PHP file:
+        <div class="hacker">sudo vim /srv/http/info.php</div></li>
     <li>When the file opens, type in the following code:
-        <div class="hacker"><pre> 
-&lt;?php 
-phpinfo();
-?> </pre> </div>
-    </li>
-    <li>Save and exit the file.</li>
-    <li>
-        Restart Apache for the changes to take effect.
-        <div class="hacker"> sudo systemctl restart httpd</div>
-    </li>
-    <li>
-        To verify it works, in a browser type <strong>http://<em><u>your IP address/info.php</u></em> </strong>and replace <code><em><u>your IP address</u></em></code> with your public ip address.<br />
-        
-If it works, a page displays the PHP version, extensions, build date, and other information. 
-
-    </li>
+        <div class="hacker"> &lt;?php <br /> phpinfo(); <br /> ?> </div></li>
+    <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+    <li>Restart Apache for the changes to take effect:
+        <div class="hacker"> sudo systemctl restart httpd</div></li>
+    <li>To verify it works, in a browser type:<br/>
+        <strong>http://<em><u>your server's IP address</u></em>/info.php</strong></li>
 </ol>
-<h2>Next steps</h2>  
-Now that you have installed LAMP on your server you can <a href="http://git.dean.xyz/17384 - Install WordPress on your LAMP server - Arch Linux.html">install Wordpress on your LAMP server</a>, <a href="http://git.dean.xyz/18008 - Install and Configure Varnish for your Drupal 7 site on your LAMP server - Arch Linux.html"> install Drupal 7</a>, <a href="http://git.dean.xyz/18049 - Install and configure Simple Machines Forum on your LAMP server - Ubuntu, Debian.html">install Simple Machines Forum</a>, and
-    <a href="http://git.dean.xyz/18237 - Install and configure MediaWiki on your LAMP server - Arch Linux.html">install MediaWiki</a>
+
+<p>A page displays with the PHP version, extensions, build date, and other information.</p>
+
+<h2>Next steps</h2>
+<p>Now that you have a LAMP stack, you can use it for dynamic, database-driven websites powered by things like WordPress or Drupal.</p>
+
+<!--Now that you have installed LAMP on your server you can <a href="http://17384 - Install WordPress on your LAMP server - Arch Linux.html">install Wordpress on your LAMP server</a>, <a href="http://18008 - Install and Configure Varnish for your Drupal 7 site on your LAMP server - Arch Linux.html"> install Drupal 7</a>, <a href="http://18049 - Install and configure Simple Machines Forum on your LAMP server - Ubuntu, Debian.html">install Simple Machines Forum</a>, and
+    <a href="http://18237 - Install and configure MediaWiki on your LAMP server - Arch Linux.html">install MediaWiki</a>-->
 
 </body>
 </html>
