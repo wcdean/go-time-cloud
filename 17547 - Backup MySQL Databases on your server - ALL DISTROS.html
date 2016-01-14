@@ -40,105 +40,129 @@ p.note {
     
 <p><strong>Difficulty</strong>: <em>1</em><br/>
         <strong>Time</strong>: <em>30 minutes</em></p>
-<p>Let's face it - no system or application is completely failproof. It is vital to have backup systems in place to protect your data in case you need to recover from an application problem, such as a compromise. This is especially true for databases - like MySQL - where your important data is often changing on a daily basis.</p>
+<p>No system or application is completely failproof, and bad things can happen. This is why it is so important to have backups in place to protect your data in case you need to recover from an application problem, such as a security compromise. This is especially true for databases - like MySQL - where your important data is often changing on a daily basis.</p>
 <p>In this tutorial, you will learn several ways to back up your MySQL databases on your server. This article will work for any Linux distribution running MySQL.</p>
 <h2>Prerequisite</h2>
 <p>Make sure you have MySQL installed on your server. For instructions on installing MySQL, use the MySQL Installation instructions in the LAMP stack guides for your preferred Linux distribution:</p>
 <ul>
-  <li> <a href="/article/17341?prog_id=PROG_ID" target="_blank">Ubuntu</a></li>
-  <li> <a href="/article/17346?prog_id=PROG_ID" target="_blank">Debian</a></li>
-  <li> <a href="/article/17342?prog_id=PROG_ID" target="_blank">CentOS 6 or Fedora</a></li>
-  <li> <a href="/article/17344?prog_id=PROG_ID" target="_blank">CentOS 7</a></li>
-  <li> <a href="/article/17345?prog_id=PROG_ID" target="_blank">Arch Linux</a></li>
+  <li><a href="/article/17341?prog_id=PROG_ID" target="_blank">Ubuntu</a></li>
+  <li><a href="/article/17346?prog_id=PROG_ID" target="_blank">Debian</a></li>
+  <li><a href="/article/17342?prog_id=PROG_ID" target="_blank">CentOS 6 or Fedora</a></li>
+  <li><a href="/article/17344?prog_id=PROG_ID" target="_blank">CentOS 7</a></li>
+  <li><a href="/article/17345?prog_id=PROG_ID" target="_blank">Arch Linux</a></li>
 </ul>
-    <h2>Back up the database</h2>
-  Assuming that the database already exists.
-<ul> 
-<li>Export the database using the <code>mysqldump</code> command. 
-  <div class="hacker">mysqldump -u <em><u>mysql_username</u></em> -p<em><u>mysql_user_password</u></em> <em><u>database_name</u></em> > <em><u>back_database_date</u></em>.sql</div>
-  <p class="note">Default user for <code>MySQL</code> is <code><strong>root</strong></code>.</p>
-   </li>
-   </ul>
-   
-   <h2>Restore the database</h2>
-   <ol>
-   <li>Create a database if not created already.  
-   <div class="hacker">mysql -u <em><u>mysql_username</u></em> -p</div>
-   A MySQL prompt asks to create a new database to hold raw data.
-   <div class="hacker">CREATE DATABASE <em><u>database_name</u></em>;</div>
-   </li>
-   <li>Exit or press <strong>Ctrl</strong>+<strong>C</strong>. </li>
-   <li>Import data into the newly created database.
-     <div class="hacker">mysql -u <em><u>mysql_username</u></em> -p  <em><u>database_name</u></em> &lt; <em><u>back_database_date</u></em>.sql</div>
-   <p>The data will be restored or dumped into <code><em><u>database_name</u></em></code>. </p>
-   </li>
-   </ol>
-   
-<h2>Back up the table to a text file</h2>
-   <ul>
-   <li>Take the backup into the text file.
-     <div class="hacker">mysql -u <em><u>mysql_username</u></em> -p</div>
-   <div class="hacker">USE <em><u>database_name</u></em>;</div>
-   <div class="hacker">SELECT * INTO OUTFILE '<em><u>table_backup_file</u></em>' FROM <em><u>name_of_table</u></em>;</div>
-   <p class="note">Use the <code><strong>USE</strong></code> command to select or change the database.</p>
-   <p class="note">Press <strong>CTLR+C</strong> to exit from MySQL.</p>
-   </li>
-  </ul>
-  
-  <h2>Automatically back up MySQL information</h2>
-<p>To automatically perform data backups at regular intervals, there's a tool in Debian or Ubuntu named <code>automysqlbackup</code>.
-<!--Testers, check name in this section: automybackup vs automysqlbackup vs automysqlback.  cj -->  </p>
-<ol>
-  <li> Install <code>automybackup</code>.
-    <div class="hacker">sudo apt-get install automysqlbackup</div>
-   <div class="hacker">sudo automysqlbackup</div>
-   </li>
-   <li>Open the configuration file for <code>automysqlback</code>.
-      <div class="hacker">sudo vim /etc/default/automysqlbackup</div>
-    
-  After opening, you'll find that the <code>/etc/mysql/debian.cnf </code>file has many variables. You can replace the file with your configuration file but, before proceeding, you should make a backup of the file. <p class="note">To save and exit, press <strong>Esc</strong> and type the following characters <strong>:wq!</strong></p> </li>
-   <li>By default, the <code>automysqlback</code> command makes the backup in the <code>/var/lib/automysqlbackup </code> file. To check the structure of the backup, run the following command:
-     <div class="hacker">ls /var/lib/automysqlbackup</div>
-   </li>
-   <li>Verify the database backup.
-     <div class="hacker">ls -R /var/lib/automysqlbackup/</div>
-   </li>
+<h2>Use mysqldump to backup MySQL databases</h2>
+<p>A simple and easy method for creating MySQL backups is to use the <code>mysqldump</code> command. This command will create a simple <code>.sql</code> file of an existing database, which an then be restored to any other empty MySQL database. This command can be run from any Linux SSH terminal instead of being logged directly into MySQL.</p>
+  <h3>Back up the database</h3>
+  <p>The <code>mysqldump</code> command uses the following syntax:
+    <div class="hacker">mysqldump -u <em><u>username</u></em> -p <em><u>database_name</u></em> > <em><u>backupfile</u></em>.sql</div>
+    <ul>
+      <li>The <strong>-u</strong> flag lets you choose which MySQL user you will use to access the database and create the backup.</li>
+      <li>The <strong>-p</strong> flag tells MySQL to prompt you for a password for this user. This is safer than directly entering the password into the command.</li>
+      <li>The <strong><</strong> or <strong>></strong> markers indicate which direction the data is moving. This is also important to keep in mind when restoring the database.</li>
+    </ul>
+  <h3>(Optional) Make database read-only before backing up</h3>
+  <p>If your application's database is constantly in flux, you may want to set the database to read-only temporarily when creating the backup. This is to ensure that you are getting a consistent dataset, and preventing possible data loss.</p>
+  <p class="warning">Be careful when making a database read-only as it will stop any data requests in or out of the database. Generally, it is not recommended that you bring a MySQL database read-only while the application is live in production.</p>
+  <p class="note">If you do not know your root MySQL password and need to reset it, see <a href="/article/17547?prog_id=PROG_ID" target="_blank">how to change your root MySQL password</a>.</p>
+  <ol>
+    <li>Log into MySQL with your root user, or a user with root privileges.
+      <div class="hacker">mysql -u root -p</div>
+    </li>
+    <li>Writed any cached changes to the database, then:
+      <div class="hacker">FLUSH TABLES WITH READ LOCK;<br \>
+        SET GLOBAL read_only = ON;</div>
+    </li>
+    <li>Exit the MySQL prompt by typing <code>exit</code> or typing <strong>CTRL-C</strong> on the keyboard.</li>
+    <li>Perform your backup using <code>mysqldump</code>
+      <div class="hacker">mysqldump -u <em><u>exampleuser</u></em> -p <em><u>example_database</u></em> > <em><u>example_backup</u></em>.sql</div>
+    </li>
+    <li>Now that you have created your backup, log back in to MySQL:
+      <div class="hacker">mysql -u root -p</div>
+    </li>
+    <li>Set your MySQL system back to normal:
+      <div class="hacker">SET GLOBAL read_only = OFF;<br \>
+        UNLOCK TABLES;</div>
+    </li>
+    <li>Exit MySQL by typing <code>exit</code> or typing <strong>CTRL-C</strong> on the keyboard.</li>
   </ol>
-  
-<h2>Back up using replication</h2>
-  <p>The concepts of, and reasons for, <a href="http://dev.mysql.com/doc/refman/5.0/en/replication.html">using replication</a> are beyond the scope of this article.&nbsp; One aspect of replication is you may use it to back up your data. Since replication is essentially asynchronous data mirroring, it might fail to save a specific point in time. To avoid this situation when using replication as a backup strategy, you can either disable replication temporarily or create the backup machine in a read-only state temporarily.</p>
-    
-  <h3>Disable replication temporarily</h3>
-<ul> 
-<li>Disable replication for the slave temporarily.
-   <div class="hacker">mysqladmin -u <em><u>mysql_username</u></em>  -p stop-slave</div>
-  Another option, which doesn't completely stop replication but  pauses it, can be accomplished by typing:
-  <div class="hacker">mysql -u <em><u>mysql_username</u></em> -p -e 'STOP SLAVE SQL_THREAD;'</div>
+  <h3>Import or restore database from a .sql file</h3>
+  <p>Now that your database is backed up, you can restore that backup to a different database. This part of the guide will show you how to restore this backup to a new database, as well as how to restore this to a database on a different remote server.</p>
+    <h4>(Optional) Create a new database</h4>
+    <p>If you already have a database on this server you want to restore to, and you know the credentials, you can just skip to the steps for the rest of the restore. However, you can use these steps to quickly create a new MySQL database, where you can restore your backup. Keep track of these credentials, as you will need them later when you restore the database.</p>
+    <ol>
+      <li>Log into MySQL as root.
+        <div class="hacker">mysql -u root -p</div>
+      </li>
+      <li>Create a new database and user if you don't already have one.
+        <div class="hacker">CREATE DATABASE <em><u>new_database</u></em>;<br \>
+          CREATE USER <em><u>newuser</u></em>@localhost;</div>
+      </li>
+      <li>Give this new user a password and grant privileges for that database.
+        <div class="hacker">SET PASSWORD FOR <em><u>newuser</u></em>@localhost= PASSWORD("<em><u>examplepwd</u></em>");<br \>
+        GRANT ALL PRIVILEGES ON <em><u>new_database</u></em>.* TO <em><u>newuser</u></em>@localhost IDENTIFIED BY '<em><u>examplepwd</u></em>';<br \>
+        FLUSH PRIVILEGES;</div>
+      </li>
+      <li>Close the MySQL prompt by typing <code>exit</code> into the MySQL terminal, or typing <strong>CTRL-C</strong> on your keyboard.
+      </li>
+    </ol>
+    <h4>Restore the backup to a local database server</h4>
+    <p>The <code>mysql</code> command will let you take the contents of a <code>.sql</code> file backup, and restore it directly to a database. This is the syntax for the command:
+      <div class="hacker">mysql -u<em><u>username</u></em> -p <em><u>database_name</u></em> < <em><u>backup_file</u></em>.sql</div>
+    <p class="note">Notice the direction of the <strong><</strong>, pointing towards the database. Also notice the lack of space between the <strong>-u</strong> flag and the username. These are different than the previous <code>mysqldump</code> command example, and you should be mindful of both.</p>
+    <p>To demonstrate the previous example, to restore the original <em><u>example_backup</u></em>.sql to the new database, you would use the following command:
+      <div class="hacker">mysql -u<em><u>newuser</u></em> -p <em><u>new_database</u></em> < <em><u>example_backup</u></em>.sql</div>
+    <h4>Restore the backup to a remote database server</h4>
+    <p>You can also use the <code>mysql</code> command to restore a <code>.sql</code> file backup to a remote MySQL server. If you have another server running MySQL, and you have the database credentials, you can define a hostname in the command by adding the <strong>-h</strong> flag to specify a hostname. This changes the syntax of the command to:</p>
+      <div class="hacker">mysql -h<em><u>hostname</u></em> -u<em><u>username</u></em> -p <em><u>database_name</u></em> < <em><u>backup_file</u></em>.sql</div>
+    <p>To demonstrate this example, we will restore the same .sql file to a remote MySQL server that we have set up on the hostname <em><u>mysql.coolexample.com</u></em> with different credentials. Use your own remote hostname for your MySQL server.</p>
+    <div class="hacker">mysql -h<em><u>mysql.coolexample.com</u></em> -u<em><u>remoteuser</u></em> -p <em><u>remote_database</u></em> < <em><u>example_backup</u></em>.sql</div>
+    <p>As long as you have the correct credentials and the remote server is running, you will be able to restore the database remotely.
+<h2>Automate MySQL database backups with Cron</h2>
+  <p>So now you have a way to back up your databases. But you probably don't want to have to manually run a command each time you want to run the backup. This section will show you how to create a Bash script to simplify the backup process, and use <code>cron</code> to make that script run every night at 2:00 A.M.</p>
+  <h3>Create backup script</h3>
+  <ol>
+    <li>Navigate to your home directory.
+      <div class="hacker">cd ~</div>
+    </li>
+    <li>Make a new directory to store the .sql backups.
+      <div class="hacker">mkdir db_backups</div>
+    </li>
+    <li>Create a new file in a text editor
+    <div class="hacker">vim <em><u>backitup</u></em>.sh</div>
+  </li>
+    <li>Inside this file, paste the following contents, replacing the example database information or credentials with your own.
+    <div class="hacker">
+#!/bin/bash<br \>
+mysqldump -u<em><u>username</u></em> -p<em><u>password</u></em> <em><u>database_name</u></em> > ~/db_backups/`date +%Y%m%d`.<em><u>database_name</u></em>.sql
+</div></li>
+<li>Save and close the file.</li>
+<li>Make the file executable.
+  <div class="hacker">chmod u+x backitup.sh</div>
 </li>
-   </ul>
-   
-   
-   <h3>Make the backup machine read-only temporarily</h3>
-<p>You can ensure a consistent set of data within the server by making the data read-only temporarily. You can perform these steps on either the master or the slave systems.</p>
-   <ol>
-   <li>Log into MySQL with enough privileges to manipulate the data.
-     <div class="hacker">mysql -u <em><u>mysql_username</u></em> -p</div>
-   </li>
-   <li>Write all of the cached changes to the disk, and set the system read-only.
-     <div class="hacker">FLUSH TABLES WITH READ LOCK; </div>
-   <div class="hacker">SET GLOBAL read_only = ON;</div>
-   </li>
-   <li>Perform the backup using <code>mysqldump</code> as shown below.
-   <div class="hacker">mysqldump -u <em><u>mysql_username</u></em> -p<em><u>mysql_user_password</u></em> <em><u>database_name</u></em> > <em><u>back_database_date</u></em>.sql</div>
-   </li>
-   <li>After the backup is complete, return the system to its original working state.
-     <div class="hacker">SET GLOBAL read_only = OFF;</div>
-   <div class="hacker">UNLOCK TABLES;</div>
+</ol>
+<p>You have taken the <code>mysqldump</code> command you previously used and modified it into a script. You added the password to this script, and the backup file will now have the date it ran at the beginning of the file (e.g. <em>YYYYMMDD.database_name.sql</em>). Now you can run this backup simply by running the command through bash:</p>
+<div class="hacker">sh ./backitup.sh</div>
+<p>Once you run this, you should see your new backup file in <code>~/db_backups</code>.</p>
+<p class="note">This is your backup script - modify as you see fit! You can change this to restore to a remote database instead of a local one, restore it to a different directory, temporarily set the database to read only before restoring, or even backup multiple databases simultaneously. This is only a very simple example of using a bash script to automate your server administration.</p>
+<h3>Use cron to set up automatic rotating backups</h3>
+<p>Cron is the system automation tool used by all Linux distributions. Now that we have a functional script, we can use cron to automate this. You will configure cron to automatically run the script every day at midnight, and delete any copies older than 10 days. This way you should always have daily snapshots going back 10 days, but you don't accidentally fill up your disk space with redundant backups.</p>
+<ol>
+  <li>Use the <code>crontab</code> command to open the cron file for editing.
+    <div class="hacker">crontab -e</div>
+    You may need to select your preferred text editor. This example will use 3 for <code>vim.basic</code>.
+  <li>Add this line to the end of the file:
+    <div class="hacker">1 0 * * * /bin/bash $HOME/backitup.sh</div>
+  This is the backup script automation that runs every day at 12:01 AM.
+  </li>
+  <li>Add this line to the end of the file as well:
+    <div class="hacker">1 0 * * * /usr/bin/find $HOME/db_backups/* -mtime +10 -exec rm {} \\;</div>
+    This will search ~/db_backups for any files older than 10 days and remove them. This also runs every day at 12:01 AM.
+  <p class="note">Your paths for <code>bash</code> and <code>find</code> may be different depending on your Linux distribution. You can find this path by using the <code>which</code> command, which will display the executable for that command:
+    <div class="hacker">user@host:~$ which find<br \>
+/usr/bin/find</div></p>
   </li>
 </ol>
-  
-    <h2>Conclusion</h2>
-    <p>In this, article you learned to back up MySQL databases on your server. </p>
-   
-</body>
-</html>
+<p>Your server will now automatically create a backup of the MySQL databases you specified in your backup script, and keep those backups on a 10-day rotating cycle.</p>
+<h2>Conclusion</h2>
+<p>In this, article you learned to back up MySQL databases on your server, restore them to local or remote database servers, and use cron and a bash script to automate these backups. To use the more advanced features of the <code>mysqldump</code> command, check out <a href="http://dev.mysql.com/doc/refman/5.7/en/mysqldump.html"> the official MySQL documentation</a>.</p>
