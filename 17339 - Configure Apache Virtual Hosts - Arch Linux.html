@@ -40,7 +40,6 @@ tr:nth-child(1) {background-color:#ddd;}
 th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
 td{border: 1px solid #b2b2b2 
 ;padding: 5px;vertical-align:top;}
-td:nth-child(1) {font-weight:bold;}
 
 </style>
 
@@ -49,135 +48,149 @@ td:nth-child(1) {font-weight:bold;}
   <body>
   
 
-   <p>Configure Apache Virtual Hosts Setup on Arch Linux.</p>
+  <p>Configure Apache Virtual Hosts Setup on Arch Linux.</p>
 
     <h1>Configure Apache virtual hosts - Arch Linux</h1>
     
-    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
+   <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
         <strong>Time</strong>: <em><u>15 minutes</u></em></p>
     
-    <p>To run multiple sites on a single IP address, you'll need to set up the virtual hosts in your web browser. Apache is the most commonly used web server, and can run a multitude of content based on IP address or hostname.</p>
+<p>Want to host multiple websites? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts” – and it’ll let you do it without needing any additional IP addresses.</p>
 
-    <p>This guide will walk you through how to set up an Apache virtual host on an Arch Linux virtual private server (VPS) as a non-root user with <code>sudo</code> privileges.</p>
-    
-    <p class="note">If you need the full LAMP stack (Linux, Apache, MySQL, and PHP), see the article <a href="http://git.dean.xyz/17345%20-Build%20a%20LAMP%20stack%20(Linux,%20Apache,%20MySQL,%20PHP)%20-%20Arch Linux.html">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Arch Linux</a> for instructions.    </p>
+<p>In Apache, every site is handled by a virtual host which points incoming <code>http</code> traffic to a particular directory (i.e. the root directory of the website for the domain in the request). By default, Apache only creates one virtual host but you can configure more – as many as your server can handle.</p>
 
-    <p>Also, make sure your hostname has a valid DNS record, so that the www version of your domain works. See the article <a href="/article/19116?prog_id=PROG_ID">Point your domain to a GoDaddy Cloud Server</a> for instructions on setting up your domain.</p>
-    
+<p>Throughout this article, we'll use an example domain – <em><u>coolexample.com</u></em> – but you should replace it with the domain name or subdomain you want to host on your server.</p>
 
+<h2>Install the Apache web server</h2>
+<p>To get Apache on your server, you can either install it as part of a LAMP stack (<a href="/article/17345?prog_id=PROG_ID">CentOS 7</a>/<a href="/article/17342?prog_id=PROG_ID">Fedora</a>), or you can install Apache by itself:</p>
 
-    <h2>Install the Apache web server</h2>
-    <ul>
-   <li>Install Apache using <code>pacman</code>.
-      <div class="hacker">sudo pacman -Syu apache</div></li>
-      </ul>
+<ul>
+  <li>Install Apache using <code>pacman</code>:
+    <div class="hacker">sudo pacman -Syu apache</div></li>
+</ul>
     
 
-       <h2>Set up the virtual host</h2>
-   <ul>
-  <li>Create the virtual directory for the domains/sites that you'll be serving from your VPS.
-    For this article, we will use the example domain name <em><u>coolexample.com</u></em>.
-    <div class="hacker">
-    sudo mkdir -p /srv/http/<em><u>coolexample.com</u></em></div> </li>
-    </ul>
+<h2>Set up the virtual host</h2>
+<ul>
+    <li>Create the virtual directories for your domain:
+        <div class="hacker">sudo mkdir -p /srv/http/<em><u>coolexample.com</u></em></div></li>
+</ul>
     
         
-    <h2>Create a sample page for your virtual host</h2>
+<h2>Create a sample page for your virtual host</h2>
     
-    <ol>
-    <li>Create a sample page for your virtual host. 
-    <div class="hacker">sudo vim /srv/http/<em><u>coolexample.com</u></em>/index.html</div>
-    </li>
-    <li>
-    It will be a blank file. Add some content: 
+<ol>
+    <li>Create a sample page for your virtual host:
+        <div class="hacker">sudo vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div></li>
+    <li>Add some content to the file:
         <div class="hacker"><pre>&lt;html&gt; 
     &lt;head&gt; 
-    &lt;title&gt;Welcome to <em><u>coolexample.com</u></em>!&lt;/title&gt; 
+    &lt;title&gt;Welcome to my site!&lt;/title&gt; 
     &lt;/head&gt; 
     &lt;body&gt; 
-    &lt;h1&gt;Hooray! Your <em><u>coolexample.com</u></em> virtual host is working!&lt;/h1&gt; 
+    &lt;h1&gt;Hooray! Your virtual host is working!&lt;/h1&gt; 
     &lt;/body&gt; 
 &lt;/html&gt;</pre></div></li>
-    <li>Save and close the file.</li>
+    <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
 </ol>
 
 <h2>Enable virtual hosts</h2>
-
 <p>Enable virtual hosts by making a quick change in the Apache config file.</p>
 
 <ol>
-  <li>Open the <code>httpd.conf</code> file to edit.
-     <div class="hacker">  sudo vim /etc/httpd/conf/httpd.conf</div>
-</li>
-
-   <li>Find this line and uncomment it. 
+    <li>Open the <code>httpd.conf</code> file to edit:
+        <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
+     <li>Find this line and uncomment it:
         <div class="hacker">Include conf/extra/httpd-vhosts.conf</div></li>
-    
-    <li>Save and close.</li>
+        <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
 </ol>
 
 
 <h2>Configure your virtual host</h2>
- 
 <ol>
-
-  <li>Open the virtual hosts file.
-     <div class="hacker">sudo vim /etc/httpd/conf/extra/httpd-vhosts.conf</div>
-  </li>
-  
-<li>In the file, replace the first virtual host example with your own domain information. <code>DocumentRoot</code>, <code>ServerName</code>, and <code>ServerAlias</code> are the lines that must be updated.
-
- <div class="hacker"><pre>&lt;VirtualHost *:80&gt;
+    <li>Open the virtual hosts file:
+        <div class="hacker">sudo vim /etc/httpd/conf/extra/httpd-vhosts.conf</div></li>
+    <li>In the file, replace the first virtual host example with your own domain information. <code>DocumentRoot</code>, <code>ServerName</code>, and <code>ServerAlias</code> are the lines that must be updated:
+      <div class="hacker"><pre>&lt;VirtualHost *:80&gt;
     ServerAdmin <em><u>youremail@coolexample.com</u></em>
     DocumentRoot "<em><u>/srv/http/coolexample.com</u></em>" 
     ServerName <em><u>www.coolexample.com</u></em>     
     ServerAlias <em><u>coolexample.com</u></em> 
-    ErrorLog "<em><u>/srv/http/coolexample.com/error.log</u></em>" 
-    CustomLog "<em><u>/srv/http/coolexample.com/requests.log</u></em>" common
+    ErrorLog "<em><u>/srv/http/<em><u>coolexample.com</u></em>/error.log</u></em>" 
+    CustomLog "<em><u>/srv/http/<em><u>coolexample.com</u></em>/requests.log</u></em>" common
 
 &lt;/VirtualHost&gt;
   </pre></div>
 
-
-
-Updating the other lines <code>ServerAdmin</code>, <code>ErrorLog</code>, and <code>CustomLog</code> are not required to set up your virtual host, but you can go ahead and update <code>ErrorLog</code> and <code>CustomLog</code> to your domain and <code>ServerAdmin</code> to your email. </li>
-
- <li>Save and close.</li>
-
-<li>Run a config test to check your changes.
-  <div class="hacker">apachectl configtest</div>
-You're looking for a <code>Syntax OK</code> message. If you got an error, go back to your config file and check your changes. Make sure your <code>DocumentRoot</code> entry is in quotes.
-</li>
-
+    Updating the other lines <code>ServerAdmin</code>, <code>ErrorLog</code>, and <code>CustomLog</code> are not required to set up your virtual host, but you can go ahead and update <code>ErrorLog</code> and <code>CustomLog</code> to your domain and <code>ServerAdmin</code> to your email.</li>
+    <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+    <li>Run a config test to check your changes:
+        <div class="hacker">apachectl configtest</div>
+    You're looking for a <code>Syntax OK</code> message. If you got an error, go back to your config file and check your changes. Make sure your <code>DocumentRoot</code> entry is in quotes.</li>
 </ol>
 
 
 <h2>Put your domain name in the hosts file</h2>
-
-If you're using fully qualified domain names (FQDNs), define your domain name in the <code>/etc/hosts</code> file. 
-
+<p>If you're using fully qualified domain names (FQDNs), define your domain name in the <code>/etc/hosts</code> file.</p>
 <ol>
-<li>Open the file. 
- <div class="hacker">sudo vim /etc/hosts</div></li>
-
- <li>Fill in your domain information for the first IP. Your changes might look something like this:
-
-<div class="hacker"><pre>#&lt;ip-address&gt;  &lt;hostname.domain.org&gt;   &lt;hostname&gt; 
+  <li>Open the file:
+    <div class="hacker">sudo vim /etc/hosts</div></li>
+  <li>Fill in your domain information for the first IP. Your changes might look something like this:
+    <div class="hacker"><pre>#&lt;ip-address&gt;  &lt;hostname.domain.org&gt;   &lt;hostname&gt; 
 127.0.0.1         <em><u>coolexample.com</u></em>      <em><u>your host name (this is optional)</u></em>
-::1             localhost.localdomain   localhost
-</pre></div>
- </li>
-
-<li>Restart Apache.
- <div class="hacker">sudo systemctl restart httpd</div></li>
-
+::1             localhost.localdomain   localhost</pre></div></li>
+  <li>Restart Apache:
+    <div class="hacker">sudo systemctl restart httpd</div></li>
 </ol>
  
- <h2>Test your setup</h2>
+<h2>Point your domain name to your server</h2>
+<p>If your domain name isn't currently loading another website, you should point it to your server to test your new config.</p>
 
- <p>See your virtual host in action by typing in your domain or IP address into your browser, such as <em><u>coolexample.com</u></em>. You should see the test page you created earlier.</p>
+<p>How you do this depends on where your domain name is registered and whose server you're using:</p>
 
-<p class="note">You can test your virtual host locally by setting up local hosts on your computer alone. This is a good option if you have not yet pointed your domain name to the IP address of your VPS. See <a href="http://git.dean.xyz/00003 - Set up Local Hosts to Test Virtual Host Setup - ALL DISTROS.html"> Set up Local Hosts to Test Virtual Host Setup - ALL DISTROS</a> for more on how to do this.</p> 
+<style>
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+
+tr:nth-child(odd) {background-color: #f7f7f7;}
+
+tr:nth-child(1) {background-color:#ddd;}
+
+th{border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+
+td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
+</style>
+<table>
+    <tr>
+        <th>Domain registered?</th>
+        <th>Server hosted?</th>
+        <th>Do this...</th>
+    </tr>
+    <tr>
+        <td>COMPANY_NAME</td>
+        <td>COMPANY_NAME</td>
+        <td><article id="19116" /></td>
+    </tr>
+    <tr>
+        <td>Another company</td>
+        <td>COMPANY_NAME</td>
+        <td><article id="19051" /> and then update your domain name's primary ("@") A record.</td> 
+    </tr>
+    <tr>
+        <td>COMPANY_NAME</td>
+        <td>Another company</td>
+        <td>Find your server's IP address, and then <a href="/article/20134?prog_id=PROG_ID">change your domain's IP address to use it</a>.</td>
+    </tr>
+    <tr>
+        <td>Another company</td>
+        <td>Another company</td>
+        <td>Find your server's IP address, and then change your domain's IP address to use it.</td>
+    </tr>
+</table>
+
+<p>Changes to your domain can take up to 48 hours to display across the internet. However, once they do, you can visit your domain name and view the test page you created earlier!</p>
       
 
 <h2>Adding additional virtual hosts</h2>
