@@ -118,132 +118,66 @@ p.note {
 This sort of directory system is typically used by Debian and Ubuntu, but they can be used by any Linux distribution running NGINX.</li>
 <li>You do need to add another line to your NGINX configuration file, so go ahead and open that in a text editor.
   <div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
-<li>Add the following line to the bottom of the file, before the closing <code>}</code> bracket:
+<li>Look for the following include line:
+  <div class="hacker">include /etc/nginx/conf.d/*.conf;</div></li>
+<li>Directly under this line, add the following line:
   <div class="hacker">include /etc/nginx/sites-enabled/*;</div>
 </li>
 <li>Save and close the file.</li>
 </ol>
-<h3>Set up NGINX server blocks for your sites</h3>
+<h3>Set up NGINX server blocks</h3>
   <ol>
-    <li>Make copies of the original NGINX default server block. We will use these as templates for our new server blocks.
-      <div class="hacker">sudo cp /etc/nginx/conf.d/default.conf /etc/nginx/sites-available/<em><u>site1.coolexample.com</u></em><br \>
-        sudo cp /etc/nginx/conf.d/default.conf /etc/nginx/sites-available/<em><u>site2.coolexample.com</u></em>
-      </div>
+    <li>First, create a new file to use as a template. You will use this template for creating future NGINX server blocks.
+      <div class="hacker">sudo vim /etc/nginx/sites-available/template</div>
     </li>
-    <li>Open your first server block in a text editor
-      <div class="hacker">sudo vim /etc/nginx/sites-available/<em><u>site1.coolexample.com</u></em></div>
-    </li>
-    <li>You will see a <code>server { }</code> block. It will have the default information in here, and should look something like this (with comments removed):
+    <li>Inside this file, paste the following content. This will give you the defaults that you need for the NGINX server block locations, and also accounting for working with PHP and FastCGI.
       <div class="hacker">
-      <xmp>
-      server {
-        listen       80 default_server;
-        root /usr/share/nginx/html;
-        index index.php index.html index.html;
-        include /etc/nginx/default.d/*.conf;
-        location / {
-          root   /usr/share/nginx/html;
-          index  index.html index.htm;
-          try_files $uri $uri/ /index.html;
-        }
-        location ~ \.php$ {
+        <pre>
+          server {
+              listen       80;
+              root /usr/share/nginx/yoursitehere;
+              index index.php index.html index.html;
+              server_name yoursitehere;
+            location / {
+              root   /usr/share/nginx/yoursitehere;
+              try_files $uri $uri/ /index.html;
+                }
+            location ~ \.php$ {
                      fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
                      fastcgi_index index.php;
                      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
                      include fastcgi_params;
                      }
-        error_page  404              /404.html;
-        location = /404.html {
-          root   /usr/share/nginx/html;
-        }
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-        root   /usr/share/nginx/html;
-        }
-      }
-      </xmp></div>
-    </li>
-    <li>Remove the <strong>default_server</strong> parameter from this file, so that your <code>listen</code> simply reads:
-      <div class="hacker">listen 80;</div>
-    </li>
-    <li>Edit the <strong>server_name</strong> directive. This is the domain or subdomain you want to use for your site.
-      <div class="hacker">server_name <em><u>site1.coolexample.com</u></em>;</div>
-    </li>
-    <li>Edit the <strong>root</strong> directive. This is the directory for your website files, which you created earlier in the guide. You may need to do this in several places, including the different <code>location {}</code> blocks.
-      <div class="hacker">root     /usr/share/nginx/<em><u>site1.coolexample.com</u></em>;</div>
-    </li>
-    <li>(Optional) Add <code>index.php</code> to the <strong>index</strong> directive. If you are using a traditional PHP application such as WordPress, you will want to move <code>index.php</code> to the front of the index priority.
-      <div class="hacker">index index.php index.html index.html;</div>
-    </li>
-    <li>Your new server block file should look something like the example below. Use your own domains and/or paths for your server block file instead of the example domains.
-      <div class="hacker">
-        <xmp>
-        server {
-          listen       80;
-          root /usr/share/nginx/site1.coolexample.com;
-          index index.php index.html index.html;
-          server_name  site1.coolexample.com;
-          include /etc/nginx/default.d/*.conf;
-          location / {
-              root   /usr/share/nginx/site1.coolexample.com;
-              index  index.html index.htm;
-              try_files $uri $uri/ /index.html;
+            error_page  404              /404.html;
+            location = /404.html {
+              root   /usr/share/nginx/yoursitehere;
+            }
+            error_page   500 502 503 504  /50x.html;
+            location = /50x.html {
+            root   /usr/share/nginx/yoursitehere;
+            }
           }
-          location ~ \.php$ {
-                         fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
-                         fastcgi_index index.php;
-                         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                         include fastcgi_params;
-                         }
-          error_page  404              /404.html;
-          location = /404.html {
-              root   /usr/share/nginx/site1.coolexample.com;
-          }
-          error_page   500 502 503 504  /50x.html;
-          location = /50x.html {
-              root   /usr/share/nginx/site1.coolexample.com;
-          }
-        }
-        </xmp>
-      </div>
+        </pre></div>
     </li>
     <li>Save and close the file.</li>
-    <li>Now open your second server block file.
-      <div class="hacker">sudo vim /etc/nginx/sites-available/<em><u>site2.coolexample.com</u></em></div>
+    <li>You now have a template file you can use for creating future server blocks. Copy these for each server block you create.
+      <div class="hacker">sudo cp /etc/nginx/sites-available/template /etc/nginx/sites-available/<em><u>site1.coolexample.com</u></em><br \>
+        sudo cp /etc/nginx/sites-available/template /etc/nginx/sites-available/<em><u>site2.coolexample.com</u></em>
     </li>
-    <li>Make the same changes to this file, using the domain and directory for your second site. The new one should look something like the example below. Again, make sure that you use your own domains and/or paths instead of the examples.
-      <div class="hacker">
-        <xmp>
-        server {
-          listen       80;
-          root /usr/share/nginx/site2.coolexample.com;
-          index index.php index.html index.html;
-          server_name  site1.coolexample.com;
-          include /etc/nginx/default.d/*.conf;
-          location / {
-              root   /usr/share/nginx/site2.coolexample.com;
-              index  index.html index.htm;
-              try_files $uri $uri/ /index.html;
-          }
-          location ~ \.php$ {
-                         fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
-                         fastcgi_index index.php;
-                         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                         include fastcgi_params;
-                         }
-          error_page  404              /404.html;
-          location = /404.html {
-              root   /usr/share/nginx/site2.coolexample.com;
-          }
-          error_page   500 502 503 504  /50x.html;
-          location = /50x.html {
-              root   /usr/share/nginx/site2.coolexample.com;
-          }
-        }
-        </xmp>
-      </div>
+    <li>In each of these new files, you need to replace <strong>yoursitehere</strong> with the domain you are setting up. There are a few ways to do this:
+      <ul>
+        <li>Open the file in a text editor, and manually edit the paths. This is useful if you have to make additional edits to the configuration file.
+          <div class="hacker">sudo vim /etc/nginx/sites-available/<em><u>site1.coolexample.com</u></em><br \>
+           sudo vim /etc/nginx/sites-available/<em><u>site2.coolexample.com</u></em> 
+          </div>
+        </li>
+        <li>Use this <code>sed</code> command. This will automatically replace all instances of <strong>yoursitehere</strong> with the domain of your choice inside the configuration file.
+          <div class="hacker">sudo sed -i 's/yoursitehere/<em><u>site1.coolexample.com</u></em>/g' /etc/nginx/sites-available/<em><u>site1.coolexample.com</u></em><br \>
+            sudo sed -i 's/yoursitehere/<em><u>site2.coolexample.com</u></em>/g' /etc/nginx/sites-available/<em><u>site2.coolexample.com</u></em>
+          </div>
+        </li>
+      </ul>
     </li>
-    <li>Save and close the file.</li>
     <li>Add symbolic links in the <code>sites-enabled</code> directory to enable these server blocks.
       <div class="hacker">sudo ln -s /etc/nginx/sites-available/<em><u>site1.coolexample.com</u></em> /etc/nginx/sites-enabled/<em><u>site1.coolexample.com</u></em><br \>
       sudo ln -s /etc/nginx/sites-available/<em><u>site2.coolexample.com</u></em> /etc/nginx/sites-enabled/<em><u>site2.coolexample.com</u></em>
@@ -253,6 +187,6 @@ This sort of directory system is typically used by Debian and Ubuntu, but they c
         <p class="note">If you get an error when restarting NGINX, it is likely that you have not properly changed the server block files in the <code>sites-available</code> directory. Make sure that you have all your <code>{ }</code> brackets closed and that all directives end in a semicolon.</p>
     </li>
   </ol>
-<p>You should now be able to navigate to your site(s) in a browser, and see the NGINX test page that you created. You are now ready to upload your site or install your application to that directory, and get your site up and running on NGINX.</p>
+<p>You should now be able to navigate to your site(s) in a browser, and see the NGINX test page that you created. If you did it correctly, each different site should display a different page.</p>
 <h2>Conclusion</h2>
-<p>You now have one or more functional server blocks for NGINX using a very simple configuration. For additional configuration options, check out the <a href="http://nginx.org/en/docs/beginners_guide.html">Official NGINX documentation portal</a>.</p>
+<p> You are now ready to upload your site or install your application to your new site directory, and get your site up and running on NGINX. For additional NGINX server configuration options, check out the <a href="http://nginx.org/en/docs/beginners_guide.html">Official NGINX documentation portal</a>.</p>
