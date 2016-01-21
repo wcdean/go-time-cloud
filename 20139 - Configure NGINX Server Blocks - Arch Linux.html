@@ -2,7 +2,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
-<title>Configure NGINX Server Blocks - CentOS and Fedora</title>
+<title>Configure NGINX Server Blocks - Arch Linux</title>
 <style>
 div.hacker {
 background-color:#666;
@@ -33,32 +33,26 @@ p.note {
     </style>
 </head>
 <body>
-<h1>Configure NGINX Server Blocks - CentOS, Fedora</h1>    
+<h1>Configure NGINX Server Blocks - Arch Linux</h1>    
     <br/><strong>Difficulty</strong>: <em><u>2</u></em><br/>
         <strong>Time</strong>: <em><u>Time value</u></em>
     <br/>
 <p>NGINX is one of the most popular web server solutions in the industry. Considered to be a competitor to the traditional <a href="http://apache.org/">Apache web server</a>, NGINX is known for being faster and easier to scale than other web servers.</p>
-<p>Unlike Apache, which uses <a href="/article/17338?prog_id=PROG_ID" target="_blank">Virtual Hosts</a> to manage individual sites and domains, NGINX uses server blocks. Server blocks let you host multiple sites with different domains on the same server. This guide will cover how to set up server blocks for your domains and subdomains on your CentOS or Fedora server.</p>
+<p>Unlike Apache, which uses <a href="/article/17339?prog_id=PROG_ID" target="_blank">Virtual Hosts</a> to manage individual sites and domains, NGINX uses server blocks. Server blocks let you host multiple sites with different domains on the same server. This guide will cover how to set up server blocks for your domains and subdomains on your Arch Linux server.</p>
 <h2>Prerequisites</h2>
 <ol>
-  <li>You must have an CentOS or Fedora server with NGINX installed. If you do not have NGINX installed, follow the NGINX install steps in the LEMP stack guide for your distribution of choice:
-    <ul>
-      <li><a href="/article/19186?prog_id=PROG_ID" target="_blank">CentOS 6</a></li>
-      <li><a href="/article/17349?prog_id=PROG_ID" target="_blank">CentOS 7</a>.</li>
-      <li><a href="/article/19186?prog_id=PROG_ID" target="_blank">Fedora</a></li>
-    </ul>
-  </li>
+  <li>You must have an Arch Linux server with NGINX installed. If you do not have NGINX installed, follow the NGINX install steps in the <a href="/article/17350?prog_id=PROG_ID" target="_blank">LEMP stack guide for Arch Linux</a>.</li>
   <li>Log in to your server with a user that has <code>sudo</code> privileges. If you have a GoDaddy Cloud server, you will already have one by default.</li>
   <li><a href="/article/19116?prog_id=PROG_ID" target="_blank">Point a domain or subdomain to your server</a>. If you don't want to use a real domain yet, you can <a href="/article/3354?prog_id=PROG_ID" target="_blank">edit your hosts file</a> to test your configuration.</li>
 </ol>
 <h2>Create new NGINX directory</h2>
-<p>CentOS and Fedora use <code>/usr/share/nginx/html</code> as the base root for the NGINX server overall. You will create directories in <code>/usr/share/nginx/</code> for each site you want to host.</p>
+<p>Arch Linux uses <code>/usr/share/nginx/html</code> as the base root for the NGINX server overall. You will create directories in <code>/usr/share/nginx/</code> for each site you want to host.</p>
 <ol>
   <li>Create a directory for your domain.
     <div class="hacker">sudo mkdir -p /usr/share/nginx/<em><u>coolexample.com</u></em></div>
   </li>
   <li>Give this directory the correct permissions ownership for the NGINX user.
-    <div class="hacker">sudo chown -R nginx:nginx /usr/share/nginx/<em><u>coolexample.com</u></em><br \>
+    <div class="hacker">sudo chown -R http:http /usr/share/nginx/<em><u>coolexample.com</u></em><br \>
     sudo chmod -R 755 /usr/share/nginx/<em><u>coolexample.com</u></em>
     </div>
     You now have a directory for your site. Repeat this for any more sites that you want to host.
@@ -92,7 +86,7 @@ This sort of directory system is typically used by Debian and Ubuntu, but they c
 <li>You do need to add another line to your NGINX configuration file, so go ahead and open that in a text editor.
   <div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
 <li>Look for the following include line:
-  <div class="hacker">include /etc/nginx/conf.d/*.conf;</div></li>
+  <div class="hacker">include       mime.types;</div></li>
 <li>Directly under this line, add the following line:
   <div class="hacker">include /etc/nginx/sites-enabled/*;</div>
 </li>
@@ -132,7 +126,7 @@ This sort of directory system is typically used by Debian and Ubuntu, but they c
       <div class="hacker">sudo ln -s /etc/nginx/sites-available/<em><u>coolexample.com</u></em> /etc/nginx/sites-enabled/<em><u>coolexample.com</u></em>
     </div></li>
     <li>Restart NGINX to confirm all your changes.
-      <div class="hacker">sudo service nginx restart</div>
+      <div class="hacker">sudo systemctl restart nginx</div>
         <p class="note">If you get an error when restarting NGINX, it is likely that you have not properly changed the server block file in the <code>sites-available</code> directory. Make sure that you have all your <code>{ }</code> brackets closed and that all directives end in a semicolon.</p>
     </li>
   </ol>

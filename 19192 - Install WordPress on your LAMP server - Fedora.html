@@ -1,11 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
-
 <head>
-
-<!--Article Number was 00014, and is now 19192-->
-
 <title>Install WordPress on your LAMP server - Fedora</title>
 <style type="text/css">
 div.hacker {
@@ -37,157 +33,86 @@ p.note {
  padding-bottom:15px;
 }
 </style>
-
-
 </head>
-
 <body>
-<p>Installing WordPress on a LAMP server for Fedora.</p>
     <h1>Install WordPress on your LAMP server - Fedora</h1>
-
     <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
         <strong>Time</strong>: <em><u>15 minutes</u></em></p>
-
      <p>WordPress has become much more than its humble beginnings in 2003 as a self-hosted blogging tool; it is the Internet's leading content management system (CMS). This open-source CMS powers all types of sites, including major brands such as The New Yorker, Variety, TechCrunch, and Best Buy. With a MySQL and PHP architecture, WordPress is easy to install and has endless options for website configuration thanks to tens of thousands of plugins and themes from its rich and active community.</p>
 
-<p>This tutorial will walk you through setting up WordPress on a Fedora&trade; system. The steps will be for a non-root user with sudo (administrator) privileges.</p>
-
-
+<p>This tutorial will walk you through setting up WordPress on a Fedora&trade; server with PHP and MySQL.</p>
     <h2>Prerequisites</h2>
-    <p>Set up a server with a Linux, Apache, MySQL, and PHP (LAMP) stack configured. Be sure that Apache, MySQL, and PHP are up and running. For a how-to on installing a LAMP stack on a specific server, see
-  <a href="http://git.dean.xyz/17342%20-%20Build%20a%20LAMP%20stack%20(Linux,%20Apache,%20MySQL,%20PHP)%20-%20Fedora.html">Build a LAMP stack (Linux, Apache, MySQL, PHP) – Fedora</a>.</p>
-
-  <p>Make note of your MySQL root account (admin) password. You'll need it for these tasks.</p>
-
+    <ul>
+      <li>A Fedora server with a <a href="/article/17342?prog_id=PROG_ID" target="_blank">LAMP stack (Linux, Apache, MySQL, PHP)</a> installed and running.</li>
+      <li>Log in to your server with a user that has sudo privileges. If you have a GoDaddy Cloud server, you will already have one by default.</li>
+      <li><strong>(OPTIONAL)</strong><a href="/article/19116?prog_id=PROG_ID" target="_blank">Point a domain or subdomain to your server</a>. If you don't want to use a real domain yet, you can <a href="/article/3354?prog_id=PROG_ID" target="_blank">edit your hosts file</a> to test your configuration. If you don't want to use a domain with your WordPress site just yet, you can instead simply use your server IP address when testing your site.</li>
+    </ul>
 <h3>Installing commands and text editor</h3>
-<p>If you haven't installed the commands and text editor yet, do so now using <code>yum</code>:
+<p>In case your server doesn't have them yet, use <code>yum</code> to install a few programs you will need for setting up WordPress.</p>
 <div class="hacker">sudo yum install tar rsync vim</div>
-Select <strong>y</strong> at the prompt to install these packages.</p>
-<h2>Create a MySQL database and administrator for WordPress</h2>
-
-     <p>Set up your MySQL database with an administrator, so that WordPress has a place to store all your site and user information. </p>
-
-
+<h2>Create a MySQL database and user</h2>
 <ol>
         <li>Log into your MySQL admin account.
             <div class="hacker">sudo mysql -u root -p</div>
-            <p class="warning">Remember: All <b>MySQL</b> code statements must end with a semi-colon (;).</p></li>
-
-        <li>At the prompt, enter your MySQL root password.</li>
-
-        <li>At the MySQL prompt, create your WordPress database. For this tutorial, we'll use the database name fittingly as <em><u>wordpress</u></em>."
+            </li>
+        <li>At the prompt, enter your MySQL root password. Use the root password you set up when you installed MySQL.
+          <p class="note">If you do not remember your root MySQL password, see our guide to <a href="/article/17548?prog_id=PROG_ID" target="_blank">reset your root MySQL password</a>.</li>
+        <li>Create a new MySQL database.
             <div class="hacker">CREATE DATABASE <em><u>wordpress</u></em>;</div></li>
-
-        <li>Create the database administrator account and set the user's credentials.  For this article, we'll use <em><u>wordpressadmin</u></em> as the example user name and <em><u>wordpresspassword</u></em> as the password.
-            <div class="hacker">CREATE USER <em><u>wordpressadmin</u></em>@localhost IDENTIFIED BY '<em><u>wordpresspassword</u></em>';</div> <br />
-            Make sure to create a strong password for best security practices. Keep your username and password handy, as you'll need them later.<br /></li>
-
-        <li>Give, or grant, your admin permissions to the database.
-            <div class="hacker">GRANT ALL PRIVILEGES ON wordpress.* TO <em><u>wordpressadmin</u></em>@localhost;</div>
-            <code>GRANT</code> is one of the account management statements the MySQL server notices and loads into memory right away. So a manual reload/restart should not be necessary. But if you'd like, you can check the permissions using <code>SHOW GRANTS:</code>   <br />
-            <div class="hacker">SHOW GRANTS FOR '<em><u>wordpressadmin</u></em>'@'localhost';</div></li>
-        <li>If for some reason the privileges didn't take, flush the privileges to activate the user. <code>Flush</code> forces a reload of the cache.
-                <div class="hacker">FLUSH PRIVILEGES;</div>  </li>
-
-        <li> You're finished! Exit MySQL to bring you back to your normal command prompt.
-                <div class="hacker">exit</div> </li>
+        <li>Create a new MySQL user and password.
+            <div class="hacker">CREATE USER <em><u>wpuser</u></em>@localhost;</div></li>
+        <li>Set the password for this new user. Make sure to use a safe passwword.
+        <div class="hacker">SET PASSWORD FOR wpuser@localhost= PASSWORD("wppassword");</div></li>
+        <li>Grant all privileges to this new user.
+            <div class="hacker">GRANT ALL PRIVILEGES ON wordpress.* TO <em><u>wpuser</u></em>@localhost IDENTIFIED BY 'wppassword';</div></li>
+        <li>Confirm that the changes to this user are properly applied.
+            <div class="hacker">SHOW GRANTS FOR '<em><u>wpuser</u></em>'@'localhost';</div><br \>
+            If the changes worked, you should see an output that looks something like this:
+            <div class="hacker">GRANT USAGE ON *.* TO 'wpuser'@'localhost' IDENTIFIED BY PASSWORD '*977FDAC11B3F74324912DA4F9D489A3E6D59B281'<br \>
+              GRANT ALL PRIVILEGES ON `wordpress`.* TO 'wpuser'@'localhost'</div></li>
+        <li>If the changes did not apply properly, refresh the MySQL cache and try again.
+                <div class="hacker">FLUSH PRIVILEGES;</div></li>
+        <li>Once you confirm that the changes worked, exit MySQL. 
+                <div class="hacker">exit</div></li>
 </ol>
-
-
-
 <h2>Download WordPress</h2>
-
-     Your system is now ready to install WordPress into your directory. WordPress is available in a tar.gz or zip format. We will be getting the tar.gz file.
-
-     <ol>
-     <li>Download the WordPress files from the official site using <code>wget</code>.
-<div class="hacker">cd ~</div>
-<div class="hacker">wget http://wordpress.org/latest.tar.gz    </div>
-<p>This URL will always link to a compressed file of the latest stable version of WordPress.    </p>  </li>
-
-         <li>Extract, or untar, the application directory.
-
-<p>Create a directory called <em>wordpress</em> in your home directory.</p>
-
-<div class="hacker">sudo tar xzvf latest.tar.gz </div>
-
-</li>
-</ol>
-
-   <h2>Configure WordPress</h2>
-
-   <ol>
-      <li>Go into the WordPress directory that you just unpacked.
-<div class="hacker">cd ~/wordpress</div>    </li>
-
-<li>Edit the following lines with the values in <code>wp-config.php</code>.
-
-<div class="hacker">sudo cp wp-config-sample.php wp-config.php</div>
-                                                               </li>
- <li>Open the config file in your text editor.
-<div class="hacker">sudo vim wp-config.php</div>
-     </li>
-
-   <li>Locate this section of the code below (starting with <code>MySQL settings</code>…) and enter your corresponding values of the three <code>DB_</code> variables (<code>DB_NAME</code>, <code>DB_USER</code>, and <code>DP_PASSWORD</code>) with your information.
-
-<div class="hacker">// ** MySQL settings - You can get this info from your web host ** // <br />
-/** The name of the database for WordPress */ <br />
-define('DB_NAME', '<em><u>wordpress</u></em>'); <br />
-
-/** MySQL database username */  <br />
-define('DB_USER', '<em><u>wordpressadmin</u></em>');     <br />
-
-/** MySQL database password */ <br />
-define('DB_PASSWORD', '<em><u>wordpresspassword</u></em>');   </div>
+<p>You are ready to download and install WordPress. </p>
+<ol>
+  <li>Navigate to your Apache Document Root. This guide uses the default Document Root for Apache on Fedora. If you <a href="/article/17338?prog_id=PROG_ID" target="_blank">set up an Apache VirtualHost</a>, you can use that directory instead of <code>/var/www/html/</code>.
+<div class="hacker">cd /var/www/html</div>
   </li>
-<li>Save and close.</li>
-                            </ol>
-
-  <h2>Configure the document root</h2>
-
-   <p>After you've configured WordPress, transfer the files to Apache's root directory so that the application can serve content to your site visitors.</p>
-
- <ol>
- <li>Transfer your WordPress files using <code>rsync</code>, a reliable file transfer and synchronization program.
-    <div class="hacker">sudo rsync -avP ~/wordpress/ /var/www/html/</div>
-This program will safely copy all of the contents from the directory you unpacked to the document root.</li>
-<li>Assign the correct ownership and permission to your document root. This will let WordPress function properly for things like security, uploads, and changing settings.
-<div class="hacker">sudo chown -R apache:apache /var/www/html</div></li>
-<li>Restart Apache.
- <div class="hacker">sudo  systemctl restart httpd</div></li>
+  <li>Give this directory the correct permissions and ownership settings.
+    <div class="hacker">sudo chmod -R 755 /var/www/html<br \>
+      sudo chown -R apache:apache /var/www/html
+    </div>
+  </li>
+  <li>Download the latest version of WordPress.
+    <div class="hacker">sudo wget http://wordpress.org/latest.tar.gz</div>
+  </li>
+  <li>Extract the WordPress files.
+    <div class="hacker">sudo tar xvzf latest.tar.gz</div>
+  </li>
+  <li>Move these files into the current directory.
+    <div class="hacker">sudo mv ./wordpress/* .</div>
+  </li>
+  <li>Remove the unused <code>wordpress</code> directory and the install package.
+    <div class="hacker">sudo rmdir wordpress<br \>
+    sudo rm latest.tar.gz</div>
+  </li>
 </ol>
-<h2>Install WordPress </h2>
-
-      <p>Good news: The rest of your installation will be done through the WordPress web interface.</p>
-
-         <ol>
-     <li>  Enter your server's domain name or public IP address in your web browser. <br />
-   <strong>http://<em><u>your_domain_name_or_IP</u></em></strong><br/>
-   You are redirected to the WordPress admin page:<code> http://server_domain_name_or_IP/wp-admin/install.php</code><br/>
-   </li>
-
-  <li>If you get the preliminary page to choose your language, do so, and then select <strong>Continue</strong>.
-</li>
-
-<li>At the WordPress 5-minute installation page, fill out your information to create your administrator account. Then, click <strong>Install WordPress</strong>.
-<p><img src="images/19192/082015/install-wordpress-on-your-server-welcome-filledout-1.png" alt="Install WordPress Welcome screen" /> </p></li>
-<li>On the next screen, WordPress confirms your installation with your user name and (hidden) password. Click <strong>Log In</strong>.</li>
-
- <li><p> WordPress then prompts you to log in again with your new credentials. Do so now and click <strong>Log In</strong>.</p>
-<img src="images/19192/082015/install-wordpress-on-your-server-login-3.png" alt="wordpress login screen" /></li>
-     </ol>
-
- <p>All done! The dashboard of your new site displays.</p>
-<img src="images/19192/082015/install-wordpress-on-your-server-admin-dashboard-4.png" alt="install wordpress admin dashboard screen" />
-
-
-    <h2>Next steps</h2>
-
-    <p>Congratulations! You have installed WordPress and created the beginning of your own web site.</p>
-
-<p>From here, you have many options for customizing your WordPress setup. A popular one is making pretty permalinks. See <a href="http://git.dean.xyz/19225%20-%20Set%20up%20WordPress%20Pretty%20Permalinks%20on%20Apache%20-%20ALL%20DISTROS.html"> Set up WordPress Pretty Permalinks on Apache – ALL DISTROS</a> for a step-by-step guide.</p>
-
-<p>For a how-to on installing WordPress on a LEMP stack, see <a href="http://git.dean.xyz/000XX%20-Install WordPress on your LEMP server – Fedora.html">Install WordPress on your LEMP server – Fedora</a>.</p>
-
+<h2>Configure and Install WordPress</h2>
+  <p>You are now ready to start setting up your WordPress files for installation. You will start by connecting your WordPress files to the MySQL database you created earlier in this guide. This section of the guide will be done in your web browser.</p>
+  <ol>
+    <li>Enter your server's domain name or public IP address in your web browser.<br \>
+   <strong>http://<em><u>your_domain_name_or_IP</u></em></strong></li>
+    <li>You will see a screen asking for your MySQL database credentials. Click <strong>Let's go!</strong>.</li>
+    <li>Fill in the fields for your database information. These are the MySQL credentials you created earlier. For the hostname, use <code>localhost</code>. For the Table Prefix, you can keep the default of <code>wp_</code>, but it is often a better security practice to use a randomly generated prefix such as wQ2z_.</li>
+    <li>Once all the database information is entered, click <strong>Submit</strong>. This will create your <code>wp-config.php</code> file, which contains your database connection strings.</li>
+    <li>Click <strong>Run the install</strong> to begin installing WordPress.</li>
+    <li>Fill out the information for your Site Title, your WordPress administrator username and password, and the email address for that user.</li>
+    <li>Click <strong>Install WordPress</strong> to complete the installation.</li>
+  </ol>
+<h2>Next steps</h2>
+<p>You have installed WordPress on your server and you are now ready to start building with WordPress. For additional configruation options, or for information on how to start using WordPress, check out <a href="http://codex.wordpress.org/">the official WordPress documentation</a>.</p>
 </body>
 </html>
