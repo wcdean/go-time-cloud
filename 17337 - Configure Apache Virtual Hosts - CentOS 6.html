@@ -5,7 +5,7 @@
 <head>
 
 
-<title>Configure Apache Virtual Hosts - CentOS 6</title>
+<title>Set up websites in Apache with virtual hosts - CentOS 6</title>
 <style type="text/css">
 div.hacker {
 background-color:#666;
@@ -42,15 +42,15 @@ p.note {
 </head>
 
 <body>
-<p>Configuring Apache Virtual Hosts for CentOS 6.</p>
-    <h1>Configure Apache Virtual Hosts - CentOS 6</h1>
+<p>Set up websites in Apache with virtual hosts for CentOS 6.</p>
+    <h1>Set up websites in Apache with virtual hosts - CentOS 6</h1>
     
    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
         <strong>Time</strong>: <em><u>30 minutes</u></em></p>
     
-<p>Want to host multiple websites? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts” – and it’ll let you do it without needing any additional IP addresses.</p>
+<p>Want to host websites on your server? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts.”</p>
 
-<p>In Apache, every site is handled by a virtual host which points incoming <code>http</code> traffic to a particular directory (i.e. the root directory of the website for the domain in the request). By default, Apache only creates one virtual host but you can configure more – as many as your server can handle.</p>
+<p>In Apache, you can use virtual hosts to direct <code>http</code> traffic for a given domain name to a particular directory (i.e. the root directory of the website for the domain in the request). This feature is commonly used to host multiple websites, but we recommend using it for every website on your server <em>including</em> the first.</p>
 
 <p>Throughout this article, we'll use an example domain – <em><u>coolexample.com</u></em> – but you should replace it with the domain name or subdomain you want to host on your server.</p>
     
@@ -70,14 +70,17 @@ p.note {
         <div class="hacker">sudo mkdir -p /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
     <li>Set up ownership and grant permissions. Change the ownership from the <code>root</code> user to a regular user using <code>chown</code>. This way, regular users can modify files in your web directories:
         <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    <li>Set read permissions to the Apache web root <code>/var/www </code> directory to enable access to the files from that directory. Modify permissions so that the general web directory has read access.
+    <li>Change the directory's permissions so they can be read from the internet:
         <div class="hacker">sudo chmod -R 755 /var/www/</div></li>
 </ol>
     
-<h2>Create a sample page for your virtual host</h2>
+<h2>Create content for the website</h2>
+<p>If you have the content for the website prepped, you can upload it to the <code>/public_html</code> folder you created in the last section.</p>
+
+<p>If you don't have content ready to upload, you can create a sample home page (also known as an index file, which is the first page that loads when visitors come to your domain).</p>
     
 <ol>
-    <li>Create a sample page for your virtual host:
+    <li>Create an index file:
         <div class="hacker">sudo vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div></li>
     <li>Add some content to the file:
         <div class="hacker"><pre>&lt;html&gt; 
@@ -107,18 +110,18 @@ p.note {
             <li>Point <code>DocumentRoot</code> to your domain and the directory that holds it. In our case, that would be <code>/var/www/<em><u>coolexample.com</u></em>/public_html</code>. So the line will look like this:
                 <div class="hacker">DocumentRoot /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
             <li>Point <code>ServerName</code> to your domain with the www.</li>
-            <li>Make sure that your hostname has a valid DNS record, so that the www version of your domain works. In our case, that would be <em><u>www.coolexample.com</u></em></li>
+            <li>Make sure that your hostname has a valid DNS record, so that the www version of your domain works. In our case, that would be www.<em><u>coolexample.com</u></em></li>
             <li>Point <code>ServerAlias</code> to other variations of your domain, such as the domain without the www.</li>
         </ul>
 
     <p>Here's what the whole section could look like after your changes:</p>
     <div class="hacker"><pre>
     &lt;VirtualHost *:80&gt;
-    ServerAdmin webmaster@coolexample.com
+    ServerAdmin <em><u>webmaster@coolexample.com</u></em>
     DocumentRoot /var/www/<em><u>coolexample.com</u></em>/public_html
-    ServerName <em><u>www.coolexample.com</u></em> 
+    ServerName www.<em><u>coolexample.com</u></em> 
     ServerAlias <em><u>coolexample.com</u></em> 
-    ServerName <em><u>www.coolexample.com</u></em>     
+    ServerName www.<em><u>coolexample.com</u></em>     
     ErrorLog /var/www/<em><u>coolexample.com</u></em>/error.log 
     CustomLog /var/www/<em><u>coolexample.com</u></em>/requests.log combined 
     &lt;/VirtualHost&gt </pre> </div>
@@ -183,34 +186,37 @@ td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
 
 <h2>Adding additional virtual hosts</h2>
 
-<p>Repeat the above steps to create more virtual hosts. Be sure to create a new document root with your domain name each time.  </p>
+<p>To create additional sites, repeat the following sections:</p>
+<ol>
+    <li>Set up the virtual host</li>
+    <li>Create content for the website</li>
+    <li>Modify your Apache configuration file &mdash; but for additional virtual hosts, you will need to create new <code>&lt;Virtual Host *:80&gt;</code> sections.</li>
+    <li>Point your domain name to your server</li>
+</ol>
 
-
-<p>In your Apache config file, copy and paste the new Virtual Host information. So, for example, if you were adding coolexample.net as a second host, it could look like this:</p>
-     <div class="hacker"><pre>
-   &lt;VirtualHost *:80&gt;
-    ServerAdmin webmaster@coolexample.com
+<p>For your reference, here's an example of what our Apache config file (<code>/etc/httpd/conf/httpd.conf</code>) looks like after adding <em><u>coolexample.net</u></em> as a second virtual host:</p>
+     <div class="hacker"><pre>&lt;VirtualHost *:80&gt;
+    ServerAdmin <em><u>webmaster@coolexample.com</u></em>
     DocumentRoot /var/www/<em><u>coolexample.com</u></em>/public_html 
-    ServerName <em><u>www.coolexample.com</u></em> 
+    ServerName www.<em><u>coolexample.com</u></em> 
     ServerAlias <em><u>coolexample.com</u></em>
-    ServerName <em><u>www.coolexample.com</u></em>     
+    ServerName www.<em><u>coolexample.com</u></em>     
     ErrorLog /var/www/<em><u>coolexample.com</u></em>/error.log 
     CustomLog /var/www/<em><u>coolexample.com</u></em>/requests.log combined 
-    &lt;/VirtualHost&gt; 
+&lt;/VirtualHost&gt; 
 
-   &lt;VirtualHost *:80&gt;
-    ServerAdmin webmaster@coolexample.net
-    DocumentRoot <em><u>/var/www/coolexample.net/public_html</u></em> 
-    ServerName <em><u>www.coolexample.net</u></em> 
+&lt;VirtualHost *:80&gt;
+    ServerAdmin <em><u>webmaster@coolexample.net</u></em>
+    DocumentRoot /var/www/<em><u>coolexample.net</u></em> /public_html
+    ServerName www.<em><u>coolexample.net</u></em> 
     ServerAlias <em><u>coolexample.net</u></em> 
-    ServerName <em><u>www.coolexample.net</u></em>     
-    ErrorLog /var/www/coolexample.net/error.log 
-    CustomLog /var/www/coolexample.net/requests.log combined 
-    &lt;/VirtualHost&gt; 
-  </pre></div>
+    ServerName www.<em><u>coolexample.net</u></em>     
+    ErrorLog /var/www/<em><u>coolexample.net</u></em>/error.log 
+    CustomLog /var/www/<em><u>coolexample.net</u></em>/requests.log combined 
+&lt;/VirtualHost&gt;</pre></div>
 
-<h2>Next steps</h2>
-<p>Congratulations! You now have a single server handling a site with its own domain. Again, remember that you can add additional virtual hosts since there is no limit on the number of domain names Apache can handle.</p>
+<h2>Next Steps</h2>
+<p>With Apache set up to work with your domain name, you can now do things like set up things like WordPress or Drupal.</p>
 
   </body>
 </html>

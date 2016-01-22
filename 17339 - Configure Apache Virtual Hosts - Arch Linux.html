@@ -43,21 +43,21 @@ td{border: 1px solid #b2b2b2
 
 </style>
 
-<title>Configure Apache Virtual Hosts - Arch Linux</title>
+<title>Set up websites in Apache with virtual hosts - Arch Linux</title>
 </head>
   <body>
   
 
-  <p>Configure Apache Virtual Hosts Setup on Arch Linux.</p>
+  <p>Set up websites in Apache with virtual hosts on Arch Linux.</p>
 
-    <h1>Configure Apache virtual hosts - Arch Linux</h1>
+    <h1>Set up websites in Apache with virtual hosts - Arch Linux</h1>
     
    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
         <strong>Time</strong>: <em><u>15 minutes</u></em></p>
     
-<p>Want to host multiple websites? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts” – and it’ll let you do it without needing any additional IP addresses.</p>
+<p>Want to host websites on your server? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts.”</p>
 
-<p>In Apache, every site is handled by a virtual host which points incoming <code>http</code> traffic to a particular directory (i.e. the root directory of the website for the domain in the request). By default, Apache only creates one virtual host but you can configure more – as many as your server can handle.</p>
+<p>In Apache, you can use virtual hosts to direct <code>http</code> traffic for a given domain name to a particular directory (i.e. the root directory of the website for the domain in the request). This feature is commonly used to host multiple websites, but we recommend using it for every website on your server <em>including</em> the first.</p>
 
 <p>Throughout this article, we'll use an example domain – <em><u>coolexample.com</u></em> – but you should replace it with the domain name or subdomain you want to host on your server.</p>
 
@@ -77,7 +77,10 @@ td{border: 1px solid #b2b2b2
 </ul>
     
         
-<h2>Create a sample page for your virtual host</h2>
+<h2>Create content for the website</h2>
+<p>If you have the content for the website prepped, you can upload it to the <code>/public_html</code> folder you created in the last section.</p>
+
+<p>If you don't have content ready to upload, you can create a sample home page (also known as an index file, which is the first page that loads when visitors come to your domain).</p>
     
 <ol>
     <li>Create a sample page for your virtual host:
@@ -114,13 +117,12 @@ td{border: 1px solid #b2b2b2
         <div class="hacker">sudo vim /etc/httpd/conf/extra/httpd-vhosts.conf</div></li>
     <li>In the file, replace the first virtual host example with your own domain information. <code>DocumentRoot</code>, <code>ServerName</code>, and <code>ServerAlias</code> are the lines that must be updated:
       <div class="hacker"><pre>&lt;VirtualHost *:80&gt;
-    ServerAdmin <em><u>youremail@coolexample.com</u></em>
-    DocumentRoot "<em><u>/srv/http/coolexample.com</u></em>" 
-    ServerName <em><u>www.coolexample.com</u></em>     
+    ServerAdmin <em><u>your email address</u></em>
+    DocumentRoot "/srv/http/<em><u>coolexample.com</u></em>" 
+    ServerName www.<em><u>coolexample.com</u></em>     
     ServerAlias <em><u>coolexample.com</u></em> 
-    ErrorLog "<em><u>/srv/http/<em><u>coolexample.com</u></em>/error.log</u></em>" 
-    CustomLog "<em><u>/srv/http/<em><u>coolexample.com</u></em>/requests.log</u></em>" common
-
+    ErrorLog "/srv/http/<em><u>coolexample.com</u></em>/error.log" 
+    CustomLog "/srv/http/<em><u>coolexample.com</u></em>/requests.log" common
 &lt;/VirtualHost&gt;
   </pre></div>
 
@@ -198,8 +200,8 @@ td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
 <p>Repeat the above steps to create more virtual hosts. Be sure to create new config files for each new virtual host. You can copy the <em><u>coolexample.com</u></em> config file to create new hosts.</p>
 
 
-<h2>Next steps</h2>
-<p>Congratulations! You now have a single server handling a site with its own domain. Again, remember that you can add additional virtual hosts since there is no limit on the number of domain names that Apache can handle.</p>
+<h2>Next Steps</h2>
+<p>With Apache set up to work with your domain name, you can now do things like set up things like WordPress or Drupal.</p>
 
   </body>
 </html>

@@ -7,7 +7,7 @@
 <!--Article Number is 17338-->
 
 
-<title>Configure Apache Virtual Hosts - CentOS 7, Fedora</title>
+<title>Set up websites in Apache with virtual hosts - CentOS 7, Fedora</title>
 
 <style type='text/css'>
 div.hacker {
@@ -52,15 +52,15 @@ td{border: 1px solid #b2b2b2
 </head>
 
 <body>
-<p>Configuring Apache Virtual Hosts for CentOS 7 or Fedora 20, 21.</p>
-    <h1>Configure Apache Virtual Hosts - CentOS 7, Fedora</h1>
+<p>Set up websites in Apache with virtual hosts for CentOS 7 or Fedora 20, 21.</p>
+    <h1>Set up websites in Apache with virtual hosts - CentOS 7, Fedora</h1>
     
    <p><strong>Difficulty</strong>: <em><u>2</u></em><br />
         <strong>Time</strong>: <em><u>15 minutes</u></em></p>
     
-<p>Want to host multiple websites? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts” – and it’ll let you do it without needing any additional IP addresses.</p>
+<p>Want to host websites on your server? Using Apache? Great. This article will show you how to do exactly that using Apache’s “virtual hosts.”</p>
 
-<p>In Apache, every site is handled by a virtual host which points incoming <code>http</code> traffic to a particular directory (i.e. the root directory of the website for the domain in the request). By default, Apache only creates one virtual host but you can configure more – as many as your server can handle.</p>
+<p>In Apache, you can use virtual hosts to direct <code>http</code> traffic for a given domain name to a particular directory (i.e. the root directory of the website for the domain in the request). This feature is commonly used to host multiple websites, but we recommend using it for every website on your server <em>including</em> the first.</p>
 
 <p>Throughout this article, we'll use an example domain – <em><u>coolexample.com</u></em> – but you should replace it with the domain name or subdomain you want to host on your server.</p>
 
@@ -79,15 +79,16 @@ td{border: 1px solid #b2b2b2
 <ol>
     <li>Create the virtual directories for your domain:
         <div class="hacker">sudo mkdir -p /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    
     <li>Set up ownership and grant permissions. Change the ownership to the Apache group using <code>chown</code>. This way, regular users can modify files in your web directories:
         <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-     
-    <li>Set read permissions to the Apache web root <code>/var/www </code> directory to enable access to the files from that directory. Modify permissions, so that the general web directory has read access.
+    <li>Change the directory's permissions so they can be read from the internet:
         <div class="hacker">sudo chmod -R 755 /var/www/</div></li>
 </ol>
     
-<h2>Create a sample page for your virtual host</h2>
+<h2>Create content for the website</h2>
+<p>If you have the content for the website prepped, you can upload it to the <code>/public_html</code> folder you created in the last section.</p>
+
+<p>If you don't have content ready to upload, you can create a sample home page (also known as an index file, which is the first page that loads when visitors come to your domain).</p>
     
 <ol>
     <li>Create a sample page for your virtual host:
@@ -105,12 +106,16 @@ td{border: 1px solid #b2b2b2
       <div class="hacker">:wq!</div></li>
 </ol>
 
- <h2>Create sites-available and sites-enabled directories</h2>
+<h2>Configure your virtual host directories</h2>
 
-<p> Set up two directories: one to store the virtual host files and another to hold symbolic links to virtual hosts that will be published.</p>
+<p>We're going to borrow a configuration usually used in Ubuntu/Debian and create two directories: one to store the virtual host files (<code>sites-available</code>) and another to hold symbolic links to virtual hosts that will be published (<code>sites-enabled</code>).</p>
+
+<h3>Create sites-available and sites-enabled directories</h2>
+<ul>
+    <li>Create the directories:
         <div class="hacker">sudo mkdir /etc/httpd/sites-available</div>
-        <div class="hacker">sudo mkdir /etc/httpd/sites-enabled</div>  
-<p>The <code>sites-available</code>, <code>sites-enabled</code> directory structure is actually a fixture of Ubuntu/Debian, but we are borrowing this setup for our use in CentOS/Fedora for the ease of use in managing (enabling and disabling) virtual hosts.</p> 
+        <div class="hacker">sudo mkdir /etc/httpd/sites-enabled</div></li>
+</ul>
 
 <h3>Edit your Apache configuration file</h3>
 <p>Edit the main configuration file, so that Apache will look for virtual hosts in the <code>sites-enabled</code> directory.</p>
@@ -123,7 +128,7 @@ td{border: 1px solid #b2b2b2
     This way, we're telling Apache to look for additional config files in the <code>sites-enabled</code> directory. </li>
      <li>Save and close the file:
       <div class="hacker">:wq!</div></li>
-   </ol>
+</ol>
 
 <h2>Create virtual host file</h2>
 <p>We're going to build it from a new file in your <code>sites-available</code> directory.</p>
@@ -135,7 +140,7 @@ td{border: 1px solid #b2b2b2
     <p>Here's what the whole file could look like after your changes:</p>
      <div class="hacker"><pre>&lt;VirtualHost *:80&gt;
     ServerAdmin webmaster@dummy-host.example.com    
-    ServerName <em><u>www.coolexample.com</u></em>     
+    ServerName www.<em><u>coolexample.com</u></em>     
     ServerAlias <em><u>coolexample.com</u></em> 
     DocumentRoot /var/www/<em><u>coolexample.com</u></em>/public_html 
     ErrorLog /var/www/<em><u>coolexample.com</u></em>/error.log 
@@ -199,11 +204,19 @@ td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
       
 
 <h2>Adding additional virtual hosts</h2>
-<p>Repeat the above steps to create more virtual hosts. Be sure to create new config files for each new virtual host. You can copy the <em><u>coolexample.com</u></em> file to create new hosts.</p>
+
+<p>To create additional sites, repeat the following sections:</p>
+<ol>
+    <li>Set up the virtual host</li>
+    <li>Create content for the website</li>
+    <li>Create virtual host file &mdash; but for additional virtual hosts, you will need to create new config files in <code>/etc/httpd/sites-available/</code>, for example:
+        <div class="hacker">/etc/httpd/sites-available/<em><u>your second domain name</u></em></div>
+    <li>Point your domain name to your server</li>
+</ol>
 
 
 <h2>Next Steps</h2>
-<p>Congratulations! You now have a single server handling a site with its own domain. Again, remember that you can add additional virtual hosts since there is no limit on the number of domain names that Apache can handle.</p>
+<p>With Apache set up to work with your domain name, you can now do things like set up things like WordPress or Drupal.</p>
 
   </body>
 </html>
