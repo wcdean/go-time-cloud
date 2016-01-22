@@ -58,9 +58,9 @@ p.note {
 <p>To get Apache on your server, you can either <a href="/article/17342?prog_id=PROG_ID">install it as part of a LAMP stack</a>, or you can install Apache by itself:</p>
 
 <ol>
-    <li>Install Apache by running the <code>yum</code> command.<br />
+    <li>Install Apache:
           <div class="hacker">sudo yum install httpd</div></li>
-    <li>Start up Apache so that the httpd service will start automatically on a reboot:
+    <li>Start Apache so that the <code>httpd</code> service will start automatically on a reboot:
         <div class="hacker">sudo service httpd start</div></li>
 </ol>
    
@@ -68,9 +68,10 @@ p.note {
 <ol>
     <li>Create the virtual directories for your domain:
         <div class="hacker">sudo mkdir -p /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    <li>Set up ownership and grant permissions. Change the ownership from the <code>root</code> user to a regular user using <code>chown</code>. This way, regular users can modify files in your web directories:
-        <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    <li>Change the directory's permissions so they can be read from the internet:
+    <li>Change the ownership to the Apache group:
+        <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div>
+    This lets Apache modify files in your web directories.</li>
+    <li>Change the directory's permissions so its files can be read from the internet:
         <div class="hacker">sudo chmod -R 755 /var/www/</div></li>
 </ol>
     
@@ -97,7 +98,7 @@ p.note {
     
     
 <h2>Modify your Apache configuration file</h2>
-<p>Edit the main configuration file so that Apache will look for a virtual host.</p>
+<p>Edit the main configuration file (<code>httpd.conf</code>) so that Apache will look for a virtual host.</p>
 
 <ol>
     <li>Open the Apache config file:

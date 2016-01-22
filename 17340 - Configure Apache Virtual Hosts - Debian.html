@@ -70,9 +70,10 @@ p.note {
 <ol>
     <li>Create the virtual directories for your domain:
         <div class="hacker">sudo mkdir -p /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    <li>Set up ownership and grant permissions. Change the ownership to the Apache group using <code>chown</code>:
-        <div class="hacker">sudo chown -R www-data:www-data /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    <li>Change the directory's permissions so they can be read from the internet:
+    <li>Change the ownership to the Apache group:
+        <div class="hacker">sudo chown -R www-data:www-data /var/www/<em><u>coolexample.com</u></em>/public_html</div>
+    This lets Apache modify files in your web directories.</li>
+    <li>Change the directory's permissions so its files can be read from the internet:
         <div class="hacker">sudo chmod -R 755 /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
 </ol>
     
@@ -82,7 +83,7 @@ p.note {
 <p>If you don't have content ready to upload, you can create a sample home page (also known as an index file, which is the first page that loads when visitors come to your domain).</p>
     
 <ol>
-    <li>Create a sample page for your virtual host:
+    <li>Create the index file:
         <div class="hacker">sudo vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div></li>
     <li>Add some content to the file:
         <div class="hacker"><pre>&lt;html&gt; 
@@ -99,12 +100,12 @@ p.note {
 
 
 <h2>Create virtual host file</h2>
-<p>We're going to borrow Apache's default config file called <code>default</code> from the <code>sites-available</code> directory as a template.</p>
+<p>For the virtual host configuration file, we're going to copy Apache's default config file called <code>default</code> from the <code>sites-available</code> directory as a template.</p>
 <ol>
     <li>Copy the config file:
         <div class="hacker">sudo cp /etc/apache2/sites-available/default /etc/apache2/sites-available/<em><u>coolexample.com</u></em>.conf</div></li>
     <li>Open your newly copied config file:
-        <div class="hacker">sudo vim /etc/apache2/sites-available/c<em><u>coolexample.com</u></em>.conf</div></li>
+        <div class="hacker">sudo vim /etc/apache2/sites-available/<em><u>coolexample.com</u></em>.conf</div></li>
     <li>In the file, find <code>DocumentRoot</code> towards the beginning of the file, and update with your own domain:
         <div class="hacker">DocumentRoot /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
     <li>Below <code>DocumentRoot</code>, add these two lines:

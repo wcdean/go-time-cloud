@@ -79,8 +79,9 @@ td{border: 1px solid #b2b2b2
 <ol>
     <li>Create the virtual directories for your domain:
         <div class="hacker">sudo mkdir -p /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
-    <li>Set up ownership and grant permissions. Change the ownership to the Apache group using <code>chown</code>. This way, regular users can modify files in your web directories:
-        <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div></li>
+    <li>Change the ownership to the Apache group:
+        <div class="hacker">sudo chown -R apache:apache /var/www/<em><u>coolexample.com</u></em>/public_html</div>
+    This lets Apache modify files in your web directories.</li>
     <li>Change the directory's permissions so they can be read from the internet:
         <div class="hacker">sudo chmod -R 755 /var/www/</div></li>
 </ol>
@@ -91,7 +92,7 @@ td{border: 1px solid #b2b2b2
 <p>If you don't have content ready to upload, you can create a sample home page (also known as an index file, which is the first page that loads when visitors come to your domain).</p>
     
 <ol>
-    <li>Create a sample page for your virtual host:
+    <li>Create the index file:
         <div class="hacker">sudo vim /var/www/<em><u>coolexample.com</u></em>/public_html/index.html</div></li>
     <li>Add some content to the file:
         <div class="hacker"><pre>&lt;html&gt; 
@@ -108,7 +109,7 @@ td{border: 1px solid #b2b2b2
 
 <h2>Configure your virtual host directories</h2>
 
-<p>We're going to borrow a configuration usually used in Ubuntu/Debian and create two directories: one to store the virtual host files (<code>sites-available</code>) and another to hold symbolic links to virtual hosts that will be published (<code>sites-enabled</code>).</p>
+<p>We're going to copy a configuration usually used in Ubuntu/Debian and create two directories: one to store the virtual host files (<code>sites-available</code>) and another to hold symbolic links to virtual hosts that will be published (<code>sites-enabled</code>).</p>
 
 <h3>Create sites-available and sites-enabled directories</h2>
 <ul>
@@ -118,7 +119,7 @@ td{border: 1px solid #b2b2b2
 </ul>
 
 <h3>Edit your Apache configuration file</h3>
-<p>Edit the main configuration file, so that Apache will look for virtual hosts in the <code>sites-enabled</code> directory.</p>
+<p>Edit the main configuration file (<code>httpd.conf</code>) so that Apache will look for virtual hosts in the <code>sites-enabled</code> directory.</p>
 
 <ol>
     <li>Open your config file:
