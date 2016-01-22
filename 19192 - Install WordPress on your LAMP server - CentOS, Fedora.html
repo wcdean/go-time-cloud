@@ -2,7 +2,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
-<title>Install WordPress on your LAMP server - Arch Linux</title>
+<title>Install WordPress on your LAMP server - CentOS, Fedora</title>
 <style type="text/css">
 div.hacker {
 background-color:#666;
@@ -35,19 +35,26 @@ p.note {
 </style>
 </head>
 <body>
-    <h1>Install WordPress on your LAMP server - Arch Linux</h1>
+    <h1>Install WordPress on your LAMP server - CentOS, Fedora</h1>
     <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
         <strong>Time</strong>: <em><u>15 minutes</u></em></p>
      <p>WordPress has become much more than its humble beginnings in 2003 as a self-hosted blogging tool; it is the Internet's leading content management system (CMS). This open-source CMS powers all types of sites, including major brands such as The New Yorker, Variety, TechCrunch, and Best Buy. With a MySQL and PHP architecture, WordPress is easy to install and has endless options for website configuration thanks to tens of thousands of plugins and themes from its rich and active community.</p>
 
-<p>This tutorial will walk you through setting up WordPress on a Arch Linux&trade; server with PHP and MySQL.</p>
+<p>This tutorial will walk you through setting up WordPress on a CentOS&trade; or Fedora&trade; server with PHP and MySQL.</p>
     <h2>Prerequisites</h2>
     <ol>
-      <li>A Arch Linux server with a <a href="/article/17345?prog_id=PROG_ID" target="_blank">LAMP stack (Linux, Apache, MySQL, PHP)</a>.
+      <li>A CentOS or Fedora server with a LAMP stack (Linux, Apache, MySQL, PHP)</a> installed and running.
+        <ul>
+          <li><a href="/article/17342?prog_id=PROG_ID" target="_blank">CentOS 6 or Fedora</a></li>
+          <li><a href="/article/17344?prog_id=PROG_ID" target="_blank">CentOS 7</a></li>
+        </ul>
       </li>
       <li>Log in to your server with a user that has sudo privileges. If you have a GoDaddy Cloud server, you will already have one by default.</li>
       <li><strong>(OPTIONAL)</strong> <a href="/article/19116?prog_id=PROG_ID" target="_blank">Point a domain or subdomain to your server</a>. If you don't want to use a real domain yet, you can <a href="/article/3354?prog_id=PROG_ID" target="_blank">edit your hosts file</a> to test your configuration. If you don't want to use a domain with your WordPress site just yet, you can instead simply use your server IP address when testing your site.</li>
     </ol>
+<h3>Installing commands and text editor</h3>
+<p>In case your server doesn't have them yet, use <code>yum</code> to install a few programs you will need for setting up WordPress.</p>
+<div class="hacker">sudo yum install tar vim</div>
 <h2>Create a MySQL database and user</h2>
 <ol>
         <li>Log into your MySQL admin account.
@@ -77,11 +84,11 @@ p.note {
 <p>You are ready to download and install WordPress. </p>
 <ol>
   <li>Navigate to your Apache Document Root.
-<div class="hacker">cd /srv/http</div>
-  <p class="note">This guide uses the default DocumentRoot for Apache on Arch Linux. If you already <a href="/article/17339?prog_id=PROG_ID" target="_blank">set up an Apache VirtualHost on your Arch Linux server</a>, use that directory instead of <code>/srv/http</code>.
+<div class="hacker">cd /var/www/html</div>
+  <p class="note">This guide uses the default DocumentRoot for Apache on Fedora and CentOS. If you already set up an Apache VirtualHost, use that directory instead of <code>/var/www/html</code>. For instructions on setting up an Apache Virtualhost, see our guides for <a href="/article/17338?prog_id=PROG_ID" target="_blank">Fedora</a>, <a href="/article/17337?prog_id=PROG_ID" target="_blank">CentOS 6</a>, or <a href="/article/17338?prog_id=PROG_ID" target="_blank">CentOS 7</a>.
   </li>
   <li>Give this directory the correct permissions settings.
-    <div class="hacker">sudo chmod -R 755 /srv/http
+    <div class="hacker">sudo chmod -R 755 /var/www/html
     </div>
   </li>
   <li>Download the latest version of WordPress.
@@ -94,7 +101,7 @@ p.note {
     <div class="hacker">sudo mv ./wordpress/* .</div>
   </li>
   <li>Give the Apache user ownership of these files.
-    <div class="hacker">sudo chown -R www-data:www-data /srv/http</div>
+    <div class="hacker">sudo chown -R apache:apache /var/www/html</div>
   <li>Remove the unused <code>wordpress</code> directory and the install package.
     <div class="hacker">sudo rmdir wordpress<br \>
     sudo rm latest.tar.gz</div>
