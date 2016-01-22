@@ -48,6 +48,9 @@ p.note {
       <li>Log in to your server with a user that has sudo privileges. If you have a GoDaddy Cloud server, you will already have one by default.</li>
       <li><strong>(OPTIONAL)</strong> <a href="/article/19116?prog_id=PROG_ID" target="_blank">Point a domain or subdomain to your server</a>. If you don't want to use a real domain yet, you can <a href="/article/3354?prog_id=PROG_ID" target="_blank">edit your hosts file</a> to test your configuration. If you don't want to use a domain with your WordPress site just yet, you can instead simply use your server IP address when testing your site.</li>
     </ol>
+    <h3>Installing commands and text editor</h3>
+    <p>In case your server doesn't have them yet, use <code>pacman</code> to install a few programs you may need for setting up WordPress. This will also upgrade any Arch Linux packages that are out of date, which is generally a good idea anyway.
+      <div class="hacker">sudo pacman -Syu tar vim</div></p>
 <h2>Create a MySQL database and user</h2>
 <ol>
         <li>Log into your MySQL admin account.
@@ -94,7 +97,7 @@ p.note {
     <div class="hacker">sudo mv ./wordpress/* .</div>
   </li>
   <li>Give the Apache user ownership of these files.
-    <div class="hacker">sudo chown -R www-data:www-data /srv/http</div>
+    <div class="hacker">sudo chown -R http:http /srv/http</div>
   <li>Remove the unused <code>wordpress</code> directory and the install package.
     <div class="hacker">sudo rmdir wordpress<br \>
     sudo rm latest.tar.gz</div>
