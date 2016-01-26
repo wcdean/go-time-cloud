@@ -65,7 +65,7 @@ p.note {
       </ul>
     This configuration is the strictest possible, and every incoming connection is denied except for the port just enabled. All other services are inaccessible. If you want to run additional services, open the proper port.</li>
 
-    <li>Open any of the following ports:
+    <li>Open any of the following ports based on what services you need:
       <ul>
         <li>To run a standard HTTP web server, open port 80:
           <div class="hacker">sudo ufw allow 80/tcp </div></li>
@@ -104,17 +104,13 @@ p.note {
     <div class="hacker">sudo dpkg-reconfigure tzdata</div>
   The package configuration window displays. </li>
   
-  <li>Use the Up and Down arrow keys on the keyboard to find your geographic area (which are continents and oceans). Find the region/geographic area of your server, and then select <strong>OK</strong>:<br/>
-    <img src="http://img4.wsimg.com/support/images/cloudserver/17331/072715/ntp-package-configuration-geo-area-screen.png" alt="ntp package configuration geo area screen" /><br />
-  
+  <li>Use the Up and Down arrow keys on the keyboard to find your geographic area (which are continents and oceans). Find the region/geographic area of your server, and then select <strong>OK</strong>.
   <p class="note">For North America, select <strong>America</strong> (the second option). Note that  <strong>US</strong>  (the option before <strong>None of the above</strong>) stands for "<strong>U</strong>se <strong>S</strong>ystem V style time zones," not for &quot;United States.&quot;</p></li>
-  <li>In the next menu, select the city or region of your time zone, and then select <strong>OK</strong>:<br/>
-    <img src="http://img4.wsimg.com/support/images/cloudserver/17331/072715/ntp-package-configuration-time-zone-screen.png" alt="ntp package configuration time zone screen" /><br />
-
+  <li>In the next menu, select the city or region of your time zone, and then select <strong>OK</strong>.</li>
   Your system updates to your selected timezone:
     <div class="hacker">Current default time zone: 'America/Vancouver' <br />
     Local time is now:      Mon Jul  10 13:00:10 PST 2015.<br />
-    Universal Time is now:  Mon Jul  10 20:00:10 UTC 2015.</div></li>
+    Universal Time is now:  Mon Jul  10 20:00:10 UTC 2015.</div>
 </ol>
 
 <h3>Configure NTP synchronization</h3>

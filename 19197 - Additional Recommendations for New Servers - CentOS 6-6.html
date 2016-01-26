@@ -55,18 +55,14 @@ td:nth-child(1) {font-weight:bold;}
     
     <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
         <strong>Time</strong>: <em><u>10 minutes</u></em></p>
+<p>After you’ve <a href="/article/17323?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to make sure your server’s secure and works like you’d expect.</p>
 
-   <p> After installing CentOS 6, you can configure some additional components. These steps are optional but recommended as they increase security and make your operating system work better.  </p>
-  
-<p>This article guides you through setting up a firewall and synchronizing Network Time Protocol (NTP).</p>
-
-<p>If you haven't already set up your server, see <a href="http://git.dean.xyz/17323%20-%20Initial%20Server%20Setup%20-%20CentOS.html">Initial Server Setup - CentOS</a> for instructions, including setting up user accounts. Make sure to set up a user account with <code>sudo</code> privileges.
-   </p>                 
+<p>These steps are optional, but they’re the kind of things that seasoned admins make sure are taken care of.</p>
 
  <h2>Set up a basic firewall</h2> 
 
-<p>Like most other Linux&trade; systems, the default firewall on CentOS 6 is iptables. iptables is the full suite of commands used to manage netfilter, the Linux packet-filtering framework. 
-We'll configure a basic iptables setup from the command line. </p>
+<p>Like most other Linux&trade; distributions, the default firewall on CentOS 6 is iptables. iptables is the full suite of commands used to manage netfilter, the Linux packet-filtering framework. 
+We'll configure a basic iptables setup. </p>
 <h3>Check iptables installation</h3>
  
 <ol>
@@ -170,25 +166,18 @@ This applies your exceptions, blocks all other traffic, and configures your fire
 <p>If you configure additional services later, make sure to open those respective ports.  </p>
 
 
-<p>For even more indepth instructions on configuring iptables, see <a href="http://git.dean.xyz/17402%20-%20Set%20Up%20a%20Firewall%20Using iptables%20-%20CentOS.html">Set Up a Firewall Using iptables - CentOS</a>.
+<!-- <p>For even more indepth instructions on configuring iptables, see <article id="17402" />. -->
 </p>
 
 <h2>Configure your system's time zone and NTP</h2> 
-
-<p>
-Localize your server by configuring the time.
-</p>
-
 <p>
 When different computer or server programs with out-of-sync clocks communicate with each other, switching between these systems can cause the time to jump back and forth. This jumping can result in undesirable effects such as email replies appearing to arrive before the original message is sent.</p>
 
-<p>To resolve this issue, set your correct time zone, and then synchronize the system clock to the standard time maintained by a global network of NTP servers. 
+<p>Fortunately, you can solve this problem simply by using Network Time Protocol (NTP) synchronization.
    </p>
    
 <h3>Check your time zone</h3>
-
-<p>With your server  newly installed, the time zone is from <code>/etc/localtime</code>, 
-<code>usr/share/zoneinfo/</code> and likely needs to be updated.</p> 
+<p>With your server newly installed, the time zone is taken from <code>/etc/localtime</code>. It is also likely that you need to update <code>usr/share/zoneinfo/</code>.</p> 
 
  <ol>
 <li>	Check the date and time of your system :
@@ -197,7 +186,7 @@ When different computer or server programs with out-of-sync clocks communicate w
     </li>
 
 <li>Optionally, check the time zone from your system's hardware clock:
-  <div class="hacker">sudo vim /etc/sysconfig/clock</div></li>
+  <div class="hacker">sudo less /etc/sysconfig/clock</div></li>
 <li>
 Close the file to return to the command line.</li> 
                                                           </ol>

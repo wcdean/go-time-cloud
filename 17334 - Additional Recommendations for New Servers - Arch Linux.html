@@ -53,26 +53,26 @@ p.note {
  <h2>Set up a basic firewall</h2>
 <p>Creating a firewall protects your server from malicious traffic that can lead to security issues or degraded performance due to floods of traffic, such as DDoS attacks.</p>
 
-<h3>Install UFW</h3>
+<h3>Install UFW firewall</h3>
 <ul>
   <li>Install the UFW firewall:
     <div class="hacker">sudo pacman -Syu ufw</div></li>
 </ul>
 
 <h3>Create firewall rules</h3>
-<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
+<p>Define exceptions to your firewall policy so that you can activate your firewall.</p>
 
 <ol>
-  <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default has not been changed.</li>
+  <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default was not changed.</li>
     <ul> 
       <li>If you have not modified the SSH port, enable the exception:
         <div class="hacker">sudo ufw allow ssh</div> </li>
       <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol:
         <div class="hacker">sudo ufw allow <em><u>your SSH port</u></em>/tcp</div></li>
       </ul>
-  This configuration is the strictest firewall configuration, so every incoming connection is denied except for the port just enabled. All other services will be inaccessible. If you will be running additional services, open the firewall for that portion by opening the proper port.</li>
+  This configuration is the strictest possible, and every incoming connection is denied except for the port just enabled. All other services are inaccessible. If you want to run additional services, open the proper port.</li>
 
-  <li>Open any of the following ports:
+  <li>Open any of the following ports based on what services you need:
     <ul>
       <li>To run a standard HTTP web server, open port 80:
         <div class="hacker">sudo ufw allow 80/tcp </div></li>
@@ -82,7 +82,7 @@ p.note {
         <div class="hacker">sudo ufw allow 25/tcp</div></li>
     </ul></li>
 
-  <li>To review your exceptions, use the <code>ufw show added</code> command.
+  <li>Review your exceptions:
     <div class="hacker"> sudo ufw show added </div></li>
 </ol>
 
