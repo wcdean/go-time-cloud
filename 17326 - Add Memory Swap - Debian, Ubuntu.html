@@ -115,10 +115,10 @@ none            100M     0  100M   0% /run/user
 
 
 <h3>Create a swap file using fallocate</h3>
-<p>You can gain more file space with <code>fallocate</code>, a command used to manipulate file space. The <code>fallocate</code> command creates a file of a preallocated size instantly without initializing any of it, versus the <code>dd</code> command, which takes longer because it has to write zeros as dummy contents. </p>
+<p>You can gain more file space with <code>fallocate</code>, a command used to manipulate file space. The <code>fallocate</code> command creates a file of a preallocated size instantly without initializing any of it, versus the <code>dd</code> command, which takes longer because it has to write zeroes as dummy contents. </p>
 
 <ol>
-  <li>Create the file to be used for swap. For this example, we add a 4-GB file:
+  <li>Create the file to be used for swap. For this example, we add a 4 GB file:
     <div class="hacker">sudo fallocate -l 4G /swapfile</div></li>
 
   <li>Verify that the correct amount of space was reserved:
@@ -157,10 +157,8 @@ none            100M     0  100M   0% /run/user
   <li>Verify that the file was created on the server:
     <div class="hacker">ls -lh /swapfile</div>
 
-  The command returns something similar to this:
-    <div class="hacker">-rw-r--r-- 1 root root 1.0G Jul 08 10:30 swapfile</div>
-
-  The system created the file by writing 1 GB of zeroes to the disk and, in this case, took 1 second to complete.</li>
+  If the file was created properly, the command returns something similar to this:
+    <div class="hacker">-rw-r--r-- 1 root root 1.0G Jul 08 10:30 swapfile</div></li>
 </ol>
 
 <h2>Enable the swap file</h2>
@@ -183,7 +181,7 @@ none            100M     0  100M   0% /run/user
   <li>Format that file to create a swap space:
     <div class="hacker">sudo mkswap /swapfile </div>
 
-  The command returns something similar to this:
+  If successful, the command will return something similar to this:
     <div class="hacker">Setting up swapspace version 1, size = 4194300 KiB   <br />
     no label, UUID=e2f1e9cf-c0a9-4ed4-b8ab-714b8a7d6944                       </div></li>
 
@@ -191,7 +189,7 @@ none            100M     0  100M   0% /run/user
     <div class="hacker">sudo swapon /swapfile </div></li>
 
   <li>Verify that the swap space was enabled by checking the system reports:
-    <div class="hacker">sudo /swapon -s     </div>
+    <div class="hacker">sudo swapon -s     </div>
 
   The command returns something similar to this:
     <div class="hacker">Filename                Type        Size    Used    Priority   <br />

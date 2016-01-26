@@ -94,6 +94,8 @@ td:nth-child(1) {font-weight:bold;}
         <div class="hacker">sudo pacman -Syu</div></li>
     <li>Install Apache:
         <div class="hacker">sudo pacman -S apache</div></li>
+    <li>Set Apache to start on server boot:
+        <div class="hacker">sudo systemctl enable httpd.service</div></li>
     <li>Create a test page in the Apache server's document root directory.
         <div class="hacker"> sudo vim /srv/http/index.html</div></li>
     <li>Type the following in when the file opens:
@@ -125,8 +127,9 @@ td:nth-child(1) {font-weight:bold;}
         <div class="hacker">
             sudo systemctl start mysqld.service
         </div></li>
-
-    <li>Run the following security script:
+    <li>Set MySQL to start on server boot:
+        <div class="hacker">sudo systemctl enable mysqld.service</div></li>
+    <li>Run this command to finish setting up the installation:
         <div class="hacker">sudo mysql_secure_installation</div></li>
     <li>You will be asked for the root password. Since you haven't set it earlier, press Enter to set one now.</li>
     <li>Type "Y" when asked if you want to set root password.</li>
@@ -184,6 +187,7 @@ AddType application/x-httpd-php-source .phps</pre>
 
 <h2>Next steps</h2>
 <p>Now that you have a LAMP stack, you can use it for dynamic, database-driven websites powered by things like WordPress or Drupal.</p>
+<p>If you want to host multiple websites on your server, see our guide for <a href="/article/17339?prog_id=PROG_ID" target="_blank">setting up Apache Virtual Hosts</a>.</p>
 <!--Now that you have installed LAMP on your server you can <a href="http://17384 - Install WordPress on your LAMP server - Arch Linux.html">install Wordpress on your LAMP server</a>, <a href="http://18008 - Install and Configure Varnish for your Drupal 7 site on your LAMP server - Arch Linux.html"> install Drupal 7</a>, <a href="http://18049 - Install and configure Simple Machines Forum on your LAMP server - Ubuntu, Debian.html">install Simple Machines Forum</a>, and
     <a href="http://18237 - Install and configure MediaWiki on your LAMP server - Arch Linux.html">install MediaWiki</a>-->
 

@@ -57,7 +57,7 @@ p.note {
 </ul>
 
 <h3>Create firewall rules</h3>
-<p>Define exceptions to your firewall policy so that you can activate your firewall.</p>
+<p>By default, firewalls block all traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
   <ol>
     <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default was changed.
       <ul>
@@ -83,7 +83,7 @@ p.note {
   </ol>
 
 <h3>Enable the firewall</h3>
-
+<p>Now that you've created your rules, you need to turn the firewall on.</p>
 <ol>
   <li>If the <code>ufw show listening</code> command lists all the rules you want, enable your firewall:
     <div class="hacker">sudo ufw enable</div></li>
@@ -107,18 +107,14 @@ IPtables is the full suite of commands used to manage Netfilter, the Linux packe
     <div class="hacker">sudo dpkg-reconfigure tzdata</div>
   The package configuration window displays. </li>
 
-  <li>Use the Up and Down arrow keys on the keyboard to find your geographic area (which are continents and oceans). Find the region/geographic area of your server, and then select <strong>OK</strong>:<br/>
-    <img src="http://img4.wsimg.com/support/images/cloudserver/17331/072715/ntp-package-configuration-geo-area-screen.png" alt="ntp package configuration geo area screen" />
-  
+  <li>Use the Up and Down arrow keys on the keyboard to find your geographic area (which are continents and oceans). Find the region/geographic area of your server, and then select <strong>OK</strong>. 
     <p class="note">For North America, select <strong>America</strong> (the second option). Note that  <strong>US</strong>  (the option before <strong>None of the above</strong>) stands for "<strong>U</strong>se <strong>S</strong>ystem V style time zones," not for &quot;United States.&quot;</p></li>
-  <li>In the next menu, select the city or region of your time zone, and then select <strong>OK</strong>:<br/>
-    <img src="http://img4.wsimg.com/support/images/cloudserver/17331/072715/ntp-package-configuration-time-zone-screen.png" alt="ntp package configuration time zone screen" /><br/>
-
+  <li>In the next menu, select the city or region of your time zone, and then select <strong>OK</strong>.</li>
   Your system updates to your selected timezone:
     <div class="hacker">
     Current default time zone: 'America/Vancouver' <br />
     Local time is now:      Mon Jul  10 13:00:10 PST 2015.  <br />
-    Universal Time is now:  Mon Jul  10 20:00:10 UTC 2015.       </div></li>
+    Universal Time is now:  Mon Jul  10 20:00:10 UTC 2015.       </div>
 </ol>
 
 <h3>Configure NTP synchronization</h3>
