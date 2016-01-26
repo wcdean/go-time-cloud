@@ -134,8 +134,6 @@ none            100M     0  100M   0% /run/user</pre></div>
    
 <p>In this example, we'll add a swap file of a different size, 1 GB, in order to accommodate smaller-sized servers.</p>
 
-
-
 <ol>
   <li>Add the 1 GB swap file by specifying a block size <code>bs</code> of 250 MB and a <code>count</code> of 4.
     <p class="warning">Remember to double check your instructions! This command has the potential to destroy data if <code>of</code> (output file) points to the wrong location.</p>
@@ -175,7 +173,7 @@ none            100M     0  100M   0% /run/user</pre></div>
   <li>Format that file to create a swap space.
     <div class="hacker">sudo mkswap /swapfile</div>
 
-  If successful, the command will return something similar to this:
+  The command returns something similar to this:
     <div class="hacker"><pre>Setting up swapspace version 1, size = 4 GiB (4294963200 bytes) no label, UUID=f86d9832-7d9b-4325-93a5-e806815372e5</pre></div></li>
       
   <li>Mount/enable the swap space in the system.
