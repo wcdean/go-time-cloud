@@ -63,17 +63,19 @@ td:nth-child(1) {font-weight:bold;}
     
     <p>Though these steps are basic, they can take a little while to complete – think of this article as a kind of introduction to best practices for being a server admin.</p>
     
-    <p class=”note”>These first few steps where you create an SSH key assume you haven’t yet created your first server yet. If you already have, you can <a href="/article/19042?prog_id=PROG_ID">take a snapshot of the server</a> and then <a href="/article/19045?prog_id=PROG_ID">destroy it</a>.</p>
+     <p class="note">These first few steps where you create an SSH key assume you haven’t yet created your first server yet. If you're a COMPANY_NAME Cloud Server user and already have, you can <a href="/article/19042?prog_id=PROG_ID">take a snapshot of the server</a> and then <a href="/article/19045?prog_id=PROG_ID">destroy it</a>.</p>
     
     <h2>Set up SSH keys</h2>
-    <p>Instead of using typical password authentication – which can be cracked using brute force – using SSH keys requires a file particular to your computer (known as a private key) to be present before letting you in. This way, if someone tries to log in to the server without your private key, they’re totally denied access.</p>
+   <p>SSH keys offer a secure and convenient way for you to log in to your server via SSH. The "key" portion in "SSH key" is a file stored on your computer, known as a private key. Only computers that have the correct private key can log in to the server via SSH; all others are denied.
+
+  <p>This is <em>much</em> more secure than typical password authentication, which can be cracked with a "brute force" application that continually guesses passwords until it finds yours. Note that you should still set up a password with your SSH keys to provide another layer of protection.</p>
     
     <p>How you set up an SSH key depends on your operating system:</p>
     <ul>
-        <li><a href="/article/19054?prog_id=PROG_ID">Mac OS X</a></li>
-        <li><a href="/article/19146?prog_id=PROG_ID">Windows</a></li>
+        <li><a href="/article/19054?prog_id=PROG_ID">Mac OS X SSH key generation</a></li>
+        <li><a href="/article/19146?prog_id=PROG_ID">Windows SSH key generation</a></li>
     </ul>
-    <p class=”note”>GoDaddy Cloud Server users should complete these steps before creating their servers.</p>
+    <p class="note">COMPANY_NAME Cloud Server users should complete these steps before creating their servers.</p>
     
     <h2>Create your server</h2>
     <p>Now that you have your SSH public key stored in your account, you can create servers that will let you log in using it. Use one of the following sets of instructions based on your situation:</p>
@@ -106,11 +108,11 @@ td:nth-child(1) {font-weight:bold;}
         </tr>
         <tr>
             <td>I'm not using COMPANY_NAME Cloud Servers</td>
-            <td>Use your provider's documentation on creating servers</td>
+            <td>Use your provider's documentation for creating servers</td>
         </tr>
     </table>
         
-    <p>Be mindful to select your SSH key in the <strong>Security info</strong> section when creating the server.</p>
+        <p class="note">COMPANY_NAME Cloud Server users should be mindful to select your SSH key in the <strong>Security info</strong> section when creating the server.</p>
     
     <h2>Disable remote root SSH login</h2>
     <p>To ensure your server is as secure as possible, you should disable remote root account login. COMPANY_NAME Cloud Server customers <em style="color:red;">do not</em> need to complete this step; we've already done it for you.</p>
