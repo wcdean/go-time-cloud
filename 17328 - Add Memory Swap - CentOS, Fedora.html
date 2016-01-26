@@ -44,21 +44,21 @@ p.note {
 <body>
 <p>Getting started on adding swap space on CentOS or Fedora to simulate additional memory and ultimately increase server optimization. </p>
 <h1>Add Memory Swap - CentOS, Fedora</h1>
-  <p><strong>Difficulty</strong>:<em> 2</em><br />
-<strong>Time</strong>: <em>15 minutes</em></p>
+  <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
   
     <p>If you’re trying to improve your server’s performance, adding swap space (or memory swap) is a powerful and relatively simply place to start.</p>
     
-    <p>Swap space is a dedicated portion of your server’s hard drive where the operating system can dump the contents of its RAM to – once the RAM gets full.  To understand the real benefit of that, you need to be familiar with processor architecture – but a brief explanation:</p>
+    <p>Swap space is a dedicated portion of your server’s hard drive where the operating system can dump the contents of its RAM to, once the RAM gets full.  To understand the real benefit of that, you need to be familiar with processor architecture – but here's a brief explanation:</p>
     <ul>
         <li>RAM provides data to the processor quickly, which makes it very valuable.</li>
         <li>Once your RAM is full it needs to either delete or move the data elsewhere.</li>
-        <li>Deleting the data from RAM it must be found and retrieved from the hard drive (which is slow) the next time the data is requested.</li>
-        <li>By moving the data to a swap space instead of simply deleting it from RAM, it’s much faster to find the data the next time it’s requested.</li>
-        <li>Moving data from RAM to the swap space consumes the processor’s resources, so doing it continually will actually degrade your application’s performance.</li>				
+        <li>Deleting the data from RAM means it must be found and retrieved from the hard drive (which is slow) the next time the data is requested.</li>
+        <li>By moving the data out of RAM and into a swap space instead of simply deleting it from RAM, it’s much faster to find the data the next time it’s requested.</li>
+        <li>Moving data from RAM to the swap space consumes the processor’s resources, so doing it continually will actually degrade your application’s performance. (This is known as <em>swap thrashing</em>.) To find the optimal swap rate, it requires tuning.</li>				
     </ul>
     
-    <p>Though the functional differences are minute, for the sake of clarity, this article walks you through create a <em>swap file</em> – not a <em>swap partition</em>.</p>
+    <p>Lastly &mdash; though differences are minute, for the sake of clarity, this article walks you through create a <em>swap file</em> – not a <em>swap partition</em>. If you don't know what that means, don't worry about it.</p>
  
 
 <h2>Check current swap space usage</h2>
@@ -100,16 +100,22 @@ none            100M     0  100M   0% /run/user</pre></div>
 
 <h2>Create a swap file</h2>
 
-<p>After establishing you have available storage space, you can add a swap file to your system. You'll do this by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. You will allocate the amount of space you want for your swap file. </p> 
+<p>Add swap space to your system by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. There are two commands you can use to create swap files:
 
-<p>There are two ways to add swap files: use the <code>fallocate</code> command or use the <code>dd</code> command.</p>
+<ul>
+    <li><code>fallocate</code>
+    	<p class="warning">The <code>fallocate</code> command has <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1129205">unresolved bugs</a> in CentOS 7. CentOS 7 users should instead use the <code>dd</code> command to create their swap file.</p></li>
+    <li><code>dd</code></li>
+</ul>
 
-<p class="warning">The <code>fallocate</code> command has <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1129205">unresolved bugs</a> in CentOS 7. CentOS 7 users should instead use the <code>dd</code> command to create their swap file.</p>
+<p>You only need to use one of these. We recommend using <code>fallocate</code>, but if it isn't supported on your file system, you can use <code>dd</code> instead.</p>
+
+
 
 <h3>Create a swap file using fallocate</h3>
-You can gain more file space with the <code>fallocate</code> command - used to manipulate file space. The <code>fallocate</code> creates a file of a preallocated size instantly, without having to write dummy contents. </p>
+
 <ol>
-	<li>Create the file to be used for swap. For this example, we will add a 4 GB file.
+	<li>Create the file to be used for swap (for this example, we're adding a 4GB file):
 		<div class="hacker">sudo fallocate -l 4G /swapfile</div></li>
 	<li>Verify the correct amount of space was reserved.
 		<div class="hacker">ls -lh /swapfile   </div></li>
@@ -122,8 +128,6 @@ You can gain more file space with the <code>fallocate</code> command - used to m
 <p>Rarely, you get a failure message: <code>fallocate failed: Operation not supported</code>. This means your file system doesn't currently support <code>fallocate</code> (for example, ext3). Use the more traditional method with the <code>dd</code> command instead. </p>
 
 <h3>Create a swap file using dd</h3>
-<p>The traditional method of creating a swap file with preallocated space is to use the <code>dd</code> command. Even though it may not be as quick as <code>fallocate</code>, it's a versatile disk utility that writes from one location to another.</p>
-
 <ol>
 	<li>To add a swap file the size of 4 GB, specify a block size <code>bs</code> of "1 GB" and a <code>count</code> of "4." 
 		<p class="warning">Double-check this particular command because it has the potential to destroy data if the <code>of</code> command (output file) is pointed to the wrong location.</p>
@@ -172,7 +176,7 @@ You can gain more file space with the <code>fallocate</code> command - used to m
 </ol>
  
 <h2>Make the swap file permanent</h2>
-<p>The last crucial step is to integrate the swap file into your system's storage partitions and devices through <code>fstab</code>.
+<p>The last step is to integrate the swap file into your system's storage partitions and devices through <code>fstab</code>.
 
 <ol>  
   <li>Open <code>fstab</code>:
@@ -188,16 +192,19 @@ You can gain more file space with the <code>fallocate</code> command - used to m
 
 <h2>Tune the swap file</h2>
 
-<p>You can tune the following settings of your swap file to optimize virtual memory.</p>
+<p>Now that you've created the swap file, you should work on tuning it to ensure it's giving you optimal performance. This isn't something you can easily do in one sitting, but is something you'll work on periodically as an admin.</p>
 
+<p>Tuning your swap file means tinkering with the settings that make it perform a swap (that is, move content from RAM into your swap):</p>
 <ul>
 <li>Swappiness</li>
 <li>Cache pressure</li>
 </ul>
 
+<p>Tuning is important because a poorly configured swap file can actually hurt your application's performance. The interactions between your system's RAM and the swap space are time-intensive (on a computational scale) and trying to swap too often (that is <em>swap thrashing</em>) can take more time than just retriving your data from your hard drive.</p>
+
 <h3>Swappiness</h3>
 
-<p>Swappiness is a setting that controls how often the swap file is used (or the tendency of the system to move processes out of physical memory and onto the swap disk).</p>
+<p>Swappiness is simply a setting that controls how often the swap file is used.</p>
 
 <p>As a percentage between 0 and 100, a swappiness value of:   </p>
   <ul>
@@ -205,8 +212,6 @@ You can gain more file space with the <code>fallocate</code> command - used to m
     <li>100 means aggressively (almost instantly) moving swap processes out of physical memory and into the swap cache </li>
 </ul>
           
-<p>Interactions with the swap file are resource-intensive because they take much longer than interactions with RAM and can cause a significant reduction in system performance. Instructing your system not to overly rely on the swap can help boost overall system performance.</p>
-
 <p>You can change your server's swapiness in <code>sysctl.conf</code>.</p>
 
 <ol> 
@@ -262,7 +267,7 @@ You can gain more file space with the <code>fallocate</code> command - used to m
 <h2>Conclusion</h2>
 <p>Swapping enables you to increase the amount of information that your server can keep in its working memory. Even though reading from and writing to swap is slower than using actual memory, swap can be a good safety net for the times your server is low on memory.</p>
 
-<p>Remember that hard disks have a slower memory than RAM and so you should tune your swap settings judiciously to prevent swap thrashing (when the hard drive is overworked by information moving excessively between system memory and virtual memory).</p>
+<p>However, it's important to remember to periodically tune your swap file to ensure you're getting the most out of it.</p>
     
 </body>
 </html>

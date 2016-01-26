@@ -57,20 +57,20 @@ td:nth-child(1) {font-weight:bold;}
      <h1>Add Memory Swap - Debian, Ubuntu</h1>
   
   <p><strong>Difficulty</strong>: <em><u>2</u></em><br/>
-        <strong>Time</strong>: <em><u>15 minutes</u></em></p>
+        <strong>Time</strong>: <em><u>30 minutes</u></em></p>
   
     <p>If you’re trying to improve your server’s performance, adding swap space (or memory swap) is a powerful and relatively simply place to start.</p>
     
-    <p>Swap space is a dedicated portion of your server’s hard drive where the operating system can dump the contents of its RAM to – once the RAM gets full.  To understand the real benefit of that, you need to be familiar with processor architecture – but a brief explanation:</p>
+    <p>Swap space is a dedicated portion of your server’s hard drive where the operating system can dump the contents of its RAM to, once the RAM gets full.  To understand the real benefit of that, you need to be familiar with processor architecture – but here's a brief explanation:</p>
     <ul>
         <li>RAM provides data to the processor quickly, which makes it very valuable.</li>
         <li>Once your RAM is full it needs to either delete or move the data elsewhere.</li>
-        <li>Deleting the data from RAM it must be found and retrieved from the hard drive (which is slow) the next time the data is requested.</li>
-        <li>By moving the data to a swap space instead of simply deleting it from RAM, it’s much faster to find the data the next time it’s requested.</li>
-        <li>Moving data from RAM to the swap space consumes the processor’s resources, so doing it continually will actually degrade your application’s performance.</li>       
+        <li>Deleting the data from RAM means it must be found and retrieved from the hard drive (which is slow) the next time the data is requested.</li>
+        <li>By moving the data out of RAM and into a swap space instead of simply deleting it from RAM, it’s much faster to find the data the next time it’s requested.</li>
+        <li>Moving data from RAM to the swap space consumes the processor’s resources, so doing it continually will actually degrade your application’s performance. (This is known as <em>swap thrashing</em>.) To find the optimal swap rate, it requires tuning.</li>       
     </ul>
     
-    <p>Though the functional differences are minute, for the sake of clarity, this article walks you through create a <em>swap file</em> – not a <em>swap partition</em>.</p>
+    <p>Lastly &mdash; though differences are minute, for the sake of clarity, this article walks you through create a <em>swap file</em> – not a <em>swap partition</em>. If you don't know what that means, don't worry about it.</p>
 
 <h2>Check current swap space usage</h2>
 <p>To prevent any issues when adding swap, first check that your system does not have already have a swap space enabled.</p>
@@ -95,7 +95,7 @@ td:nth-child(1) {font-weight:bold;}
     <div class="hacker">df -h</div></li>
 </ul> 
 
-<p>This command shows the free space on your hard disk. In the following example, you have 40 GB available. Make sure that there is enough free space for your swap file. The space you need depends on your requirements but, in general, an amount equal to or double the amount of RAM on your system is a good starting point.</p>
+<p>This command shows the free space on your hard disk. In the following example, you have 40 GB available. Make sure that there is enough free space for your swap file. The space you need depends on your requirements but, in general, an amount equal to or double your system's RAM.</p>
 
 <div class="hacker"><pre>
 Filesystem      Size  Used Avail Use% Mounted on    
@@ -111,36 +111,35 @@ none            100M     0  100M   0% /run/user
 
 <h2>Create a swap file</h2>
 
-<p>Add swap space to your system by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. You will allocate the amount of space you want for your swap file. There are two commands you can use to create swap files: <code>fallocate</code> and <code>dd</code>.</p>
+<p>Add swap space to your system by creating a file called <code>swapfile</code> in your root (/) directory and assigning it as swap. There are two commands you can use to create swap files:
 
+<ul>
+    <li><code>fallocate</code></li>
+    <li><code>dd</code></li>
+</ul>
+
+<p>You only need to use one of these. We recommend using <code>fallocate</code>, but if it isn't supported on your file system, you can use <code>dd</code> instead.</p>
 
 <h3>Create a swap file using fallocate</h3>
-<p>You can gain more file space with <code>fallocate</code>, a command used to manipulate file space. The <code>fallocate</code> command creates a file of a preallocated size instantly without initializing any of it, versus the <code>dd</code> command, which takes longer because it has to write zeros as dummy contents. </p>
-
 <ol>
-  <li>Create the file to be used for swap. For this example, we add a 4-GB file:
+  <li>Create the file to be used for swap (for this example, we're adding a 4GB file):
     <div class="hacker">sudo fallocate -l 4G /swapfile</div></li>
 
   <li>Verify that the correct amount of space was reserved:
     <div class="hacker">ls -lh /swapfile</div>
   
   This result shows that the file was added with the correct amount of space set aside:
-    <div class="hacker">-rw------- 1 root root 4.0G Jul 08 10:52 /swapfile </div>
-
-  If, on the other hand, your output shows "0" like the example below, it means the swapfile created has 0 GB:
-    <div class="hacker">-rw------- 1 root root 0 Jul 08 10:52 /swapfile </div>
-
-  If you get a failure message saying <code>fallocate failed: Operation not supported</code>, 
- your file system doesn't currently support <code>fallocate</code> (for example, ext3). Use the more traditional way with the <code>dd</code> command instead. (This situation should be rare.)</li>
+    <div class="hacker">-rw------- 1 root root 4.0G Jul 08 10:52 /swapfile </div></li>
 </ol>
+
+<p>If you get a failure message saying <code>fallocate failed: Operation not supported</code>, 
+ your file system doesn't currently support <code>fallocate</code> (for example, ext3). Use the more traditional way with the <code>dd</code> command instead. (This situation should be rare.)
 
 <h3>Create a swap file using dd</h3>
 
-<p>Creating a swap file using the <code>dd</code> command may not be as quick as <code>fallocate</code>, but it works. The <code>dd</code> command is one of the original UNIX disk utilities with many uses, including generating new files, copying files, and converting file formats.</p>
+<p>In this example, we'll add a swap file of a different size, 1 GB, in order to accommodate smaller-sized servers.</p>
 
-<p>In this example, we'll add a swap file of a different size, 1 GB, in order to accommodate smaller-sized servers. 
-
-  <p class="note">To add a 4 GB swap file, you would need at least 1.5 GB of RAM. Always check the size of your server to make sure you have enough RAM to add swap.</p>
+  
 <ol>
   <li>Add the 1 GB swap file by specifying a block size <code>bs</code> of 250 MB and a <code>count</code> of 4. <br /> 
 
@@ -195,13 +194,11 @@ none            100M     0  100M   0% /run/user
 
   The command returns something similar to this:
     <div class="hacker">Filename                Type        Size    Used    Priority   <br />
-swapfile               file        4194300 0       -1</div>
-
-  You can also use the <code>free -m</code> command  to confirm that the swap is set up.</li>
+swapfile               file        4194300 0       -1</div></li>
 </ol>
 
 <h2>Make the swap file permanent</h2>
-<p>The last crucial step is to integrate the swap file into your system's storage partitions and devices through <code>fstab</code>.
+<p>The last step is to integrate the swap file into your system's storage partitions and devices through <code>fstab</code>.
 
 <ol>  
   <li>Open <code>fstab</code>:
@@ -219,15 +216,19 @@ swapfile               file        4194300 0       -1</div>
 
 <h2>Tune the swap file</h2>
 
-<p>You can tune these settings of your swap file to optimize virtual memory:</p>
+<p>Now that you've created the swap file, you should work on tuning it to ensure it's giving you optimal performance. This isn't something you can easily do in one sitting, but is something you'll work on periodically as an admin.</p>
+
+<p>Tuning your swap file means tinkering with the settings that make it perform a swap (that is, move content from RAM into your swap):</p>
   <ul>
     <li>Swappiness</li>
     <li>Cache Pressure</li>
-  </ul>  
+</ul>
+
+<p>Tuning is important because a poorly configured swap file can actually hurt your application's performance. The interactions between your system's RAM and the swap space are time-intensive (on a computational scale) and trying to swap too often (that is <em>swap thrashing</em>) can take more time than just retriving your data from your hard drive.</p>
 
 <h3>Swappiness</h3>
 
-<p>Swappiness is a setting that controls how often the swap file is used (or the tendency of the system to move processes out of physical memory and onto the swap disk).</p>
+<p>Swappiness is simply a setting that controls how often the swap file is used.</p>
 
 <p>As a percentage between 0 and 100, a swappiness value of:   </p>
   <ul>
@@ -235,8 +236,6 @@ swapfile               file        4194300 0       -1</div>
     <li>100 means aggressively (almost instantly) moving swap processes out of physical memory and into the swap cache </li>
 </ul>
           
-<p>Interactions with the swap file are resource-intensive because they take much longer than interactions with RAM and can cause a significant reduction in system performance. Instructing your system not to overly rely on the swap can help boost overall system performance.</p>
-
 <p>You can change your server's swapiness in <code>sysctl.conf</code>.</p>
 
   <ol>
@@ -293,6 +292,6 @@ swapfile               file        4194300 0       -1</div>
 <h2>Conclusion</h2>
 <p>Swapping can be beneficial in allowing your system to harness more memory than originally available. It's a viable option before having to optimize your application configurations, add more RAM, or upgrade your server. </p>
 
-<p>However, remember that hard disks are much slower than RAM, and so accessing the disk often can be noticeably slower than accessing physical memory. Also, the more swapping you do, the slower your system will be. So be sure to tune your swap settings judiciously to prevent <em>swap thrashing</em> (when the hard drive is overworked by information moving excessively between system memory and virtual memory).</p>
+<p>However, it's important to remember to periodically tune your swap file to ensure you're getting the most out of it.</p>
 </body>
 </html>
