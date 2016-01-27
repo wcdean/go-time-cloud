@@ -196,9 +196,33 @@ td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
       
 
 <h2>Adding additional virtual hosts</h2>
+<p>To create additional sites, repeat the following sections:</p>
+<ol>
+    <li>Set up the virtual host</li>
+    <li>Create content for the website</li>
+    <li>Configure your virtual host &mdash; but for additional virtual hosts, you will need to create new <code>&lt;Virtual Host *:80&gt;</code> sections.
+    <li>Point your domain name to your server</li>
+</ol>
 
-<p>Repeat the above steps to create more virtual hosts. Be sure to create new config files for each new virtual host. You can copy the <em><u>coolexample.com</u></em> config file to create new hosts.</p>
+<p>For your reference, here's an example of what our virtual host config file (<code>/etc/httpd/conf/extra/httpd-vhosts.conf</code>) looks like after adding <em><u>coolexample.net</u></em> as a second virtual host:</p>
 
+<div class="hacker"><pre>&lt;VirtualHost *:80&gt;
+    ServerAdmin <em><u>your email address</u></em>
+    DocumentRoot "/srv/http/<em><u>coolexample.com</u></em>" 
+    ServerName www.<em><u>coolexample.com</u></em>     
+    ServerAlias <em><u>coolexample.com</u></em> 
+    ErrorLog "/srv/http/<em><u>coolexample.com</u></em>/error.log" 
+    CustomLog "/srv/http/<em><u>coolexample.com</u></em>/requests.log" common
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:80&gt;
+    ServerAdmin <em><u>your email address</u></em>
+    DocumentRoot "/srv/http/<em><u>coolexample.net</u></em>" 
+    ServerName www.<em><u>coolexample.net</u></em>     
+    ServerAlias <em><u>coolexample.net</u></em> 
+    ErrorLog "/srv/http/<em><u>coolexample.net</u></em>/error.log" 
+    CustomLog "/srv/http/<em><u>coolexample.net</u></em>/requests.log" common
+&lt;/VirtualHost&gt;</pre></div>
 
 <h2>Next Steps</h2>
 <p>With Apache set up to work with your domain name, you can now do things like set up things like WordPress or Drupal.</p>
