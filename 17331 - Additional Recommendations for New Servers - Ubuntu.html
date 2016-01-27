@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 
   <head>
-  <title>Additional recommendations for new servers - Ubuntu</title>
+  <title>Initial server setup (part 2) - Ubuntu</title>
 <style type="text/css">
 div.hacker {
 background-color:#666;
@@ -39,41 +39,59 @@ p.note {
 <body>
 <p>Getting started with adding security features after configuring your Ubuntu server.</p> 
  
- <h1>Additional Recommendations for New Servers - Ubuntu</h1>  
+ <h1>Initial server setup (part 2) - Ubuntu</h1>  
   <p><strong>Difficulty</strong>:<em><u> 1</u></em><br/>
 <strong>Time</strong>:<em><u> 10 minutes</u></em></p>
 
-<p>After you’ve <a href="/article/17321?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to make sure your server’s secure and works like you’d expect.</p>
+<p>After you’ve <a href="/article/17321?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to ensure its security make sure your server’s secure and works like you’d expect.</p>
 
-<p>These steps are optional, but they’re the kind of things that seasoned admins make sure are taken care of.</p>
+<p>These steps are optional, but they’re the kind of things that seasoned admins always take care of.</p>
+
+<style>
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+
+tr:nth-child(odd) {background-color: #f7f7f7;}
+
+tr:nth-child(1) {background-color:#ddd;}
+
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+
+td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+</style>
 
 <h2>Set up a basic firewall</h2>
 
 <p>Creating a firewall protects your server from malicious traffic that can lead to security issues or degraded performance due to floods of traffic, such as DDoS attacks.</p>
 
-<p>Ubuntu includes a firewall called <code>ufw</code> which we'll use.</p>
+<p>Ubuntu includes a firewall called <code>ufw</code>, which we'll use.</p>
 
 <h3>Create firewall rules</h3>
-<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
+<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions – that is: the traffic you want to let in.</p>
   <ol>
-    <li>Create an exception for secure shell (SSH) connections to get remote administration access. By default, the SSH daemon runs on port 22. <code>ufw</code> can call a rule by name if the default was changed.
-      <ul>
-        <li>If you have not modified the SSH port, enable the exception:
-          <div class="hacker">sudo ufw allow ssh</div> </li>
-        <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol:
-          <div class="hacker">sudo ufw allow <em><u>your SSH port</u></em>/tcp</div></li>
-      </ul>
-    This configuration is the strictest possible, and every incoming connection is denied except for the port just enabled. All other services are inaccessible. If you want to run additional services, open the proper port.</li>
-
-    <li>Open any of the following ports based on what services you need:
-      <ul>
-        <li>To run a standard HTTP web server, open port 80:
-          <div class="hacker">sudo ufw allow 80/tcp </div></li>
-        <li> To run an SSL/TLS enabled web server, open port 443:
-          <div class="hacker">sudo ufw allow 443/tcp</div> </li>
-        <li>To enable outgoing email (SMTP), open port 25:
-          <div class="hacker">sudo ufw allow 25/tcp</div></li>
-      </ul></li>
+    <li>Create an exception so you can connect to your server through SSH:
+        <div class="hacker">sudo ufw allow 22/tcp</div>
+        <p class="note">If you've changed your default SSH port, replace 22 with your port number.</p></li>
+    <li>Open any of the following ports based on which services you need:
+      <table>
+        <tr>
+        <th>You want to enable...</th>
+        <th>Run this command</th>
+        </tr>
+        <tr>
+          <td>Web server (HTTP) traffic</td>
+          <td><div class="hacker">sudo ufw allow 80/tcp</div></td>
+        </tr>
+        <tr>
+          <td>Web server &amp; SSL (HTTPS) traffic</td>
+          <td><div class="hacker">sudo ufw allow 443/tcp</div></td>
+        </tr>
+        <tr>
+          <td>Outgoing email (SMTP)</td>
+          <td><div class="hacker">sudo ufw allow 25/tcp</div></td>
+        </tr>
+      </table></li>
     <li>Review your exceptions:
       <div class="hacker">sudo ufw show listening</div>
     The <code>ufw show listening</code> command lists your configured firewall rules in human-readable format, even when your firewall is inactive.</li>
@@ -105,7 +123,7 @@ p.note {
   The package configuration window displays. </li>
   
   <li>Use the Up and Down arrow keys on the keyboard to find your geographic area (which are continents and oceans). Find the region/geographic area of your server, and then select <strong>OK</strong>.
-  <p class="note">For North America, select <strong>America</strong> (the second option). Note that  <strong>US</strong>  (the option before <strong>None of the above</strong>) stands for "<strong>U</strong>se <strong>S</strong>ystem V style time zones," not for &quot;United States.&quot;</p></li>
+  <p class="warning">For North America, select <strong>America</strong> (the second option). Note that  <strong>US</strong>  (the option before <strong>None of the above</strong>) stands for "<strong>U</strong>se <strong>S</strong>ystem V style time zones," not for &quot;United States.&quot;</p></li>
   <li>In the next menu, select the city or region of your time zone, and then select <strong>OK</strong>.</li>
   Your system updates to your selected timezone:
     <div class="hacker">Current default time zone: 'America/Vancouver' <br />
@@ -126,8 +144,6 @@ p.note {
  
 <h2>Next steps</h2>
  
-<p>Your setup is complete! Remember that you can always add on to your configuration as you add more services. </p>
-
 <p>If you like this configuration, you can <a href="/article/19042?prog_id=PROG_ID">take a server snapshot</a> to use as a guide for setting up future installations.</p>
 
 <p>Also, consider <a href="/article/17326?prog_id=PROG_ID" target="_blank">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host  databases on your system. </p>

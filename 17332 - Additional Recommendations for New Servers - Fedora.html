@@ -9,7 +9,7 @@
 <!--Use this template for articles that explain or describe something (such as an operating system). For articles that include steps for accomplishing a task (for example, installing), use the Informational template instead.  -->
 
 
-<title>Additional Recommendations for New Servers - Fedora</title>
+<title>Initial server setup (part 2) - Fedora</title>
 <style type='text/css'>
 div.hacker {
 background-color:#666;
@@ -46,20 +46,33 @@ p.note {
 
 <body>
 <p>Getting started with adding security features after configuring your Fedora server. </p>
-    <h1>Additional Recommendations for New Servers -  Fedora</h1>
+    <h1>Initial server setup (part 2) -  Fedora</h1>
     
     <p><strong>Difficulty</strong>: <em><u>1</u></em><br/>
         <strong>Time</strong>: <em><u>10 minutes</u></em></p>
 
-<p>After you’ve <a href="/article/17322?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to make sure your server’s secure and works like you’d expect.</p>
+<p>After you’ve <a href="/article/17322?prog_id=PROG_ID">set up your server</a>, there a few other steps we recommend to ensure its security make sure your server’s secure and works like you’d expect.</p>
 
-<p>These steps are optional, but they’re the kind of things that seasoned admins make sure are taken care of.</p>
+<p>These steps are optional, but they’re the kind of things that seasoned admins always take care of.</p>
+
+<style>
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+
+tr:nth-child(odd) {background-color: #f7f7f7;}
+
+tr:nth-child(1) {background-color:#ddd;}
+
+th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+
+td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
+
+td:nth-child(1) {font-weight:bold;}
+</style>
 
 <h2>Set up a basic firewall</h2>
 <p>Creating a firewall protects your server from malicious traffic that can lead to security issues or degraded performance due to floods of traffic, such as DDoS attacks.</p>
 
-<p>Fedora includes a firewall tool called <code>firewalld</code>, a dynamically managed Linux firewall. 
-You'll use <code>firewall-cmd</code>  to configure your firewall policies. The <code>firewall-cmd</code> command can make modifications without losing any of your current connections.</p> 
+<p>Fedora includes a firewall tool called <code>firewalld</code>, which we'll use.</p> 
 
 <h3>Turn on the firewall</h3>
   <ol>
@@ -80,28 +93,37 @@ You'll use <code>firewall-cmd</code>  to configure your firewall policies. The <
                                                          
 <h3>Create firewall rules</h3>
 
-<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions to that, that is: the traffic you want to let in.</p>
+<p>By default, firewalls block <em>all</em> traffic, so you have to define exceptions – that is: the traffic you want to let in.</p>
 
 <ol>
-  <li>Create an exception for secure shell (SSH) connections to get remote administration access:
+  <li>Create an exception so you can connect to your server through SSH.
     <ul>
       <li>If you have not modified the SSH port, enable the exception.
         <div class="hacker">sudo firewall-cmd --permanent --add-service=ssh</div></li>
       <li>If you have modified the port that the SSH daemon listens on, allow it by entering the port number and TCP protocol. Make sure that you've first restarted your SSH server to use the new port.
         <div class="hacker">sudo firewall-cmd --permanent --remove-service=ssh</div>
-        <div class="hacker">sudo firewall-cmd --permanent --add-port=<em><u>your SSH port</u></em>/tcp</div>
-      This firewall is the strictest configuration, so every incoming connection is denied except for the port just enabled. All other services will be inaccessible. To run an additional service, make sure to open the firewall for that portion. </li>
+        <div class="hacker">sudo firewall-cmd --permanent --add-port=<em><u>your SSH port</u></em>/tcp</div></li>
     </ul></li>
 
-  <li>Use the following commands to open your firewall based on what you need:
-
-    <ul>
-      <li>To run a standard HTTP web server, allow incoming HTTP traffic.
-        <div class="hacker">sudo firewall-cmd --permanent --add-service=http</div></li>
-      <li>To run an SSL/TLS-enabled web server, allow for HTTPS traffic.
-        <div class="hacker">sudo firewall-cmd --permanent --add-service=https</div></li>
-      <li>To enable outgoing email (SMTP), enable the SMTP service.
-        <div class="hacker">sudo firewall-cmd --permanent --add-service=smtp</div></li>
+  <li>Open any of the following ports based on which services you need:
+    <table>
+        <tr>
+        <th>You want to enable...</th>
+        <th>Run this command</th>
+        </tr>
+        <tr>
+          <td>Web server (HTTP) traffic</td>
+          <td><div class="hacker">sudo firewall-cmd --permanent --add-service=http</div></td>
+        </tr>
+        <tr>
+          <td>Web server &amp; SSL (HTTPS) traffic</td>
+          <td><div class="hacker">sudo firewall-cmd --permanent --add-service=https</div></td>
+        </tr>
+        <tr>
+          <td>Outgoing email (SMTP)</td>
+          <td><div class="hacker">sudo firewall-cmd --permanent --add-service=smtp</div></td>
+        </tr>
+    </table>
       <li>Optionally, view any additional services that you can enable by name.
         <div class="hacker">sudo firewall-cmd --get-services  </div>
       If you want to add any of these services, you can use this command:
@@ -175,8 +197,6 @@ Your system updates to your selected timezone.</li>
 
 <h2>Next steps</h2>
  
-<p>Your setup is complete! Remember that you can always add on to your configuration as you add more services. </p> 
-
 <p>If you like this configuration, you can <a href="/article/19042?prog_id=PROG_ID">take a server snapshot</a> to use as a guide for setting up future installations. </p>
   
 <p>Also, consider <a href="/article/17328?prog_id=PROG_ID">adding swap space</a>. Adding swap space is an easy way to increase cloud server performance and is particularly helpful if you host databases on your system. </p>
