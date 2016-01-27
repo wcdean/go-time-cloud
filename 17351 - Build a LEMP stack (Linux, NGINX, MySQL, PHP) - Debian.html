@@ -82,63 +82,61 @@ td:nth-child(1) {font-weight:bold;}
      <div class="hacker">sudo service nginx start</div></li>
  </ol>
 <p>NGINX is now running as a web server. You can verify this using your browser to navigate to the IP address of your cloud server, e.g. <strong>http://<em><u>IP Address of your cloud server</u></em>.</strong></p>
-    <h2>Install and configure MySQL</h2>
 
-                 <ol>
-     <li>Install MySQL
-     <div class="hacker">sudo apt-get install mysql-server php5-mysql</div>
-         MySQL will ask you for a database root password. Enter a strong password and confirm.
-     </li>
-         <li>Activate MySQL.       
-              
-    <div class="hacker">sudo mysql_install_db</div>
-                     </li>  
-  <li>Secure your database server.        
-              
-    <div class="hacker">sudo /usr/bin/mysql_secure_installation</div> 
+<h2>Install MySQL</h2>
+ <ol>
+    <li>Install MySQL:
+     <div class="hacker">sudo apt-get install mysql-server php5-mysql</div></li>
+    <li>Enter a root password, and then press enter.
+        <p class="warning">It is possible to not enter a password here. However, we cannot urge you strongly enough to enter a strong password here. Without one your server becomes incredibly vulnerable.</p></li>
+    <li>Activate MySQL:
+        <div class="hacker">sudo mysql_install_db</div></li>  
+    <li>Set MySQL to start on server boot:
+        <div class="hacker">sudo update-rc.d mysql defaults</div></li>
+    <li>Secure your database server:
+        <div class="hacker">sudo /usr/bin/mysql_secure_installation</div> 
                      
      <p>The prompt will request the answer to a number of questions. </p>
      <p>The following table contains the remainder of the questions you will be asked, the recommended response and some remarks regarding the consequences of not following the recommendation.</p> 
-                     <table>
+    <table>
     <tr>
-    <th >Question</th>
-     <th>Suggested Answer  </th>
-      <th>Why/Why not?</th>
+        <th>Question</th>
+        <th>Suggested Answer  </th>
+        <th>Why/Why not?</th>
     </tr>
     <tr>
-    <td >Enter current password for root (enter for none):</td>
-       <td>Enter the password you created earlier.</td>
-          <td>MySQL needs this password to have sufficient access to system resources, so that it can function as a database server.</td>
-               </tr>
+        <td >Enter current password for root (enter for none):</td>
+        <td>Enter the password you created earlier.</td>
+        <td>MySQL needs this password to have sufficient access to system resources, so that it can function as a database server.</td>
+    </tr>
     <tr>
-    <td>Do you want to change the root password?</td>
-       <td>n</td>
-          <td>Unless you want to change the password that was just said.</td>
-               </tr>
+        <td>Do you want to change the root password?</td>
+        <td>n</td>
+        <td>Unless you want to change what you just did.</td>
+    </tr>
     <tr>
-    <td>Remove anonymous users?</td>
-       <td>y</td>
-          <td>The anonymous user allows anyone to login without requiring an account created by an admin. A hacker attempting to compromise your database server may try logging in as this user. </td>
-               </tr>
-               <tr>
-    <td> Disallow root login remotely?</td>
-      <td>y</td>
-          <td>It is more secure to create a non-root user with admin permissions. Answer "no," if you need more flexibility to manage your database server.</td>
-             
-               </tr>
-               <tr>
-    <td >Remove test database and access to it?</td>
-       <td>y</td>
-          <td>If you have a reason to keep a test database, answer "no." </td>
-               </tr>
-               <tr>
-    <td >Reload privilege tables now?</td>
-       <td>y</td>
-          <td>Why wait?</td>
-               </tr>
-               </table>                  
-                   </li>          
-              </ol>                 
+        <td>Remove anonymous users?</td>
+        <td>y</td>
+        <td>The anonymous user allows anyone to login without requiring an account created by an admin. A hacker attempting to compromise your database server may try logging in as this user. </td>
+    </tr>
+    <tr>
+        <td> Disallow root login remotely?</td>
+        <td>y</td>
+        <td>It is more secure to create a non-root user with admin permissions. Answer "no," if you need more flexibility to manage your database server.</td>
+                 
+    </tr>
+    <tr>
+        <td >Remove test database and access to it?</td>
+        <td>y</td>
+        <td>If you have a reason to keep a test database, answer "no." </td>
+    </tr>
+    <tr>
+        <td >Reload privilege tables now?</td>
+        <td>y</td>
+        <td>Why wait?</td>
+                   </tr>
+    </table></li>          
+</ol>
                      
     <h2>Install and configure PHP</h2>
    <ol>             

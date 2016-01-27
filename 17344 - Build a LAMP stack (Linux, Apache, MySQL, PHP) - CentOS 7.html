@@ -51,7 +51,7 @@ p.note {
     </p>
 <p>To build a dynamic web application, you need what has been coined a “stack” – which is developer lingo for an integrated set of software that has all of the components your application needs.</p>
 
-<p>Most stacks have the same types of component, and differ mainly in which pieces of software they use for those components. For example, we’ll look at LAMP (which this article covers):</p>
+<p>Most stacks have the same types of components and differ mainly in which pieces of software they use for those components. For example, we’ll look at LAMP (which this article covers):</p>
 
 <style>
 table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
@@ -90,11 +90,13 @@ td:nth-child(1) {font-weight:bold;}
     </tr>
 </table>
 
-<p>If you're astute, maybe you noticed that LAMP is just an acronym for the software the stack uses. In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
+<p>If you're astute, maybe you noticed that LAMP is just an acronym for the software the stack uses.</p> 
+
+<p>In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
       
 <h2>Install Apache</h2>
 <ol>
-    <li>Before you begin any installation, make sure that you install all the updates:
+    <li>Before you begin any installation, make sure that your software is up to date:
         <div class="hacker">sudo yum update</div></li>
     <li>Install Apache:
         <div class="hacker">sudo yum install httpd</div></li>
@@ -102,7 +104,7 @@ td:nth-child(1) {font-weight:bold;}
         <div class="hacker">sudo systemctl start httpd.service</div></li>
     <li>Set Apache to start on server boot:
         <div class="hacker">sudo systemctl enable httpd.service</div></li>
-<li>To verify that Apache is installed, type this URL in a browser:<br/>
+<li>Verify that Apache is installed by going to:<br/>
         <strong>http://<em><u>your server's IP address</u></em>.</strong><br/>
         If Apache is installed, the <strong>Apache Test Page</strong> displays.
         <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
@@ -119,7 +121,6 @@ td:nth-child(1) {font-weight:bold;}
         <div class="hacker">
                 sudo systemctl enable mariadb.service
             </div></li>        
-       
     <li>Run this command to finish setting up the installation:
         <div class="hacker">sudo mysql_secure_installation</div></li>
     <li>You will be asked for the root password. Because you didn't set it earlier, press <strong>Enter</strong> to set a password now.</li>
@@ -130,7 +131,7 @@ td:nth-child(1) {font-weight:bold;}
 
 <h2>Install PHP</h2>
 <ol>
-    <li>To install PHP, open the terminal and type:
+    <li>Install PHP:
         <div class="hacker">sudo yum install php php-mysql </div> 
         Enter "Y" to install.</li>
         
@@ -138,7 +139,7 @@ td:nth-child(1) {font-weight:bold;}
         <div class="hacker">sudo systemctl restart httpd.service</div></li>
 </ol>
 
-<h3> Install PHP modules</h3>
+<h3>Install PHP modules</h3>
 <p>If your applications requires any PHP modules, you can install them now.</p>
 <ol>
     <li>View available PHP modules:
@@ -164,8 +165,8 @@ td:nth-child(1) {font-weight:bold;}
 <p>A page displays with the PHP version, extensions, build date, and other information.</p>
 
 <h2>Next steps</h2>
-<p>Now that you have a LAMP stack, you can use it for dynamic, database-driven websites powered by things like WordPress or Drupal.</p>
-<p>If you want to host multiple websites on your server, see our guide for <a href="/article/17338?prog_id=PROG_ID" target="_blank">setting up Apache Virtual Hosts</a>.</p>
+<p>Now that you have a LAMP stack, we recommend <a href="/article/17338?prog_id=PROG_ID" target="_blank">setting up Apache Virtual Hosts for your websites</a>.</p>
+
 <!--Now that you have installed LAMP on your server you can <a href="http://17383%20-%20Install%20WordPress%20on%20your%20LAMP%20server%20-%20CentOS.html">install Wordpress on your LAMP server</a>, <a href="http://18007 - Install and Configure Varnish for your Drupal 7 site on your LAMP server - CentOS, Fedora.html"> install Drupal 7</a>, <a href="http://18050 - Install and configure Simple Machines Forum on your LAMP server - CentOS, Fedora.html">install Simple Machines Forum</a>, and
     <a href="http://18236 - Install and configure MediaWiki on your LAMP server - CentOS, Fedora.html">install MediaWiki.</a>-->
 

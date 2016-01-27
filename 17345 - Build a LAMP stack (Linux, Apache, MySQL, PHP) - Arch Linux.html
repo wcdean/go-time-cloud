@@ -47,7 +47,7 @@ p.note {
     </p>
 <p>To build a dynamic web application, you need what has been coined a “stack” – which is developer lingo for an integrated set of software that has all of the components your application needs.</p>
 
-<p>Most stacks have the same types of component, and differ mainly in which pieces of software they use for those components. For example, we’ll look at LAMP (which this article covers):</p>
+<p>Most stacks have the same types of components and differ mainly in which pieces of software they use for those components. For example, we’ll look at LAMP (which this article covers):</p>
 
 <style>
 table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
@@ -86,7 +86,9 @@ td:nth-child(1) {font-weight:bold;}
     </tr>
 </table>
 
-<p>If you're astute, maybe you noticed that LAMP is just an acronym for the software the stack uses. In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
+<p>If you're astute, maybe you noticed that LAMP is just an acronym for the software the stack uses.</p> 
+
+<p>In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
       
 <h2>Install Apache</h2>
 <ol>
@@ -109,7 +111,7 @@ td:nth-child(1) {font-weight:bold;}
             </pre></div></li>
     <li>Start Apache:
         <div class="hacker"> sudo systemctl start httpd</div></li>
-    <li>To verify that Apache is installed, type this URL in a browser:<br/>
+    <li>Verify that Apache is installed by going to:<br/>
         <strong>http://<em><u>your server's IP address</u></em>.</strong><br/>
         If Apache is installed, your test page will display.
         <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
@@ -145,18 +147,17 @@ td:nth-child(1) {font-weight:bold;}
     <li>In order to configure the way Apache serves its files, you need to make some changes. Open the <code>httpd.conf </code>file:
         <div class="hacker">sudo vim /etc/httpd/conf/httpd.conf</div></li>
     <li>Under the  <code>Dynamic Shared Object (DSO) Support </code> section, add the following line:
-        <div class="hacker"> LoadModule php7_module modules/libphp7.so </div>
-        In the same section comment out the line <code>LoadModule mpm_event_module modules/mod_mpm_event.so</code> and uncomment the <code> LoadModule mpm_prefork_module modules/mod_mpm_prefork.so</code> line.</li>
-    <li>In the <code>DirectoryIndex</code> section, add <strong>index.php</strong> to the available index files.
-        <div class="hacker">DirectoryIndex index.php index.html</div>
-    </li>
+        <div class="hacker"> LoadModule php7_module modules/libphp7.so </div></li>
+    <li>In the same section, use a <code>#</code> to comment out the following line:
+        <div class="hacker">LoadModule mpm_event_module modules/mod_mpm_event.so</div></li>
+    <li>In the same section, remove the <code>#</code> to uncomment the following lines:
+        <div class="hacker">LoadModule mpm_prefork_module modules/mod_mpm_prefork.so</div></li>
+    <li>In the <code>DirectoryIndex</code> section, add <strong>index.php</strong> to the available index files, which will look like this:
+        <div class="hacker">DirectoryIndex index.php index.html</div></li>
     <li>Under the <code>Supplemental configuration</code> section, add the following lines:
-        <div class="hacker"><pre># PHP 7
-Include conf/extra/php7_module.conf</pre></div></li>
+        <div class="hacker"># PHP 7<br/>Include conf/extra/php7_module.conf</div></li>
     <li>Under the <code>IfModule mime_module </code>section, add the following lines:
-        <div class="hacker"><pre>AddType application/x-httpd-php .php
-AddType application/x-httpd-php-source .phps</pre>
-</div></li>
+        <div class="hacker">AddType application/x-httpd-php .php<br/>AddType application/x-httpd-php-source .phps</div></li>
     <li>Save and close the file:
       <div class="hacker">:wq!</div></li>
     <li>Open your server <code>php.ini</code> file in a text editor.
@@ -186,8 +187,7 @@ AddType application/x-httpd-php-source .phps</pre>
 <p>A page displays with the PHP version, extensions, build date, and other information.</p>
 
 <h2>Next steps</h2>
-<p>Now that you have a LAMP stack, you can use it for dynamic, database-driven websites powered by things like WordPress or Drupal.</p>
-<p>If you want to host multiple websites on your server, see our guide for <a href="/article/17339?prog_id=PROG_ID" target="_blank">setting up Apache Virtual Hosts</a>.</p>
+<p>Now that you have a LAMP stack, we recommend <a href="/article/17339?prog_id=PROG_ID" target="_blank">setting up Apache Virtual Hosts for your websites</a>.</p>
 <!--Now that you have installed LAMP on your server you can <a href="http://17384 - Install WordPress on your LAMP server - Arch Linux.html">install Wordpress on your LAMP server</a>, <a href="http://18008 - Install and Configure Varnish for your Drupal 7 site on your LAMP server - Arch Linux.html"> install Drupal 7</a>, <a href="http://18049 - Install and configure Simple Machines Forum on your LAMP server - Ubuntu, Debian.html">install Simple Machines Forum</a>, and
     <a href="http://18237 - Install and configure MediaWiki on your LAMP server - Arch Linux.html">install MediaWiki</a>-->
 
