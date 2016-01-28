@@ -61,110 +61,106 @@ td:nth-child(1) {font-weight:bold;}
 <p><strong>Difficulty:</strong> <em>1</em></p>
 <p><strong>Time:</strong> <em>30 minutes</em></p>
 
-<h2>Introduction</h2>
-<p>Concrete5 is an open-source content management system (CMS) made in PHP. Concrete5 is easy to understand and learn. In this article you will learn, how to install and configure concrete5 on your LAMP server - Debian and Ubuntu.</p>
+<p>Concrete5 is an open-source content management system (CMS) made in PHP. Concrete5 is easy to understand and learn. In this article you will learn, how to install and configure concrete5 on your LAMP server, whether you're using Debian or Ubuntu.</p>
 
-<p>Before you proceed, you must have access to <code>sudo</code> privileges to perform the steps mentioned in this article. In addition, you will need to build a LAMP stack by referring the following links:</p>
-	<ul>
-	<li><a href="17346">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Debian</a></li>
-	<li><a href="17341">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu</a></li>
-   	</ul> 
+
+<h2>Install LAMP</h2>
+<p>To use this article, you need to have a LAMP stack installed on your server:</p>
+<ul>
+  <li><a href="/article/17341?prog_id=PROG_ID">Ubuntu</a></li>
+  <li><a href="/article/17346?prog_id=PROG_ID">Debian</a></li>
+</ul> 
+
+<p>We also recommend setting up an Apache virtual host for the domain name you want to use, which includes pointing your domain name to it:</p>
+<ul>
+    <li><a href="/article/17336?prog_id=PROG_ID">Ubuntu</a></li>
+    <li><a href="/article/17340?prog_id=PROG_ID">Debian</a></li>
+</ul>
+
 
 <h2>Install the required dependencies</h2>
 <ol>
-<li>Install the <code>unzip</code> and the PHP GD libraries.
-<div class="hacker">sudo apt-get install unzip php5-gd</div>
-</li>
-<li>Restart the Apache services to make the changes effective.
-<div class="hacker">sudo service apache2 restart</div>
-</li>
+  <li>Install the <code>unzip</code> and the PHP GD libraries.
+    <div class="hacker">sudo apt-get install unzip php5-gd</div></li>
+  <li>Restart the Apache services to make the changes effective.
+    <div class="hacker">sudo service apache2 restart</div></li>
 </ol>
 
-<h2>Basic configuration</h2>
+<h2>Download and configure conrete5</h2>
 <ol>
-<li>Navigate to the Apache document root:
-<p>Debian:</p>
-<div class="hacker">cd /var/www/ </div>
-<p>Ubuntu:</p>
-<div class="hacker">cd /var/www/html </div>
-<li>In a browser, visit the <a href="https://www.concrete5.org/developers/developer-downloads/">official Concrete5 downloads page</a>.</li>
-<li>Copy the download link for the newest version of Concrete5.</li>
-<li>Use this link with <code>wget</code> to download the latest version as a zip file:
-<div class="hacker">sudo wget --trust-server-names https://www.concrete5.org/download_file/-/view/82243/8497/ -O concrete5.zip</div>
-</li>
-<li>Extract the downloaded source.
-<div class="hacker">sudo unzip concrete5.zip</div>
-</li>
-<li>The folder will be named <em><u><code>concrete5.x.x.x</code></u></em> with each number representing the version number. Use the <code>mv</code> command to simplify this directory.
-<div class="hacker">sudo mv <em><u>concrete5.x.x.x</u></em> concrete5</div>
-</li>
-<li>Navigate to the <code>concrete5</code> directory.
-<div class="hacker">cd concrete5</div>
-</li>
-<li>Enable the <code>rewrite</code> module.
-<div class="hacker">sudo a2enmod rewrite</div>
-</li>
-<li>Open your <code>php.ini</code> file in a text editor.
-  <div class="hacker">sudo vim /etc/php5/apache2/php.ini</div></li>
-  <li>Uncomment the following line from the file.
-    <div class="hacker">cgi.fix_pathinfo=1</div></li>
-    <li>Save and close the file.</li>
-<li>Restart the Apache server.
-<div class="hacker">sudo service apache2 restart</div>
-</li>
+  <li>Navigate to your virtual host directory for the domain name:
+    <div class="hacker">cd <em><u>your domain's Apache virtual host directory</u></em></div>
+    <p class="note">If you didn't set up a virtual host directory, you can use <code>cd /var/www/html</code> (Ubuntu) or <code>cd /var/www</code> (Debian)</p></li>
+  <li>In a browser, visit the <a href="https://www.concrete5.org/developers/developer-downloads/">official Concrete5 downloads page</a>.</li>
+  <li>Copy the download link for the newest version of Concrete5.</li>
+  <li>Use this link with <code>wget</code> to download the latest version as a zip file:
+    <div class="hacker">sudo wget --trust-server-names <em><u>URL from concrete.org for version you want to download</u></em></div></li>
+  <li>Extract the downloaded source.
+    <div class="hacker">sudo unzip <em>downloaded file name</em></div></li>
+  <li>The folder will be named <code>concrete5.<em><u>x.x.x</u></em></code> with each number representing the version number. Use the <code>mv</code> command to simplify this directory.
+    <div class="hacker">sudo mv <em><u>concrete5.x.x.x</u></em> concrete5</div></li>
+  <li>Navigate to the <code>concrete5</code> directory.
+    <div class="hacker">cd concrete5</div></li>
+  <li>Enable the <code>rewrite</code> module.
+    <div class="hacker">sudo a2enmod rewrite</div></li>
+  <li>Open your <code>php.ini</code> file in a text editor.
+      <div class="hacker">sudo vim /etc/php5/apache2/php.ini</div></li>
+    <li>Make sure the following line <em>is not</em> commented out (that is: remove the <code>#</code> from in front of it):
+        <div class="hacker">cgi.fix_pathinfo=1</div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+  <li>Restart the Apache server:
+    <div class="hacker">sudo service apache2 restart</div></li>
 </ol>
 
-<h2>Create database</h2>
+<h2>Create a MySQL database</h2>
 <ol>
-<li>Create a blank database for backend operation. Log into MySQL.
-<div class="hacker">mysql -u root -p</div>
-</li>
-<li>When prompted enter mysql password and create database.
-<div class="hacker">CREATE DATABASE <em><u>concrete5</u></em>;</div>
-</li>
-<li>Create the database administrator account, and set the user's credentials. We'll use "admin" as the example user name, and "adminpwd" as the password. 
-<div class="hacker">CREATE USER admin@localhost IDENTIFIED BY 'adminpwd';   </div>        </li>
-As a best security practice, create a strong password. Keep your user name and password handy, as you'll need them later. 
-<li>Give, or grant, your admin permissions to the database.      
-<div class = "hacker">GRANT ALL PRIVILEGES ON concrete5.* TO admin@localhost;    </div>     </li>
-<li>GRANT is one of the account management statements that the MySQL server notices and loads into memory right away. Therefore, a manual reload/restart should not be necessary. However, if you like, you can check the permissions using SHOW GRANTS: 
-<div class = "hacker"> SHOW GRANTS FOR 'admin'@'localhost';     </div> </li>
-<li>If the privileges don't take, flush the privileges to activate the user. FLUSH forces a reload of the cache. 
-<div class = "hacker"> FLUSH PRIVILEGES;    </div>   </li>
-<li> Exit MySQL to return to your normal command prompt. 
-<div class ="hacker">exit    </div>     </li>
+  <li>Log into your MySQL admin account:
+    <div class="hacker">sudo mysql -u root -p</div></li>
+  <li>At the prompt, enter the MySQL root password you chose:
+    <p class="note">If you do not remember your root MySQL password, you can <a href="/article/17548?prog_id=PROG_ID" target="_blank">reset your root MySQL password</a>.</li>
+  <li>Create a new MySQL database:
+    <div class="hacker">CREATE DATABASE <em><u>your conrete5 database</u></em>;</div></li>
+  <li>Create the database administrator account:
+    <div class="hacker">CREATE USER <em><u>your concrete5 username</u></em>@localhost IDENTIFIED BY '<em><u>your concrete5 password</u></em>';   </div></li>
+  <li>Give, or grant, your user permissions to the database:   
+    <div class = "hacker">GRANT ALL PRIVILEGES ON <em><u>your conrete5 database</u></em>.* TO <em><u>your concrete5 username</u></em>@localhost;    </div> </li>
+  <li>Confirm that the changes to this user are properly applied:
+    <div class="hacker">SHOW GRANTS FOR '<em><u>your username</u></em>'@'localhost';</div>
+  If the changes worked, you should see an output that looks something like this:
+    <div class="hacker">GRANT USAGE ON *.* TO '<em><u>your username</u></em>'@'localhost' IDENTIFIED BY PASSWORD '*977FDAC11B3F74324912DA4F9D489A3E6D59B281'<br \>
+              GRANT ALL PRIVILEGES ON `<em><u>your wordpress database</u></em>`.* TO '<em><u>your username</u></em>'@'localhost'</div>
+  If the changes did not apply properly, refresh the MySQL cache and try again:
+    <div class="hacker">FLUSH PRIVILEGES;</div></li>
+  <li>Once you confirm that the changes worked, exit MySQL: 
+    <div class="hacker">exit</div></li>
 </ol>
 
-   <h2>Grant Permissions</h2>
-   <ol>
-   <li>Change ownership of the document root to make it writable by Concrete5.
-   <div class="hacker">sudo chown -R www-data:www-data /var/www/html/concrete5</div></li>
-   <p class="note">Remember that if you are using Debian, you will use <code>/var/www/</code> in your path instead of <code>/var/www/html</code>.</p>
-   </li>
-    </ol>
+<h2>Grant Permissions</h2>
+<ul>
+  <li>Change ownership of the document root to make it writable by Concrete5.
+    <div class="hacker">sudo chown -R www-data:www-data /var/www/html/concrete5</div></li>
+    <p class="note">Remember that if you are using Debian, you will use <code>/var/www/</code> in your path instead of <code>/var/www/html</code>.</p></li>
+</ul>
+
 <h2>Install Concrete5</h2>
 <ol>
-<li>In your web browser, type in the public IP or URL of your concrete5 server as <strong>http://<em><u>server_ip</u></em>/concrete5</strong>, and then press the <strong>Enter</strong> key. </li>
- <li>Make sure that all server requirements are met, and click <strong>Continue to Installation</strong>.
-   <br /><img src="images/17590/091715/Install-concrete5.png" alt="Install-concrete5.png"/>
-   </li>
-   <li>Enter the required information for <strong>Site</strong>, <strong>Database</strong>, and <strong>Administrator</strong>. Use the MySQL credentials that you created earlier for the <strong>Database Information</strong> section. Unless you are using a remote database server, your <strong>Server</strong> field should just be <em><u>localhost</u></em>.</li>
-   <li>Select the option to install sample content, or create an empty site.</li>
-   <li>Once all fields have been filled, click <strong>Install concrete5</strong>.
-    <br /><img src="images/17590/091715/Site-database-information.png" alt="Site database information page"/>
-   </li>
-   <li>After the installation process is complete, click <strong>Continue to your site</strong>.  
-   <br /><img src="images/17590/091715/Continue-to-your-site.png" alt="Continue to your site page"/>
-   
-   You will be redirected to the Welcome screen of concrete5. 
-   <br /><img src="images/17590/091715/Welcome-to-concrete5.png" alt="Welcome to concrete5 page"/> </li>
-    <li>Select any of the guides to get started. 
-    </li>
+  <li>In your web browser, go to:<br/>
+    <strong>http://<em><u>your domain name or IP address</u></em>/concrete5</strong></li>
+  <li>Make sure that all server requirements are met, and click <strong>Continue to Installation</strong>.
+    <br /><img src="images/17590/091715/Install-concrete5.png" alt="Install-concrete5.png"/></li>
+  <li>Enter the required information for <strong>Site</strong>, <strong>Database</strong>, and <strong>Administrator</strong>. Use the MySQL credentials that you created earlier for the <strong>Database Information</strong> section. Unless you are using a remote database server, your <strong>Server</strong> field should just be <em><u>localhost</u></em>.</li>
+  <li>Select the option to install sample content, or create an empty site.</li>
+  <li>Once all fields have been filled, click <strong>Install concrete5</strong>.<br />
+    <img src="images/17590/091715/Site-database-information.png" alt="Site database information page"/></li>
+  <li>After the installation process is complete, click <strong>Continue to your site</strong>.<br />
+    <img src="images/17590/091715/Continue-to-your-site.png" alt="Continue to your site page"/>
+  You will be redirected to the Welcome screen of concrete5. <br />
+    <img src="images/17590/091715/Welcome-to-concrete5.png" alt="Welcome to concrete5 page"/> </li>
+  <li>Select any of the guides to get started.</li>
   </ol>
 
-<h2>Conclusion</h2>
-
-<p>In this article, you have learned to install and configure concrete5 on your LAMP server.</p>
+<p>That's it! You successfully installed concrete5 and are ready to start building.</p>
  
 </body>
 </html>

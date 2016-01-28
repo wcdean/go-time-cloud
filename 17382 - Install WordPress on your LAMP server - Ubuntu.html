@@ -61,11 +61,11 @@ p.note {
   <li>Grant all privileges to this new user:
     <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>your wordpress database</u></em>.* TO <em><u>your username</u></em>@localhost IDENTIFIED BY '<em><u>your password</u></em>';</div></li>
   <li>Confirm that the changes to this user are properly applied:
-    <div class="hacker">SHOW GRANTS FOR '<em><u>your username</u></em>'@'localhost';</div><br \>
-            If the changes worked, you should see an output that looks something like this:
+    <div class="hacker">SHOW GRANTS FOR '<em><u>your username</u></em>'@'localhost';</div>
+  If the changes worked, you should see an output that looks something like this:
     <div class="hacker">GRANT USAGE ON *.* TO '<em><u>your username</u></em>'@'localhost' IDENTIFIED BY PASSWORD '*977FDAC11B3F74324912DA4F9D489A3E6D59B281'<br \>
-              GRANT ALL PRIVILEGES ON `<em><u>your wordpress database</u></em>`.* TO '<em><u>your username</u></em>'@'localhost'</div></li>
-  <li>If the changes did not apply properly, refresh the MySQL cache and try again:
+              GRANT ALL PRIVILEGES ON `<em><u>your wordpress database</u></em>`.* TO '<em><u>your username</u></em>'@'localhost'</div>
+  <em>If the changes did not apply properly</em>, refresh the MySQL cache and try again:
     <div class="hacker">FLUSH PRIVILEGES;</div></li>
   <li>Once you confirm that the changes worked, exit MySQL: 
     <div class="hacker">exit</div></li>
