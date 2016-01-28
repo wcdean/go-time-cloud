@@ -37,87 +37,148 @@ p.note {
     <br/><strong>Difficulty</strong>: <em><u>2</u></em><br/>
         <strong>Time</strong>: <em><u>Time value</u></em>
     <br/>
-<p>NGINX is one of the most popular web server solutions in the industry. Considered to be a competitor to the traditional <a href="http://apache.org/">Apache web server</a>, NGINX is known for being faster and easier to scale than other web servers.</p>
-<p>Unlike Apache, which uses <a href="/article/17336?prog_id=PROG_ID" target="_blank">Virtual Hosts</a> to manage individual sites and domains, NGINX uses server blocks. Server blocks let you host multiple sites with different domains on the same server. This guide will cover how to set up server blocks for your domains and subdomains on your Ubuntu or Debian server.</p>
-<h2>Prerequisites</h2>
+<p>If you want to host websites on your server running NGINX (which you probably do), you can use NGINX server blocks. Server blocks are the NGINX equivalent of Apache's virtual hosts – they let you direct incoming HTTP traffic for a domain name to a particular directory on your server.</p>
+
+<p>Server blocks are most often recommended when you want to host multiple websites on the same server, but we recommend creating server blocks for all of your websites <em>including</em> the first.</p>
+
+<p>Throughout this article, we'll use an example domain – <em><u>coolexample.com</u></em> – but you should replace it with the domain name or subdomain you want to host on your server.</p>
+
+<h2>Install NGINX</h2>
+<p>To get NGINX on your server, you should install it as part of a LEMP stack (<a href="/article/17347?prog_id=PROG_ID" target="_blank">Ubuntu</a>/<a href="/article/17351?prog_id=PROG_ID" target="_blank">Debian</a>).</p>
+
+<h2>Create your website's root directory</h2>
+<p>For each site you want to host, we're going to create a directory in <code>/usr/share/nginx/</code>.</p>
+
 <ol>
-  <li>You must have an Ubuntu or Debian server with NGINX installed. If you do not have NGINX installed, follow the NGINX install steps in the LEMP stack guide for your <a href="/article/17347?prog_id=PROG_ID" target="_blank">Ubuntu</a> or <a href="/article/17351?prog_id=PROG_ID" target="_blank">Debian</a> server.
-  </li>
-  <li>Log in to your server with a user that has <code>sudo</code> privileges. If you have a GoDaddy Cloud server, you will already have one by default.</li>
-  <li><a href="/article/19116?prog_id=PROG_ID" target="_blank">Point a domain or subdomain to your server</a>. If you don't want to use a real domain yet, you can <a href="/article/3354?prog_id=PROG_ID" target="_blank">edit your hosts file</a> to test your configuration.</li>
-</ol>
-<h2>Create directory structures and permissions</h2>
-<p>Ubuntu uses <code>/usr/share/nginx/html</code> as the base root for the NGINX server overall. Debian uses <code>/usr/share/nginx/www</code>. You will create directories in <code>/usr/share/nginx/</code> for each site you want to host.</p>
-<ol>
-  <li>Create a directory for your domain.
+  <li>Create a directory for your domain:
     <div class="hacker">sudo mkdir -p /usr/share/nginx/<em><u>coolexample.com</u></em></div>
   </li>
-  <li>Give this directory the correct permissions ownership for the NGINX user.
+  <li>Give this directory the correct permissions ownership for the NGINX user:
     <div class="hacker">sudo chown -R www-data:www-data /usr/share/nginx/<em><u>coolexample.com</u></em><br \>
-    sudo chmod -R 755 /usr/share/nginx/<em><u>coolexample.com</u></em>
-    </div>
-    You now have a directory for your site. Repeat this for any more sites that you want to host.
-  </li>
-  <li>Create a test index file</h2>
-    <div class="hacker">sudo vim /usr/share/nginx/<em><u>coolexample.com</u></em>/index.html</div>
-  </li>
-  <li>Paste this example HTML file in the editor. You can use your own text and domain as you see fit.
-    <div class="hacker">
-    <!--pre--><xmp><html>
-      <head>
-          <title>coolexample.com</title>
-        </head>
-        <body>
-          <h1>Hooray! NGINX is properly serving on <em>coolexample.com</em>!</h1>
-        </body>
-      </html>
-    </xmp><!--/pre--></div>
-  </li>
-  <li>Save and close the file
-  </li>
+    sudo chmod -R 755 /usr/share/nginx/<em><u>coolexample.com</u></em></li>
 </ol>
+
+<p>You now have a directory for your site. Repeat this for any more sites that you want to host.</p>
+
+<h2>Create content for the website</h2>
+<p>If you have the content for the website prepped, you can upload it to the website's directory you created in the last section.</p>
+
+<p>If you don't have content ready to upload, you can create a sample home page (also known as an index file, which is the first page that loads when visitors come to your domain).</p>
+
+<ol>
+  <li>Create a test index file:
+    <div class="hacker">sudo vim /usr/share/nginx/<em><u>coolexample.com</u></em>/index.html</div></li>
+  <li>Paste this example HTML file in the editor. You can use your own text and domain as you see fit.
+    <div class="hacker"><xmp><html>
+  <head>
+    <title>coolexample.com</title>
+  </head>
+  <body>
+    <h1>Hooray! NGINX is properly serving on <em>coolexample.com</em>!</h1>
+  </body>
+</html>
+    </xmp></div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+</ol>
+
 <h2>Create the NGINX server block</h2>
 <p>Now for the important part. You will create the file and directory for the NGINX server block information. This guide will set this up in a way that will make it simple to add more sites in the future.</p>
-  <ol>
-    <li>Create a new file to use as a server block template. You will use this template for creating sites in the future.
-      <div class="hacker">sudo vim /etc/nginx/sites-available/template</div>
-    </li>
-    <li>Inside this file, paste the following content. This has the basics for your NGINX server block.
-      <div class="hacker">
-        <pre>
-          server {
-              listen       80;
-              server_name yoursitehere  www.yoursitehere;
-            location / {
-              root   /usr/share/nginx/yoursitehere;
-              index index.php index.html index.html;
-                }
-          }
-        </pre></div>
-    </li>
-    <li>Save and close the file.</li>
-    <li>You now have a template file you can use for creating future server blocks. Copy this for your new server block.
-      <div class="hacker">sudo cp /etc/nginx/sites-available/template /etc/nginx/sites-available/<em><u>coolexample.com</u></em>
-    </li>
-    <li>In this file, you need to replace <strong>yoursitehere</strong> with the domain you are setting up. There are a few ways to do this:
-      <ul>
-        <li>Open the file in a text editor, and manually edit the paths. This is useful if you have to make additional edits to the configuration file.
-          <div class="hacker">sudo vim /etc/nginx/sites-available/<em><u>coolexample.com</u></em>
-        </li>
-        <li>Use this <code>sed</code> command. This will automatically replace all instances of <strong>yoursitehere</strong> with the domain of your choice inside the configuration file.
-          <div class="hacker">sudo sed -i 's/yoursitehere/<em><u>coolexample.com</u></em>/g' /etc/nginx/sites-available/<em><u>coolexample.com</u></em>
-          </div>
-        </li>
-      </ul>
-    </li>
+
+<h3>Create and configure your directories</h3>
+<ol>
+  <li>Create the following directories:
+  <div class="hacker">sudo mkdir /etc/nginx/sites-enabled</div>
+  <div class="hacker">sudo mkdir /etc/nginx/sites-available</div>
+This sort of directory system is typically used by Debian and Ubuntu, but they can be used by any Linux distribution running NGINX.</li>
+</ol>
+
+
+<h3>Create a server block template</h3>
+<p>By creating a template, you'll have something to work from whenever you want to add new websites to your server.</p>
+<ol>
+  <li>Create a new file to use as a server block template:
+      <div class="hacker">sudo vim /etc/nginx/sites-available/template</div></li>
+  <li>Inside this file, paste the following content. This has the basics for your NGINX server block.
+      <div class="hacker"><pre>server {
+  listen  80;
+  server_name |YOUR_DOMAIN|  www.|YOUR_DOMAIN|
+  location / {
+    root   /usr/share/nginx/|YOUR_DOMAIN|;
+    index index.php index.html index.html;
+  }
+}</pre></div>
+      <p class="note">Leave in the value <code>|YOUR_DOMAIN|</code>; do not replace it with your domain name.</p></li>
+    <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+</ol>
+
+<h3>Create a server block for your site</h3>
+<ol>
+  <li>Copy the template for your new server block:
+    <div class="hacker">sudo cp /etc/nginx/sites-available/template /etc/nginx/sites-available/<em><u>coolexample.com</u></em></li>
+  <li>Open your config file:
+      <div class="hacker">sudo vim /etc/nginx/sites-available/<em><u>coolexample.com</u></em></li>
+  <li>Replace all instances of <code>|YOUR_DOMAIN|</code> with the domain name you're using.</li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
     <li>Add a symbolic link in the <code>sites-enabled</code> directory to enable this server block.
       <div class="hacker">sudo ln -s /etc/nginx/sites-available/<em><u>coolexample.com</u></em> /etc/nginx/sites-enabled/<em><u>coolexample.com</u></em>
     </div></li>
-    <li>Restart NGINX to confirm all your changes.
+    <li>Restart NGINX to confirm all your changes:
       <div class="hacker">sudo service nginx restart</div>
         <p class="note">If you get an error when restarting NGINX, it is likely that you have not properly changed the server block files in the <code>sites-available</code> directory. Make sure that you have all your <code>{ }</code> brackets closed and that all directives end in a semicolon.</p>
     </li>
   </ol>
-<p>You should now be able to navigate to your site in a browser, and see the index file you created.</p>
-<h2>Conclusion</h2>
-<p> You are now ready to upload your site or install your application to your new site directory, and get your site up and running on NGINX. You can repeat this guide for any additional sites you want to host on your server. For additional NGINX server configuration options, check out the <a href="http://nginx.org/en/docs/beginners_guide.html">Official NGINX documentation portal</a>.</p>
+
+<h2>Point your domain name to your server</h2>
+<p>If your domain name isn't currently loading another website, you should point it to your server to test your new config.</p>
+
+<p>How you do this depends on where your domain name is registered and whose server you're using:</p>
+
+<style>
+table {border-collapse: collapse; color: #333; margin: 1.2rem 0;}
+
+tr:nth-child(odd) {background-color: #f7f7f7;}
+
+tr:nth-child(1) {background-color:#ddd;}
+
+th{border-right: 1px solid #ddd; padding: 5px; text-align:left;}
+
+td{border: 1px solid #b2b2b2;padding: 5px;vertical-align:top;}
+</style>
+<table>
+    <tr>
+        <th>Domain registered?</th>
+        <th>Server hosted?</th>
+        <th>Do this...</th>
+    </tr>
+    <tr>
+        <td>COMPANY_NAME</td>
+        <td>COMPANY_NAME</td>
+        <td><article id="19116" /></td>
+    </tr>
+    <tr>
+        <td>Another company</td>
+        <td>COMPANY_NAME</td>
+        <td><article id="19051" /> and then update your domain name's primary ("@") A record.</td> 
+    </tr>
+    <tr>
+        <td>COMPANY_NAME</td>
+        <td>Another company</td>
+        <td>Find your server's IP address, and then <a href="/article/20134?prog_id=PROG_ID">change your domain's IP address to use it</a>.</td>
+    </tr>
+    <tr>
+        <td>Another company</td>
+        <td>Another company</td>
+        <td>Find your server's IP address, and then change your domain's IP address to use it.</td>
+    </tr>
+</table>
+
+<p>Changes to your domain can take up to 48 hours to display across the internet. However, once they do, you can visit your domain name and view the test page you created earlier!</p>
+
+<h2>Adding more server blocks</h2>
+<p>Because we had the foresight to create a template for our configuration, you can easily add more server blocks by just completing the steps in the <strong>Create a server block for your site</strong> and <strong>Point your domain name to your server</strong> sections.</p>
+
+<h2>Next step</h2>
+<p>Now that you have NGINX up and running, you can do things like install WordPress or Drupal on your sites.</p>
