@@ -95,9 +95,9 @@ td:nth-child(1) {font-weight:bold;}
       <div class="hacker">sudo systemctl start mariadb
       </div>             
       </li>
-      <li>Set MySQL to start on server boot:
+      <li>Set MySQL to start on server boot.
       <div class="hacker">sudo systemctl enable mariadb</div></li>         
-      <li>Configure your MySQL installation:                    
+      <li>Configure your MySQL installation.                    
       <div class="hacker">sudo /usr/bin/mysql_secure_installation
       </div>                             
       The prompt will request the answer to a number of questions.
@@ -245,7 +245,7 @@ sudo chown nginx:nginx /run/php-fpm/php-fpm.sock</div>
 <h2>Verify PHP is running</h2>
 <ol>
   <li>Create a <code>info.php</code> file to ensure PHP is running:
-    <div class="hacker">sudo vim usr/share/nginx/html/info.php</div></li>
+    <div class="hacker">sudo vim /usr/share/nginx/html/info.php</div></li>
   <li>Paste in the following contents:
     <div class="hacker">&lt;?php<br />
     phpinfo();<br /> 
