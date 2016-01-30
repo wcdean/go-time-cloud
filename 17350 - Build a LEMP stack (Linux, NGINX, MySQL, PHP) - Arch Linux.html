@@ -49,13 +49,12 @@ td{border: 1px solid #b2b2b2
 
 td:nth-child(1) {font-weight:bold;}
 </style>
-
-
 </head>
 
 
 <body>
-    <h1>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Arch Linux</h1>
+
+<h1>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Arch Linux</h1>
     
     <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
         <strong>Time</strong>: <em><u>20 minutes</u></em></p>
@@ -87,19 +86,19 @@ td:nth-child(1) {font-weight:bold;}
 <p>If you're astute, maybe you noticed that LEMP is basically an acronym for the software the stack uses (LNMP is difficult to pronounce in English, so they used “E” for NGINX because of its pronunciation).</p>
 
 <p>In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
-    
-    <h2>Install MySQL</h2>
+
+<h2>Install MySQL</h2>
 <ol>
-<li>Run the <code>pacman</code> update to ensure your server is up-to-date on all of its packages:
-<div class="hacker">sudo pacman -Syu</div></li>
-     <li>Install MySQL:
-     <div class="hacker">sudo pacman -S mysql</div>
-                   <p>When prompted, choose the <code>mariadb</code> provider. MariaDB is the community-driven drop-in replacement for MySQL, and is functionally identical to MySQL.</p></li>
-    <li>Initialize the MySQL database and data directory:
-      <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div></li>
-         <li>Start MySQL:               
+  <li>Run the <code>pacman</code> update to ensure your server is up-to-date on all of its packages:
+    <div class="hacker">sudo pacman -Syu</div></li>
+  <li>Install MySQL:
+    <div class="hacker">sudo pacman -S mysql</div></li>
+  <li>When prompted, choose the <code>mariadb</code> provider. MariaDB is the community-driven drop-in replacement for MySQL, and is functionally identical to MySQL.</li>
+  <li>Initialize the MySQL database and data directory:
+    <div class="hacker">sudo mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</div></li>
+  <li>Start MySQL:               
     <div class="hacker">sudo systemctl start mysqld</div></li>
-  <li>Configure your MySQL installation.              
+  <li>Configure your MySQL installation:              
     <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>                      
      <table>
         <tr>
@@ -108,19 +107,19 @@ td:nth-child(1) {font-weight:bold;}
           <th>Reasoning</th>
         </tr>
         <tr>
-          <td >Enter current password for root:</td>
-            <td>Press <strong>Enter</strong> for none.</td>
-            <td>You have not set a password yet, so hit enter for none.</td>
+          <td>Enter current password for root:</td>
+          <td>Press <strong>Enter</strong> for none.</td>
+          <td>You have not set a password yet, so hit enter for none.</td>
         </tr>
         <tr>
-            <td>Set Root Password?</td>
-            <td>y</td>
-            <td>A password is needed to secure MySQL. Enter a strong password and write it down.</td>
+          <td>Set Root Password?</td>
+          <td>y</td>
+          <td>A password is needed to secure MySQL. Enter a strong password and write it down.</td>
         </tr>
         <tr>
-            <td>Remove anonymous users?</td>
-            <td>y</td>
-            <td>The anonymous user allows anyone to login without requiring an account created by an admin. A hacker attempting to compromise your database server may try logging in as this user. </td>
+          <td>Remove anonymous users?</td>
+          <td>y</td>
+          <td>The anonymous user allows anyone to login without requiring an account created by an admin. A hacker attempting to compromise your database server may try logging in as this user. </td>
         </tr>
         <tr>
           <td> Disallow root login remotely?</td>
@@ -128,149 +127,137 @@ td:nth-child(1) {font-weight:bold;}
           <td>It is more secure to create a non-root user with admin permissions. The MySQL root user should only be used when connected directly to the database server.</td>
         </tr>
         <tr>
-            <td>Remove test database and access to it?</td>
-            <td>y</td>
-            <td>The test database is another possible source of compromise, and is rarely needed. If you have a reason to keep a test database, answer "no."</td>
+          <td>Remove test database and access to it?</td>
+          <td>y</td>
+          <td>The test database is another possible source of compromise, and is rarely needed. If you have a reason to keep a test database, answer "no."</td>
         </tr>
         <tr>
-          <td >Reload privilege tables now?</td>
-            <td>y</td>
-            <td>Why wait?</td>
+          <td>Reload privilege tables now?</td>
+          <td>y</td>
+          <td>Why wait?</td>
         </tr>
       </table>
-   <li>Restart MySQL to save the changes:               
-    <div class="hacker">sudo systemctl restart mysqld</div>
-       </li>
-   <li>Make sure that MySQL will start upon server boot:
+  <li>Restart MySQL to save the changes:               
+    <div class="hacker">sudo systemctl restart mysqld</div></li>
+  <li>Make sure that MySQL will start upon server boot:
     <div class="hacker">sudo systemctl enable mysqld</div></li>
-                     </ol>                 
-<h2>Install and start NGINX</h2>
+</ol>
 
-                 <ol>
-               <li>Install NGINX:
-                       <div class="hacker">sudo pacman -S nginx</div></li>
-                       <li>Start the NGINX service:
+<h2>Install and start NGINX</h2>
+<ol>
+  <li>Install NGINX:
+    <div class="hacker">sudo pacman -S nginx</div></li>
+  <li>Start the NGINX service:
      <div class="hacker">sudo systemctl start nginx</div></li>
-     <li>Make sure that NGINX will start upon server boot:
-      <div class="hacker">sudo systemctl enable nginx</div></li>
-                     </ol>
-<p>NGINX is now running as a web server. You can verify this using your browser to navigate to the IP address of your cloud server, e.g. <strong>http://<em><u>IP Address of your cloudserver</u></em> </strong>.</p>
+  <li>Make sure that NGINX will start upon server boot:
+    <div class="hacker">sudo systemctl enable nginx</div></li>
+  <li>Verify that NGINX is installed by going to:<br/>
+    <strong>http://<em><u>your server's IP address</u></em></strong>
+    <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
+</ol>
+
+<p>A <strong>Welcome to nginx!</strong> page displays.</p>
 
 <h2>Install PHP</h2>
-    <ol> 
-      <li>Install PHP:
-      <div class="hacker">sudo pacman -S php-fpm php
-      </div>
-      </li>
-      <li>Open the <code>php.ini</code> file for editing:
-      <div class="hacker">sudo vim /etc/php.ini</div>
-      </li>
+<ol>
+  <li>Install PHP:
+    <div class="hacker">sudo pacman -S php-fpm php</div></li>
+  <li>Open <code>php.ini</code>:
+    <div class="hacker">sudo vim /etc/php.ini</div></li>
+  <li>Find the <code>cgi.fix_pathinfo</code> directive, uncomment it by removing the <code>#</code> and set it to 0:
+    <div class="hacker">cgi.fix_pathinfo=0</div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>            
+  <li>Restart PHP:
+    <div class="hacker">sudo systemctl restart php-fpm</div>
+  This creates the needed <code>php-fpm.sock</code> file</li>                                            
+  <li>Change permissions and ownership on <code>php-fpm.sock</code>:       
+    <div class="hacker">sudo chmod 666 /run/php-fpm/php-fpm.sock</div>
+    <div class="hacker">sudo chown http:http /run/php-fpm/php-fpm.sock</div></li>
+  <li>Restart PHP again:
+    <div class="hacker">sudo systemctl restart php-fpm</div></li>
+</ol>
 
-      <li>Find the <code>cgi.fix_pathinfo</code> directive, uncomment it and set it to 0:
-      <div class="hacker">cgi.fix_pathinfo=0
-      </div>
-      </li>
-      <li>Save and close the file.</li>            
-      <li>Restart PHP. This will create the needed <code>php-fpm.sock</code> file. :   
-      <div class="hacker">sudo systemctl restart php-fpm</div></li>                                            
-      <li>Change permissions and ownership on <code>php-fpm.sock</code>:       
-      <div class="hacker">sudo chmod 666 /run/php-fpm/php-fpm.sock<br \>
-sudo chown http:http /run/php-fpm/php-fpm.sock</div>     
-      </li>
-      <li>Restart PHP again:
-      <div class="hacker">sudo systemctl restart php-fpm
-      </div>
-      </li>
-    </ol>  
-    <h2>Configure NGINX</h2>
-    <p>All of your LEMP stack components are now installed. You need only make NGINX aware that a FastCGI server exists to process PHP requests.</p>
-        <ol> 
-        <li>Open <code>/etc/nginx/nginx.conf</code> for editing.
-          <div class="hacker">sudo vim /etc/nginx/nginx.conf</div>
-        <li>Find the <code>server</code> context, which will look something like this (comments removed):</p>
-        <div class="hacker">
-        <pre>
-        server {
-          listen       80;
-          server_name  localhost;
-          location / {
-              root   /usr/share/nginx/html;
-              index  index.html index.htm;
-          }
-          error_page   500 502 503 504  /50x.html;
-          location = /50x.html {
-              root   /usr/share/nginx/html;
-          }
-        }
-      </pre></div></li>
-      <li>You will make significant changes to the default server block file.
-        <ul>
-          <li>Change the <code>server_name</code> statement to use your server's IP address or the domain you want to use:
-            <div class="hacker">server_name <em><u>your_domain_or_ip</u></em>;</div></li>
-          <li>Edit the <code>index</code> statement to include <code>index.php</code>:
-            <div class="hacker">index index.php index.html index.html;</div></li>
-          <li>Add a <code>try_files</code> statement to the first <code>location {}</code> block:
-            <div class="hacker">try_files $uri $uri/ /index.html;</div></li>
-          <li>Add a new <code>location</code> block to tell NGINX how to properly use PHP with FastCGI:
-            <div class="hacker">location ~ \.php$ {<br \>
-              root           /usr/share/nginx/html;<br \>
-              fastcgi_pass   unix:/run/php-fpm/php-fpm.sock;<br \>
-              fastcgi_index  index.php;<br \>
-              fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;<br \>
-              include        fastcgi_params;<br \>
-            }</div>
-       </li>
-     </ul>
-     <li>Don't be too intimidated; we provided a concrete example for you. Your new default server block should look like this, with comments removed. Changes are highlighted in blue.
+<h2>Configure NGINX</h2>
+<p>All of your LEMP stack components are now installed. You need only make NGINX aware that a FastCGI server exists to process PHP requests.</p>
+<ol>
+   <li>Open <code>/etc/nginx/nginx.conf</code> for editing:
+        <div class="hacker">sudo vim /etc/nginx/nginx.conf</div>
+   <li>Find the <code>server</code> context, which will look something like this (comments removed):</p>
       <div class="hacker">
-      <pre>
-      server {
-        listen       80;
-        server_name  <font color="blue"><em><u>your_domain_or_ip</u></em>;</font>
-        location / {
-          root   /usr/share/nginx/html;
-          index  <font color="blue">index.php</font> index.html index.htm;
-          <font color="blue">try_files $uri $uri/ /index.html;</font>
-        }
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-        root   /usr/share/nginx/html;
-        }
-        <font color="blue">location ~ \.php$ {
-              root           /usr/share/nginx/html;
-              fastcgi_pass   unix:/run/php-fpm/php-fpm.sock;
-              fastcgi_index  index.php;
-              fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
-              include        fastcgi_params;
-        }</font>
-}
-</pre></div></li>
-      <li>Save and close the file.</li>
-      <li>Restart NGINX:
+        <pre>server {
+  listen  80;
+  server_name  localhost;
+  location / {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+    }
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+    root   /usr/share/nginx/html;
+    }
+}</pre></div></li>
+  <li>Make the following edits (which are substantial, but don't worry – there's a template to show you how everything should work below).
+    <ul>
+      <li>Change the <code>server_name</code> statement to use your server's IP address or the domain you want to use:
+          <div class="hacker">server_name <em><u>your domain name or IP</u></em>;</div></li>
+      <li>Edit the <code>index</code> statement to include <code>index.php</code>:
+          <div class="hacker">index <strong>index.php</strong> index.html index.html;</div></li>
+      <li>Add a <code>try_files</code> statement to the <code>location / {}</code> block:
+          <div class="hacker">try_files $uri $uri/ /index.html;</div></li>
+      <li>Add a new <code>location ~ \.php$ {}</code> block to tell NGINX how to properly use PHP with FastCGI:
+          <div class="hacker"><pre>location ~ \.php$ {
+  root           /usr/share/nginx/html;
+  fastcgi_pass   unix:/run/php-fpm/php-fpm.sock;
+  fastcgi_index  index.php;
+  fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+  include        fastcgi_params;
+}</pre></div></li>
+     </ul>
+     Your new default server block should look like this, with comments removed (changes are highlighted in blue):
+    <div class="hacker"><pre>server {
+  listen  80;
+  server_name  <font color="cyan"><em><u>your domain name or IP</u></em>;</font>
+  location / {
+    root   /usr/share/nginx/html;
+    index  <font color="cyan">index.php</font> index.html index.htm;
+    <font color="cyan">try_files $uri $uri/ /index.html;</font>
+    }
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+    root   /usr/share/nginx/html;
+    }
+  <font color="cyan">location ~ \.php$ {
+    root           /usr/share/nginx/html;
+    fastcgi_pass   unix:/run/php-fpm/php-fpm.sock;
+    fastcgi_index  index.php;
+    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+    include        fastcgi_params;
+    }</font>
+}</pre></div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+  <li>Restart NGINX:
     <div class="hacker">sudo systemctl restart nginx</div></li>
-    </ol>  
+</ol>
       <p class="note">If NGINX fails to restart, check your edits. Make sure that all of your braces ({}) are closed and that each directive ends with a semi-colon (;).</p>
+
 <h2>Verify PHP is running</h2>
 <ol>
-<li>Create a test file in your web root.
-<div class="hacker">sudo vim /usr/share/nginx/html/info.php</div></li>
-<li>Give this file the following contents:
-<div class="hacker">       &lt;?php
-    
-     <br />
-     phpinfo();
-     <br />
-     ?&gt;</div> 
-</li>  
-       <li>Open a browser and type:
-            <strong>http://<em><u>IP address or domain name of your server</u></em>/info.php</strong>. You will see a page full of statistics with a PHP logo in the upper right-corner.</li> 
-            </ol>
+  <li>Create a test file in your web root:
+    <div class="hacker">sudo vim /usr/share/nginx/html/info.php</div></li>
+  <li>Give this file the following contents:
+    <div class="hacker">&lt;?php<br />
+     phpinfo();<br />
+     ?&gt;</div></li>  
+  <li>Go to:<br/>
+    <strong>http://<em><u>your server's IP address</u></em>/info.php</strong></li> 
+</ol>
 
+<p>A page full of statistics with a PHP logo in the upper right-hand corner will be displayed.</p>
 
-    <h2>Next steps</h2>
-<p>You have just installed a LEMP stack. If you want to host multiple domains on the same server, see our guide for <a href="/article/20139?prog_id=PROG_ID" target="_blank">Configuring NGINX server blocks</a>.</p>
+<h2>Next steps</h2>
+<p>Now that you have a LEMP stack, we recommend <a href="/article/20139?prog_id=PROG_ID" target="_blank">setting up NGINX server blocks for your websites</a>.</p>
 
-  
-   
 </body>
 </html>

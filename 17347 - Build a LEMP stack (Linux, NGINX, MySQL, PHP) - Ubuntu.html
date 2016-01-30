@@ -49,12 +49,11 @@ td{border: 1px solid #b2b2b2
 
 td:nth-child(1) {font-weight:bold;}
     </style>
-
-
 </head>
 
 <body>
-    <h1>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu</h1>
+
+<h1>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Ubuntu</h1>
     
     <p><strong>Difficulty</strong>: <em><u>3</u></em><br/>
         <strong>Time</strong>: <em><u>20 minutes</u></em></p>
@@ -89,7 +88,7 @@ td:nth-child(1) {font-weight:bold;}
 <p>If you're astute, maybe you noticed that LEMP is basically an acronym for the software the stack uses (LNMP is difficult to pronounce in English, so they used “E” for NGINX because of its pronunciation).</p>
 
 <p>In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
-    
+
 <h2>Install and start NGINX</h2>
 <ol>
   <li>Update all of your server's <code>apt</code> packages:
@@ -98,22 +97,23 @@ td:nth-child(1) {font-weight:bold;}
     <div class="hacker">sudo apt-get install nginx</div></li>
   <li>Start the NGINX service:
     <div class="hacker">sudo service nginx start</div></li>
-  <li>To verify that NGINX is installed, type this URL in a browser:<br/>
-        <strong>http://<em><u>your server's IP address</u></em></strong>
-        <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
- </ol>
-<p>If NGINX is installed, a <strong>Welcome to nginx!</strong> page displays.</p>
-    
+  <li>Verify that NGINX is installed by going to:<br/>
+    <strong>http://<em><u>your server's IP address</u></em></strong>
+    <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
+</ol>
+
+<p>A <strong>Welcome to nginx!</strong> page displays.</p>
+
 <h2>Install MySQL</h2>
 <ol>
-   <li>Install MySQL:
+  <li>Install MySQL:
     <div class="hacker">sudo apt-get install mysql-server php5-mysql</div>
     You will be asked to set your root password during the installation. Set your root MySQL password, and make note of this password as you will need it later in the guide.</li>
   <li>Set up the MySQL data directories:
     <div class="hacker">sudo mysql_install_db</div></li>
   <li>Run this command to finish setting up the installation:
     <div class="hacker">sudo /usr/bin/mysql_secure_installation</div> 
-  The prompt will request the answer to a number of questions:
+  The prompt will request the answer to a number of questions.
     <table>
     <tr>
       <th>Question</th>
@@ -141,19 +141,21 @@ td:nth-child(1) {font-weight:bold;}
         <td>It is more secure to create a non-root user with admin permissions. The MySQL root user should only be used when connected directly to the database server.</td>
     </tr>
     <tr>
-      <td >Remove test database and access to it?</td>
+      <td>Remove test database and access to it?</td>
         <td>y</td>
         <td>The test database is another possible source of compromise, and is rarely needed. If you have a reason to keep a test database, answer "no."</td>
     </tr>
     <tr>
-      <td >Reload privilege tables now?</td>
+      <td>Reload privilege tables now?</td>
         <td>y</td>
         <td>Why wait?</td>
     </tr>
 </table>
   </li>      
-</ol>                                     
+</ol>
+
 <h2>Install and configure PHP</h2>
+
 <h3>Install PHP</h3>
 <ul>
   <li>Install PHP:
@@ -166,11 +168,11 @@ td:nth-child(1) {font-weight:bold;}
     <div class="hacker">sudo vim /etc/php5/fpm/php.ini</div></li>
   <li>Find the <code>cgi.fix_pathinfo</code> directive.  Most of the file is commented out. It will be about halfway through the file, under a section called <code>Paths and Directories</code>.</li>  
   <li>Uncomment the line and set it as follows:
-         <div class="hacker">cgi.fix_pathinfo=0</div></li>
+       <div class="hacker">cgi.fix_pathinfo=0</div></li>
   <li>Save and close the file:
-      <div class="hacker">:wq!</div></li>
-</ol> 
-       
+    <div class="hacker">:wq!</div></li>
+</ol>
+
 <h3>Configure the www.conf file</h3>
 <ol>
   <li>Open the <code>/etc/php5/fpm/pool.d/www.conf</code> file:
@@ -181,13 +183,13 @@ td:nth-child(1) {font-weight:bold;}
     <div class="hacker">listen.owner = www-data<br />
     listen.group = www-data<br />
     listen.mode&nbsp; = 0660</div></li>
-  <li>Find the <code>owner</code> and  <code>group</code> directives, and make sure that they match the example below. They should be like this by default, but if you have an older version of Ubuntu, you may need to edit the user.
+  <li>Find the <code>owner</code> and  <code>group</code> directives, and make sure that they match the example below. They should be like this by default, but if you have an older version of Ubuntu, you may need to edit the user:
     <div class="hacker">user = www-data<br />
     group = www-data</div></li>
-   <li>Save and close the file:
-      <div class="hacker">:wq!</div></li>
+  <li>Save and close the file:
+    <div class="hacker">:wq!</div></li>
 </ol>
- 
+
 <h3>Restart PHP</h3>
 <ul>
   <li>Restart PHP:
@@ -199,9 +201,9 @@ td:nth-child(1) {font-weight:bold;}
 </p>
 <ol> 
   <li>Open <code>/etc/nginx/sites-available/default</code>:
-      <div class="hacker">sudo vim /etc/nginx/sites-available/default</div>
+    <div class="hacker">sudo vim /etc/nginx/sites-available/default</div>
   <li>Find the <code>server</code> context, which will look something like this (comments removed):</p>
-      <div class="hacker">
+    <div class="hacker">
       <pre>
       server {
         listen 80 default_server;
@@ -209,69 +211,77 @@ td:nth-child(1) {font-weight:bold;}
         root /usr/share/nginx/html;
         index index.html index.htm;
         server_name localhost;
-        location / {.
+        location / {
            try_files $uri $uri/ =404;
                 }
-        }
-</pre></div></li>
-  <li>You will edit the default server block file to match your configuration. To summarize the changes you will need to make:
+        }</pre></div></li>
+  <li>Make the following edits (which are substantial, but don't worry – there's a template to show you how everything should work below).
   <ul>
-    <li>Remove the <code>default_server</code> statements.</li>
-    <li>Remove the 2nd <code>listen</code> statement.</li>
-    <li>Edit the <code>index</code> statement.</li>
-    <li>Change the <code>server_name</code> statement from <code>localhost</code> to your server's IP address or the domain you want to use.</li>
-    <li>Add two new <code>error_page</code> statements for 404 and 50x errors.</li>
-    <li>Add two new <code>location</code> blocks
-  </ul>
-</li>
-<li>Don't be too intimidated; we  provided a concrete example for you. Your new default server block should look like this (comments removed):
+    <li>On the line beginning with <code>listen 80</code>, remove the <code>default_server</code> statement.</li>
+    <li>Remove the <code>listen [::]:80 default_server ipv6only=on;</code> statement.</li>
+    <li>Edit the <code>index</code> statement to include <code>index.php</code> as the first item.</li>
+    <li>Change the <code>server_name</code> statement from <code>localhost</code> to your domain name or server's IP address.</li>
+    <li>Add two new <code>error_page</code> statements for 404 and 50x errors.
+      <div class="hacker">error_page 404 /404.html;<br/>
+            error_page 500 502 503 504 /50x.html;</div></li>
+   <li>Add a <code>location = /50x.html {}</code> block:
+      <div class="hacker"><pre>location = /50x.html {
+  root /usr/share/nginx/html;
+  }</pre></div>
+    <li>Add a <code>location ~ \.php$ {}</code> block:
+      <div class="hacker"><pre>location ~ \.php$ {
+  try_files $uri =404;
+  fastcgi_split_path_info ^(.+\.php)(/.+)$;
+  fastcgi_pass unix:/var/run/php5-fpm.sock;
+  fastcgi_index index.php;
+  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  include fastcgi_params;
+  }</pre></div></ul></li>
+  Your new default server block should look like this, with comments removed (changes are highlighted in blue):
   <div class="hacker">
-    <pre>
-    server {
-            listen 80;
-            root /usr/share/nginx/html;
-            index index.php index.html index.htm;
-            server_name coolexample.com;
-            location / {
-                    try_files $uri $uri/ =404;
-            }
-            error_page 404 /404.html;
-            error_page 500 502 503 504 /50x.html;
-            location = /50x.html {
-                    root /usr/share/nginx/html;
-            }
-            location ~ \.php$ {
-                    try_files $uri =404;
-                    fastcgi_split_path_info ^(.+\.php)(/.+)$;
-                    fastcgi_pass unix:/var/run/php5-fpm.sock;
-                    fastcgi_index index.php;
-                    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                    include fastcgi_params;
-            }
+    <pre>server {
+  <font style="color:cyan;">listen 80;</font>
+  root /usr/share/nginx/html;
+  index <font style="color:cyan;">index.php</font> index.html index.htm;
+  server_name <font style="color:cyan;"><em><u>coolexample.com</u></em></font>;
+  location / {
+    try_files $uri $uri/ =404;
     }
-  </pre></div></li>
-<li>Save and close the file.</li>
-  <div class="hacker">:wq!</div></li>
-    <li>Restart NGINX:
+  <font style="color:cyan;">error_page 404 /404.html;
+  error_page 500 502 503 504 /50x.html;
+  location = /50x.html {
+    root /usr/share/nginx/html;
+    }
+  location ~ \.php$ {
+    try_files $uri =404;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    fastcgi_pass unix:/var/run/php5-fpm.sock;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
+    }</font>
+}</pre></div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+   <li>Restart NGINX:
     <div class="hacker">sudo service nginx restart</div></li>
-    </ol>  
-      <p class="note">If NGINX fails to restart, check your edits. Make sure that all of your braces ({}) are closed and that each directive ends with a semi-colon (;). </p>
-            
+</ol>
+      <p class="note">If NGINX fails to restart, check your edits. Make sure that all of your braces ({}) are closed and that each directive ends with a semi-colon (;).</p>
+
 <h2>Verify PHP is running</h2>
 <ol>
-  <li>Create a <code>info.php</code> file to ensure PHP is running:
+  <li>Create an <code>info.php</code> file to ensure PHP is running:
     <div class="hacker">sudo vim /usr/share/nginx/html/info.php</div></li>
   <li>Paste in the following contents:
     <div class="hacker">&lt;?php<br />
     phpinfo();<br /> 
-    ?&gt;  </div></li>
-    <li>Go to:<br/>
-      <strong>http://<em><u>your server's IP address</u></em>/info.php</strong>
-      <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li></li>
+    ?&gt;</div></li>
+   <li>Go to:<br/>
+    <strong>http://<em><u>your server's IP address</u></em>/info.php</strong></li> 
 </ol>
-<p>A page full of statistics with a PHP logo in the upper right-hand corner will be displayed.</p>
 
+<p>A page full of statistics with a PHP logo in the upper right-hand corner will be displayed.</p>
 <h2>Next steps</h2>
-<p>You have just installed a LEMP stack. If you want to host multiple domains, see our guide for <a href="/article/17360?prog_id=PROG_ID" target="_blank">Configuring NGINX server blocks</a>.</p>
+<p>Now that you have a LEMP stack, we recommend <a href="/article/17360?prog_id=PROG_ID" target="_blank">setting up NGINX server blocks for your websites</a>.</p>
 </body>
 </html>

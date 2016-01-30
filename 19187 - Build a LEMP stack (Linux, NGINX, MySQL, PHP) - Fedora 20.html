@@ -4,9 +4,10 @@
     <title>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 20</title>
     <style type="text/css">div.hacker { background-color:#666; border:1px solid #ccc; color:#fff; font-family:"Lucida Console","Courier New",Courier,fixed;  font-size:95%;  line-height:160%;  margin-bottom:1.5em;  padding:10px; } p.note {  background-color:#ffffe6;  border:1px solid #eee;  color:#666;  padding:.8em 1.6em;  margin:15px 0; }.warning {  border: 1px #d25100 solid;  padding: .5em 1em .5em 4em;  margin: 10px 20px 15px 20px;  background-image: url('@{help-img-path}/img_warning.gif');  background-repeat: no-repeat;  background-position: left top;  background-color: #ededed;-moz-border-radius: 0.8em;-webkit-border-radius: 0.8em;  /* -moz-border-bottom-radius: 0;9 */  -webkit-border-bottom-radius: 0;  padding-top:14px;  padding-bottom:15px; } table {border-collapse: collapse; color: #333; margin: 1.2rem 0;} tr:nth-child(odd) {background-color: #f7f7f7  ;} tr:nth-child(1) {background-color:#ddd;} th{ border-right: 1px solid #ddd; padding: 5px; text-align:left;} td{border: 1px solid #b2b2b2  ;padding: 5px;vertical-align:top;} td:nth-child(1) {font-weight:bold;} 
     </style>
-  </head>
+</head>
   <body>
-  <h1>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 20</h1>         
+
+<h1>Build a LEMP stack (Linux, NGINX, MySQL, PHP) - Fedora 20</h1>         
     <p><strong>Difficulty</strong>: 
       <em><u>3</u>
       </em>
@@ -40,25 +41,17 @@
 </table>
 <p>If you're astute, maybe you noticed that LEMP is basically an acronym for the software the stack uses (LNMP is difficult to pronounce in English, so they used “E” for NGINX because of its pronunciation).</p>
 <p>In this guide, we'll walk you through installing all of these compontents (except for Linux, which is already installed as your OS when you create the server).</p>
-    
-    
-     
-    </p>    
-<h2>Install MySQL/MariaDB</h2>                 
-    <ol>                 
-      <li>Install MariaDB. MariaDB is the community-driven drop-in replacement for MySQL, and is functionally identical to MySQL.      
-      <div class="hacker">sudo yum install mariadb mariadb-server
-      </div>           
-      </li>         
-      <li>Start MySQL:       
-      <div class="hacker">sudo systemctl start mariadb
-      </div>             
-      </li>
-      <li>Set MySQL to start on server boot:
-      <div class="hacker">sudo systemctl enable mariadb</div></li>         
-      <li>Configure your MySQL installation:                    
-      <div class="hacker">sudo /usr/bin/mysql_secure_installation
-      </div>                             
+
+<h2>Install MySQL/MariaDB</h2>
+<ol>             
+  <li>Install MariaDB. MariaDB is the community-driven drop-in replacement for MySQL, and is functionally identical to MySQL:      
+    <div class="hacker">sudo yum install mariadb mariadb-server</div></li>         
+  <li>Start MySQL:       
+    <div class="hacker">sudo systemctl start mariadb</div></li>
+  <li>Set MySQL to start on server boot:
+    <div class="hacker">sudo systemctl enable mariadb</div></li>         
+  <li>Configure your MySQL installation:                    
+    <div class="hacker">sudo /usr/bin/mysql_secure_installation</div>                             
       The prompt will request the answer to a number of questions.
       <table>
         <tr>
@@ -67,19 +60,19 @@
           <th>Reasoning</th>
         </tr>
         <tr>
-          <td >Enter current password for root:</td>
-            <td>Press <strong>Enter</strong> for none.</td>
-            <td>You have not set a password yet, so hit enter for none.</td>
+          <td>Enter current password for root:</td>
+          <td>Press <strong>Enter</strong> for none.</td>
+          <td>You have not set a password yet, so hit enter for none.</td>
         </tr>
         <tr>
-            <td>Set Root Password?</td>
-            <td>y</td>
-            <td>A password is needed to secure MySQL. Enter a strong password and write it down.</td>
+          <td>Set Root Password?</td>
+          <td>y</td>
+          <td>A password is needed to secure MySQL. Enter a strong password and write it down.</td>
         </tr>
         <tr>
-            <td>Remove anonymous users?</td>
-            <td>y</td>
-            <td>The anonymous user allows anyone to login without requiring an account created by an admin. A hacker attempting to compromise your database server may try logging in as this user. </td>
+          <td>Remove anonymous users?</td>
+          <td>y</td>
+          <td>The anonymous user allows anyone to login without requiring an account created by an admin. A hacker attempting to compromise your database server may try logging in as this user. </td>
         </tr>
         <tr>
           <td> Disallow root login remotely?</td>
@@ -87,96 +80,81 @@
           <td>It is more secure to create a non-root user with admin permissions. The MySQL root user should only be used when connected directly to the database server.</td>
         </tr>
         <tr>
-            <td>Remove test database and access to it?</td>
-            <td>y</td>
-            <td>The test database is another possible source of compromise, and is rarely needed. If you have a reason to keep a test database, answer "no."</td>
+          <td>Remove test database and access to it?</td>
+          <td>y</td>
+          <td>The test database is another possible source of compromise, and is rarely needed. If you have a reason to keep a test database, answer "no."</td>
         </tr>
         <tr>
-          <td >Reload privilege tables now?</td>
-            <td>y</td>
-            <td>Why wait?</td>
+          <td>Reload privilege tables now?</td>
+          <td>y</td>
+          <td>Why wait?</td>
         </tr>
       </table>
     </li>               
-   <li>Restart MySQL:
+  <li>Restart MySQL:
     <div class="hacker">sudo systemctl restart mariadb.service</div></li>   
-</ol>   
-                                                    <h2>Install and Start NGINX</h2>                 
-    <ol>               
-      <li>Install NGINX:              
-      <div class="hacker">sudo yum install nginx
-      </div>
-      </li>                       
-      <li>Start the NGINX service:  
-      <div class="hacker">sudo systemctl start nginx
-      </div>
-      </li>
-      <li>Set NGINX to start upon server boot:
-      <div class="hacker">sudo systemctl enable nginx</div></li> 
-    </ol>
-    <p>NGINX is now running as a web server. You can verify this using your browser to navigate to the IP address of your cloud server, e.g. 
-      <strong>http://<em><u>IP Address of your cloudserver</u></em></strong>.
-    </p>    
-    
-<h2>Install PHP</h2>
-    <ol> 
-      <li>Install PHP.
-      <div class="hacker">sudo yum install php php-mysql php-fpm
-      </div>
-      </li>
-      <li>Open the <code>php.ini</code> file for editing.
-      <div class="hacker">sudo vim /etc/php.ini</div>
-      </li>
+</ol>
 
-      <li>Find the <code>cgi.fix_pathinfo</code> directive, uncomment it and set it to 0:
-      <div class="hacker">cgi.fix_pathinfo=0
-      </div>
-      </li>
-      <li>Save and close the file.</li>                  
-      <li>Open the www.conf file for editing:
-        <div class="hacker">sudo vim /etc/php-fpm.d/www.conf</div>
-      </li>
-      <li>Find the <code>listen</code> directive (it should be first), and verify that it is set to listen for php traffic using a unix socket instead of port 9000:
-      </p>           
-      <div class="hacker">listen = /run/php-fpm/php-fpm.sock
-      </div>
-      </li>
-      <li>Find the <code>listen.owner</code> and <code>listen.group</code> directives, uncomment them, and modify them as follows:                      
-      <div class="hacker">listen.owner = nginx<br \>
-listen.group = nginx
-      </div>
-      </li>
-      <li>Find the <code>Unix user/group of processes</code>section, and change the users from <code>apache</code> to <code>nginx</code>:
-      <div class="hacker">user = nginx<br />
-      group = nginx</div></li>     
-      <li>Save and close the file.
-      </li>
-      <li>Restart PHP. This will create the needed <code>php-fpm.sock</code> file.        
-      <div class="hacker">sudo systemctl restart php-fpm
-      </div>
-      </li>                                           
-      <li>Change permissions and ownership on <code>php-fpm.sock</code>.       
-      <div class="hacker">sudo chmod 666 /run/php-fpm/php-fpm.sock<br \>
-sudo chown nginx:nginx /run/php-fpm/php-fpm.sock</div>     
-      </li>
-      <li>Restart PHP again.          
-      <div class="hacker">sudo systemctl restart php-fpm
-      </div>
-      </li>
+<h2>Install and Start NGINX</h2>
+<ol>             
+  <li>Install NGINX:              
+    <div class="hacker">sudo yum install nginx</div></li>                       
+  <li>Start the NGINX service:  
+    <div class="hacker">sudo systemctl start nginx</div></li>
+  <li>Set NGINX to start upon server boot:
+    <div class="hacker">sudo systemctl enable nginx</div></li> 
+  <li>Verify that NGINX is installed by going to:<br/>
+    <strong>http://<em><u>your server's IP address</u></em></strong>
+    <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li>
+</ol>
+
+<p>A <strong>Welcome to nginx!</strong> page displays.</p>
+
+<h2>Install PHP</h2>
+<ol>
+  <li>Install PHP:
+    <div class="hacker">sudo yum install php php-mysql php-fpm</div></li>
+  <li>Open <code>php.ini</code>:
+    <div class="hacker">sudo vim /etc/php.ini</div></li>
+  <li>Find the <code>cgi.fix_pathinfo</code> directive, uncomment it by removing the <code>#</code> and set it to 0:
+    <div class="hacker">cgi.fix_pathinfo=0</div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>                  
+  <li>Open <code>www.conf</code>:
+      <div class="hacker">sudo vim /etc/php-fpm.d/www.conf</div></li>
+  <li>Find the <code>listen</code> directive (it should be the first), and verify that it is set to listen for PHP traffic using a Unix socket (instead of port 9000):
+    <div class="hacker">listen = /run/php-fpm/php-fpm.sock</div></li>
+  <li>Find the <code>listen.owner</code> and <code>listen.group</code> directives, uncomment them, and modify them as follows:                      
+    <div class="hacker">listen.owner = nginx<br \>
+listen.group = nginx</div></li>
+  <li>Find the <code>Unix user/group of processes</code> section, and change the <code>user</code> and <code>group</code> from <code>apache</code> to <code>nginx</code>:
+    <div class="hacker">user = nginx<br />
+      group = nginx</div></li>
+  <li>Save and close the file:
+      <div class="hacker">:wq!</div></li>
+  <li>Restart PHP:
+    <div class="hacker">sudo systemctl restart php-fpm</div>
+  This creates the needed <code>php-fpm.sock</code> file</li>                                            
+  <li>Change permissions and ownership on <code>php-fpm.sock</code>:       
+    <div class="hacker">sudo chmod 666 /run/php-fpm/php-fpm.sock</div>
+    <div class="hacker">sudo chown nginx:nginx /run/php-fpm/php-fpm.sock</div></li>
+  <li>Restart PHP again:          
+    <div class="hacker">sudo systemctl restart php-fpm</div></li>
     </ol>
-    <h2>Configure NGINX</h2>
+
+<h2>Configure NGINX</h2>
 <ol> 
   <li>Open <code>/etc/nginx/nginx.conf</code>:
     <div class="hacker">sudo vim /etc/nginx/nginx.conf</div></li>
   <li>Ensure the following line is in the <code>server</code> context:
     <div class="hacker">include /etc/nginx/default.d/*.conf;</div></li>
   <li>Save and close the file:
-      <div class="hacker">:wq!</div></li>
-  <li>Create a new default file in <code>/etc/nginx/default.d/default.conf</code>:
+    <div class="hacker">:wq!</div></li>
+  <li>Create a <code>default.conf</code> file:
     <div class="hacker">sudo vim /etc/nginx/default.d/default.conf</div></li>
-  <li>Paste the following code into this file. This will add the needed default settings for your domains, and tell NGINX how to properly use PHP with FastCGI. Use your own domain or Server IP instead of the example.
+  <li>Paste the following code into this file:
     <div class="hacker">index index.php index.html index.htm;<br />
-      server_name <em><u>your_domain_or_ip</u></em>;
+      server_name <em><u>your domain name or IP</u></em>;
       <br /># pass the PHP scripts to FastCGI server listening on the php-fpm socket
       <br />location ~ \.php$ {
       <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try_files $uri =404;
@@ -186,28 +164,30 @@ sudo chown nginx:nginx /run/php-fpm/php-fpm.sock</div>
       <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; include fastcgi_params;
       <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp; 
       <br /></div>
+  This code adds the needed default settings for your domains, as well as telling NGINX how to properly use PHP with FastCGI.
   <p class="note">As long as the <code>fastcgi_pass</code> in the <code>nginx.conf</code> file matches the <code>listen</code> directive in the PHP configuration file, NGINX should be able to pass requests on to PHP.</p></li>
   <li>Save and close the file:
-      <div class="hacker">:wq!</div></li>
+    <div class="hacker">:wq!</div></li>
   <li>Restart NGINX:
     <div class="hacker">sudo systemctl restart nginx</div></li>
 </ol>
 
 <p class="note">If NGINX fails to restart, check your edits and make sure all of your braces ({}) are closed and that each directive ends with a semi-colon (;).</p>
+
 <h2>Verify PHP is running</h2>
 <ol>
-  <li>Create a <code>info.php</code> file to ensure PHP is running:
+  <li>Create an <code>info.php</code> file to ensure PHP is running:
     <div class="hacker">sudo vim /usr/share/nginx/html/info.php</div></li>
   <li>Paste in the following contents:
     <div class="hacker">&lt;?php<br />
     phpinfo();<br /> 
-    ?&gt;  </div></li>
-    <li>Go to:<br/>
-      <strong>http://<em><u>your server's IP address</u></em>/info.php</strong>
-      <p class="note">COMPANY_NAME Cloud Server customers can use <article id="19041" />.</li></li>
+    ?&gt;</div></li>
+   <li>Go to:<br/>
+      <strong>http://<em><u>your server's IP address</u></em>/info.php</strong></li>
 </ol>
-<p>A page full of statistics with a PHP logo in the upper right-hand corner will be displayed.</p>   
+<p>A page full of statistics with a PHP logo in the upper right-hand corner will be displayed.</p>
+
 <h2>Next steps</h2>
-<p>You have just installed a LEMP stack. If you want to host multiple domains on the same server, see our guide for <a href="/article/20131?prog_id=PROG_ID" target="_blank">Configuring NGINX server blocks</a>.</p>           
-  </body>
+<p>Now that you have a LEMP stack, we recommend <a href="/article/20131?prog_id=PROG_ID" target="_blank">setting up NGINX server blocks for your websites</a>.</p>     
+</body>
 </html>
