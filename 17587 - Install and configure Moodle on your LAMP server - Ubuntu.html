@@ -49,110 +49,92 @@ p.note {
     <p><strong>Difficulty</strong>: <em>1</em><br/>
         <strong>Time</strong>: <em>30 minutes</em></p>
 
-    <p><em>Moodle</em> is an acronym for Modular Object Oriented Dynamic Learning Environment. It is an open source Course Management System that enables the creation of an online learning site. Moodle has default features with an easy-to-use interface, personalized dashboard, progress tracking, and many other features. In administration, Moodle offers customizable site design and layout, secure authentication and mass enrollment, bulk course creation, and an easy backup.</p>
+<p><em>Moodle</em> is an acronym for Modular Object Oriented Dynamic Learning Environment. It is an open source Course Management System that enables the creation of an online learning site. Moodle has default features with an easy-to-use interface, personalized dashboard, progress tracking, and many other features. In administration, Moodle offers customizable site design and layout, secure authentication and mass enrollment, bulk course creation, and an easy backup.</p>
 
-    <p>It is assumed that you have sudo privileges. In addition, you need to install and configure LAMP for Ubuntu. Please refer to :</p>
-	 <ul>
+
+<h2>Install LAMP</h2>
+<p>To use this article, you need to have a <a href="/article/17341?prog_id=PROG_ID">LAMP stack installed on your server</a>.</p>
+
+<p>We also recommend <a href="/article/17336?prog_id=PROG_ID">setting up an Apache virtual host for the domain name you want to use</a>, which includes pointing your domain name to it.</p>
 	
-	<li><a href="17341">Build a LAMP stack (Linux, Apache, MySQL, PHP) - Ubuntu</a></li>
-	</ul> 
-    
-	
-	<h2>Install the required dependency</h2>
+<h2>Install the required dependency</h2>
 <ol> 
-<li>Install the necessary components for setting up and using Moodle.c These include <code>git</code>, <code>unzip</code>, and several needed PHP code libraries.
-   <div class="hacker">sudo apt-get update<br \>
-    sudo apt-get install git unzip php5-curl php5-xmlrpc php5-intl php5-gd php5-mysql</div>
-   </li>
-   <li>Restart the Apache services to make the changes effective.
-   <div class="hacker">sudo service apache2 restart</div>
-   </li>
-  </ol>
+  <li>Install the necessary components for setting up and using Moodle.c These include <code>git</code>, <code>unzip</code>, and several needed PHP code libraries.
+    <div class="hacker">sudo apt-get update<br \>
+    sudo apt-get install git unzip php5-curl php5-xmlrpc php5-intl php5-gd php5-mysql</div></li>
+  <li>Restart the Apache services to make the changes active.
+    <div class="hacker">sudo service apache2 restart</div></li>
+</ol>
 
 
-<h2>Basic configuration</h2>
+<h2>Configure Moodle</h2>
 <ol> 
-<li>Navigate to the Apache document root.
-   <div class="hacker">cd /var/www/html</div>
-   <li>Use <code>git</code> to download the Moodle source
-   <div class="hacker">sudo git clone -b MOODLE_30_STABLE git://git.moodle.org/moodle.git</div>
-   This will get a complete copy of the Moodle repository, place it into the <code>moodle</code> directory, and switch it to the 3.0 Stable branch.
-   </li>
-   <li>Change directory ownership for your this directory to the <code>root</code> user. This is for security reasons, where you prevent the web server user from writing to the application files.
-   <div class="hacker">sudo chown -R root:root /var/www/html/moodle</div>
-  
-   </li>
-   <li>Moodle needs a folder for its temporary operations that can't be accessed from the web. To create it in the server root directory, use the following command:
-   <div class="hacker">sudo mkdir <em><u>/moodledata</u></em></div>
-   </li>
-   <li>Make it writeable by Apache.
-       <div class="hacker">sudo chown www-data:www-data <em><u>/moodledata</u></em></div>
-   </li>
-
-  </ol>
+  <li>Navigate to your virtual host directory for the domain name:
+    <div class="hacker">cd <em><u>your domain's Apache virtual host directory</u></em></div>
+    <p class="note">If you didn't set up a virtual host directory, you can use <code>cd /var/www/html</code></p></li>
+  <li>Use <code>git</code> to download the Moodle source:
+    <div class="hacker">sudo git clone -b MOODLE_30_STABLE git://git.moodle.org/moodle.git</div>
+   This will get a complete copy of the Moodle repository, place it into the <code>moodle</code> directory, and switch it to the 3.0 Stable branch.</li>
+  <li>Change directory ownership for your this directory to the <code>root</code> user. This is for security reasons, where you prevent the web server user from writing to the application files.
+    <div class="hacker">sudo chown -R root:root /<em><u>your domain's Apache virtual host directory</u></em>/moodle</div></li>
+  <li>Create a directory for Moodle to use for its temporary operations that can't be accessed from the web:
+    <div class="hacker">sudo mkdir <em><u>/moodledata</u></em></div></li>
+  <li>Make this directory writeable by Apache:
+       <div class="hacker">sudo chown www-data:www-data <em><u>/moodledata</u></em></div></li>
+</ol>
 
 <h2>Create a database</h2>
-<p>Now we will set up the database that Moodle will use. Keep these credentials handy, as they will be needed later for the application install.</p>
+<p>Moodle's a dynamic application, so it needs a database. Make sure to keep the database's credentials handy because you'll need them later on in the application install.</p>
 <ol> 
-<li>Create a blank database for the backend operation.
-   <div class="hacker">mysql -u root -p</div>
-   <div class="hacker">CREATE DATABASE <em><u>moodle</u></em>;</div>
-   </li>
-<li>Create a user for this database.
-  <div class="hacker">CREATE USER <em><u>moodleuser</u></em>@localhost IDENTIFIED BY '<em><u>moodlepwd</u></em>';</div></li>
-<li>Grant this user permissions to your new database.
-  <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>moodle</u></em>.* TO <em><u>moodleuser</u></em>@localhost;</div></li>
-<li>Check to make sure that the privilege changes take by using SHOW GRANTS:
-  <div class="hacker">SHOW GRANTS FOR '<em><u>moodleuser</u></em>'@'localhost';</div></li>
-<li>If the privilege changes did not take you can use FLUSH to reload the cache and activate the user.
-  <div class="hacker">FLUSH PRIVILEGES;</div></li>
-<li>Exit MySQL to return to your normal command prompt.
-  <div class="hacker">exit</div></li>
+  <li>Create a blank database:
+    <div class="hacker">mysql -u root -p</div>
+    <div class="hacker">CREATE DATABASE <em><u>your moodle database</u></em>;</div></li>
+  <li>Create a user for this database.
+   <div class="hacker">CREATE USER <em><u>your moodle user</u></em>@localhost IDENTIFIED BY '<em><u>your moodle user password</u></em>';</div></li>
+  <li>Grant this user permissions to your new database.
+    <div class="hacker">GRANT ALL PRIVILEGES ON <em><u>your moodle database</u></em>.* TO <em><u>your moodle user</u></em>@localhost;</div></li>
+  <li>Check to make sure that the privilege changes take by using SHOW GRANTS:
+    <div class="hacker">SHOW GRANTS FOR '<em><u>your moodle user</u></em>'@'localhost';</div>
+  <em>If the privilege changes did not take</em>, you can use FLUSH to reload the cache and activate the user.
+    <div class="hacker">FLUSH PRIVILEGES;</div></li>
+  <li>Exit MySQL to return to your normal command prompt:
+    <div class="hacker">exit</div></li>
 </ol>
    
 <h2>Install Moodle</h2>
-   <ol>
-   <li>Open the browser and type public IP or URL of moodle server as <strong>http://<em><u>public_ip</u></em>/moodle</strong>.
-   </li>
-   <li>After pressing <strong>Enter</strong>, you will find the first step of moodle installation process.
-   </li>
+<ol>
+   <li>Go to <strong>http://<em><u>your domain name or IP address</u></em>/moodle</strong>.</li>
    <li>Choose a language, and then click <strong>Next</strong>.
-   <br /><img src="images/17587/091515/Choose-language.png" alt="Choose a language page"/>
-   </li>
+   <br /><img src="images/17587/091515/Choose-language.png" alt="Choose a language page"/></li>
    <li>Set the <strong>Data directory</strong> that you created earlier, and then click <strong>Next</strong>.
- <br /><img src="images/17587/091515/data-directory.png" alt="Confirm Paths page"/>
-   </li>
+ <br /><img src="images/17587/091515/data-directory.png" alt="Confirm Paths page"/></li>
    <li>Select <strong>Improved MySQL (native/mysqli)</strong> for your Database Driver,then click <strong>Next</strong>.
-      <br /><img src="images/17587/091515/Choose-database-driver.png" alt="Choose database driver page"/>
-   </li> 
+      <br /><img src="images/17587/091515/Choose-database-driver.png" alt="Choose database driver page"/></li> 
    <li>Enter the database credentials to connect with the database, using the credentials you created earlier. Once this is complete, click <strong>Next</strong>.
-   <br /><img src="images/17587/091515/Database-settings.png" alt="Database settings"/>
-	 </li>
+   <br /><img src="images/17587/091515/Database-settings.png" alt="Database settings"/></li>
    <li>You will get an error that your configuration file cannot be saved; this is intentional. Copy the text for this configuration file for later use.</li>
-   <li>Back in your command prompt, create the <code>config.php</code> file using a text editor.
+   <li>Back in your command prompt, create the <code>config.php</code> file:
     <div class="hacker">sudo vim moodle/config.php</div></li>
-    <li>Paste the configuration file code, then save and close the file.</li>
-    <li>Back in your browswer window, click <strong>Next</strong>.</li>
-    <li>Agree to the Moodle Terms and Conditions by clicking <strong>Continue</strong>.</li>
-       <li>After the configuration is complete you will see <strong>Server Checks</strong>. These should be OK across the board. Once you have confirmed the server checks, click <strong>Continue</strong>.</li>
-       <li>Moodle will install. Once the installation is complete, click <strong>Continue</strong>.</li>
-  </ol>
+  <li>Paste the configuration file code that displayed.</li>
+  <li>Save and close the file:
+    <div class="hacker">:wq!</div></li>
+  <li>Back in your browswer window, click <strong>Next</strong>.</li>
+  <li>Agree to the Moodle Terms and Conditions by clicking <strong>Continue</strong>.</li>
+  <li>After the configuration is complete you will see <strong>Server Checks</strong>. These should be OK across the board. Once you have confirmed the server checks, click <strong>Continue</strong>.</li>
+  <li>Moodle will install. Once the installation is complete, click <strong>Continue</strong>.</li>
+</ol>
 
 
 <h3>Update the site profile</h3>
 <ol> 
-   <li>Update the profile for your site, fill the mandatory information fields, and then click <strong>Update profile</strong>.
-   <br/><img src="images/17587/091515/Site-profile.png" alt="Site profile page"/>
-   </li>
-   <li>After updating the profile, you will be redirected to the <strong>Front page settings</strong> page. Enter your site name. 
-    <br/><img src="images/17587/091515/Front-page-settings.png" alt="Front page settings page"/>
-   </li>
-   <li>Click <strong>Save changes</strong>. You will be redirected to the Moodle Home page, where you can manage your courses and web site.
-   </li>
-   </ol>
+  <li>Update the profile for your site, fill the mandatory information fields, and then click <strong>Update profile</strong>.
+   <br/><img src="images/17587/091515/Site-profile.png" alt="Site profile page"/></li>
+  <li>After updating the profile, you will be redirected to the <strong>Front page settings</strong> page. Enter your site name. 
+    <br/><img src="images/17587/091515/Front-page-settings.png" alt="Front page settings page"/></li>
+   <li>Click <strong>Save changes</strong>. You will be redirected to the Moodle Home page, where you can manage your courses and web site.</li>
+</ol>
   
-	<h2>Conclusion</h2>
-    <p>In this article, you learned to install and configure Moodle on your LAMP server with Debian and Ubuntu. </p>
+<p>That's it! You can now start using Moodle.</p>
    
 </body>
 </html>

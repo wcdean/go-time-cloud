@@ -80,7 +80,7 @@ p.note {
     <div class="hacker">cd <em><u>your domain's Apache virtual host directory</u></em></div>
     <p class="note">If you didn't set up a virtual host directory, you can use <code>cd /var/www/</code></p></li>
   <li>Ensure this directory the correct permissions settings:
-    <div class="hacker">sudo chmod -R 755 /var/www/html</div></li>
+    <div class="hacker">sudo chmod -R 755 <em><u>your domain's Apache virtual host directory</u></em><</div></li>
   <li>Download the latest version of WordPress:
     <div class="hacker">sudo wget http://wordpress.org/latest.tar.gz</div></li>
   <li>Extract the WordPress files:
@@ -88,7 +88,7 @@ p.note {
   <li>Move these files into the current directory:
     <div class="hacker">sudo mv ./wordpress/* .</div></li>
   <li>Give the Apache user ownership of these files:
-    <div class="hacker">sudo chown -R www-data:www-data /var/www</div>
+    <div class="hacker">sudo chown -R www-data:www-data <em><u>your domain's Apache virtual host directory</u></em><</div>
   <li>Remove the unused <code>wordpress</code> directory and the install package:
     <div class="hacker">sudo rmdir wordpress</div>
     <div class="hacker">sudo rm latest.tar.gz</div></li>
